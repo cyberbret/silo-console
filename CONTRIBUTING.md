@@ -8,6 +8,16 @@ See [DEVELOPMENT.md](DEVELOPMENT.md) for the development environment and fronten
 workflow. The REST API uses [go-swagger](https://github.com/go-swagger/go-swagger).
 The API handlers are created from `swagger.yml`.
 
+## Contributor recognition
+
+Every human issue or pull-request author is recognized in [CONTRIBUTORS.md](CONTRIBUTORS.md),
+including open issues, draft PRs, and PRs closed without merging. Merged fixes,
+adopted proposals, and reports that lead to fixes receive greater prominence;
+first participation guides the remaining order. Work incorporated through a
+later PR retains credit without changing the original PR's recorded status.
+Security disclosures are credited with the reporter's agreement. DCO sign-off
+applies to code commits, not to opening an issue.
+
 ## Licensing of Contributions
 
 Code contributions are accepted under [GNU AGPL v3.0 or later](LICENSE)
