@@ -33,7 +33,7 @@ jobs:
     runs-on: [ubuntu-latest]
     strategy:
       matrix:
-        go-version: [1.27.1]
+        go-version: [1.27.2]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -61,10 +61,10 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
-      - name: Set up Go 1.27.1
+      - name: Set up Go 1.27.2
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          go-version: 1.27.1
+          go-version: 1.27.2
       - name: Remove the maintained mc replacement and probe compatibility
         # hack/upstream-floor.sh models an embedder that does not copy the mc
         # replacement.
@@ -76,10 +76,10 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
-      - name: Set up Go 1.27.1
+      - name: Set up Go 1.27.2
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          go-version: 1.27.1
+          go-version: 1.27.2
       - name: Verify the README block against go.mod
         run: go run ./hack/replacements check
       - name: Build an embedder that copies the README block verbatim
@@ -113,7 +113,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go-version: [1.27.1]
+        go-version: [1.27.2]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -172,10 +172,10 @@ jobs:
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           fetch-depth: 0
-      - name: Set up Go 1.27.1
+      - name: Set up Go 1.27.2
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          go-version: 1.27.1
+          go-version: 1.27.2
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
         with:
@@ -208,7 +208,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go-version: [1.27.1]
+        go-version: [1.27.2]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -265,7 +265,7 @@ jobs:
     runs-on: [ubuntu-latest]
     strategy:
       matrix:
-        go-version: [1.27.1]
+        go-version: [1.27.2]
     steps:
       # Clone Console Repo
       - name: Check out code
@@ -333,7 +333,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        go-version: [1.27.1]
+        go-version: [1.27.2]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -372,7 +372,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        go-version: [1.27.1]
+        go-version: [1.27.2]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -436,7 +436,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        go-version: [1.27.1]
+        go-version: [1.27.2]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -499,7 +499,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        go-version: [1.27.1]
+        go-version: [1.27.2]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -561,7 +561,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        go-version: [1.27.1]
+        go-version: [1.27.2]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -623,7 +623,7 @@ jobs:
     timeout-minutes: 15
     strategy:
       matrix:
-        go-version: [1.27.1]
+        go-version: [1.27.2]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -681,7 +681,7 @@ jobs:
     runs-on: [ubuntu-latest]
     strategy:
       matrix:
-        go-version: [1.27.1]
+        go-version: [1.27.2]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -739,7 +739,7 @@ jobs:
     runs-on: [ubuntu-latest]
     strategy:
       matrix:
-        go-version: [1.27.1]
+        go-version: [1.27.2]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -797,7 +797,7 @@ jobs:
     runs-on: [ubuntu-latest]
     strategy:
       matrix:
-        go-version: [1.27.1]
+        go-version: [1.27.2]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -855,7 +855,7 @@ jobs:
     runs-on: [ubuntu-latest]
     strategy:
       matrix:
-        go-version: [1.27.1]
+        go-version: [1.27.2]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -913,7 +913,7 @@ jobs:
     runs-on: [ubuntu-latest]
     strategy:
       matrix:
-        go-version: [1.27.1]
+        go-version: [1.27.2]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -974,7 +974,7 @@ jobs:
     runs-on: [ubuntu-latest]
     strategy:
       matrix:
-        go-version: [1.27.1]
+        go-version: [1.27.2]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -1037,7 +1037,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        go-version: [1.27.1]
+        go-version: [1.27.2]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -1073,7 +1073,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        go-version: [1.27.1]
+        go-version: [1.27.2]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -1111,7 +1111,7 @@ jobs:
 
     strategy:
       matrix:
-        go-version: [1.27.1]
+        go-version: [1.27.2]
 
     steps:
       - name: Check out code
@@ -1161,7 +1161,7 @@ jobs:
 
     strategy:
       matrix:
-        go-version: [1.27.1]
+        go-version: [1.27.2]
 
     steps:
       - name: Check out code
@@ -1198,7 +1198,7 @@ jobs:
 
     strategy:
       matrix:
-        go-version: [1.27.1]
+        go-version: [1.27.2]
 
     steps:
       - name: Check out code
@@ -1235,7 +1235,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        go-version: [1.27.1]
+        go-version: [1.27.2]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -1339,7 +1339,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go-version: [1.27.1]
+        go-version: [1.27.2]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -1382,7 +1382,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        go-version: [1.27.1]
+        go-version: [1.27.2]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -1422,7 +1422,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        go-version: [1.27.1]
+        go-version: [1.27.2]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -1450,7 +1450,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        go-version: [1.27.1]
+        go-version: [1.27.2]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -1477,7 +1477,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        go-version: [1.27.1]
+        go-version: [1.27.2]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -1505,7 +1505,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        go-version: [1.27.1]
+        go-version: [1.27.2]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -1533,7 +1533,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        go-version: [1.27.1]
+        go-version: [1.27.2]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -1615,7 +1615,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          go-version: 1.27.1
+          go-version: 1.27.2
       - name: Enable Corepack
         run: corepack enable
       - name: Set up Node

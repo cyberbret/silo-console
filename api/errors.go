@@ -19,6 +19,7 @@ package api
 import (
 	"context"
 	"errors"
+	"net/http"
 	"strings"
 
 	"github.com/minio/minio-go/v7"
@@ -262,6 +263,14 @@ func ErrorWithContext(ctx context.Context, err ...interface{}) *CodedAPIError {
 				errorCode = 413
 				errorMessage = err1.Error()
 			}
+			// Versioning changes rejected by replication or Object Lock are
+			// invalid requests. Preserve this status through wrapped S3 errors.
+			var s3Error minio.ErrorResponse
+			if errors.As(err1, &s3Error) && s3Error.Code == "InvalidBucketState" {
+				errorCode = http.StatusBadRequest
+				errorMessage = s3Error.Message
+			}
+
 			// bucket already exists
 			if minio.ToErrorResponse(err1).Code == "BucketAlreadyOwnedByYou" {
 				errorCode = 400
