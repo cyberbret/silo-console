@@ -48,7 +48,7 @@ require (
 	github.com/minio/selfupdate v0.6.0
 	github.com/minio/websocket v1.6.0
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/pgsty/silo-pkg/v3 v3.14.2
+	github.com/pgsty/silo-pkg/v3 v3.14.3
 	github.com/rs/xid v1.6.0
 	github.com/secure-io/sio-go v0.3.1
 	github.com/stretchr/testify v1.12.1

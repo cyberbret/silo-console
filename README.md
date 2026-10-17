@@ -44,6 +44,10 @@ object sharing and signed release metadata. See [CHANGELOG.md](CHANGELOG.md),
 the [password-policy migration](https://silo.pgsty.com/compatibility/password-permissions/)
 and the [component matrix](https://silo.pgsty.com/compatibility/versions/).
 
+Current source selects silo-pkg v3.14.3 for faster policy evaluation with
+unchanged authorization behavior. This update is not included in the
+published v2.4.2 binaries and does not require a coordinated component release.
+
 ## Overview
 
 SILO Console is the browser-based administration interface for
