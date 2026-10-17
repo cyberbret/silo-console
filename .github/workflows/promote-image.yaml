@@ -70,8 +70,17 @@ jobs:
           done
           # Empty Docker credentials ensure public access is actually tested.
           anonymous_config=$(mktemp -d)
+          release_index=$(DOCKER_CONFIG="$anonymous_config" docker manifest inspect "$image@$digest")
+          # Classic Docker stores cannot bind one index digest to two architectures.
+          # Pull each platform manifest selected by the verified index instead.
           for platform in linux/amd64 linux/arm64; do
-            DOCKER_CONFIG="$anonymous_config" docker pull --platform "$platform" "$image@$digest" >/dev/null
+            platform_digest=$(jq -er --arg arch "${platform#linux/}" '
+              [.manifests[] | select(.platform.os == "linux" and .platform.architecture == $arch)]
+              | if length == 1 then .[0].digest else error("expected one manifest for " + $arch) end
+            ' <<<"$release_index")
+            [[ "$platform_digest" =~ ^sha256:[0-9a-f]{64}$ ]]
+            echo "Verify anonymous $platform pull: $platform_digest"
+            DOCKER_CONFIG="$anonymous_config" docker pull --platform "$platform" "$image@$platform_digest" >/dev/null
           done
           rm -rf "$anonymous_config"
           # Recheck after verification, in case another release was published.
