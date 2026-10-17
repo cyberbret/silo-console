@@ -11,21 +11,21 @@
     {
       "selection": "direct",
       "import": "github.com/pgsty/silo-pkg/v3",
-      "version": "v3.14.1",
+      "version": "v3.14.2",
       "kind": "module_tag",
-      "tag": "v3.14.1",
-      "commit": "fa657ef431ae22e720df37e5144cf00f67102945",
+      "tag": "v3.14.2",
+      "commit": "c6835145176f385dd5f2d2a6d5ccd337b258d9bb",
       "repository": "pgsty/silo-pkg"
     },
     {
       "selection": "replace",
       "import": "github.com/minio/mc",
       "replacement": "github.com/pgsty/mc",
-      "version": "v0.0.0-20260916070421-e952aa78f10a",
+      "version": "v0.0.0-20261017101407-fa3b8bf72458",
       "kind": "calendar_release",
-      "commit": "e952aa78f10a2b77dd525a2b7e3143bcda0cd377",
+      "commit": "fa3b8bf72458b9b5480c4da0ce63a4f224e058c8",
       "repository": "pgsty/mc",
-      "tag": "RELEASE.2026-09-16T00-00-00Z"
+      "tag": "RELEASE.2026-10-18T00-00-00Z"
     }
   ]
 }

@@ -34,10 +34,11 @@
 > sponsored by MinIO, Inc. The MinIO name is used only to identify the upstream
 > project and compatibility lineage.
 
-## Current release
+## Version 2.4.2
 
-[Console v2.4.1](https://github.com/pgsty/silo-console/releases/tag/v2.4.1) uses
-silo-pkg v3.14.1, mcli 20260916 and upstream minio-go `32e1f32cb176`.
+Console v2.4.2 uses silo-pkg v3.14.2, mcli 20261018 and upstream minio-go v7.4.1.
+Published binaries, packages and release status are available on
+[GitHub Releases](https://github.com/pgsty/silo-console/releases).
 It includes streaming ZIP downloads, the password-permission split, hardened
 object sharing and signed release metadata. See [CHANGELOG.md](CHANGELOG.md),
 the [password-policy migration](https://silo.pgsty.com/compatibility/password-permissions/)
@@ -162,7 +163,7 @@ ignores replacements declared by dependency modules:
 <!-- silo-replacements:begin -->
 ```go
 replace (
-	github.com/minio/mc => github.com/pgsty/mc v0.0.0-20260916070421-e952aa78f10a
+	github.com/minio/mc => github.com/pgsty/mc v0.0.0-20261017101407-fa3b8bf72458
 )
 ```
 <!-- silo-replacements:end -->

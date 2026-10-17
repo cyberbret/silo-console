@@ -235,7 +235,7 @@ func setBucketVersioningResponse(session *models.Principal, params bucketApi.Set
 	excludeFolders := params.Body.ExcludeFolders
 
 	if err := doSetVersioning(ctx, amcClient, versioningState, excludePrefixes, excludeFolders); err != nil {
-		return ErrorWithContext(ctx, fmt.Errorf("error setting versioning for bucket: %s", err))
+		return ErrorWithContext(ctx, fmt.Errorf("error setting versioning for bucket: %w", err))
 	}
 	return nil
 }
@@ -510,7 +510,7 @@ func getMakeBucketResponse(session *models.Principal, params bucketApi.MakeBucke
 		}
 
 		if err = doSetVersioning(ctx, amcClient, VersionEnable, excludePrefixes, excludeFolders); err != nil {
-			return nil, ErrorWithContext(ctx, fmt.Errorf("error setting versioning for bucket: %s", err))
+			return nil, ErrorWithContext(ctx, fmt.Errorf("error setting versioning for bucket: %w", err))
 		}
 	}
 

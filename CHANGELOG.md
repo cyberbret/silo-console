@@ -1,5 +1,14 @@
 # Changelog
 
+## Release v2.4.2
+
+- Select the published mcli 20261018 source (`fa3b8bf72458`), silo-pkg v3.14.2 and upstream minio-go v7.4.1. This includes failed multipart-upload cleanup after cancellation, UTC retention timestamps and preserved STS durations; parallel GET and ComposeObject remain opt-in.
+- Build with Go 1.27.2 and refresh Go x/* dependencies, compress v1.20.3, msgp v1.6.5, etcd v3.7.2, fwd v1.2.1 and cpuid v2.4.1. Retain the go-systemd v22.6.0 portability pin and tablewriter v0.0.5 API.
+- Inherit the patched go-jose v4.1.6 and LDAP v3.4.15 module selections from silo-pkg. These packages are not linked into the standalone Console binary; the go-jose 4096-bit RSA JWK limit applies to the Server OIDC integration that uses it.
+- Preserve wrapped S3 error responses when reporting bucket versioning failures and return InvalidBucketState explicitly, including when Object Lock prevents versioning suspension.
+- Build the frontend with Node 24.22.0 LTS.
+- Use GoReleaser v2.18.3 for secret-redaction and release-correctness fixes, golangci-lint v2.15.0 and govulncheck v1.9.0. Rebuild the embedded frontend as version 2.4.2.
+
 ## Release v2.4.1
 
 - Restricts the anonymous share proxy to object-content GETs at the configured S3 origin and rejects all redirects. Normal public, signed and versioned object downloads remain available without a new setting. Thanks to [Jiri Pejchal (@jiri-pejchal)](https://github.com/jiri-pejchal) for reporting the internal-metrics exposure in [#52](https://github.com/pgsty/silo-console/issues/52).

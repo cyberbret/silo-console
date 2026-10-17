@@ -14,7 +14,7 @@ MINIO_VERSION ?= "docker.io/pgsty/silo:RELEASE.2026-09-03T13-18-01Z"
 
 TARGET_BUCKET ?= "target"
 NODE_VERSION := $(shell cat .nvmrc)
-GOLANGCI_VERSION := 2.13.1
+GOLANGCI_VERSION := 2.15.0
 
 default: console
 
