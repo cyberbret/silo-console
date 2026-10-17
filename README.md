@@ -34,10 +34,11 @@
 > sponsored by MinIO, Inc. The MinIO name is used only to identify the upstream
 > project and compatibility lineage.
 
-## Release candidate
+## Version 2.4.2
 
 Console v2.4.2 uses silo-pkg v3.14.2, mcli 20261018 and upstream minio-go v7.4.1.
-The current published release remains [v2.4.1](https://github.com/pgsty/silo-console/releases/tag/v2.4.1) until v2.4.2 is published.
+Published binaries, packages and release status are available on
+[GitHub Releases](https://github.com/pgsty/silo-console/releases).
 It includes streaming ZIP downloads, the password-permission split, hardened
 object sharing and signed release metadata. See [CHANGELOG.md](CHANGELOG.md),
 the [password-policy migration](https://silo.pgsty.com/compatibility/password-permissions/)
