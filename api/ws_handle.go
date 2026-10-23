@@ -26,6 +26,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/minio/madmin-go/v3"
 
@@ -48,6 +49,9 @@ var upgrader = websocket.Upgrader{
 const (
 	// websocket base path
 	wsBasePath = "/ws"
+	// Bound the Close control write and peer response together, after the
+	// diagnostic operation has finished. This is not a lifetime for the tool.
+	wsCloseTimeout = 5 * time.Second
 )
 
 // ConsoleWebsocketAdmin interface of a Websocket Client
@@ -491,7 +495,7 @@ func (wsc *wsAdminClient) trace(ctx context.Context, traceRequestItem TraceReque
 
 	err := startTraceInfo(ctx, wsc.conn, wsc.client, traceRequestItem)
 
-	sendWsCloseMessage(wsc.conn, err)
+	sendWsCloseMessage(ctx, wsc.conn, err)
 }
 
 // console serves madmin.GetLogs
@@ -508,7 +512,7 @@ func (wsc *wsAdminClient) console(ctx context.Context, logRequestItem LogRequest
 
 	err := startConsoleLog(ctx, wsc.conn, wsc.client, logRequestItem)
 
-	sendWsCloseMessage(wsc.conn, err)
+	sendWsCloseMessage(ctx, wsc.conn, err)
 }
 
 func (wsc *wsS3Client) watch(ctx context.Context, params *watchOptions) {
@@ -523,7 +527,7 @@ func (wsc *wsS3Client) watch(ctx context.Context, params *watchOptions) {
 
 	err := startWatch(ctx, wsc.conn, wsc.client, params)
 
-	sendWsCloseMessage(wsc.conn, err)
+	sendWsCloseMessage(ctx, wsc.conn, err)
 }
 
 func (wsc *wsAdminClient) healthInfo(ctx context.Context, deadline *time.Duration) {
@@ -537,7 +541,7 @@ func (wsc *wsAdminClient) healthInfo(ctx context.Context, deadline *time.Duratio
 	ctx = wsReadClientCtx(ctx, wsc.conn)
 	err := startHealthInfo(ctx, wsc.conn, wsc.client, deadline)
 
-	sendWsCloseMessage(wsc.conn, err)
+	sendWsCloseMessage(ctx, wsc.conn, err)
 }
 
 func (wsc *wsAdminClient) speedtest(ctx context.Context, opts *madmin.SpeedtestOpts) {
@@ -552,7 +556,7 @@ func (wsc *wsAdminClient) speedtest(ctx context.Context, opts *madmin.SpeedtestO
 
 	err := startSpeedtest(ctx, wsc.conn, wsc.client, opts)
 
-	sendWsCloseMessage(wsc.conn, err)
+	sendWsCloseMessage(ctx, wsc.conn, err)
 }
 
 func (wsc *wsAdminClient) profile(ctx context.Context, opts *profileOptions) {
@@ -567,27 +571,57 @@ func (wsc *wsAdminClient) profile(ctx context.Context, opts *profileOptions) {
 
 	err := startProfiling(ctx, wsc.conn, wsc.client, opts)
 
-	sendWsCloseMessage(wsc.conn, err)
+	sendWsCloseMessage(ctx, wsc.conn, err)
 }
 
-// sendWsCloseMessage sends Websocket Connection Close Message indicating the Status Code
-// see https://tools.ietf.org/html/rfc6455#page-45
-func sendWsCloseMessage(conn WSConn, err error) {
+// sendWsCloseMessage attempts the closing handshake before the caller's
+// deferred Close releases the socket. ctx belongs to the existing sole reader,
+// not the HTTP request: it ends on a peer Close or any read failure.
+func sendWsCloseMessage(ctx context.Context, conn wsConn, err error) {
 	if err != nil {
 		LogError("original ws error: %v", err)
+	}
+	select {
+	case <-ctx.Done():
+		// The reader has already handled the peer Close or lost the connection.
+		return
+	default:
+	}
+
+	code, reason := websocket.CloseNormalClosure, ""
+	if err != nil {
 		// If connection exceeded read deadline send Close
 		// Message Policy Violation code since we don't want
 		// to let the receiver figure out the read deadline.
 		// This is a generic code designed if there is a
 		// need to hide specific details about the policy.
 		if nErr, ok := err.(net.Error); ok && nErr.Timeout() {
-			conn.writeMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.ClosePolicyViolation, ""))
-			return
+			code = websocket.ClosePolicyViolation
+		} else {
+			code = websocket.CloseInternalServerErr
+			reason = strings.ToValidUTF8(err.Error(), "\uFFFD")
+			// RFC 6455 allows 125 control payload bytes, including the 2-byte
+			// status code. Do not split a UTF-8 rune at the reason boundary.
+			if len(reason) > 123 {
+				reason = reason[:123]
+				for !utf8.ValidString(reason) {
+					reason = reason[:len(reason)-1]
+				}
+			}
 		}
-		// else, internal server error
-		conn.writeMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseInternalServerErr, err.Error()))
+	}
+
+	deadline := time.Now().Add(wsCloseTimeout)
+	if writeErr := conn.conn.WriteControl(websocket.CloseMessage, websocket.FormatCloseMessage(code, reason), deadline); writeErr != nil && writeErr != websocket.ErrCloseSent {
+		LogError("error writing websocket close: %v", writeErr)
 		return
 	}
-	// normal closure
-	conn.writeMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
+	// ErrCloseSent can race with the reader's default Close handler. Reuse
+	// that reader rather than issuing another concurrent ReadMessage.
+	timer := time.NewTimer(time.Until(deadline))
+	defer timer.Stop()
+	select {
+	case <-ctx.Done():
+	case <-timer.C:
+	}
 }
