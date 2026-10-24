@@ -25,7 +25,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/conv"
 )
 
 // NewListBucketEventsParams creates a new ListBucketEventsParams object
@@ -53,23 +53,14 @@ func NewListBucketEventsParams() ListBucketEventsParams {
 type ListBucketEventsParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
-
-	/*
-	  Required: true
-	  In: path
-	*/
+	// Required: true
+	// In: path
 	BucketName string
-
-	/*
-	  In: query
-	  Default: 20
-	*/
+	// In: query
+	// Default: 20
 	Limit *int32
-
-	/*
-	  In: query
-	  Default: 0
-	*/
+	// In: query
+	// Default: 0
 	Offset *int32
 }
 
@@ -132,7 +123,7 @@ func (o *ListBucketEventsParams) bindLimit(rawData []string, hasKey bool, format
 		return nil
 	}
 
-	value, err := swag.ConvertInt32(raw)
+	value, err := conv.ConvertInt32(raw)
 	if err != nil {
 		return errors.InvalidType("limit", "query", "int32", raw)
 	}
@@ -156,7 +147,7 @@ func (o *ListBucketEventsParams) bindOffset(rawData []string, hasKey bool, forma
 		return nil
 	}
 
-	value, err := swag.ConvertInt32(raw)
+	value, err := conv.ConvertInt32(raw)
 	if err != nil {
 		return errors.InvalidType("offset", "query", "int32", raw)
 	}

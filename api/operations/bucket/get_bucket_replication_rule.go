@@ -22,7 +22,6 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime/middleware"
-
 	"github.com/minio/console/models"
 )
 
@@ -44,11 +43,9 @@ func NewGetBucketReplicationRule(ctx *middleware.Context, handler GetBucketRepli
 	return &GetBucketReplicationRule{Context: ctx, Handler: handler}
 }
 
-/*
-	GetBucketReplicationRule swagger:route GET /buckets/{bucket_name}/replication/{rule_id} Bucket getBucketReplicationRule
-
-Bucket Replication
-*/
+// GetBucketReplicationRule swagger:route GET /buckets/{bucket_name}/replication/{rule_id} Bucket getBucketReplicationRule
+//
+// Bucket Replication
 type GetBucketReplicationRule struct {
 	Context *middleware.Context
 	Handler GetBucketReplicationRuleHandler
@@ -59,7 +56,7 @@ func (o *GetBucketReplicationRule) ServeHTTP(rw http.ResponseWriter, r *http.Req
 	if rCtx != nil {
 		*r = *rCtx
 	}
-	var Params = NewGetBucketReplicationRuleParams()
+	params := NewGetBucketReplicationRuleParams()
 	uprinc, aCtx, err := o.Context.Authorize(r, route)
 	if err != nil {
 		o.Context.Respond(rw, r, route.Produces, route, err)
@@ -73,12 +70,12 @@ func (o *GetBucketReplicationRule) ServeHTTP(rw http.ResponseWriter, r *http.Req
 		principal = uprinc.(*models.Principal) // this is really a models.Principal, I promise
 	}
 
-	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
+	if err := o.Context.BindValidRequest(r, route, &params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
-	res := o.Handler.Handle(Params, principal) // actually handle the request
+	res := o.Handler.Handle(params, principal) // actually handle the request
 
 	o.Context.Respond(rw, r, route.Produces, route, res)
 

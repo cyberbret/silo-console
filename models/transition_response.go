@@ -22,7 +22,7 @@ import (
 	"context"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
 )
 
 // TransitionResponse transition response
@@ -47,12 +47,12 @@ type TransitionResponse struct {
 }
 
 // Validate validates this transition response
-func (m *TransitionResponse) Validate(formats strfmt.Registry) error {
+func (m *TransitionResponse) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this transition response based on context it is used
-func (m *TransitionResponse) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *TransitionResponse) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -61,13 +61,13 @@ func (m *TransitionResponse) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *TransitionResponse) UnmarshalBinary(b []byte) error {
 	var res TransitionResponse
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

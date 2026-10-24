@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // MakeBucketOKCode is the HTTP code returned for type MakeBucketOK
 const MakeBucketOKCode int = 200
 
-/*
-MakeBucketOK A successful response.
-
-swagger:response makeBucketOK
-*/
+// MakeBucketOK A successful response.
+//
+// swagger:response makeBucketOK
 type MakeBucketOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.MakeBucketsResponse `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *MakeBucketOK) WriteResponse(rw http.ResponseWriter, producer runtime.Pr
 	}
 }
 
-/*
-MakeBucketDefault Generic error response.
-
-swagger:response makeBucketDefault
-*/
+// MakeBucketDefault Generic error response.
+//
+// swagger:response makeBucketDefault
 type MakeBucketDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

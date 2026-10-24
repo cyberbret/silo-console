@@ -28,7 +28,6 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
-
 	"github.com/minio/console/models"
 )
 
@@ -47,17 +46,11 @@ func NewDeleteAccessRuleWithBucketParams() DeleteAccessRuleWithBucketParams {
 type DeleteAccessRuleWithBucketParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
-
-	/*
-	  Required: true
-	  In: path
-	*/
+	// Required: true
+	// In: path
 	Bucket string
-
-	/*
-	  Required: true
-	  In: body
-	*/
+	// Required: true
+	// In: body
 	Prefix *models.PrefixWrapper
 }
 

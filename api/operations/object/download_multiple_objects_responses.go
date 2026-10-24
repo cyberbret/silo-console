@@ -23,23 +23,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // DownloadMultipleObjectsOKCode is the HTTP code returned for type DownloadMultipleObjectsOK
 const DownloadMultipleObjectsOKCode int = 200
 
-/*
-DownloadMultipleObjectsOK A successful response.
-
-swagger:response downloadMultipleObjectsOK
-*/
+// DownloadMultipleObjectsOK A successful response.
+//
+// swagger:response downloadMultipleObjectsOK
 type DownloadMultipleObjectsOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload io.ReadCloser `json:"body,omitempty"`
 }
 
@@ -70,17 +65,13 @@ func (o *DownloadMultipleObjectsOK) WriteResponse(rw http.ResponseWriter, produc
 	}
 }
 
-/*
-DownloadMultipleObjectsDefault Generic error response.
-
-swagger:response downloadMultipleObjectsDefault
-*/
+// DownloadMultipleObjectsDefault Generic error response.
+//
+// swagger:response downloadMultipleObjectsDefault
 type DownloadMultipleObjectsDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

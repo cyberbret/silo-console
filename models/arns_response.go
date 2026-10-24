@@ -22,7 +22,7 @@ import (
 	"context"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
 )
 
 // ArnsResponse arns response
@@ -35,12 +35,12 @@ type ArnsResponse struct {
 }
 
 // Validate validates this arns response
-func (m *ArnsResponse) Validate(formats strfmt.Registry) error {
+func (m *ArnsResponse) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this arns response based on context it is used
-func (m *ArnsResponse) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *ArnsResponse) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -49,13 +49,13 @@ func (m *ArnsResponse) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *ArnsResponse) UnmarshalBinary(b []byte) error {
 	var res ArnsResponse
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

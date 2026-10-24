@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // GetBucketVersioningOKCode is the HTTP code returned for type GetBucketVersioningOK
 const GetBucketVersioningOKCode int = 200
 
-/*
-GetBucketVersioningOK A successful response.
-
-swagger:response getBucketVersioningOK
-*/
+// GetBucketVersioningOK A successful response.
+//
+// swagger:response getBucketVersioningOK
 type GetBucketVersioningOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.BucketVersioningResponse `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *GetBucketVersioningOK) WriteResponse(rw http.ResponseWriter, producer r
 	}
 }
 
-/*
-GetBucketVersioningDefault Generic error response.
-
-swagger:response getBucketVersioningDefault
-*/
+// GetBucketVersioningDefault Generic error response.
+//
+// swagger:response getBucketVersioningDefault
 type GetBucketVersioningDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

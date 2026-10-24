@@ -22,18 +22,15 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // PostBucketsBucketNameObjectsUploadOKCode is the HTTP code returned for type PostBucketsBucketNameObjectsUploadOK
 const PostBucketsBucketNameObjectsUploadOKCode int = 200
 
-/*
-PostBucketsBucketNameObjectsUploadOK A successful response.
-
-swagger:response postBucketsBucketNameObjectsUploadOK
-*/
+// PostBucketsBucketNameObjectsUploadOK A successful response.
+//
+// swagger:response postBucketsBucketNameObjectsUploadOK
 type PostBucketsBucketNameObjectsUploadOK struct {
 }
 
@@ -51,17 +48,13 @@ func (o *PostBucketsBucketNameObjectsUploadOK) WriteResponse(rw http.ResponseWri
 	rw.WriteHeader(200)
 }
 
-/*
-PostBucketsBucketNameObjectsUploadDefault Generic error response.
-
-swagger:response postBucketsBucketNameObjectsUploadDefault
-*/
+// PostBucketsBucketNameObjectsUploadDefault Generic error response.
+//
+// swagger:response postBucketsBucketNameObjectsUploadDefault
 type PostBucketsBucketNameObjectsUploadDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

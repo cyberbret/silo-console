@@ -30,11 +30,11 @@ import (
 type SelectedSAs []string
 
 // Validate validates this selected s as
-func (m SelectedSAs) Validate(formats strfmt.Registry) error {
+func (m SelectedSAs) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this selected s as based on context it is used
-func (m SelectedSAs) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m SelectedSAs) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }

@@ -24,7 +24,8 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
+	"github.com/go-openapi/swag/typeutils"
 )
 
 // LoginRequest login request
@@ -60,7 +61,7 @@ func (m *LoginRequest) Validate(formats strfmt.Registry) error {
 }
 
 func (m *LoginRequest) validateFeatures(formats strfmt.Registry) error {
-	if swag.IsZero(m.Features) { // not required
+	if typeutils.IsZero(m.Features) { // not required
 		return nil
 	}
 
@@ -100,7 +101,7 @@ func (m *LoginRequest) contextValidateFeatures(ctx context.Context, formats strf
 
 	if m.Features != nil {
 
-		if swag.IsZero(m.Features) { // not required
+		if typeutils.IsZero(m.Features) { // not required
 			return nil
 		}
 
@@ -126,13 +127,13 @@ func (m *LoginRequest) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *LoginRequest) UnmarshalBinary(b []byte) error {
 	var res LoginRequest
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res
@@ -149,12 +150,12 @@ type LoginRequestFeatures struct {
 }
 
 // Validate validates this login request features
-func (m *LoginRequestFeatures) Validate(formats strfmt.Registry) error {
+func (m *LoginRequestFeatures) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this login request features based on context it is used
-func (m *LoginRequestFeatures) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *LoginRequestFeatures) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -163,13 +164,13 @@ func (m *LoginRequestFeatures) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *LoginRequestFeatures) UnmarshalBinary(b []byte) error {
 	var res LoginRequestFeatures
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

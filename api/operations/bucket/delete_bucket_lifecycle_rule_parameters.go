@@ -41,17 +41,11 @@ func NewDeleteBucketLifecycleRuleParams() DeleteBucketLifecycleRuleParams {
 type DeleteBucketLifecycleRuleParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
-
-	/*
-	  Required: true
-	  In: path
-	*/
+	// Required: true
+	// In: path
 	BucketName string
-
-	/*
-	  Required: true
-	  In: path
-	*/
+	// Required: true
+	// In: path
 	LifecycleID string
 }
 

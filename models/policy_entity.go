@@ -86,6 +86,6 @@ func (m PolicyEntity) Validate(formats strfmt.Registry) error {
 }
 
 // ContextValidate validates this policy entity based on context it is used
-func (m PolicyEntity) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m PolicyEntity) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }

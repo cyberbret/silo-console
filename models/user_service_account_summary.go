@@ -25,7 +25,8 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
+	"github.com/go-openapi/swag/typeutils"
 )
 
 // UserServiceAccountSummary user service account summary
@@ -55,12 +56,12 @@ func (m *UserServiceAccountSummary) Validate(formats strfmt.Registry) error {
 }
 
 func (m *UserServiceAccountSummary) validateUserServiceAccountList(formats strfmt.Registry) error {
-	if swag.IsZero(m.UserServiceAccountList) { // not required
+	if typeutils.IsZero(m.UserServiceAccountList) { // not required
 		return nil
 	}
 
 	for i := 0; i < len(m.UserServiceAccountList); i++ {
-		if swag.IsZero(m.UserServiceAccountList[i]) { // not required
+		if typeutils.IsZero(m.UserServiceAccountList[i]) { // not required
 			continue
 		}
 
@@ -104,7 +105,7 @@ func (m *UserServiceAccountSummary) contextValidateUserServiceAccountList(ctx co
 
 		if m.UserServiceAccountList[i] != nil {
 
-			if swag.IsZero(m.UserServiceAccountList[i]) { // not required
+			if typeutils.IsZero(m.UserServiceAccountList[i]) { // not required
 				return nil
 			}
 
@@ -132,13 +133,13 @@ func (m *UserServiceAccountSummary) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *UserServiceAccountSummary) UnmarshalBinary(b []byte) error {
 	var res UserServiceAccountSummary
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

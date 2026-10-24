@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Update silo-pkg to v3.14.3 for faster policy evaluation with unchanged
+  authorization behavior. Refresh the dependency verification record and
+  embedding guidance; published Console v2.4.2 artifacts remain unchanged.
+
 ## Release v2.4.2
 
 - Select the published mcli 20261018 source (`fa3b8bf72458`), silo-pkg v3.14.2 and upstream minio-go v7.4.1. This includes failed multipart-upload cleanup after cancellation, UTC retention timestamps and preserved STS durations; parallel GET and ComposeObject remain opt-in.

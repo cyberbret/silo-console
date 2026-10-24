@@ -22,7 +22,7 @@ import (
 	"context"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
 )
 
 // LdapEntitiesRequest ldap entities request
@@ -41,12 +41,12 @@ type LdapEntitiesRequest struct {
 }
 
 // Validate validates this ldap entities request
-func (m *LdapEntitiesRequest) Validate(formats strfmt.Registry) error {
+func (m *LdapEntitiesRequest) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this ldap entities request based on context it is used
-func (m *LdapEntitiesRequest) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *LdapEntitiesRequest) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -55,13 +55,13 @@ func (m *LdapEntitiesRequest) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *LdapEntitiesRequest) UnmarshalBinary(b []byte) error {
 	var res LdapEntitiesRequest
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

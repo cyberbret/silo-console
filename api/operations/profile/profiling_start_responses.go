@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // ProfilingStartCreatedCode is the HTTP code returned for type ProfilingStartCreated
 const ProfilingStartCreatedCode int = 201
 
-/*
-ProfilingStartCreated A successful response.
-
-swagger:response profilingStartCreated
-*/
+// ProfilingStartCreated A successful response.
+//
+// swagger:response profilingStartCreated
 type ProfilingStartCreated struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.StartProfilingList `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *ProfilingStartCreated) WriteResponse(rw http.ResponseWriter, producer r
 	}
 }
 
-/*
-ProfilingStartDefault Generic error response.
-
-swagger:response profilingStartDefault
-*/
+// ProfilingStartDefault Generic error response.
+//
+// swagger:response profilingStartDefault
 type ProfilingStartDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // ListUsersWithAccessToBucketOKCode is the HTTP code returned for type ListUsersWithAccessToBucketOK
 const ListUsersWithAccessToBucketOKCode int = 200
 
-/*
-ListUsersWithAccessToBucketOK A successful response.
-
-swagger:response listUsersWithAccessToBucketOK
-*/
+// ListUsersWithAccessToBucketOK A successful response.
+//
+// swagger:response listUsersWithAccessToBucketOK
 type ListUsersWithAccessToBucketOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload []string `json:"body,omitempty"`
 }
 
@@ -74,17 +69,13 @@ func (o *ListUsersWithAccessToBucketOK) WriteResponse(rw http.ResponseWriter, pr
 	}
 }
 
-/*
-ListUsersWithAccessToBucketDefault Generic error response.
-
-swagger:response listUsersWithAccessToBucketDefault
-*/
+// ListUsersWithAccessToBucketDefault Generic error response.
+//
+// swagger:response listUsersWithAccessToBucketDefault
 type ListUsersWithAccessToBucketDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

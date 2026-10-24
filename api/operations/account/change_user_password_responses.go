@@ -22,18 +22,15 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // ChangeUserPasswordCreatedCode is the HTTP code returned for type ChangeUserPasswordCreated
 const ChangeUserPasswordCreatedCode int = 201
 
-/*
-ChangeUserPasswordCreated Password successfully changed.
-
-swagger:response changeUserPasswordCreated
-*/
+// ChangeUserPasswordCreated Password successfully changed.
+//
+// swagger:response changeUserPasswordCreated
 type ChangeUserPasswordCreated struct {
 }
 
@@ -51,17 +48,13 @@ func (o *ChangeUserPasswordCreated) WriteResponse(rw http.ResponseWriter, produc
 	rw.WriteHeader(201)
 }
 
-/*
-ChangeUserPasswordDefault Generic error response.
-
-swagger:response changeUserPasswordDefault
-*/
+// ChangeUserPasswordDefault Generic error response.
+//
+// swagger:response changeUserPasswordDefault
 type ChangeUserPasswordDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

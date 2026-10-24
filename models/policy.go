@@ -22,7 +22,7 @@ import (
 	"context"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
 )
 
 // Policy policy
@@ -38,12 +38,12 @@ type Policy struct {
 }
 
 // Validate validates this policy
-func (m *Policy) Validate(formats strfmt.Registry) error {
+func (m *Policy) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this policy based on context it is used
-func (m *Policy) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *Policy) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -52,13 +52,13 @@ func (m *Policy) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *Policy) UnmarshalBinary(b []byte) error {
 	var res Policy
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

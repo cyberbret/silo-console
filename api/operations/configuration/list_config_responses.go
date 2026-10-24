@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // ListConfigOKCode is the HTTP code returned for type ListConfigOK
 const ListConfigOKCode int = 200
 
-/*
-ListConfigOK A successful response.
-
-swagger:response listConfigOK
-*/
+// ListConfigOK A successful response.
+//
+// swagger:response listConfigOK
 type ListConfigOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.ListConfigResponse `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *ListConfigOK) WriteResponse(rw http.ResponseWriter, producer runtime.Pr
 	}
 }
 
-/*
-ListConfigDefault Generic error response.
-
-swagger:response listConfigDefault
-*/
+// ListConfigDefault Generic error response.
+//
+// swagger:response listConfigDefault
 type ListConfigDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

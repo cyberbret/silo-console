@@ -22,7 +22,7 @@ import (
 	"context"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
 )
 
 // PermissionResource permission resource
@@ -41,12 +41,12 @@ type PermissionResource struct {
 }
 
 // Validate validates this permission resource
-func (m *PermissionResource) Validate(formats strfmt.Registry) error {
+func (m *PermissionResource) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this permission resource based on context it is used
-func (m *PermissionResource) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *PermissionResource) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -55,13 +55,13 @@ func (m *PermissionResource) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *PermissionResource) UnmarshalBinary(b []byte) error {
 	var res PermissionResource
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

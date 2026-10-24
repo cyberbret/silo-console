@@ -25,7 +25,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/conv"
 )
 
 // NewDashboardWidgetDetailsParams creates a new DashboardWidgetDetailsParams object
@@ -43,26 +43,14 @@ func NewDashboardWidgetDetailsParams() DashboardWidgetDetailsParams {
 type DashboardWidgetDetailsParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
-
-	/*
-	  In: query
-	*/
+	// In: query
 	End *int64
-
-	/*
-	  In: query
-	*/
+	// In: query
 	Start *int64
-
-	/*
-	  In: query
-	*/
+	// In: query
 	Step *int32
-
-	/*
-	  Required: true
-	  In: path
-	*/
+	// Required: true
+	// In: path
 	WidgetID int32
 }
 
@@ -115,7 +103,7 @@ func (o *DashboardWidgetDetailsParams) bindEnd(rawData []string, hasKey bool, fo
 		return nil
 	}
 
-	value, err := swag.ConvertInt64(raw)
+	value, err := conv.ConvertInt64(raw)
 	if err != nil {
 		return errors.InvalidType("end", "query", "int64", raw)
 	}
@@ -138,7 +126,7 @@ func (o *DashboardWidgetDetailsParams) bindStart(rawData []string, hasKey bool, 
 		return nil
 	}
 
-	value, err := swag.ConvertInt64(raw)
+	value, err := conv.ConvertInt64(raw)
 	if err != nil {
 		return errors.InvalidType("start", "query", "int64", raw)
 	}
@@ -161,7 +149,7 @@ func (o *DashboardWidgetDetailsParams) bindStep(rawData []string, hasKey bool, f
 		return nil
 	}
 
-	value, err := swag.ConvertInt32(raw)
+	value, err := conv.ConvertInt32(raw)
 	if err != nil {
 		return errors.InvalidType("step", "query", "int32", raw)
 	}
@@ -180,7 +168,7 @@ func (o *DashboardWidgetDetailsParams) bindWidgetID(rawData []string, hasKey boo
 	// Required: true
 	// Parameter is provided by construction from the route
 
-	value, err := swag.ConvertInt32(raw)
+	value, err := conv.ConvertInt32(raw)
 	if err != nil {
 		return errors.InvalidType("widgetId", "path", "int32", raw)
 	}

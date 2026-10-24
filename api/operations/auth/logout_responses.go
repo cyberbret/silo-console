@@ -22,18 +22,15 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // LogoutOKCode is the HTTP code returned for type LogoutOK
 const LogoutOKCode int = 200
 
-/*
-LogoutOK A successful response.
-
-swagger:response logoutOK
-*/
+// LogoutOK A successful response.
+//
+// swagger:response logoutOK
 type LogoutOK struct {
 }
 
@@ -51,17 +48,13 @@ func (o *LogoutOK) WriteResponse(rw http.ResponseWriter, producer runtime.Produc
 	rw.WriteHeader(200)
 }
 
-/*
-LogoutDefault Generic error response.
-
-swagger:response logoutDefault
-*/
+// LogoutDefault Generic error response.
+//
+// swagger:response logoutDefault
 type LogoutDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

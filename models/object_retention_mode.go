@@ -86,6 +86,6 @@ func (m ObjectRetentionMode) Validate(formats strfmt.Registry) error {
 }
 
 // ContextValidate validates this object retention mode based on context it is used
-func (m ObjectRetentionMode) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m ObjectRetentionMode) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }

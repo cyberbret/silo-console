@@ -22,7 +22,6 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime/middleware"
-
 	"github.com/minio/console/models"
 )
 
@@ -44,11 +43,9 @@ func NewUpdateMultiBucketReplication(ctx *middleware.Context, handler UpdateMult
 	return &UpdateMultiBucketReplication{Context: ctx, Handler: handler}
 }
 
-/*
-	UpdateMultiBucketReplication swagger:route PUT /buckets/{bucket_name}/replication/{rule_id} Bucket updateMultiBucketReplication
-
-Update Replication rule
-*/
+// UpdateMultiBucketReplication swagger:route PUT /buckets/{bucket_name}/replication/{rule_id} Bucket updateMultiBucketReplication
+//
+// Update Replication rule
 type UpdateMultiBucketReplication struct {
 	Context *middleware.Context
 	Handler UpdateMultiBucketReplicationHandler
@@ -59,7 +56,7 @@ func (o *UpdateMultiBucketReplication) ServeHTTP(rw http.ResponseWriter, r *http
 	if rCtx != nil {
 		*r = *rCtx
 	}
-	var Params = NewUpdateMultiBucketReplicationParams()
+	params := NewUpdateMultiBucketReplicationParams()
 	uprinc, aCtx, err := o.Context.Authorize(r, route)
 	if err != nil {
 		o.Context.Respond(rw, r, route.Produces, route, err)
@@ -73,12 +70,12 @@ func (o *UpdateMultiBucketReplication) ServeHTTP(rw http.ResponseWriter, r *http
 		principal = uprinc.(*models.Principal) // this is really a models.Principal, I promise
 	}
 
-	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
+	if err := o.Context.BindValidRequest(r, route, &params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
-	res := o.Handler.Handle(Params, principal) // actually handle the request
+	res := o.Handler.Handle(params, principal) // actually handle the request
 
 	o.Context.Respond(rw, r, route.Produces, route, res)
 

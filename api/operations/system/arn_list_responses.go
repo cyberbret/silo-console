@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // ArnListOKCode is the HTTP code returned for type ArnListOK
 const ArnListOKCode int = 200
 
-/*
-ArnListOK A successful response.
-
-swagger:response arnListOK
-*/
+// ArnListOK A successful response.
+//
+// swagger:response arnListOK
 type ArnListOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.ArnsResponse `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *ArnListOK) WriteResponse(rw http.ResponseWriter, producer runtime.Produ
 	}
 }
 
-/*
-ArnListDefault Generic error response.
-
-swagger:response arnListDefault
-*/
+// ArnListDefault Generic error response.
+//
+// swagger:response arnListDefault
 type ArnListDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

@@ -22,7 +22,7 @@ import (
 	"context"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
 )
 
 // RedirectRule redirect rule
@@ -41,12 +41,12 @@ type RedirectRule struct {
 }
 
 // Validate validates this redirect rule
-func (m *RedirectRule) Validate(formats strfmt.Registry) error {
+func (m *RedirectRule) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this redirect rule based on context it is used
-func (m *RedirectRule) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *RedirectRule) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -55,13 +55,13 @@ func (m *RedirectRule) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *RedirectRule) UnmarshalBinary(b []byte) error {
 	var res RedirectRule
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

@@ -86,6 +86,6 @@ func (m ObjectLegalHoldStatus) Validate(formats strfmt.Registry) error {
 }
 
 // ContextValidate validates this object legal hold status based on context it is used
-func (m ObjectLegalHoldStatus) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m ObjectLegalHoldStatus) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }

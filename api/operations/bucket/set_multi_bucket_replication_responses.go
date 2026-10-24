@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // SetMultiBucketReplicationOKCode is the HTTP code returned for type SetMultiBucketReplicationOK
 const SetMultiBucketReplicationOKCode int = 200
 
-/*
-SetMultiBucketReplicationOK A successful response.
-
-swagger:response setMultiBucketReplicationOK
-*/
+// SetMultiBucketReplicationOK A successful response.
+//
+// swagger:response setMultiBucketReplicationOK
 type SetMultiBucketReplicationOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.MultiBucketResponseState `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *SetMultiBucketReplicationOK) WriteResponse(rw http.ResponseWriter, prod
 	}
 }
 
-/*
-SetMultiBucketReplicationDefault Generic error response.
-
-swagger:response setMultiBucketReplicationDefault
-*/
+// SetMultiBucketReplicationDefault Generic error response.
+//
+// swagger:response setMultiBucketReplicationDefault
 type SetMultiBucketReplicationDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

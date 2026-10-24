@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // CreateConfigurationCreatedCode is the HTTP code returned for type CreateConfigurationCreated
 const CreateConfigurationCreatedCode int = 201
 
-/*
-CreateConfigurationCreated A successful response.
-
-swagger:response createConfigurationCreated
-*/
+// CreateConfigurationCreated A successful response.
+//
+// swagger:response createConfigurationCreated
 type CreateConfigurationCreated struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.SetIDPResponse `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *CreateConfigurationCreated) WriteResponse(rw http.ResponseWriter, produ
 	}
 }
 
-/*
-CreateConfigurationDefault Generic error response.
-
-swagger:response createConfigurationDefault
-*/
+// CreateConfigurationDefault Generic error response.
+//
+// swagger:response createConfigurationDefault
 type CreateConfigurationDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

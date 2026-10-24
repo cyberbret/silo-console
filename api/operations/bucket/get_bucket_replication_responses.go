@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // GetBucketReplicationOKCode is the HTTP code returned for type GetBucketReplicationOK
 const GetBucketReplicationOKCode int = 200
 
-/*
-GetBucketReplicationOK A successful response.
-
-swagger:response getBucketReplicationOK
-*/
+// GetBucketReplicationOK A successful response.
+//
+// swagger:response getBucketReplicationOK
 type GetBucketReplicationOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.BucketReplicationResponse `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *GetBucketReplicationOK) WriteResponse(rw http.ResponseWriter, producer 
 	}
 }
 
-/*
-GetBucketReplicationDefault Generic error response.
-
-swagger:response getBucketReplicationDefault
-*/
+// GetBucketReplicationDefault Generic error response.
+//
+// swagger:response getBucketReplicationDefault
 type GetBucketReplicationDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

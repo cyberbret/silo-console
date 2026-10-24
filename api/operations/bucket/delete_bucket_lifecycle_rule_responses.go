@@ -22,18 +22,15 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // DeleteBucketLifecycleRuleNoContentCode is the HTTP code returned for type DeleteBucketLifecycleRuleNoContent
 const DeleteBucketLifecycleRuleNoContentCode int = 204
 
-/*
-DeleteBucketLifecycleRuleNoContent A successful response.
-
-swagger:response deleteBucketLifecycleRuleNoContent
-*/
+// DeleteBucketLifecycleRuleNoContent A successful response.
+//
+// swagger:response deleteBucketLifecycleRuleNoContent
 type DeleteBucketLifecycleRuleNoContent struct {
 }
 
@@ -51,17 +48,13 @@ func (o *DeleteBucketLifecycleRuleNoContent) WriteResponse(rw http.ResponseWrite
 	rw.WriteHeader(204)
 }
 
-/*
-DeleteBucketLifecycleRuleDefault Generic error response.
-
-swagger:response deleteBucketLifecycleRuleDefault
-*/
+// DeleteBucketLifecycleRuleDefault Generic error response.
+//
+// swagger:response deleteBucketLifecycleRuleDefault
 type DeleteBucketLifecycleRuleDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

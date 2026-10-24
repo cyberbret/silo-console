@@ -25,7 +25,8 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
+	"github.com/go-openapi/swag/typeutils"
 )
 
 // KmsListKeysResponse kms list keys response
@@ -52,12 +53,12 @@ func (m *KmsListKeysResponse) Validate(formats strfmt.Registry) error {
 }
 
 func (m *KmsListKeysResponse) validateResults(formats strfmt.Registry) error {
-	if swag.IsZero(m.Results) { // not required
+	if typeutils.IsZero(m.Results) { // not required
 		return nil
 	}
 
 	for i := 0; i < len(m.Results); i++ {
-		if swag.IsZero(m.Results[i]) { // not required
+		if typeutils.IsZero(m.Results[i]) { // not required
 			continue
 		}
 
@@ -101,7 +102,7 @@ func (m *KmsListKeysResponse) contextValidateResults(ctx context.Context, format
 
 		if m.Results[i] != nil {
 
-			if swag.IsZero(m.Results[i]) { // not required
+			if typeutils.IsZero(m.Results[i]) { // not required
 				return nil
 			}
 
@@ -129,13 +130,13 @@ func (m *KmsListKeysResponse) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *KmsListKeysResponse) UnmarshalBinary(b []byte) error {
 	var res KmsListKeysResponse
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

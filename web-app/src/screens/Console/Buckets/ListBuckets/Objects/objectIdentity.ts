@@ -24,8 +24,7 @@ export interface ObjectLocation {
  * version. The literal S3 null version is an explicit id, not "latest".
  */
 export type VersionSelector =
-  | { kind: "latest" }
-  | { kind: "id"; versionId: string };
+  { kind: "latest" } | { kind: "id"; versionId: string };
 
 export interface RequestedObject extends ObjectLocation {
   version: VersionSelector;

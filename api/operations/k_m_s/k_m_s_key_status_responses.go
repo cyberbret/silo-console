@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // KMSKeyStatusOKCode is the HTTP code returned for type KMSKeyStatusOK
 const KMSKeyStatusOKCode int = 200
 
-/*
-KMSKeyStatusOK A successful response.
-
-swagger:response kMSKeyStatusOK
-*/
+// KMSKeyStatusOK A successful response.
+//
+// swagger:response kMSKeyStatusOK
 type KMSKeyStatusOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.KmsKeyStatusResponse `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *KMSKeyStatusOK) WriteResponse(rw http.ResponseWriter, producer runtime.
 	}
 }
 
-/*
-KMSKeyStatusDefault Generic error response.
-
-swagger:response kMSKeyStatusDefault
-*/
+// KMSKeyStatusDefault Generic error response.
+//
+// swagger:response kMSKeyStatusDefault
 type KMSKeyStatusDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

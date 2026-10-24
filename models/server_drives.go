@@ -22,7 +22,7 @@ import (
 	"context"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
 )
 
 // ServerDrives server drives
@@ -62,12 +62,12 @@ type ServerDrives struct {
 }
 
 // Validate validates this server drives
-func (m *ServerDrives) Validate(formats strfmt.Registry) error {
+func (m *ServerDrives) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this server drives based on context it is used
-func (m *ServerDrives) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *ServerDrives) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -76,13 +76,13 @@ func (m *ServerDrives) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *ServerDrives) UnmarshalBinary(b []byte) error {
 	var res ServerDrives
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

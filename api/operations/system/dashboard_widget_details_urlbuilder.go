@@ -24,7 +24,7 @@ import (
 	golangswaggerpaths "path"
 	"strings"
 
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/conv"
 )
 
 // DashboardWidgetDetailsURL generates an URL for the dashboard widget details operation
@@ -61,7 +61,7 @@ func (o *DashboardWidgetDetailsURL) Build() (*url.URL, error) {
 
 	var _path = "/admin/info/widgets/{widgetId}"
 
-	widgetID := swag.FormatInt32(o.WidgetID)
+	widgetID := conv.FormatInteger(o.WidgetID)
 	if widgetID != "" {
 		_path = strings.ReplaceAll(_path, "{widgetId}", widgetID)
 	} else {
@@ -78,7 +78,7 @@ func (o *DashboardWidgetDetailsURL) Build() (*url.URL, error) {
 
 	var endQ string
 	if o.End != nil {
-		endQ = swag.FormatInt64(*o.End)
+		endQ = conv.FormatInteger(*o.End)
 	}
 	if endQ != "" {
 		qs.Set("end", endQ)
@@ -86,7 +86,7 @@ func (o *DashboardWidgetDetailsURL) Build() (*url.URL, error) {
 
 	var startQ string
 	if o.Start != nil {
-		startQ = swag.FormatInt64(*o.Start)
+		startQ = conv.FormatInteger(*o.Start)
 	}
 	if startQ != "" {
 		qs.Set("start", startQ)
@@ -94,7 +94,7 @@ func (o *DashboardWidgetDetailsURL) Build() (*url.URL, error) {
 
 	var stepQ string
 	if o.Step != nil {
-		stepQ = swag.FormatInt32(*o.Step)
+		stepQ = conv.FormatInteger(*o.Step)
 	}
 	if stepQ != "" {
 		qs.Set("step", stepQ)

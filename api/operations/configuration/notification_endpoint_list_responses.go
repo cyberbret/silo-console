@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // NotificationEndpointListOKCode is the HTTP code returned for type NotificationEndpointListOK
 const NotificationEndpointListOKCode int = 200
 
-/*
-NotificationEndpointListOK A successful response.
-
-swagger:response notificationEndpointListOK
-*/
+// NotificationEndpointListOK A successful response.
+//
+// swagger:response notificationEndpointListOK
 type NotificationEndpointListOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.NotifEndpointResponse `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *NotificationEndpointListOK) WriteResponse(rw http.ResponseWriter, produ
 	}
 }
 
-/*
-NotificationEndpointListDefault Generic error response.
-
-swagger:response notificationEndpointListDefault
-*/
+// NotificationEndpointListDefault Generic error response.
+//
+// swagger:response notificationEndpointListDefault
 type NotificationEndpointListDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

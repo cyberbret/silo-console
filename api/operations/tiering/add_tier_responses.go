@@ -22,18 +22,15 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // AddTierCreatedCode is the HTTP code returned for type AddTierCreated
 const AddTierCreatedCode int = 201
 
-/*
-AddTierCreated A successful response.
-
-swagger:response addTierCreated
-*/
+// AddTierCreated A successful response.
+//
+// swagger:response addTierCreated
 type AddTierCreated struct {
 }
 
@@ -51,17 +48,13 @@ func (o *AddTierCreated) WriteResponse(rw http.ResponseWriter, producer runtime.
 	rw.WriteHeader(201)
 }
 
-/*
-AddTierDefault Generic error response.
-
-swagger:response addTierDefault
-*/
+// AddTierDefault Generic error response.
+//
+// swagger:response addTierDefault
 type AddTierDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

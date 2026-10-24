@@ -22,7 +22,7 @@ import (
 	"context"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
 )
 
 // PutBucketTagsRequest put bucket tags request
@@ -35,12 +35,12 @@ type PutBucketTagsRequest struct {
 }
 
 // Validate validates this put bucket tags request
-func (m *PutBucketTagsRequest) Validate(formats strfmt.Registry) error {
+func (m *PutBucketTagsRequest) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this put bucket tags request based on context it is used
-func (m *PutBucketTagsRequest) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *PutBucketTagsRequest) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -49,13 +49,13 @@ func (m *PutBucketTagsRequest) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *PutBucketTagsRequest) UnmarshalBinary(b []byte) error {
 	var res PutBucketTagsRequest
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

@@ -22,18 +22,15 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // PutBucketTagsOKCode is the HTTP code returned for type PutBucketTagsOK
 const PutBucketTagsOKCode int = 200
 
-/*
-PutBucketTagsOK A successful response.
-
-swagger:response putBucketTagsOK
-*/
+// PutBucketTagsOK A successful response.
+//
+// swagger:response putBucketTagsOK
 type PutBucketTagsOK struct {
 }
 
@@ -51,17 +48,13 @@ func (o *PutBucketTagsOK) WriteResponse(rw http.ResponseWriter, producer runtime
 	rw.WriteHeader(200)
 }
 
-/*
-PutBucketTagsDefault Generic error response.
-
-swagger:response putBucketTagsDefault
-*/
+// PutBucketTagsDefault Generic error response.
+//
+// swagger:response putBucketTagsDefault
 type PutBucketTagsDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

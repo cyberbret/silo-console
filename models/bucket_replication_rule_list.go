@@ -22,7 +22,7 @@ import (
 	"context"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
 )
 
 // BucketReplicationRuleList bucket replication rule list
@@ -35,12 +35,12 @@ type BucketReplicationRuleList struct {
 }
 
 // Validate validates this bucket replication rule list
-func (m *BucketReplicationRuleList) Validate(formats strfmt.Registry) error {
+func (m *BucketReplicationRuleList) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this bucket replication rule list based on context it is used
-func (m *BucketReplicationRuleList) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *BucketReplicationRuleList) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -49,13 +49,13 @@ func (m *BucketReplicationRuleList) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *BucketReplicationRuleList) UnmarshalBinary(b []byte) error {
 	var res BucketReplicationRuleList
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

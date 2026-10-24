@@ -22,7 +22,7 @@ import (
 	"context"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
 )
 
 // ListGroupsResponse list groups response
@@ -38,12 +38,12 @@ type ListGroupsResponse struct {
 }
 
 // Validate validates this list groups response
-func (m *ListGroupsResponse) Validate(formats strfmt.Registry) error {
+func (m *ListGroupsResponse) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this list groups response based on context it is used
-func (m *ListGroupsResponse) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *ListGroupsResponse) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -52,13 +52,13 @@ func (m *ListGroupsResponse) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *ListGroupsResponse) UnmarshalBinary(b []byte) error {
 	var res ListGroupsResponse
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

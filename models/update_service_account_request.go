@@ -23,7 +23,7 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
 	"github.com/go-openapi/validate"
 )
 
@@ -76,7 +76,7 @@ func (m *UpdateServiceAccountRequest) validatePolicy(formats strfmt.Registry) er
 }
 
 // ContextValidate validates this update service account request based on context it is used
-func (m *UpdateServiceAccountRequest) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *UpdateServiceAccountRequest) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -85,13 +85,13 @@ func (m *UpdateServiceAccountRequest) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *UpdateServiceAccountRequest) UnmarshalBinary(b []byte) error {
 	var res UpdateServiceAccountRequest
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

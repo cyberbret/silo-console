@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // AddMultiBucketLifecycleOKCode is the HTTP code returned for type AddMultiBucketLifecycleOK
 const AddMultiBucketLifecycleOKCode int = 200
 
-/*
-AddMultiBucketLifecycleOK A successful response.
-
-swagger:response addMultiBucketLifecycleOK
-*/
+// AddMultiBucketLifecycleOK A successful response.
+//
+// swagger:response addMultiBucketLifecycleOK
 type AddMultiBucketLifecycleOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.MultiLifecycleResult `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *AddMultiBucketLifecycleOK) WriteResponse(rw http.ResponseWriter, produc
 	}
 }
 
-/*
-AddMultiBucketLifecycleDefault Generic error response.
-
-swagger:response addMultiBucketLifecycleDefault
-*/
+// AddMultiBucketLifecycleDefault Generic error response.
+//
+// swagger:response addMultiBucketLifecycleDefault
 type AddMultiBucketLifecycleDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

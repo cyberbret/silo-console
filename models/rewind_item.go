@@ -22,7 +22,7 @@ import (
 	"context"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
 )
 
 // RewindItem rewind item
@@ -53,12 +53,12 @@ type RewindItem struct {
 }
 
 // Validate validates this rewind item
-func (m *RewindItem) Validate(formats strfmt.Registry) error {
+func (m *RewindItem) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this rewind item based on context it is used
-func (m *RewindItem) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *RewindItem) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -67,13 +67,13 @@ func (m *RewindItem) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *RewindItem) UnmarshalBinary(b []byte) error {
 	var res RewindItem
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

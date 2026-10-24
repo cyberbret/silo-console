@@ -22,7 +22,7 @@ import (
 	"context"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
 )
 
 // ServiceAccountCreds service account creds
@@ -41,12 +41,12 @@ type ServiceAccountCreds struct {
 }
 
 // Validate validates this service account creds
-func (m *ServiceAccountCreds) Validate(formats strfmt.Registry) error {
+func (m *ServiceAccountCreds) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this service account creds based on context it is used
-func (m *ServiceAccountCreds) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *ServiceAccountCreds) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -55,13 +55,13 @@ func (m *ServiceAccountCreds) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *ServiceAccountCreds) UnmarshalBinary(b []byte) error {
 	var res ServiceAccountCreds
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

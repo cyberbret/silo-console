@@ -153,12 +153,7 @@ const AddTierConfiguration = () => {
 
       let payload = {
         type: tierType as
-          | "azure"
-          | "s3"
-          | "minio"
-          | "gcs"
-          | "unsupported"
-          | undefined,
+          "azure" | "s3" | "minio" | "gcs" | "unsupported" | undefined,
         ...request,
       };
 

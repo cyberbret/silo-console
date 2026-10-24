@@ -22,7 +22,6 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime/middleware"
-
 	"github.com/minio/console/models"
 )
 
@@ -44,11 +43,9 @@ func NewCreateServiceAccountCreds(ctx *middleware.Context, handler CreateService
 	return &CreateServiceAccountCreds{Context: ctx, Handler: handler}
 }
 
-/*
-	CreateServiceAccountCreds swagger:route POST /service-account-credentials ServiceAccount createServiceAccountCreds
-
-Create Service Account With Credentials
-*/
+// CreateServiceAccountCreds swagger:route POST /service-account-credentials ServiceAccount createServiceAccountCreds
+//
+// Create Service Account With Credentials
 type CreateServiceAccountCreds struct {
 	Context *middleware.Context
 	Handler CreateServiceAccountCredsHandler
@@ -59,7 +56,7 @@ func (o *CreateServiceAccountCreds) ServeHTTP(rw http.ResponseWriter, r *http.Re
 	if rCtx != nil {
 		*r = *rCtx
 	}
-	var Params = NewCreateServiceAccountCredsParams()
+	params := NewCreateServiceAccountCredsParams()
 	uprinc, aCtx, err := o.Context.Authorize(r, route)
 	if err != nil {
 		o.Context.Respond(rw, r, route.Produces, route, err)
@@ -73,12 +70,12 @@ func (o *CreateServiceAccountCreds) ServeHTTP(rw http.ResponseWriter, r *http.Re
 		principal = uprinc.(*models.Principal) // this is really a models.Principal, I promise
 	}
 
-	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
+	if err := o.Context.BindValidRequest(r, route, &params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
-	res := o.Handler.Handle(Params, principal) // actually handle the request
+	res := o.Handler.Handle(params, principal) // actually handle the request
 
 	o.Context.Respond(rw, r, route.Produces, route, res)
 

@@ -22,18 +22,15 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // AccountChangePasswordNoContentCode is the HTTP code returned for type AccountChangePasswordNoContent
 const AccountChangePasswordNoContentCode int = 204
 
-/*
-AccountChangePasswordNoContent A successful login.
-
-swagger:response accountChangePasswordNoContent
-*/
+// AccountChangePasswordNoContent A successful login.
+//
+// swagger:response accountChangePasswordNoContent
 type AccountChangePasswordNoContent struct {
 }
 
@@ -51,17 +48,13 @@ func (o *AccountChangePasswordNoContent) WriteResponse(rw http.ResponseWriter, p
 	rw.WriteHeader(204)
 }
 
-/*
-AccountChangePasswordDefault Generic error response.
-
-swagger:response accountChangePasswordDefault
-*/
+// AccountChangePasswordDefault Generic error response.
+//
+// swagger:response accountChangePasswordDefault
 type AccountChangePasswordDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

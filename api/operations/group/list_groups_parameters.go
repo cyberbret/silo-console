@@ -25,7 +25,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/conv"
 )
 
 // NewListGroupsParams creates a new ListGroupsParams object
@@ -53,17 +53,11 @@ func NewListGroupsParams() ListGroupsParams {
 type ListGroupsParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
-
-	/*
-	  In: query
-	  Default: 20
-	*/
+	// In: query
+	// Default: 20
 	Limit *int32
-
-	/*
-	  In: query
-	  Default: 0
-	*/
+	// In: query
+	// Default: 0
 	Offset *int32
 }
 
@@ -107,7 +101,7 @@ func (o *ListGroupsParams) bindLimit(rawData []string, hasKey bool, formats strf
 		return nil
 	}
 
-	value, err := swag.ConvertInt32(raw)
+	value, err := conv.ConvertInt32(raw)
 	if err != nil {
 		return errors.InvalidType("limit", "query", "int32", raw)
 	}
@@ -131,7 +125,7 @@ func (o *ListGroupsParams) bindOffset(rawData []string, hasKey bool, formats str
 		return nil
 	}
 
-	value, err := swag.ConvertInt32(raw)
+	value, err := conv.ConvertInt32(raw)
 	if err != nil {
 		return errors.InvalidType("offset", "query", "int32", raw)
 	}

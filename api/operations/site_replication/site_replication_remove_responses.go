@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // SiteReplicationRemoveNoContentCode is the HTTP code returned for type SiteReplicationRemoveNoContent
 const SiteReplicationRemoveNoContentCode int = 204
 
-/*
-SiteReplicationRemoveNoContent A successful response.
-
-swagger:response siteReplicationRemoveNoContent
-*/
+// SiteReplicationRemoveNoContent A successful response.
+//
+// swagger:response siteReplicationRemoveNoContent
 type SiteReplicationRemoveNoContent struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.PeerSiteRemoveResponse `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *SiteReplicationRemoveNoContent) WriteResponse(rw http.ResponseWriter, p
 	}
 }
 
-/*
-SiteReplicationRemoveDefault Generic error response.
-
-swagger:response siteReplicationRemoveDefault
-*/
+// SiteReplicationRemoveDefault Generic error response.
+//
+// swagger:response siteReplicationRemoveDefault
 type SiteReplicationRemoveDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

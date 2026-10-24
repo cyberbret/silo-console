@@ -22,18 +22,15 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // LoginNoContentCode is the HTTP code returned for type LoginNoContent
 const LoginNoContentCode int = 204
 
-/*
-LoginNoContent A successful login.
-
-swagger:response loginNoContent
-*/
+// LoginNoContent A successful login.
+//
+// swagger:response loginNoContent
 type LoginNoContent struct {
 }
 
@@ -51,17 +48,13 @@ func (o *LoginNoContent) WriteResponse(rw http.ResponseWriter, producer runtime.
 	rw.WriteHeader(204)
 }
 
-/*
-LoginDefault Generic error response.
-
-swagger:response loginDefault
-*/
+// LoginDefault Generic error response.
+//
+// swagger:response loginDefault
 type LoginDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

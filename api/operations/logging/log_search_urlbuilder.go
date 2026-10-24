@@ -23,7 +23,8 @@ import (
 	"net/url"
 	golangswaggerpaths "path"
 
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/conv"
+	"github.com/go-openapi/swag/stringutils"
 )
 
 // LogSearchURL generates an URL for the log search operation
@@ -77,7 +78,7 @@ func (o *LogSearchURL) Build() (*url.URL, error) {
 		}
 	}
 
-	fp := swag.JoinByFormat(fpIR, "multi")
+	fp := stringutils.JoinByFormat(fpIR, "multi")
 
 	for _, qsv := range fp {
 		qs.Add("fp", qsv)
@@ -93,7 +94,7 @@ func (o *LogSearchURL) Build() (*url.URL, error) {
 
 	var pageNoQ string
 	if o.PageNo != nil {
-		pageNoQ = swag.FormatInt32(*o.PageNo)
+		pageNoQ = conv.FormatInteger(*o.PageNo)
 	}
 	if pageNoQ != "" {
 		qs.Set("pageNo", pageNoQ)
@@ -101,7 +102,7 @@ func (o *LogSearchURL) Build() (*url.URL, error) {
 
 	var pageSizeQ string
 	if o.PageSize != nil {
-		pageSizeQ = swag.FormatInt32(*o.PageSize)
+		pageSizeQ = conv.FormatInteger(*o.PageSize)
 	}
 	if pageSizeQ != "" {
 		qs.Set("pageSize", pageSizeQ)

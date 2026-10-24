@@ -880,11 +880,11 @@ export interface PutObjectRetentionRequest {
 }
 
 export interface PutObjectTagsRequest {
-  tags?: any;
+  tags?: Record<string, string>;
 }
 
 export interface PutBucketTagsRequest {
-  tags?: any;
+  tags?: Record<string, string>;
 }
 
 export interface PutBucketRetentionRequest {

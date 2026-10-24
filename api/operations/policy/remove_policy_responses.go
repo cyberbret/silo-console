@@ -22,18 +22,15 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // RemovePolicyNoContentCode is the HTTP code returned for type RemovePolicyNoContent
 const RemovePolicyNoContentCode int = 204
 
-/*
-RemovePolicyNoContent A successful response.
-
-swagger:response removePolicyNoContent
-*/
+// RemovePolicyNoContent A successful response.
+//
+// swagger:response removePolicyNoContent
 type RemovePolicyNoContent struct {
 }
 
@@ -51,17 +48,13 @@ func (o *RemovePolicyNoContent) WriteResponse(rw http.ResponseWriter, producer r
 	rw.WriteHeader(204)
 }
 
-/*
-RemovePolicyDefault Generic error response.
-
-swagger:response removePolicyDefault
-*/
+// RemovePolicyDefault Generic error response.
+//
+// swagger:response removePolicyDefault
 type RemovePolicyDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // AddNotificationEndpointCreatedCode is the HTTP code returned for type AddNotificationEndpointCreated
 const AddNotificationEndpointCreatedCode int = 201
 
-/*
-AddNotificationEndpointCreated A successful response.
-
-swagger:response addNotificationEndpointCreated
-*/
+// AddNotificationEndpointCreated A successful response.
+//
+// swagger:response addNotificationEndpointCreated
 type AddNotificationEndpointCreated struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.SetNotificationEndpointResponse `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *AddNotificationEndpointCreated) WriteResponse(rw http.ResponseWriter, p
 	}
 }
 
-/*
-AddNotificationEndpointDefault Generic error response.
-
-swagger:response addNotificationEndpointDefault
-*/
+// AddNotificationEndpointDefault Generic error response.
+//
+// swagger:response addNotificationEndpointDefault
 type AddNotificationEndpointDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

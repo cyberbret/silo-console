@@ -22,7 +22,7 @@ import (
 	"context"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
 )
 
 // ReleaseAuthor release author
@@ -86,12 +86,12 @@ type ReleaseAuthor struct {
 }
 
 // Validate validates this release author
-func (m *ReleaseAuthor) Validate(formats strfmt.Registry) error {
+func (m *ReleaseAuthor) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this release author based on context it is used
-func (m *ReleaseAuthor) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *ReleaseAuthor) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -100,13 +100,13 @@ func (m *ReleaseAuthor) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *ReleaseAuthor) UnmarshalBinary(b []byte) error {
 	var res ReleaseAuthor
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // BucketSetPolicyOKCode is the HTTP code returned for type BucketSetPolicyOK
 const BucketSetPolicyOKCode int = 200
 
-/*
-BucketSetPolicyOK A successful response.
-
-swagger:response bucketSetPolicyOK
-*/
+// BucketSetPolicyOK A successful response.
+//
+// swagger:response bucketSetPolicyOK
 type BucketSetPolicyOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.Bucket `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *BucketSetPolicyOK) WriteResponse(rw http.ResponseWriter, producer runti
 	}
 }
 
-/*
-BucketSetPolicyDefault Generic error response.
-
-swagger:response bucketSetPolicyDefault
-*/
+// BucketSetPolicyDefault Generic error response.
+//
+// swagger:response bucketSetPolicyDefault
 type BucketSetPolicyDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

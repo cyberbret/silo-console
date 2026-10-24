@@ -22,18 +22,15 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // PutObjectLegalHoldOKCode is the HTTP code returned for type PutObjectLegalHoldOK
 const PutObjectLegalHoldOKCode int = 200
 
-/*
-PutObjectLegalHoldOK A successful response.
-
-swagger:response putObjectLegalHoldOK
-*/
+// PutObjectLegalHoldOK A successful response.
+//
+// swagger:response putObjectLegalHoldOK
 type PutObjectLegalHoldOK struct {
 }
 
@@ -51,17 +48,13 @@ func (o *PutObjectLegalHoldOK) WriteResponse(rw http.ResponseWriter, producer ru
 	rw.WriteHeader(200)
 }
 
-/*
-PutObjectLegalHoldDefault Generic error response.
-
-swagger:response putObjectLegalHoldDefault
-*/
+// PutObjectLegalHoldDefault Generic error response.
+//
+// swagger:response putObjectLegalHoldDefault
 type PutObjectLegalHoldDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

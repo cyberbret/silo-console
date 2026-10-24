@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // GetBucketObjectLockingStatusOKCode is the HTTP code returned for type GetBucketObjectLockingStatusOK
 const GetBucketObjectLockingStatusOKCode int = 200
 
-/*
-GetBucketObjectLockingStatusOK A successful response.
-
-swagger:response getBucketObjectLockingStatusOK
-*/
+// GetBucketObjectLockingStatusOK A successful response.
+//
+// swagger:response getBucketObjectLockingStatusOK
 type GetBucketObjectLockingStatusOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.BucketObLockingResponse `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *GetBucketObjectLockingStatusOK) WriteResponse(rw http.ResponseWriter, p
 	}
 }
 
-/*
-GetBucketObjectLockingStatusDefault Generic error response.
-
-swagger:response getBucketObjectLockingStatusDefault
-*/
+// GetBucketObjectLockingStatusDefault Generic error response.
+//
+// swagger:response getBucketObjectLockingStatusDefault
 type GetBucketObjectLockingStatusDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

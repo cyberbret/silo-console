@@ -23,23 +23,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // InspectOKCode is the HTTP code returned for type InspectOK
 const InspectOKCode int = 200
 
-/*
-InspectOK A successful response.
-
-swagger:response inspectOK
-*/
+// InspectOK A successful response.
+//
+// swagger:response inspectOK
 type InspectOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload io.ReadCloser `json:"body,omitempty"`
 }
 
@@ -70,17 +65,13 @@ func (o *InspectOK) WriteResponse(rw http.ResponseWriter, producer runtime.Produ
 	}
 }
 
-/*
-InspectDefault Generic error response.
-
-swagger:response inspectDefault
-*/
+// InspectDefault Generic error response.
+//
+// swagger:response inspectDefault
 type InspectDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

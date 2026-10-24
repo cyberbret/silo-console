@@ -25,7 +25,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/conv"
 )
 
 // NewAdminInfoParams creates a new AdminInfoParams object
@@ -50,11 +50,8 @@ func NewAdminInfoParams() AdminInfoParams {
 type AdminInfoParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
-
-	/*
-	  In: query
-	  Default: false
-	*/
+	// In: query
+	// Default: false
 	DefaultOnly *bool
 }
 
@@ -93,7 +90,7 @@ func (o *AdminInfoParams) bindDefaultOnly(rawData []string, hasKey bool, formats
 		return nil
 	}
 
-	value, err := swag.ConvertBool(raw)
+	value, err := conv.ConvertBool(raw)
 	if err != nil {
 		return errors.InvalidType("defaultOnly", "query", "bool", raw)
 	}

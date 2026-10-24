@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // ListPoliciesOKCode is the HTTP code returned for type ListPoliciesOK
 const ListPoliciesOKCode int = 200
 
-/*
-ListPoliciesOK A successful response.
-
-swagger:response listPoliciesOK
-*/
+// ListPoliciesOK A successful response.
+//
+// swagger:response listPoliciesOK
 type ListPoliciesOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.ListPoliciesResponse `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *ListPoliciesOK) WriteResponse(rw http.ResponseWriter, producer runtime.
 	}
 }
 
-/*
-ListPoliciesDefault Generic error response.
-
-swagger:response listPoliciesDefault
-*/
+// ListPoliciesDefault Generic error response.
+//
+// swagger:response listPoliciesDefault
 type ListPoliciesDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

@@ -41,17 +41,11 @@ func NewGetBucketReplicationRuleParams() GetBucketReplicationRuleParams {
 type GetBucketReplicationRuleParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
-
-	/*
-	  Required: true
-	  In: path
-	*/
+	// Required: true
+	// In: path
 	BucketName string
-
-	/*
-	  Required: true
-	  In: path
-	*/
+	// Required: true
+	// In: path
 	RuleID string
 }
 

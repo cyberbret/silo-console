@@ -22,18 +22,15 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // EditTierCredentialsOKCode is the HTTP code returned for type EditTierCredentialsOK
 const EditTierCredentialsOKCode int = 200
 
-/*
-EditTierCredentialsOK A successful response.
-
-swagger:response editTierCredentialsOK
-*/
+// EditTierCredentialsOK A successful response.
+//
+// swagger:response editTierCredentialsOK
 type EditTierCredentialsOK struct {
 }
 
@@ -51,17 +48,13 @@ func (o *EditTierCredentialsOK) WriteResponse(rw http.ResponseWriter, producer r
 	rw.WriteHeader(200)
 }
 
-/*
-EditTierCredentialsDefault Generic error response.
-
-swagger:response editTierCredentialsDefault
-*/
+// EditTierCredentialsDefault Generic error response.
+//
+// swagger:response editTierCredentialsDefault
 type EditTierCredentialsDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

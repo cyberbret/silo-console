@@ -41,11 +41,9 @@ func NewKMSKeyStatusParams() KMSKeyStatusParams {
 type KMSKeyStatusParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
-
-	/*KMS key name
-	  Required: true
-	  In: path
-	*/
+	// KMS key name
+	// Required: true
+	// In: path
 	Name string
 }
 

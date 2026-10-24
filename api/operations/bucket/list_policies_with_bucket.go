@@ -22,7 +22,6 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime/middleware"
-
 	"github.com/minio/console/models"
 )
 
@@ -44,11 +43,9 @@ func NewListPoliciesWithBucket(ctx *middleware.Context, handler ListPoliciesWith
 	return &ListPoliciesWithBucket{Context: ctx, Handler: handler}
 }
 
-/*
-	ListPoliciesWithBucket swagger:route GET /bucket-policy/{bucket} Bucket listPoliciesWithBucket
-
-List Policies With Given Bucket
-*/
+// ListPoliciesWithBucket swagger:route GET /bucket-policy/{bucket} Bucket listPoliciesWithBucket
+//
+// List Policies With Given Bucket
 type ListPoliciesWithBucket struct {
 	Context *middleware.Context
 	Handler ListPoliciesWithBucketHandler
@@ -59,7 +56,7 @@ func (o *ListPoliciesWithBucket) ServeHTTP(rw http.ResponseWriter, r *http.Reque
 	if rCtx != nil {
 		*r = *rCtx
 	}
-	var Params = NewListPoliciesWithBucketParams()
+	params := NewListPoliciesWithBucketParams()
 	uprinc, aCtx, err := o.Context.Authorize(r, route)
 	if err != nil {
 		o.Context.Respond(rw, r, route.Produces, route, err)
@@ -73,12 +70,12 @@ func (o *ListPoliciesWithBucket) ServeHTTP(rw http.ResponseWriter, r *http.Reque
 		principal = uprinc.(*models.Principal) // this is really a models.Principal, I promise
 	}
 
-	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
+	if err := o.Context.BindValidRequest(r, route, &params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
-	res := o.Handler.Handle(Params, principal) // actually handle the request
+	res := o.Handler.Handle(params, principal) // actually handle the request
 
 	o.Context.Respond(rw, r, route.Produces, route, res)
 

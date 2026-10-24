@@ -24,7 +24,8 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
+	"github.com/go-openapi/swag/typeutils"
 )
 
 // NotificationEndpointItem notification endpoint item
@@ -57,7 +58,7 @@ func (m *NotificationEndpointItem) Validate(formats strfmt.Registry) error {
 }
 
 func (m *NotificationEndpointItem) validateService(formats strfmt.Registry) error {
-	if swag.IsZero(m.Service) { // not required
+	if typeutils.IsZero(m.Service) { // not required
 		return nil
 	}
 
@@ -93,7 +94,7 @@ func (m *NotificationEndpointItem) ContextValidate(ctx context.Context, formats 
 
 func (m *NotificationEndpointItem) contextValidateService(ctx context.Context, formats strfmt.Registry) error {
 
-	if swag.IsZero(m.Service) { // not required
+	if typeutils.IsZero(m.Service) { // not required
 		return nil
 	}
 
@@ -118,13 +119,13 @@ func (m *NotificationEndpointItem) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *NotificationEndpointItem) UnmarshalBinary(b []byte) error {
 	var res NotificationEndpointItem
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

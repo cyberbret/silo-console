@@ -99,10 +99,13 @@ for fmt in deb rpm apk; do
   test "$n" -eq 3 || fail "expected 3 .$fmt packages (amd64, arm64, arm), found $n"
 done
 for os_arch in linux_amd64 linux_arm64 linux_arm darwin_amd64 darwin_arm64 windows_amd64; do
-  jq -e --arg goos "${os_arch%_*}" --arg goarch "${os_arch#*_}" '
+  format=tar.gz
+  if [ "${os_arch%_*}" = windows ]; then format=zip; fi
+  bundle="silo-console-${os_arch%_*}-${os_arch#*_}.${format}"
+  jq -e --arg goos "${os_arch%_*}" --arg goarch "${os_arch#*_}" --arg bundle "$bundle" '
     ([.[] | select(.type == "Binary" and .extra.ID == "binaries" and .goos == $goos and .goarch == $goarch)] | length == 1) and
-    ([.[] | select(.type == "Archive" and .extra.ID == "bundles" and .goos == $goos and .goarch == $goarch)] | length == 1)' "$artifacts" >/dev/null \
-    || fail "missing bare binary or bundle for $os_arch"
+    ([.[] | select(.type == "Archive" and .extra.ID == "bundles" and .goos == $goos and .goarch == $goarch and .name == $bundle)] | length == 1)' "$artifacts" >/dev/null \
+    || fail "missing bare binary or expected bundle $bundle for $os_arch"
 done
 
 asset() { # path of a named asset
@@ -163,15 +166,16 @@ log "bare binaries: CREDITS covers every linked module; native binary embeds the
 # bundles ------------------------------------------------------------------------
 for name in "${bundles[@]}"; do
   path="$(asset "$name")"; dir="$work/bundle-$name"; mkdir -p "$dir"
+  binary=silo-console
   case "$name" in
-    *.zip) unzip -q "$path" -d "$dir" ;;
+    *.zip) binary=silo-console.exe; unzip -q "$path" -d "$dir" ;;
     *) tar -xzf "$path" -C "$dir" ;;
   esac
   for doc in LICENSE NOTICE CREDITS; do
     [ -f "$dir/$doc" ] || fail "$name lacks $doc"
     test "$(sha "$dir/$doc")" = "$(sha "$doc")" || fail "$name: $doc differs"
   done
-  compgen -G "$dir/silo-console*" >/dev/null || fail "$name lacks the executable"
+  [ -s "$dir/$binary" ] || fail "$name lacks $binary"
 done
 log "bundles carry the executable and byte-identical LICENSE, NOTICE and CREDITS"
 

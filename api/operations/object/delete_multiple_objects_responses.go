@@ -22,18 +22,15 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // DeleteMultipleObjectsOKCode is the HTTP code returned for type DeleteMultipleObjectsOK
 const DeleteMultipleObjectsOKCode int = 200
 
-/*
-DeleteMultipleObjectsOK A successful response.
-
-swagger:response deleteMultipleObjectsOK
-*/
+// DeleteMultipleObjectsOK A successful response.
+//
+// swagger:response deleteMultipleObjectsOK
 type DeleteMultipleObjectsOK struct {
 }
 
@@ -51,17 +48,13 @@ func (o *DeleteMultipleObjectsOK) WriteResponse(rw http.ResponseWriter, producer
 	rw.WriteHeader(200)
 }
 
-/*
-DeleteMultipleObjectsDefault Generic error response.
-
-swagger:response deleteMultipleObjectsDefault
-*/
+// DeleteMultipleObjectsDefault Generic error response.
+//
+// swagger:response deleteMultipleObjectsDefault
 type DeleteMultipleObjectsDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

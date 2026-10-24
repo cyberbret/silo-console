@@ -8,6 +8,16 @@ See [DEVELOPMENT.md](DEVELOPMENT.md) for the development environment and fronten
 workflow. The REST API uses [go-swagger](https://github.com/go-swagger/go-swagger).
 The API handlers are created from `swagger.yml`.
 
+## Contributor recognition
+
+Every human issue or pull-request author is recognized in [CONTRIBUTORS.md](CONTRIBUTORS.md),
+including open issues, draft PRs, and PRs closed without merging. Merged fixes,
+adopted proposals, and reports that lead to fixes receive greater prominence;
+first participation guides the remaining order. Work incorporated through a
+later PR retains credit without changing the original PR's recorded status.
+Security disclosures are credited with the reporter's agreement. DCO sign-off
+applies to code commits, not to opening an issue.
+
 ## Licensing of Contributions
 
 Code contributions are accepted under [GNU AGPL v3.0 or later](LICENSE)
@@ -49,6 +59,14 @@ make swagger-gen
 ```
 
 This will update all the necessary code.
+
+After a generator upgrade, preserve the configuration-import binding contract
+covered by `TestConfigImportBindingContract`; changes to upload limits, filenames,
+or accepted form encodings require a separate API compatibility review.
+`make swagger-gen` retains the committed configuration-import binder, just as it
+retains the customized server, and restores its multipart consumer through
+`hack/preserve-swagger-compat.py`. Review changes to that binder explicitly rather
+than replacing it with the generator's default upload policy.
 
 `./api/configure_console.go` is a file that contains the handlers to be used by the application, here is the only place
 where we need to update our code to support the new apis. This file is not affected when running the swagger generator

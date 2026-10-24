@@ -22,7 +22,6 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime/middleware"
-
 	"github.com/minio/console/models"
 )
 
@@ -44,11 +43,9 @@ func NewGetBucketRewind(ctx *middleware.Context, handler GetBucketRewindHandler)
 	return &GetBucketRewind{Context: ctx, Handler: handler}
 }
 
-/*
-	GetBucketRewind swagger:route GET /buckets/{bucket_name}/rewind/{date} Bucket getBucketRewind
-
-Get objects in a bucket for a rewind date
-*/
+// GetBucketRewind swagger:route GET /buckets/{bucket_name}/rewind/{date} Bucket getBucketRewind
+//
+// Get objects in a bucket for a rewind date
 type GetBucketRewind struct {
 	Context *middleware.Context
 	Handler GetBucketRewindHandler
@@ -59,7 +56,7 @@ func (o *GetBucketRewind) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if rCtx != nil {
 		*r = *rCtx
 	}
-	var Params = NewGetBucketRewindParams()
+	params := NewGetBucketRewindParams()
 	uprinc, aCtx, err := o.Context.Authorize(r, route)
 	if err != nil {
 		o.Context.Respond(rw, r, route.Produces, route, err)
@@ -73,12 +70,12 @@ func (o *GetBucketRewind) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		principal = uprinc.(*models.Principal) // this is really a models.Principal, I promise
 	}
 
-	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
+	if err := o.Context.BindValidRequest(r, route, &params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
-	res := o.Handler.Handle(Params, principal) // actually handle the request
+	res := o.Handler.Handle(params, principal) // actually handle the request
 
 	o.Context.Respond(rw, r, route.Produces, route, res)
 

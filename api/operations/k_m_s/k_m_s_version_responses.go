@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // KMSVersionOKCode is the HTTP code returned for type KMSVersionOK
 const KMSVersionOKCode int = 200
 
-/*
-KMSVersionOK A successful response.
-
-swagger:response kMSVersionOK
-*/
+// KMSVersionOK A successful response.
+//
+// swagger:response kMSVersionOK
 type KMSVersionOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.KmsVersionResponse `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *KMSVersionOK) WriteResponse(rw http.ResponseWriter, producer runtime.Pr
 	}
 }
 
-/*
-KMSVersionDefault Generic error response.
-
-swagger:response kMSVersionDefault
-*/
+// KMSVersionDefault Generic error response.
+//
+// swagger:response kMSVersionDefault
 type KMSVersionDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

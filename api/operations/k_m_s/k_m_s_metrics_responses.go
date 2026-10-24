@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // KMSMetricsOKCode is the HTTP code returned for type KMSMetricsOK
 const KMSMetricsOKCode int = 200
 
-/*
-KMSMetricsOK A successful response.
-
-swagger:response kMSMetricsOK
-*/
+// KMSMetricsOK A successful response.
+//
+// swagger:response kMSMetricsOK
 type KMSMetricsOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.KmsMetricsResponse `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *KMSMetricsOK) WriteResponse(rw http.ResponseWriter, producer runtime.Pr
 	}
 }
 
-/*
-KMSMetricsDefault Generic error response.
-
-swagger:response kMSMetricsDefault
-*/
+// KMSMetricsDefault Generic error response.
+//
+// swagger:response kMSMetricsDefault
 type KMSMetricsDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

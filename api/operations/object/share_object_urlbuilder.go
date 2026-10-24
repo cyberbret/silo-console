@@ -24,7 +24,7 @@ import (
 	golangswaggerpaths "path"
 	"strings"
 
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/conv"
 )
 
 // ShareObjectURL generates an URL for the share object operation
@@ -92,7 +92,7 @@ func (o *ShareObjectURL) Build() (*url.URL, error) {
 
 	var toggleURLQ string
 	if o.ToggleURL != nil {
-		toggleURLQ = swag.FormatBool(*o.ToggleURL)
+		toggleURLQ = conv.FormatBool(*o.ToggleURL)
 	}
 	if toggleURLQ != "" {
 		qs.Set("toggle_url", toggleURLQ)

@@ -22,18 +22,15 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // BulkUpdateUsersGroupsOKCode is the HTTP code returned for type BulkUpdateUsersGroupsOK
 const BulkUpdateUsersGroupsOKCode int = 200
 
-/*
-BulkUpdateUsersGroupsOK A successful response.
-
-swagger:response bulkUpdateUsersGroupsOK
-*/
+// BulkUpdateUsersGroupsOK A successful response.
+//
+// swagger:response bulkUpdateUsersGroupsOK
 type BulkUpdateUsersGroupsOK struct {
 }
 
@@ -51,17 +48,13 @@ func (o *BulkUpdateUsersGroupsOK) WriteResponse(rw http.ResponseWriter, producer
 	rw.WriteHeader(200)
 }
 
-/*
-BulkUpdateUsersGroupsDefault Generic error response.
-
-swagger:response bulkUpdateUsersGroupsDefault
-*/
+// BulkUpdateUsersGroupsDefault Generic error response.
+//
+// swagger:response bulkUpdateUsersGroupsDefault
 type BulkUpdateUsersGroupsDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

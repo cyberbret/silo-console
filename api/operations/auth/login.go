@@ -42,11 +42,9 @@ func NewLogin(ctx *middleware.Context, handler LoginHandler) *Login {
 	return &Login{Context: ctx, Handler: handler}
 }
 
-/*
-	Login swagger:route POST /login Auth login
-
-Login to Console
-*/
+// Login swagger:route POST /login Auth login
+//
+// Login to Console
 type Login struct {
 	Context *middleware.Context
 	Handler LoginHandler
@@ -57,13 +55,13 @@ func (o *Login) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if rCtx != nil {
 		*r = *rCtx
 	}
-	var Params = NewLoginParams()
-	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
+	params := NewLoginParams()
+	if err := o.Context.BindValidRequest(r, route, &params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
-	res := o.Handler.Handle(Params) // actually handle the request
+	res := o.Handler.Handle(params) // actually handle the request
 
 	o.Context.Respond(rw, r, route.Produces, route, res)
 

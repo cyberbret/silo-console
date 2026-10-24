@@ -11,10 +11,10 @@
     {
       "selection": "direct",
       "import": "github.com/pgsty/silo-pkg/v3",
-      "version": "v3.14.2",
+      "version": "v3.14.3",
       "kind": "module_tag",
-      "tag": "v3.14.2",
-      "commit": "c6835145176f385dd5f2d2a6d5ccd337b258d9bb",
+      "tag": "v3.14.3",
+      "commit": "e9d585ba1e7a30ee5eb85b992d883820b83768f5",
       "repository": "pgsty/silo-pkg"
     },
     {

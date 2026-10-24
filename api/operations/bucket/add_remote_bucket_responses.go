@@ -22,18 +22,15 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // AddRemoteBucketCreatedCode is the HTTP code returned for type AddRemoteBucketCreated
 const AddRemoteBucketCreatedCode int = 201
 
-/*
-AddRemoteBucketCreated A successful response.
-
-swagger:response addRemoteBucketCreated
-*/
+// AddRemoteBucketCreated A successful response.
+//
+// swagger:response addRemoteBucketCreated
 type AddRemoteBucketCreated struct {
 }
 
@@ -51,17 +48,13 @@ func (o *AddRemoteBucketCreated) WriteResponse(rw http.ResponseWriter, producer 
 	rw.WriteHeader(201)
 }
 
-/*
-AddRemoteBucketDefault Generic error response.
-
-swagger:response addRemoteBucketDefault
-*/
+// AddRemoteBucketDefault Generic error response.
+//
+// swagger:response addRemoteBucketDefault
 type AddRemoteBucketDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

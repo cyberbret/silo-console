@@ -22,18 +22,15 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // CreateBucketEventCreatedCode is the HTTP code returned for type CreateBucketEventCreated
 const CreateBucketEventCreatedCode int = 201
 
-/*
-CreateBucketEventCreated A successful response.
-
-swagger:response createBucketEventCreated
-*/
+// CreateBucketEventCreated A successful response.
+//
+// swagger:response createBucketEventCreated
 type CreateBucketEventCreated struct {
 }
 
@@ -51,17 +48,13 @@ func (o *CreateBucketEventCreated) WriteResponse(rw http.ResponseWriter, produce
 	rw.WriteHeader(201)
 }
 
-/*
-CreateBucketEventDefault Generic error response.
-
-swagger:response createBucketEventDefault
-*/
+// CreateBucketEventDefault Generic error response.
+//
+// swagger:response createBucketEventDefault
 type CreateBucketEventDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

@@ -22,18 +22,15 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // DeleteBucketNoContentCode is the HTTP code returned for type DeleteBucketNoContent
 const DeleteBucketNoContentCode int = 204
 
-/*
-DeleteBucketNoContent A successful response.
-
-swagger:response deleteBucketNoContent
-*/
+// DeleteBucketNoContent A successful response.
+//
+// swagger:response deleteBucketNoContent
 type DeleteBucketNoContent struct {
 }
 
@@ -51,17 +48,13 @@ func (o *DeleteBucketNoContent) WriteResponse(rw http.ResponseWriter, producer r
 	rw.WriteHeader(204)
 }
 
-/*
-DeleteBucketDefault Generic error response.
-
-swagger:response deleteBucketDefault
-*/
+// DeleteBucketDefault Generic error response.
+//
+// swagger:response deleteBucketDefault
 type DeleteBucketDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

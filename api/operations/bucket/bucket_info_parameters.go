@@ -41,11 +41,8 @@ func NewBucketInfoParams() BucketInfoParams {
 type BucketInfoParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
-
-	/*
-	  Required: true
-	  In: path
-	*/
+	// Required: true
+	// In: path
 	Name string
 }
 

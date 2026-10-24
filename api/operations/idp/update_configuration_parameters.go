@@ -28,7 +28,6 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
-
 	"github.com/minio/console/models"
 )
 
@@ -47,23 +46,16 @@ func NewUpdateConfigurationParams() UpdateConfigurationParams {
 type UpdateConfigurationParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
-
-	/*
-	  Required: true
-	  In: body
-	*/
+	// Required: true
+	// In: body
 	Body *models.IdpServerConfiguration
-
-	/*IDP Configuration Name
-	  Required: true
-	  In: path
-	*/
+	// IDP Configuration Name
+	// Required: true
+	// In: path
 	Name string
-
-	/*IDP Configuration Type
-	  Required: true
-	  In: path
-	*/
+	// IDP Configuration Type
+	// Required: true
+	// In: path
 	Type string
 }
 

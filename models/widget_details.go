@@ -25,7 +25,8 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
+	"github.com/go-openapi/swag/typeutils"
 )
 
 // WidgetDetails widget details
@@ -68,7 +69,7 @@ func (m *WidgetDetails) Validate(formats strfmt.Registry) error {
 }
 
 func (m *WidgetDetails) validateOptions(formats strfmt.Registry) error {
-	if swag.IsZero(m.Options) { // not required
+	if typeutils.IsZero(m.Options) { // not required
 		return nil
 	}
 
@@ -91,12 +92,12 @@ func (m *WidgetDetails) validateOptions(formats strfmt.Registry) error {
 }
 
 func (m *WidgetDetails) validateTargets(formats strfmt.Registry) error {
-	if swag.IsZero(m.Targets) { // not required
+	if typeutils.IsZero(m.Targets) { // not required
 		return nil
 	}
 
 	for i := 0; i < len(m.Targets); i++ {
-		if swag.IsZero(m.Targets[i]) { // not required
+		if typeutils.IsZero(m.Targets[i]) { // not required
 			continue
 		}
 
@@ -142,7 +143,7 @@ func (m *WidgetDetails) contextValidateOptions(ctx context.Context, formats strf
 
 	if m.Options != nil {
 
-		if swag.IsZero(m.Options) { // not required
+		if typeutils.IsZero(m.Options) { // not required
 			return nil
 		}
 
@@ -169,7 +170,7 @@ func (m *WidgetDetails) contextValidateTargets(ctx context.Context, formats strf
 
 		if m.Targets[i] != nil {
 
-			if swag.IsZero(m.Targets[i]) { // not required
+			if typeutils.IsZero(m.Targets[i]) { // not required
 				return nil
 			}
 
@@ -197,13 +198,13 @@ func (m *WidgetDetails) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *WidgetDetails) UnmarshalBinary(b []byte) error {
 	var res WidgetDetails
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res
@@ -234,7 +235,7 @@ func (m *WidgetDetailsOptions) Validate(formats strfmt.Registry) error {
 }
 
 func (m *WidgetDetailsOptions) validateReduceOptions(formats strfmt.Registry) error {
-	if swag.IsZero(m.ReduceOptions) { // not required
+	if typeutils.IsZero(m.ReduceOptions) { // not required
 		return nil
 	}
 
@@ -274,7 +275,7 @@ func (m *WidgetDetailsOptions) contextValidateReduceOptions(ctx context.Context,
 
 	if m.ReduceOptions != nil {
 
-		if swag.IsZero(m.ReduceOptions) { // not required
+		if typeutils.IsZero(m.ReduceOptions) { // not required
 			return nil
 		}
 
@@ -300,13 +301,13 @@ func (m *WidgetDetailsOptions) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *WidgetDetailsOptions) UnmarshalBinary(b []byte) error {
 	var res WidgetDetailsOptions
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res
@@ -323,12 +324,12 @@ type WidgetDetailsOptionsReduceOptions struct {
 }
 
 // Validate validates this widget details options reduce options
-func (m *WidgetDetailsOptionsReduceOptions) Validate(formats strfmt.Registry) error {
+func (m *WidgetDetailsOptionsReduceOptions) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this widget details options reduce options based on context it is used
-func (m *WidgetDetailsOptionsReduceOptions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *WidgetDetailsOptionsReduceOptions) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -337,13 +338,13 @@ func (m *WidgetDetailsOptionsReduceOptions) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *WidgetDetailsOptionsReduceOptions) UnmarshalBinary(b []byte) error {
 	var res WidgetDetailsOptionsReduceOptions
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

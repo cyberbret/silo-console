@@ -25,7 +25,8 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
+	"github.com/go-openapi/swag/typeutils"
 )
 
 // StartProfilingList start profiling list
@@ -55,12 +56,12 @@ func (m *StartProfilingList) Validate(formats strfmt.Registry) error {
 }
 
 func (m *StartProfilingList) validateStartResults(formats strfmt.Registry) error {
-	if swag.IsZero(m.StartResults) { // not required
+	if typeutils.IsZero(m.StartResults) { // not required
 		return nil
 	}
 
 	for i := 0; i < len(m.StartResults); i++ {
-		if swag.IsZero(m.StartResults[i]) { // not required
+		if typeutils.IsZero(m.StartResults[i]) { // not required
 			continue
 		}
 
@@ -104,7 +105,7 @@ func (m *StartProfilingList) contextValidateStartResults(ctx context.Context, fo
 
 		if m.StartResults[i] != nil {
 
-			if swag.IsZero(m.StartResults[i]) { // not required
+			if typeutils.IsZero(m.StartResults[i]) { // not required
 				return nil
 			}
 
@@ -132,13 +133,13 @@ func (m *StartProfilingList) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *StartProfilingList) UnmarshalBinary(b []byte) error {
 	var res StartProfilingList
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

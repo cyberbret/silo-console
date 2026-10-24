@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // SiteReplicationInfoAddOKCode is the HTTP code returned for type SiteReplicationInfoAddOK
 const SiteReplicationInfoAddOKCode int = 200
 
-/*
-SiteReplicationInfoAddOK A successful response.
-
-swagger:response siteReplicationInfoAddOK
-*/
+// SiteReplicationInfoAddOK A successful response.
+//
+// swagger:response siteReplicationInfoAddOK
 type SiteReplicationInfoAddOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.SiteReplicationAddResponse `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *SiteReplicationInfoAddOK) WriteResponse(rw http.ResponseWriter, produce
 	}
 }
 
-/*
-SiteReplicationInfoAddDefault Generic error response.
-
-swagger:response siteReplicationInfoAddDefault
-*/
+// SiteReplicationInfoAddDefault Generic error response.
+//
+// swagger:response siteReplicationInfoAddDefault
 type SiteReplicationInfoAddDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

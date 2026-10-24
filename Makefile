@@ -85,7 +85,9 @@ swagger-console:
 	@(cd web-app && yarn)
 	@echo "Generating typescript api"
 	@make swagger-typescript-api path="../swagger.yml" output="./src/api" name="consoleApi.ts"
-	@git restore api/server.go
+	@# Preserve the customized server and the reviewed config-import binding contract.
+	@git restore api/server.go api/operations/configuration/post_configs_import_parameters.go
+	@python3 hack/preserve-swagger-compat.py
 
 swagger-typescript-api:
 	@(cd web-app && yarn swagger-typescript-api generate -p $(path) -o $(output) -n $(name) --custom-config ../generator.config.js)

@@ -33,7 +33,7 @@ jobs:
     runs-on: [ubuntu-latest]
     strategy:
       matrix:
-        go-version: [1.27.2]
+        go-version: [1.27.3]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -61,10 +61,10 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
-      - name: Set up Go 1.27.2
+      - name: Set up Go 1.27.3
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          go-version: 1.27.2
+          go-version: 1.27.3
       - name: Remove the maintained mc replacement and probe compatibility
         # hack/upstream-floor.sh models an embedder that does not copy the mc
         # replacement.
@@ -76,10 +76,10 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
-      - name: Set up Go 1.27.2
+      - name: Set up Go 1.27.3
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          go-version: 1.27.2
+          go-version: 1.27.3
       - name: Verify the README block against go.mod
         run: go run ./hack/replacements check
       - name: Build an embedder that copies the README block verbatim
@@ -89,31 +89,26 @@ jobs:
 
   semgrep-static-code-analysis:
     name: "semgrep checks"
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest]
     steps:
       - name: Check out source code
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
-      - name: Set up the pinned Semgrep Python runtime
-        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
-        with:
-          python-version: "3.12.12"
-          cache: pip
-          cache-dependency-path: .github/requirements/semgrep.txt
-      - name: Install and run the locked Semgrep tool graph
+      - name: Install and run Semgrep with the runner's Python
         run: |
-          python -m pip install --require-hashes -r .github/requirements/semgrep.txt
-          semgrep --config semgrep.yaml web-app --error --metrics off
-          python hack/check-ci-contract.py
+          python3 -m venv "$RUNNER_TEMP/semgrep-venv"
+          "$RUNNER_TEMP/semgrep-venv/bin/python" -m pip install --require-hashes -r .github/requirements/semgrep.txt
+          "$RUNNER_TEMP/semgrep-venv/bin/semgrep" --config semgrep.yaml web-app --error --metrics off
+          python3 hack/check-ci-contract.py
 
   ui-assets:
     name: "React Code Has No Warnings & Prettified"
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go-version: [1.27.2]
+        go-version: [1.27.3]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -172,10 +167,10 @@ jobs:
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           fetch-depth: 0
-      - name: Set up Go 1.27.2
+      - name: Set up Go 1.27.3
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          go-version: 1.27.2
+          go-version: 1.27.3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
         with:
@@ -197,6 +192,29 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: hack/check-package-lifecycle.sh
+
+  reproducible-artifacts:
+    name: Reproduce release artifacts in independent checkouts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          fetch-depth: 0
+      - name: Set up Go 1.27.3
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: 1.27.3
+          cache: false
+      - name: Install GoReleaser
+        uses: goreleaser/goreleaser-action@f06c13b6b1a9625abc9e6e439d9c05a8f2190e94 # v7.2.3
+        with:
+          version: v2.18.3
+          install-only: true
+      - name: Install Syft for release SBOM validation
+        uses: anchore/sbom-action/download-syft@3ad7283483fc7af8ff2b4ea19663c2d5ca935e26 # v0.24.2
+        with:
+          syft-version: v1.51.1
       - name: Rebuild the same commit twice in independent checkouts
         run: hack/check-reproducible.sh
 
@@ -208,7 +226,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go-version: [1.27.2]
+        go-version: [1.27.3]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -265,7 +283,7 @@ jobs:
     runs-on: [ubuntu-latest]
     strategy:
       matrix:
-        go-version: [1.27.2]
+        go-version: [1.27.3]
     steps:
       # Clone Console Repo
       - name: Check out code
@@ -333,7 +351,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        go-version: [1.27.2]
+        go-version: [1.27.3]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -372,7 +390,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        go-version: [1.27.2]
+        go-version: [1.27.3]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -436,7 +454,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        go-version: [1.27.2]
+        go-version: [1.27.3]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -499,7 +517,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        go-version: [1.27.2]
+        go-version: [1.27.3]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -561,7 +579,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        go-version: [1.27.2]
+        go-version: [1.27.3]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -623,7 +641,7 @@ jobs:
     timeout-minutes: 15
     strategy:
       matrix:
-        go-version: [1.27.2]
+        go-version: [1.27.3]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -681,7 +699,7 @@ jobs:
     runs-on: [ubuntu-latest]
     strategy:
       matrix:
-        go-version: [1.27.2]
+        go-version: [1.27.3]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -739,7 +757,7 @@ jobs:
     runs-on: [ubuntu-latest]
     strategy:
       matrix:
-        go-version: [1.27.2]
+        go-version: [1.27.3]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -797,7 +815,7 @@ jobs:
     runs-on: [ubuntu-latest]
     strategy:
       matrix:
-        go-version: [1.27.2]
+        go-version: [1.27.3]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -855,7 +873,7 @@ jobs:
     runs-on: [ubuntu-latest]
     strategy:
       matrix:
-        go-version: [1.27.2]
+        go-version: [1.27.3]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -913,7 +931,7 @@ jobs:
     runs-on: [ubuntu-latest]
     strategy:
       matrix:
-        go-version: [1.27.2]
+        go-version: [1.27.3]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -974,7 +992,7 @@ jobs:
     runs-on: [ubuntu-latest]
     strategy:
       matrix:
-        go-version: [1.27.2]
+        go-version: [1.27.3]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -1037,7 +1055,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        go-version: [1.27.2]
+        go-version: [1.27.3]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -1073,7 +1091,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        go-version: [1.27.2]
+        go-version: [1.27.3]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -1111,7 +1129,7 @@ jobs:
 
     strategy:
       matrix:
-        go-version: [1.27.2]
+        go-version: [1.27.3]
 
     steps:
       - name: Check out code
@@ -1161,7 +1179,7 @@ jobs:
 
     strategy:
       matrix:
-        go-version: [1.27.2]
+        go-version: [1.27.3]
 
     steps:
       - name: Check out code
@@ -1198,7 +1216,7 @@ jobs:
 
     strategy:
       matrix:
-        go-version: [1.27.2]
+        go-version: [1.27.3]
 
     steps:
       - name: Check out code
@@ -1235,7 +1253,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        go-version: [1.27.2]
+        go-version: [1.27.3]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -1339,7 +1357,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go-version: [1.27.2]
+        go-version: [1.27.3]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -1382,7 +1400,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        go-version: [1.27.2]
+        go-version: [1.27.3]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -1422,7 +1440,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        go-version: [1.27.2]
+        go-version: [1.27.3]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -1450,7 +1468,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        go-version: [1.27.2]
+        go-version: [1.27.3]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -1477,7 +1495,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        go-version: [1.27.2]
+        go-version: [1.27.3]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -1505,7 +1523,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        go-version: [1.27.2]
+        go-version: [1.27.3]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -1533,7 +1551,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        go-version: [1.27.2]
+        go-version: [1.27.3]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -1615,7 +1633,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          go-version: 1.27.2
+          go-version: 1.27.3
       - name: Enable Corepack
         run: corepack enable
       - name: Set up Node
@@ -1668,6 +1686,7 @@ jobs:
       - swagger-codegen
       - compile-binary
       - release-artifacts
+      - reproducible-artifacts
       - test-nginx-subpath
       - all-permissions-1
       - all-permissions-2

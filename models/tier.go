@@ -25,7 +25,8 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
+	"github.com/go-openapi/swag/typeutils"
 	"github.com/go-openapi/validate"
 )
 
@@ -85,7 +86,7 @@ func (m *Tier) Validate(formats strfmt.Registry) error {
 }
 
 func (m *Tier) validateAzure(formats strfmt.Registry) error {
-	if swag.IsZero(m.Azure) { // not required
+	if typeutils.IsZero(m.Azure) { // not required
 		return nil
 	}
 
@@ -108,7 +109,7 @@ func (m *Tier) validateAzure(formats strfmt.Registry) error {
 }
 
 func (m *Tier) validateGcs(formats strfmt.Registry) error {
-	if swag.IsZero(m.Gcs) { // not required
+	if typeutils.IsZero(m.Gcs) { // not required
 		return nil
 	}
 
@@ -131,7 +132,7 @@ func (m *Tier) validateGcs(formats strfmt.Registry) error {
 }
 
 func (m *Tier) validateMinio(formats strfmt.Registry) error {
-	if swag.IsZero(m.Minio) { // not required
+	if typeutils.IsZero(m.Minio) { // not required
 		return nil
 	}
 
@@ -154,7 +155,7 @@ func (m *Tier) validateMinio(formats strfmt.Registry) error {
 }
 
 func (m *Tier) validateS3(formats strfmt.Registry) error {
-	if swag.IsZero(m.S3) { // not required
+	if typeutils.IsZero(m.S3) { // not required
 		return nil
 	}
 
@@ -215,7 +216,7 @@ func (m *Tier) validateTypeEnum(path, location string, value string) error {
 }
 
 func (m *Tier) validateType(formats strfmt.Registry) error {
-	if swag.IsZero(m.Type) { // not required
+	if typeutils.IsZero(m.Type) { // not required
 		return nil
 	}
 
@@ -257,7 +258,7 @@ func (m *Tier) contextValidateAzure(ctx context.Context, formats strfmt.Registry
 
 	if m.Azure != nil {
 
-		if swag.IsZero(m.Azure) { // not required
+		if typeutils.IsZero(m.Azure) { // not required
 			return nil
 		}
 
@@ -282,7 +283,7 @@ func (m *Tier) contextValidateGcs(ctx context.Context, formats strfmt.Registry) 
 
 	if m.Gcs != nil {
 
-		if swag.IsZero(m.Gcs) { // not required
+		if typeutils.IsZero(m.Gcs) { // not required
 			return nil
 		}
 
@@ -307,7 +308,7 @@ func (m *Tier) contextValidateMinio(ctx context.Context, formats strfmt.Registry
 
 	if m.Minio != nil {
 
-		if swag.IsZero(m.Minio) { // not required
+		if typeutils.IsZero(m.Minio) { // not required
 			return nil
 		}
 
@@ -332,7 +333,7 @@ func (m *Tier) contextValidateS3(ctx context.Context, formats strfmt.Registry) e
 
 	if m.S3 != nil {
 
-		if swag.IsZero(m.S3) { // not required
+		if typeutils.IsZero(m.S3) { // not required
 			return nil
 		}
 
@@ -358,13 +359,13 @@ func (m *Tier) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *Tier) UnmarshalBinary(b []byte) error {
 	var res Tier
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

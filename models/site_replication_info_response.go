@@ -25,7 +25,8 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
+	"github.com/go-openapi/swag/typeutils"
 )
 
 // SiteReplicationInfoResponse site replication info response
@@ -61,12 +62,12 @@ func (m *SiteReplicationInfoResponse) Validate(formats strfmt.Registry) error {
 }
 
 func (m *SiteReplicationInfoResponse) validateSites(formats strfmt.Registry) error {
-	if swag.IsZero(m.Sites) { // not required
+	if typeutils.IsZero(m.Sites) { // not required
 		return nil
 	}
 
 	for i := 0; i < len(m.Sites); i++ {
-		if swag.IsZero(m.Sites[i]) { // not required
+		if typeutils.IsZero(m.Sites[i]) { // not required
 			continue
 		}
 
@@ -110,7 +111,7 @@ func (m *SiteReplicationInfoResponse) contextValidateSites(ctx context.Context, 
 
 		if m.Sites[i] != nil {
 
-			if swag.IsZero(m.Sites[i]) { // not required
+			if typeutils.IsZero(m.Sites[i]) { // not required
 				return nil
 			}
 
@@ -138,13 +139,13 @@ func (m *SiteReplicationInfoResponse) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *SiteReplicationInfoResponse) UnmarshalBinary(b []byte) error {
 	var res SiteReplicationInfoResponse
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

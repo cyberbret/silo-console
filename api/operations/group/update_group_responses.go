@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // UpdateGroupOKCode is the HTTP code returned for type UpdateGroupOK
 const UpdateGroupOKCode int = 200
 
-/*
-UpdateGroupOK A successful response.
-
-swagger:response updateGroupOK
-*/
+// UpdateGroupOK A successful response.
+//
+// swagger:response updateGroupOK
 type UpdateGroupOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.Group `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *UpdateGroupOK) WriteResponse(rw http.ResponseWriter, producer runtime.P
 	}
 }
 
-/*
-UpdateGroupDefault Generic error response.
-
-swagger:response updateGroupDefault
-*/
+// UpdateGroupDefault Generic error response.
+//
+// swagger:response updateGroupDefault
 type UpdateGroupDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

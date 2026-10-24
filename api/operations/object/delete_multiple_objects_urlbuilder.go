@@ -24,7 +24,7 @@ import (
 	golangswaggerpaths "path"
 	"strings"
 
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/conv"
 )
 
 // DeleteMultipleObjectsURL generates an URL for the delete multiple objects operation
@@ -77,7 +77,7 @@ func (o *DeleteMultipleObjectsURL) Build() (*url.URL, error) {
 
 	var allVersionsQ string
 	if o.AllVersions != nil {
-		allVersionsQ = swag.FormatBool(*o.AllVersions)
+		allVersionsQ = conv.FormatBool(*o.AllVersions)
 	}
 	if allVersionsQ != "" {
 		qs.Set("all_versions", allVersionsQ)
@@ -85,7 +85,7 @@ func (o *DeleteMultipleObjectsURL) Build() (*url.URL, error) {
 
 	var bypassQ string
 	if o.Bypass != nil {
-		bypassQ = swag.FormatBool(*o.Bypass)
+		bypassQ = conv.FormatBool(*o.Bypass)
 	}
 	if bypassQ != "" {
 		qs.Set("bypass", bypassQ)

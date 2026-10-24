@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // LogSearchOKCode is the HTTP code returned for type LogSearchOK
 const LogSearchOKCode int = 200
 
-/*
-LogSearchOK A successful response.
-
-swagger:response logSearchOK
-*/
+// LogSearchOK A successful response.
+//
+// swagger:response logSearchOK
 type LogSearchOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.LogSearchResponse `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *LogSearchOK) WriteResponse(rw http.ResponseWriter, producer runtime.Pro
 	}
 }
 
-/*
-LogSearchDefault Generic error response.
-
-swagger:response logSearchDefault
-*/
+// LogSearchDefault Generic error response.
+//
+// swagger:response logSearchDefault
 type LogSearchDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

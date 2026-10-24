@@ -22,18 +22,15 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // PostConfigsImportOKCode is the HTTP code returned for type PostConfigsImportOK
 const PostConfigsImportOKCode int = 200
 
-/*
-PostConfigsImportOK A successful response.
-
-swagger:response postConfigsImportOK
-*/
+// PostConfigsImportOK A successful response.
+//
+// swagger:response postConfigsImportOK
 type PostConfigsImportOK struct {
 }
 
@@ -51,17 +48,13 @@ func (o *PostConfigsImportOK) WriteResponse(rw http.ResponseWriter, producer run
 	rw.WriteHeader(200)
 }
 
-/*
-PostConfigsImportDefault Generic error response.
-
-swagger:response postConfigsImportDefault
-*/
+// PostConfigsImportDefault Generic error response.
+//
+// swagger:response postConfigsImportDefault
 type PostConfigsImportDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

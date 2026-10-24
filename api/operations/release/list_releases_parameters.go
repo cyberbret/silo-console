@@ -43,26 +43,18 @@ func NewListReleasesParams() ListReleasesParams {
 type ListReleasesParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
-
-	/*Current Release
-	  In: query
-	*/
+	// Current Release
+	// In: query
 	Current *string
-
-	/*filter releases
-	  In: query
-	*/
+	// filter releases
+	// In: query
 	Filter *string
-
-	/*repo name
-	  Required: true
-	  In: query
-	*/
+	// repo name
+	// Required: true
+	// In: query
 	Repo string
-
-	/*search content
-	  In: query
-	*/
+	// search content
+	// In: query
 	Search *string
 }
 

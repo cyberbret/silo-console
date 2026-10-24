@@ -22,7 +22,7 @@ import (
 	"context"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
 )
 
 // MultiBucketReplicationEdit multi bucket replication edit
@@ -62,12 +62,12 @@ type MultiBucketReplicationEdit struct {
 }
 
 // Validate validates this multi bucket replication edit
-func (m *MultiBucketReplicationEdit) Validate(formats strfmt.Registry) error {
+func (m *MultiBucketReplicationEdit) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this multi bucket replication edit based on context it is used
-func (m *MultiBucketReplicationEdit) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *MultiBucketReplicationEdit) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -76,13 +76,13 @@ func (m *MultiBucketReplicationEdit) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *MultiBucketReplicationEdit) UnmarshalBinary(b []byte) error {
 	var res MultiBucketReplicationEdit
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

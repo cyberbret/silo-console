@@ -22,18 +22,15 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // RemoveTierNoContentCode is the HTTP code returned for type RemoveTierNoContent
 const RemoveTierNoContentCode int = 204
 
-/*
-RemoveTierNoContent A successful response.
-
-swagger:response removeTierNoContent
-*/
+// RemoveTierNoContent A successful response.
+//
+// swagger:response removeTierNoContent
 type RemoveTierNoContent struct {
 }
 
@@ -51,17 +48,13 @@ func (o *RemoveTierNoContent) WriteResponse(rw http.ResponseWriter, producer run
 	rw.WriteHeader(204)
 }
 
-/*
-RemoveTierDefault Generic error response.
-
-swagger:response removeTierDefault
-*/
+// RemoveTierDefault Generic error response.
+//
+// swagger:response removeTierDefault
 type RemoveTierDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

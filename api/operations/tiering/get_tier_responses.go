@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // GetTierOKCode is the HTTP code returned for type GetTierOK
 const GetTierOKCode int = 200
 
-/*
-GetTierOK A successful response.
-
-swagger:response getTierOK
-*/
+// GetTierOK A successful response.
+//
+// swagger:response getTierOK
 type GetTierOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.Tier `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *GetTierOK) WriteResponse(rw http.ResponseWriter, producer runtime.Produ
 	}
 }
 
-/*
-GetTierDefault Generic error response.
-
-swagger:response getTierDefault
-*/
+// GetTierDefault Generic error response.
+//
+// swagger:response getTierDefault
 type GetTierDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

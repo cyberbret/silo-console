@@ -24596,7 +24596,7 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 ================================================================
 
-picomatch@4.0.4 (MIT)
+picomatch@4.0.7 (MIT)
 https://www.npmjs.com/package/picomatch
 ----------------------------------------------------------------
 The MIT License (MIT)
@@ -24729,7 +24729,7 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ================================================================
 
-qs@6.16.0 (BSD-3-Clause)
+qs@6.16.1 (BSD-3-Clause)
 https://www.npmjs.com/package/qs
 ----------------------------------------------------------------
 BSD 3-Clause License
@@ -24989,12 +24989,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ================================================================
 
-react-pdf@10.4.1 (MIT)
+react-pdf@10.5.0 (MIT)
 https://www.npmjs.com/package/react-pdf
 ----------------------------------------------------------------
 MIT License
 
-Copyright (c) 2017–2024 Wojciech Maj
+Copyright (c) 2017–2026 Wojciech Maj
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -25236,7 +25236,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ================================================================
 
-react-window-infinite-loader@2.0.1 (MIT)
+react-window-infinite-loader@2.0.2 (MIT)
 https://www.npmjs.com/package/react-window-infinite-loader
 ----------------------------------------------------------------
 The MIT License (MIT)
@@ -25262,7 +25262,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ================================================================
 
-react-window@2.2.7 (MIT)
+react-window@2.5.0 (MIT)
 https://www.npmjs.com/package/react-window
 ----------------------------------------------------------------
 The MIT License (MIT)
@@ -25988,7 +25988,7 @@ https://www.npmjs.com/package/styled-components
 License: MIT (declared in package.json; the package ships no license file)
 ================================================================
 
-superagent@10.3.0 (MIT)
+superagent@10.4.1 (MIT)
 https://www.npmjs.com/package/superagent
 ----------------------------------------------------------------
 (The MIT License)

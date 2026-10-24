@@ -22,7 +22,7 @@ import (
 	"context"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
 )
 
 // BucketEncryptionInfo bucket encryption info
@@ -38,12 +38,12 @@ type BucketEncryptionInfo struct {
 }
 
 // Validate validates this bucket encryption info
-func (m *BucketEncryptionInfo) Validate(formats strfmt.Registry) error {
+func (m *BucketEncryptionInfo) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this bucket encryption info based on context it is used
-func (m *BucketEncryptionInfo) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *BucketEncryptionInfo) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -52,13 +52,13 @@ func (m *BucketEncryptionInfo) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *BucketEncryptionInfo) UnmarshalBinary(b []byte) error {
 	var res BucketEncryptionInfo
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

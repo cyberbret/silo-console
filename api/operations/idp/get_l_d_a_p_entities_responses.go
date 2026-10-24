@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // GetLDAPEntitiesOKCode is the HTTP code returned for type GetLDAPEntitiesOK
 const GetLDAPEntitiesOKCode int = 200
 
-/*
-GetLDAPEntitiesOK A successful response.
-
-swagger:response getLDAPEntitiesOK
-*/
+// GetLDAPEntitiesOK A successful response.
+//
+// swagger:response getLDAPEntitiesOK
 type GetLDAPEntitiesOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.LdapEntities `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *GetLDAPEntitiesOK) WriteResponse(rw http.ResponseWriter, producer runti
 	}
 }
 
-/*
-GetLDAPEntitiesDefault Generic error response.
-
-swagger:response getLDAPEntitiesDefault
-*/
+// GetLDAPEntitiesDefault Generic error response.
+//
+// swagger:response getLDAPEntitiesDefault
 type GetLDAPEntitiesDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

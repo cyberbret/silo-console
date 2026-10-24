@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // GetUserInfoOKCode is the HTTP code returned for type GetUserInfoOK
 const GetUserInfoOKCode int = 200
 
-/*
-GetUserInfoOK A successful response.
-
-swagger:response getUserInfoOK
-*/
+// GetUserInfoOK A successful response.
+//
+// swagger:response getUserInfoOK
 type GetUserInfoOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.User `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *GetUserInfoOK) WriteResponse(rw http.ResponseWriter, producer runtime.P
 	}
 }
 
-/*
-GetUserInfoDefault Generic error response.
-
-swagger:response getUserInfoDefault
-*/
+// GetUserInfoDefault Generic error response.
+//
+// swagger:response getUserInfoDefault
 type GetUserInfoDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

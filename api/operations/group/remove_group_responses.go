@@ -22,18 +22,15 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // RemoveGroupNoContentCode is the HTTP code returned for type RemoveGroupNoContent
 const RemoveGroupNoContentCode int = 204
 
-/*
-RemoveGroupNoContent A successful response.
-
-swagger:response removeGroupNoContent
-*/
+// RemoveGroupNoContent A successful response.
+//
+// swagger:response removeGroupNoContent
 type RemoveGroupNoContent struct {
 }
 
@@ -51,17 +48,13 @@ func (o *RemoveGroupNoContent) WriteResponse(rw http.ResponseWriter, producer ru
 	rw.WriteHeader(204)
 }
 
-/*
-RemoveGroupDefault Generic error response.
-
-swagger:response removeGroupDefault
-*/
+// RemoveGroupDefault Generic error response.
+//
+// swagger:response removeGroupDefault
 type RemoveGroupDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 
