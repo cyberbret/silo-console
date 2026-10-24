@@ -89,10 +89,11 @@ jobs:
 
   semgrep-static-code-analysis:
     name: "semgrep checks"
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        # The pinned Python runtime has a 24.04 build, but no 26.04 build.
+        os: [ubuntu-24.04]
     steps:
       - name: Check out source code
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
