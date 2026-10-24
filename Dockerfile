@@ -1,5 +1,5 @@
 # Build images are reviewed immutable inputs; Dependabot proposes digest updates.
-FROM node:24.22.0-bookworm@sha256:14078204b6bb268c107ceff6d3c43f45a888105e5c2b18b14c32b3409d93a1b0 AS uilayer
+FROM node:24.22.1-bookworm@sha256:6449e19d8184d84062525b6a7524def03146c2cb04a7f08b076680d0e8e4240a AS uilayer
 WORKDIR /app
 RUN corepack enable
 COPY web-app/package.json web-app/yarn.lock web-app/.yarnrc.yml ./
@@ -12,7 +12,7 @@ RUN yarn build && ./optimize-embed.sh
 FROM scratch AS web-assets
 COPY --from=uilayer /app/build /build
 
-FROM golang:1.27.2-alpine@sha256:f92b6ef800e499660581efdabdf25d9d817a9d124eaf900924f0504e7e27e12d AS golayer
+FROM golang:1.27.3-alpine@sha256:d530cf60723abf1ffae0cd16bb546b379ec0550d2f3815e5b16ed69dbc00fba4 AS golayer
 WORKDIR /console
 COPY go.mod go.sum ./
 RUN go mod download

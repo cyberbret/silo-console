@@ -46,6 +46,7 @@ imports while replacing that path with silo-pkg v3.13.0 or later produces
 and module graph when it adopts this Console revision.
 
 The single maintained-component replacement is separate from compatibility
-pins: go-systemd remains v22.6.0 for NetBSD, and Console retains tablewriter
-v0.0.5 for the MC API it imports. Inspect the root module's full effective graph;
-Go does not inherit these other replacements either.
+pins: go-systemd remains v22.6.0 for NetBSD, Console retains tablewriter
+v0.0.5 for the MC API it imports, and go-runewidth remains v0.0.29 to preserve
+the terminal widths of existing Latin and Indic text. Inspect the root module's
+full effective graph; Go does not inherit these other replacements either.

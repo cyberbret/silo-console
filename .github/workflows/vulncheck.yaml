@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go-version: [1.27.2]
+        go-version: [1.27.3]
         os: [ubuntu-latest]
     steps:
       - name: Check out code
@@ -60,10 +60,11 @@ jobs:
       - name: Block high-severity issues in all dependency groups
         working-directory: ./web-app
         continue-on-error: false
-        # GHSA-vfj7-8cjw-p6xm (npm 1240992): braces has no patched release.
-        # It only parses repository-controlled build/test globs here. This
-        # exception applies to the development graph; the production audit
-        # above remains unfiltered. Remove it when a fixed release is available.
+        # GHSA-vfj7-8cjw-p6xm (npm 1240992): upstream braces 3.0.3 has no fixed release.
+        # The Yarn patch bounds parse and AST walker nesting; dependency-security.unit.ts
+        # checks malicious patterns, AST inputs, and normal build/test globs. npm audit
+        # cannot detect patches. Keep this exact development-only exception until an
+        # upstream fix replaces the patch; production audit remains unfiltered.
         run: yarn npm audit --recursive --severity high --no-deprecations --ignore 1240992
 
   required-vulnerability-checks:

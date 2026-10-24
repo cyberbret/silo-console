@@ -6,12 +6,7 @@
 // (at your option) any later version.
 
 export type AllowedPreviews =
-  | "image"
-  | "pdf"
-  | "audio"
-  | "video"
-  | "text"
-  | "none";
+  "image" | "pdf" | "audio" | "video" | "text" | "none";
 
 type LegacyPreview = Exclude<AllowedPreviews, "text">;
 

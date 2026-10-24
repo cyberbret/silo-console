@@ -60,6 +60,10 @@ make swagger-gen
 
 This will update all the necessary code.
 
+After a generator upgrade, preserve the configuration-import binding contract
+covered by `TestConfigImportBindingContract`; changes to upload limits, filenames,
+or accepted form encodings require a separate API compatibility review.
+
 `./api/configure_console.go` is a file that contains the handlers to be used by the application, here is the only place
 where we need to update our code to support the new apis. This file is not affected when running the swagger generator
 and it is safe to edit.
