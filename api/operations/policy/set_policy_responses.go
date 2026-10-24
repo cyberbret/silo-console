@@ -22,18 +22,15 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // SetPolicyNoContentCode is the HTTP code returned for type SetPolicyNoContent
 const SetPolicyNoContentCode int = 204
 
-/*
-SetPolicyNoContent A successful response.
-
-swagger:response setPolicyNoContent
-*/
+// SetPolicyNoContent A successful response.
+//
+// swagger:response setPolicyNoContent
 type SetPolicyNoContent struct {
 }
 
@@ -51,17 +48,13 @@ func (o *SetPolicyNoContent) WriteResponse(rw http.ResponseWriter, producer runt
 	rw.WriteHeader(204)
 }
 
-/*
-SetPolicyDefault Generic error response.
-
-swagger:response setPolicyDefault
-*/
+// SetPolicyDefault Generic error response.
+//
+// swagger:response setPolicyDefault
 type SetPolicyDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

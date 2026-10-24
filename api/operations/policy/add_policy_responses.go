@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // AddPolicyCreatedCode is the HTTP code returned for type AddPolicyCreated
 const AddPolicyCreatedCode int = 201
 
-/*
-AddPolicyCreated A successful response.
-
-swagger:response addPolicyCreated
-*/
+// AddPolicyCreated A successful response.
+//
+// swagger:response addPolicyCreated
 type AddPolicyCreated struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.Policy `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *AddPolicyCreated) WriteResponse(rw http.ResponseWriter, producer runtim
 	}
 }
 
-/*
-AddPolicyDefault Generic error response.
-
-swagger:response addPolicyDefault
-*/
+// AddPolicyDefault Generic error response.
+//
+// swagger:response addPolicyDefault
 type AddPolicyDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

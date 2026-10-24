@@ -22,7 +22,7 @@ import (
 	"context"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
 )
 
 // PeerSiteRemoveResponse peer site remove response
@@ -38,12 +38,12 @@ type PeerSiteRemoveResponse struct {
 }
 
 // Validate validates this peer site remove response
-func (m *PeerSiteRemoveResponse) Validate(formats strfmt.Registry) error {
+func (m *PeerSiteRemoveResponse) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this peer site remove response based on context it is used
-func (m *PeerSiteRemoveResponse) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *PeerSiteRemoveResponse) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -52,13 +52,13 @@ func (m *PeerSiteRemoveResponse) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *PeerSiteRemoveResponse) UnmarshalBinary(b []byte) error {
 	var res PeerSiteRemoveResponse
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

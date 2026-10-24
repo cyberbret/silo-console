@@ -25,7 +25,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/conv"
 	"github.com/go-openapi/validate"
 )
 
@@ -44,33 +44,18 @@ func NewShareObjectParams() ShareObjectParams {
 type ShareObjectParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
-
-	/*
-	  Required: true
-	  In: path
-	*/
+	// Required: true
+	// In: path
 	BucketName string
-
-	/*
-	  In: query
-	*/
+	// In: query
 	Expires *string
-
-	/*
-	  Required: true
-	  In: query
-	*/
+	// Required: true
+	// In: query
 	Prefix string
-
-	/*
-	  In: query
-	*/
+	// In: query
 	ToggleURL *bool
-
-	/*
-	  Required: true
-	  In: query
-	*/
+	// Required: true
+	// In: query
 	VersionID string
 }
 
@@ -181,7 +166,7 @@ func (o *ShareObjectParams) bindToggleURL(rawData []string, hasKey bool, formats
 		return nil
 	}
 
-	value, err := swag.ConvertBool(raw)
+	value, err := conv.ConvertBool(raw)
 	if err != nil {
 		return errors.InvalidType("toggle_url", "query", "bool", raw)
 	}

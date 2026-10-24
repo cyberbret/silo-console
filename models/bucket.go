@@ -25,7 +25,8 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
+	"github.com/go-openapi/swag/typeutils"
 	"github.com/go-openapi/validate"
 )
 
@@ -88,7 +89,7 @@ func (m *Bucket) Validate(formats strfmt.Registry) error {
 }
 
 func (m *Bucket) validateAccess(formats strfmt.Registry) error {
-	if swag.IsZero(m.Access) { // not required
+	if typeutils.IsZero(m.Access) { // not required
 		return nil
 	}
 
@@ -111,7 +112,7 @@ func (m *Bucket) validateAccess(formats strfmt.Registry) error {
 }
 
 func (m *Bucket) validateDetails(formats strfmt.Registry) error {
-	if swag.IsZero(m.Details) { // not required
+	if typeutils.IsZero(m.Details) { // not required
 		return nil
 	}
 
@@ -147,7 +148,7 @@ func (m *Bucket) validateName(formats strfmt.Registry) error {
 }
 
 func (m *Bucket) validateRwAccess(formats strfmt.Registry) error {
-	if swag.IsZero(m.RwAccess) { // not required
+	if typeutils.IsZero(m.RwAccess) { // not required
 		return nil
 	}
 
@@ -195,7 +196,7 @@ func (m *Bucket) contextValidateAccess(ctx context.Context, formats strfmt.Regis
 
 	if m.Access != nil {
 
-		if swag.IsZero(m.Access) { // not required
+		if typeutils.IsZero(m.Access) { // not required
 			return nil
 		}
 
@@ -220,7 +221,7 @@ func (m *Bucket) contextValidateDetails(ctx context.Context, formats strfmt.Regi
 
 	if m.Details != nil {
 
-		if swag.IsZero(m.Details) { // not required
+		if typeutils.IsZero(m.Details) { // not required
 			return nil
 		}
 
@@ -245,7 +246,7 @@ func (m *Bucket) contextValidateRwAccess(ctx context.Context, formats strfmt.Reg
 
 	if m.RwAccess != nil {
 
-		if swag.IsZero(m.RwAccess) { // not required
+		if typeutils.IsZero(m.RwAccess) { // not required
 			return nil
 		}
 
@@ -271,13 +272,13 @@ func (m *Bucket) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *Bucket) UnmarshalBinary(b []byte) error {
 	var res Bucket
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res
@@ -323,7 +324,7 @@ func (m *BucketDetails) Validate(formats strfmt.Registry) error {
 }
 
 func (m *BucketDetails) validateQuota(formats strfmt.Registry) error {
-	if swag.IsZero(m.Quota) { // not required
+	if typeutils.IsZero(m.Quota) { // not required
 		return nil
 	}
 
@@ -363,7 +364,7 @@ func (m *BucketDetails) contextValidateQuota(ctx context.Context, formats strfmt
 
 	if m.Quota != nil {
 
-		if swag.IsZero(m.Quota) { // not required
+		if typeutils.IsZero(m.Quota) { // not required
 			return nil
 		}
 
@@ -389,13 +390,13 @@ func (m *BucketDetails) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *BucketDetails) UnmarshalBinary(b []byte) error {
 	var res BucketDetails
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res
@@ -456,7 +457,7 @@ func (m *BucketDetailsQuota) validateTypeEnum(path, location string, value strin
 }
 
 func (m *BucketDetailsQuota) validateType(formats strfmt.Registry) error {
-	if swag.IsZero(m.Type) { // not required
+	if typeutils.IsZero(m.Type) { // not required
 		return nil
 	}
 
@@ -469,7 +470,7 @@ func (m *BucketDetailsQuota) validateType(formats strfmt.Registry) error {
 }
 
 // ContextValidate validates this bucket details quota based on context it is used
-func (m *BucketDetailsQuota) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *BucketDetailsQuota) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -478,13 +479,13 @@ func (m *BucketDetailsQuota) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *BucketDetailsQuota) UnmarshalBinary(b []byte) error {
 	var res BucketDetailsQuota
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res
@@ -504,12 +505,12 @@ type BucketRwAccess struct {
 }
 
 // Validate validates this bucket rw access
-func (m *BucketRwAccess) Validate(formats strfmt.Registry) error {
+func (m *BucketRwAccess) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this bucket rw access based on context it is used
-func (m *BucketRwAccess) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *BucketRwAccess) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -518,13 +519,13 @@ func (m *BucketRwAccess) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *BucketRwAccess) UnmarshalBinary(b []byte) error {
 	var res BucketRwAccess
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

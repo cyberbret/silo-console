@@ -26,7 +26,8 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
+	"github.com/go-openapi/swag/typeutils"
 	"github.com/go-openapi/validate"
 )
 
@@ -117,7 +118,7 @@ func (m *AdminInfoResponse) validateAdvancedMetricsStatusEnum(path, location str
 }
 
 func (m *AdminInfoResponse) validateAdvancedMetricsStatus(formats strfmt.Registry) error {
-	if swag.IsZero(m.AdvancedMetricsStatus) { // not required
+	if typeutils.IsZero(m.AdvancedMetricsStatus) { // not required
 		return nil
 	}
 
@@ -130,7 +131,7 @@ func (m *AdminInfoResponse) validateAdvancedMetricsStatus(formats strfmt.Registr
 }
 
 func (m *AdminInfoResponse) validateBackend(formats strfmt.Registry) error {
-	if swag.IsZero(m.Backend) { // not required
+	if typeutils.IsZero(m.Backend) { // not required
 		return nil
 	}
 
@@ -153,12 +154,12 @@ func (m *AdminInfoResponse) validateBackend(formats strfmt.Registry) error {
 }
 
 func (m *AdminInfoResponse) validateServers(formats strfmt.Registry) error {
-	if swag.IsZero(m.Servers) { // not required
+	if typeutils.IsZero(m.Servers) { // not required
 		return nil
 	}
 
 	for i := 0; i < len(m.Servers); i++ {
-		if swag.IsZero(m.Servers[i]) { // not required
+		if typeutils.IsZero(m.Servers[i]) { // not required
 			continue
 		}
 
@@ -183,12 +184,12 @@ func (m *AdminInfoResponse) validateServers(formats strfmt.Registry) error {
 }
 
 func (m *AdminInfoResponse) validateWidgets(formats strfmt.Registry) error {
-	if swag.IsZero(m.Widgets) { // not required
+	if typeutils.IsZero(m.Widgets) { // not required
 		return nil
 	}
 
 	for i := 0; i < len(m.Widgets); i++ {
-		if swag.IsZero(m.Widgets[i]) { // not required
+		if typeutils.IsZero(m.Widgets[i]) { // not required
 			continue
 		}
 
@@ -238,7 +239,7 @@ func (m *AdminInfoResponse) contextValidateBackend(ctx context.Context, formats 
 
 	if m.Backend != nil {
 
-		if swag.IsZero(m.Backend) { // not required
+		if typeutils.IsZero(m.Backend) { // not required
 			return nil
 		}
 
@@ -265,7 +266,7 @@ func (m *AdminInfoResponse) contextValidateServers(ctx context.Context, formats 
 
 		if m.Servers[i] != nil {
 
-			if swag.IsZero(m.Servers[i]) { // not required
+			if typeutils.IsZero(m.Servers[i]) { // not required
 				return nil
 			}
 
@@ -294,7 +295,7 @@ func (m *AdminInfoResponse) contextValidateWidgets(ctx context.Context, formats 
 
 		if m.Widgets[i] != nil {
 
-			if swag.IsZero(m.Widgets[i]) { // not required
+			if typeutils.IsZero(m.Widgets[i]) { // not required
 				return nil
 			}
 
@@ -322,13 +323,13 @@ func (m *AdminInfoResponse) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *AdminInfoResponse) UnmarshalBinary(b []byte) error {
 	var res AdminInfoResponse
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

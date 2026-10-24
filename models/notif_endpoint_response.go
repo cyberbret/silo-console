@@ -25,7 +25,8 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
+	"github.com/go-openapi/swag/typeutils"
 )
 
 // NotifEndpointResponse notif endpoint response
@@ -52,12 +53,12 @@ func (m *NotifEndpointResponse) Validate(formats strfmt.Registry) error {
 }
 
 func (m *NotifEndpointResponse) validateNotificationEndpoints(formats strfmt.Registry) error {
-	if swag.IsZero(m.NotificationEndpoints) { // not required
+	if typeutils.IsZero(m.NotificationEndpoints) { // not required
 		return nil
 	}
 
 	for i := 0; i < len(m.NotificationEndpoints); i++ {
-		if swag.IsZero(m.NotificationEndpoints[i]) { // not required
+		if typeutils.IsZero(m.NotificationEndpoints[i]) { // not required
 			continue
 		}
 
@@ -101,7 +102,7 @@ func (m *NotifEndpointResponse) contextValidateNotificationEndpoints(ctx context
 
 		if m.NotificationEndpoints[i] != nil {
 
-			if swag.IsZero(m.NotificationEndpoints[i]) { // not required
+			if typeutils.IsZero(m.NotificationEndpoints[i]) { // not required
 				return nil
 			}
 
@@ -129,13 +130,13 @@ func (m *NotifEndpointResponse) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *NotifEndpointResponse) UnmarshalBinary(b []byte) error {
 	var res NotifEndpointResponse
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

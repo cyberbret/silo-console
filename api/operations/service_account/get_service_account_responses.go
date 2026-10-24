@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // GetServiceAccountOKCode is the HTTP code returned for type GetServiceAccountOK
 const GetServiceAccountOKCode int = 200
 
-/*
-GetServiceAccountOK A successful response.
-
-swagger:response getServiceAccountOK
-*/
+// GetServiceAccountOK A successful response.
+//
+// swagger:response getServiceAccountOK
 type GetServiceAccountOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.ServiceAccount `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *GetServiceAccountOK) WriteResponse(rw http.ResponseWriter, producer run
 	}
 }
 
-/*
-GetServiceAccountDefault Generic error response.
-
-swagger:response getServiceAccountDefault
-*/
+// GetServiceAccountDefault Generic error response.
+//
+// swagger:response getServiceAccountDefault
 type GetServiceAccountDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

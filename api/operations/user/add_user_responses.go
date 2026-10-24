@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // AddUserCreatedCode is the HTTP code returned for type AddUserCreated
 const AddUserCreatedCode int = 201
 
-/*
-AddUserCreated A successful response.
-
-swagger:response addUserCreated
-*/
+// AddUserCreated A successful response.
+//
+// swagger:response addUserCreated
 type AddUserCreated struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.User `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *AddUserCreated) WriteResponse(rw http.ResponseWriter, producer runtime.
 	}
 }
 
-/*
-AddUserDefault Generic error response.
-
-swagger:response addUserDefault
-*/
+// AddUserDefault Generic error response.
+//
+// swagger:response addUserDefault
 type AddUserDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

@@ -42,16 +42,10 @@ func NewPostBucketsBucketNameObjectsUploadParams() PostBucketsBucketNameObjectsU
 type PostBucketsBucketNameObjectsUploadParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
-
-	/*
-	  Required: true
-	  In: path
-	*/
+	// Required: true
+	// In: path
 	BucketName string
-
-	/*
-	  In: query
-	*/
+	// In: query
 	Prefix *string
 }
 

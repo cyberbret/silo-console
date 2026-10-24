@@ -22,7 +22,7 @@ import (
 	"context"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
 )
 
 // LdapGroupPolicyEntity ldap group policy entity
@@ -38,12 +38,12 @@ type LdapGroupPolicyEntity struct {
 }
 
 // Validate validates this ldap group policy entity
-func (m *LdapGroupPolicyEntity) Validate(formats strfmt.Registry) error {
+func (m *LdapGroupPolicyEntity) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this ldap group policy entity based on context it is used
-func (m *LdapGroupPolicyEntity) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *LdapGroupPolicyEntity) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -52,13 +52,13 @@ func (m *LdapGroupPolicyEntity) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *LdapGroupPolicyEntity) UnmarshalBinary(b []byte) error {
 	var res LdapGroupPolicyEntity
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

@@ -25,7 +25,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/conv"
 )
 
 // NewListObjectsParams creates a new ListObjectsParams object
@@ -50,37 +50,19 @@ func NewListObjectsParams() ListObjectsParams {
 type ListObjectsParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
-
-	/*
-	  Required: true
-	  In: path
-	*/
+	// Required: true
+	// In: path
 	BucketName string
-
-	/*
-	  In: query
-	  Default: 20
-	*/
+	// In: query
+	// Default: 20
 	Limit *int32
-
-	/*
-	  In: query
-	*/
+	// In: query
 	Prefix *string
-
-	/*
-	  In: query
-	*/
+	// In: query
 	Recursive *bool
-
-	/*
-	  In: query
-	*/
+	// In: query
 	WithMetadata *bool
-
-	/*
-	  In: query
-	*/
+	// In: query
 	WithVersions *bool
 }
 
@@ -158,7 +140,7 @@ func (o *ListObjectsParams) bindLimit(rawData []string, hasKey bool, formats str
 		return nil
 	}
 
-	value, err := swag.ConvertInt32(raw)
+	value, err := conv.ConvertInt32(raw)
 	if err != nil {
 		return errors.InvalidType("limit", "query", "int32", raw)
 	}
@@ -199,7 +181,7 @@ func (o *ListObjectsParams) bindRecursive(rawData []string, hasKey bool, formats
 		return nil
 	}
 
-	value, err := swag.ConvertBool(raw)
+	value, err := conv.ConvertBool(raw)
 	if err != nil {
 		return errors.InvalidType("recursive", "query", "bool", raw)
 	}
@@ -222,7 +204,7 @@ func (o *ListObjectsParams) bindWithMetadata(rawData []string, hasKey bool, form
 		return nil
 	}
 
-	value, err := swag.ConvertBool(raw)
+	value, err := conv.ConvertBool(raw)
 	if err != nil {
 		return errors.InvalidType("with_metadata", "query", "bool", raw)
 	}
@@ -245,7 +227,7 @@ func (o *ListObjectsParams) bindWithVersions(rawData []string, hasKey bool, form
 		return nil
 	}
 
-	value, err := swag.ConvertBool(raw)
+	value, err := conv.ConvertBool(raw)
 	if err != nil {
 		return errors.InvalidType("with_versions", "query", "bool", raw)
 	}

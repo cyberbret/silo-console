@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // GetMaxShareLinkExpOKCode is the HTTP code returned for type GetMaxShareLinkExpOK
 const GetMaxShareLinkExpOKCode int = 200
 
-/*
-GetMaxShareLinkExpOK A successful response.
-
-swagger:response getMaxShareLinkExpOK
-*/
+// GetMaxShareLinkExpOK A successful response.
+//
+// swagger:response getMaxShareLinkExpOK
 type GetMaxShareLinkExpOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.MaxShareLinkExpResponse `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *GetMaxShareLinkExpOK) WriteResponse(rw http.ResponseWriter, producer ru
 	}
 }
 
-/*
-GetMaxShareLinkExpDefault Generic error response.
-
-swagger:response getMaxShareLinkExpDefault
-*/
+// GetMaxShareLinkExpDefault Generic error response.
+//
+// swagger:response getMaxShareLinkExpDefault
 type GetMaxShareLinkExpDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

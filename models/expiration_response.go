@@ -22,7 +22,7 @@ import (
 	"context"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
 )
 
 // ExpirationResponse expiration response
@@ -50,12 +50,12 @@ type ExpirationResponse struct {
 }
 
 // Validate validates this expiration response
-func (m *ExpirationResponse) Validate(formats strfmt.Registry) error {
+func (m *ExpirationResponse) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this expiration response based on context it is used
-func (m *ExpirationResponse) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *ExpirationResponse) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -64,13 +64,13 @@ func (m *ExpirationResponse) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *ExpirationResponse) UnmarshalBinary(b []byte) error {
 	var res ExpirationResponse
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

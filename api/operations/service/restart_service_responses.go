@@ -22,18 +22,15 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // RestartServiceNoContentCode is the HTTP code returned for type RestartServiceNoContent
 const RestartServiceNoContentCode int = 204
 
-/*
-RestartServiceNoContent A successful response.
-
-swagger:response restartServiceNoContent
-*/
+// RestartServiceNoContent A successful response.
+//
+// swagger:response restartServiceNoContent
 type RestartServiceNoContent struct {
 }
 
@@ -51,17 +48,13 @@ func (o *RestartServiceNoContent) WriteResponse(rw http.ResponseWriter, producer
 	rw.WriteHeader(204)
 }
 
-/*
-RestartServiceDefault Generic error response.
-
-swagger:response restartServiceDefault
-*/
+// RestartServiceDefault Generic error response.
+//
+// swagger:response restartServiceDefault
 type RestartServiceDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

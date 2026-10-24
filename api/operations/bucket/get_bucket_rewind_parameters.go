@@ -42,22 +42,13 @@ func NewGetBucketRewindParams() GetBucketRewindParams {
 type GetBucketRewindParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
-
-	/*
-	  Required: true
-	  In: path
-	*/
+	// Required: true
+	// In: path
 	BucketName string
-
-	/*
-	  Required: true
-	  In: path
-	*/
+	// Required: true
+	// In: path
 	Date string
-
-	/*
-	  In: query
-	*/
+	// In: query
 	Prefix *string
 }
 

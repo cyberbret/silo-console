@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // TiersListOKCode is the HTTP code returned for type TiersListOK
 const TiersListOKCode int = 200
 
-/*
-TiersListOK A successful response.
-
-swagger:response tiersListOK
-*/
+// TiersListOK A successful response.
+//
+// swagger:response tiersListOK
 type TiersListOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.TierListResponse `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *TiersListOK) WriteResponse(rw http.ResponseWriter, producer runtime.Pro
 	}
 }
 
-/*
-TiersListDefault Generic error response.
-
-swagger:response tiersListDefault
-*/
+// TiersListDefault Generic error response.
+//
+// swagger:response tiersListDefault
 type TiersListDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

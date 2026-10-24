@@ -41,11 +41,8 @@ func NewPolicyInfoParams() PolicyInfoParams {
 type PolicyInfoParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
-
-	/*
-	  Required: true
-	  In: path
-	*/
+	// Required: true
+	// In: path
 	Name string
 }
 

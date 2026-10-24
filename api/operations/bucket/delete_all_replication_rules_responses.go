@@ -22,18 +22,15 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // DeleteAllReplicationRulesNoContentCode is the HTTP code returned for type DeleteAllReplicationRulesNoContent
 const DeleteAllReplicationRulesNoContentCode int = 204
 
-/*
-DeleteAllReplicationRulesNoContent A successful response.
-
-swagger:response deleteAllReplicationRulesNoContent
-*/
+// DeleteAllReplicationRulesNoContent A successful response.
+//
+// swagger:response deleteAllReplicationRulesNoContent
 type DeleteAllReplicationRulesNoContent struct {
 }
 
@@ -51,17 +48,13 @@ func (o *DeleteAllReplicationRulesNoContent) WriteResponse(rw http.ResponseWrite
 	rw.WriteHeader(204)
 }
 
-/*
-DeleteAllReplicationRulesDefault Generic error response.
-
-swagger:response deleteAllReplicationRulesDefault
-*/
+// DeleteAllReplicationRulesDefault Generic error response.
+//
+// swagger:response deleteAllReplicationRulesDefault
 type DeleteAllReplicationRulesDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

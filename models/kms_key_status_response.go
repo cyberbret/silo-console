@@ -22,7 +22,7 @@ import (
 	"context"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
 )
 
 // KmsKeyStatusResponse kms key status response
@@ -41,12 +41,12 @@ type KmsKeyStatusResponse struct {
 }
 
 // Validate validates this kms key status response
-func (m *KmsKeyStatusResponse) Validate(formats strfmt.Registry) error {
+func (m *KmsKeyStatusResponse) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this kms key status response based on context it is used
-func (m *KmsKeyStatusResponse) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *KmsKeyStatusResponse) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -55,13 +55,13 @@ func (m *KmsKeyStatusResponse) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *KmsKeyStatusResponse) UnmarshalBinary(b []byte) error {
 	var res KmsKeyStatusResponse
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

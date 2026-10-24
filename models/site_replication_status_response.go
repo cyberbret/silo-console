@@ -22,7 +22,7 @@ import (
 	"context"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
 )
 
 // SiteReplicationStatusResponse site replication status response
@@ -65,12 +65,12 @@ type SiteReplicationStatusResponse struct {
 }
 
 // Validate validates this site replication status response
-func (m *SiteReplicationStatusResponse) Validate(formats strfmt.Registry) error {
+func (m *SiteReplicationStatusResponse) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this site replication status response based on context it is used
-func (m *SiteReplicationStatusResponse) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *SiteReplicationStatusResponse) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -79,13 +79,13 @@ func (m *SiteReplicationStatusResponse) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *SiteReplicationStatusResponse) UnmarshalBinary(b []byte) error {
 	var res SiteReplicationStatusResponse
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

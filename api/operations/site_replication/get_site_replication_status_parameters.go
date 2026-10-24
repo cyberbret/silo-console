@@ -25,7 +25,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/conv"
 )
 
 // NewGetSiteReplicationStatusParams creates a new GetSiteReplicationStatusParams object
@@ -60,39 +60,27 @@ func NewGetSiteReplicationStatusParams() GetSiteReplicationStatusParams {
 type GetSiteReplicationStatusParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
-
-	/*Include Bucket stats
-	  In: query
-	  Default: true
-	*/
+	// Include Bucket stats
+	// In: query
+	// Default: true
 	Buckets *bool
-
-	/*Entity Type to lookup
-	  In: query
-	*/
+	// Entity Type to lookup
+	// In: query
 	EntityType *string
-
-	/*Entity Value to lookup
-	  In: query
-	*/
+	// Entity Value to lookup
+	// In: query
 	EntityValue *string
-
-	/*Include Group stats
-	  In: query
-	  Default: true
-	*/
+	// Include Group stats
+	// In: query
+	// Default: true
 	Groups *bool
-
-	/*Include Policies stats
-	  In: query
-	  Default: true
-	*/
+	// Include Policies stats
+	// In: query
+	// Default: true
 	Policies *bool
-
-	/*Include Policies stats
-	  In: query
-	  Default: true
-	*/
+	// Include Policies stats
+	// In: query
+	// Default: true
 	Users *bool
 }
 
@@ -156,7 +144,7 @@ func (o *GetSiteReplicationStatusParams) bindBuckets(rawData []string, hasKey bo
 		return nil
 	}
 
-	value, err := swag.ConvertBool(raw)
+	value, err := conv.ConvertBool(raw)
 	if err != nil {
 		return errors.InvalidType("buckets", "query", "bool", raw)
 	}
@@ -216,7 +204,7 @@ func (o *GetSiteReplicationStatusParams) bindGroups(rawData []string, hasKey boo
 		return nil
 	}
 
-	value, err := swag.ConvertBool(raw)
+	value, err := conv.ConvertBool(raw)
 	if err != nil {
 		return errors.InvalidType("groups", "query", "bool", raw)
 	}
@@ -240,7 +228,7 @@ func (o *GetSiteReplicationStatusParams) bindPolicies(rawData []string, hasKey b
 		return nil
 	}
 
-	value, err := swag.ConvertBool(raw)
+	value, err := conv.ConvertBool(raw)
 	if err != nil {
 		return errors.InvalidType("policies", "query", "bool", raw)
 	}
@@ -264,7 +252,7 @@ func (o *GetSiteReplicationStatusParams) bindUsers(rawData []string, hasKey bool
 		return nil
 	}
 
-	value, err := swag.ConvertBool(raw)
+	value, err := conv.ConvertBool(raw)
 	if err != nil {
 		return errors.InvalidType("users", "query", "bool", raw)
 	}

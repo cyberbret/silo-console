@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // ExportConfigOKCode is the HTTP code returned for type ExportConfigOK
 const ExportConfigOKCode int = 200
 
-/*
-ExportConfigOK A successful response.
-
-swagger:response exportConfigOK
-*/
+// ExportConfigOK A successful response.
+//
+// swagger:response exportConfigOK
 type ExportConfigOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.ConfigExportResponse `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *ExportConfigOK) WriteResponse(rw http.ResponseWriter, producer runtime.
 	}
 }
 
-/*
-ExportConfigDefault Generic error response.
-
-swagger:response exportConfigDefault
-*/
+// ExportConfigDefault Generic error response.
+//
+// swagger:response exportConfigDefault
 type ExportConfigDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

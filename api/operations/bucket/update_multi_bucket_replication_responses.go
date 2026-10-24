@@ -22,18 +22,15 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // UpdateMultiBucketReplicationCreatedCode is the HTTP code returned for type UpdateMultiBucketReplicationCreated
 const UpdateMultiBucketReplicationCreatedCode int = 201
 
-/*
-UpdateMultiBucketReplicationCreated A successful response.
-
-swagger:response updateMultiBucketReplicationCreated
-*/
+// UpdateMultiBucketReplicationCreated A successful response.
+//
+// swagger:response updateMultiBucketReplicationCreated
 type UpdateMultiBucketReplicationCreated struct {
 }
 
@@ -51,17 +48,13 @@ func (o *UpdateMultiBucketReplicationCreated) WriteResponse(rw http.ResponseWrit
 	rw.WriteHeader(201)
 }
 
-/*
-UpdateMultiBucketReplicationDefault Generic error response.
-
-swagger:response updateMultiBucketReplicationDefault
-*/
+// UpdateMultiBucketReplicationDefault Generic error response.
+//
+// swagger:response updateMultiBucketReplicationDefault
 type UpdateMultiBucketReplicationDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

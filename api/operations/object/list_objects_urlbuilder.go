@@ -24,7 +24,7 @@ import (
 	golangswaggerpaths "path"
 	"strings"
 
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/conv"
 )
 
 // ListObjectsURL generates an URL for the list objects operation
@@ -80,7 +80,7 @@ func (o *ListObjectsURL) Build() (*url.URL, error) {
 
 	var limitQ string
 	if o.Limit != nil {
-		limitQ = swag.FormatInt32(*o.Limit)
+		limitQ = conv.FormatInteger(*o.Limit)
 	}
 	if limitQ != "" {
 		qs.Set("limit", limitQ)
@@ -96,7 +96,7 @@ func (o *ListObjectsURL) Build() (*url.URL, error) {
 
 	var recursiveQ string
 	if o.Recursive != nil {
-		recursiveQ = swag.FormatBool(*o.Recursive)
+		recursiveQ = conv.FormatBool(*o.Recursive)
 	}
 	if recursiveQ != "" {
 		qs.Set("recursive", recursiveQ)
@@ -104,7 +104,7 @@ func (o *ListObjectsURL) Build() (*url.URL, error) {
 
 	var withMetadataQ string
 	if o.WithMetadata != nil {
-		withMetadataQ = swag.FormatBool(*o.WithMetadata)
+		withMetadataQ = conv.FormatBool(*o.WithMetadata)
 	}
 	if withMetadataQ != "" {
 		qs.Set("with_metadata", withMetadataQ)
@@ -112,7 +112,7 @@ func (o *ListObjectsURL) Build() (*url.URL, error) {
 
 	var withVersionsQ string
 	if o.WithVersions != nil {
-		withVersionsQ = swag.FormatBool(*o.WithVersions)
+		withVersionsQ = conv.FormatBool(*o.WithVersions)
 	}
 	if withVersionsQ != "" {
 		qs.Set("with_versions", withVersionsQ)

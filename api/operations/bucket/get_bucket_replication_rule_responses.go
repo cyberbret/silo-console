@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // GetBucketReplicationRuleOKCode is the HTTP code returned for type GetBucketReplicationRuleOK
 const GetBucketReplicationRuleOKCode int = 200
 
-/*
-GetBucketReplicationRuleOK A successful response.
-
-swagger:response getBucketReplicationRuleOK
-*/
+// GetBucketReplicationRuleOK A successful response.
+//
+// swagger:response getBucketReplicationRuleOK
 type GetBucketReplicationRuleOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.BucketReplicationRule `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *GetBucketReplicationRuleOK) WriteResponse(rw http.ResponseWriter, produ
 	}
 }
 
-/*
-GetBucketReplicationRuleDefault Generic error response.
-
-swagger:response getBucketReplicationRuleDefault
-*/
+// GetBucketReplicationRuleDefault Generic error response.
+//
+// swagger:response getBucketReplicationRuleDefault
 type GetBucketReplicationRuleDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

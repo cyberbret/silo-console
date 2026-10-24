@@ -22,7 +22,6 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime/middleware"
-
 	"github.com/minio/console/models"
 )
 
@@ -44,11 +43,9 @@ func NewGetBucketObjectLockingStatus(ctx *middleware.Context, handler GetBucketO
 	return &GetBucketObjectLockingStatus{Context: ctx, Handler: handler}
 }
 
-/*
-	GetBucketObjectLockingStatus swagger:route GET /buckets/{bucket_name}/object-locking Bucket getBucketObjectLockingStatus
-
-Returns the status of object locking support on the bucket
-*/
+// GetBucketObjectLockingStatus swagger:route GET /buckets/{bucket_name}/object-locking Bucket getBucketObjectLockingStatus
+//
+// Returns the status of object locking support on the bucket
 type GetBucketObjectLockingStatus struct {
 	Context *middleware.Context
 	Handler GetBucketObjectLockingStatusHandler
@@ -59,7 +56,7 @@ func (o *GetBucketObjectLockingStatus) ServeHTTP(rw http.ResponseWriter, r *http
 	if rCtx != nil {
 		*r = *rCtx
 	}
-	var Params = NewGetBucketObjectLockingStatusParams()
+	params := NewGetBucketObjectLockingStatusParams()
 	uprinc, aCtx, err := o.Context.Authorize(r, route)
 	if err != nil {
 		o.Context.Respond(rw, r, route.Produces, route, err)
@@ -73,12 +70,12 @@ func (o *GetBucketObjectLockingStatus) ServeHTTP(rw http.ResponseWriter, r *http
 		principal = uprinc.(*models.Principal) // this is really a models.Principal, I promise
 	}
 
-	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
+	if err := o.Context.BindValidRequest(r, route, &params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
-	res := o.Handler.Handle(Params, principal) // actually handle the request
+	res := o.Handler.Handle(params, principal) // actually handle the request
 
 	o.Context.Respond(rw, r, route.Produces, route, res)
 

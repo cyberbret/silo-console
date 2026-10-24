@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // BucketInfoOKCode is the HTTP code returned for type BucketInfoOK
 const BucketInfoOKCode int = 200
 
-/*
-BucketInfoOK A successful response.
-
-swagger:response bucketInfoOK
-*/
+// BucketInfoOK A successful response.
+//
+// swagger:response bucketInfoOK
 type BucketInfoOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.Bucket `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *BucketInfoOK) WriteResponse(rw http.ResponseWriter, producer runtime.Pr
 	}
 }
 
-/*
-BucketInfoDefault Generic error response.
-
-swagger:response bucketInfoDefault
-*/
+// BucketInfoDefault Generic error response.
+//
+// swagger:response bucketInfoDefault
 type BucketInfoDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

@@ -41,11 +41,8 @@ func NewListUsersForPolicyParams() ListUsersForPolicyParams {
 type ListUsersForPolicyParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
-
-	/*
-	  Required: true
-	  In: path
-	*/
+	// Required: true
+	// In: path
 	Policy string
 }
 

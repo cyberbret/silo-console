@@ -22,7 +22,7 @@ import (
 	"context"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
 )
 
 // SetBucketVersioning set bucket versioning
@@ -41,12 +41,12 @@ type SetBucketVersioning struct {
 }
 
 // Validate validates this set bucket versioning
-func (m *SetBucketVersioning) Validate(formats strfmt.Registry) error {
+func (m *SetBucketVersioning) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this set bucket versioning based on context it is used
-func (m *SetBucketVersioning) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *SetBucketVersioning) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -55,13 +55,13 @@ func (m *SetBucketVersioning) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *SetBucketVersioning) UnmarshalBinary(b []byte) error {
 	var res SetBucketVersioning
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

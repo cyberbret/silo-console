@@ -25,7 +25,8 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
+	"github.com/go-openapi/swag/typeutils"
 )
 
 // ListConfigResponse list config response
@@ -55,12 +56,12 @@ func (m *ListConfigResponse) Validate(formats strfmt.Registry) error {
 }
 
 func (m *ListConfigResponse) validateConfigurations(formats strfmt.Registry) error {
-	if swag.IsZero(m.Configurations) { // not required
+	if typeutils.IsZero(m.Configurations) { // not required
 		return nil
 	}
 
 	for i := 0; i < len(m.Configurations); i++ {
-		if swag.IsZero(m.Configurations[i]) { // not required
+		if typeutils.IsZero(m.Configurations[i]) { // not required
 			continue
 		}
 
@@ -104,7 +105,7 @@ func (m *ListConfigResponse) contextValidateConfigurations(ctx context.Context, 
 
 		if m.Configurations[i] != nil {
 
-			if swag.IsZero(m.Configurations[i]) { // not required
+			if typeutils.IsZero(m.Configurations[i]) { // not required
 				return nil
 			}
 
@@ -132,13 +133,13 @@ func (m *ListConfigResponse) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *ListConfigResponse) UnmarshalBinary(b []byte) error {
 	var res ListConfigResponse
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

@@ -41,11 +41,8 @@ func NewGetBucketLifecycleParams() GetBucketLifecycleParams {
 type GetBucketLifecycleParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
-
-	/*
-	  Required: true
-	  In: path
-	*/
+	// Required: true
+	// In: path
 	BucketName string
 }
 

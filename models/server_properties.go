@@ -25,7 +25,8 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
+	"github.com/go-openapi/swag/typeutils"
 )
 
 // ServerProperties server properties
@@ -73,12 +74,12 @@ func (m *ServerProperties) Validate(formats strfmt.Registry) error {
 }
 
 func (m *ServerProperties) validateDrives(formats strfmt.Registry) error {
-	if swag.IsZero(m.Drives) { // not required
+	if typeutils.IsZero(m.Drives) { // not required
 		return nil
 	}
 
 	for i := 0; i < len(m.Drives); i++ {
-		if swag.IsZero(m.Drives[i]) { // not required
+		if typeutils.IsZero(m.Drives[i]) { // not required
 			continue
 		}
 
@@ -122,7 +123,7 @@ func (m *ServerProperties) contextValidateDrives(ctx context.Context, formats st
 
 		if m.Drives[i] != nil {
 
-			if swag.IsZero(m.Drives[i]) { // not required
+			if typeutils.IsZero(m.Drives[i]) { // not required
 				return nil
 			}
 
@@ -150,13 +151,13 @@ func (m *ServerProperties) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *ServerProperties) UnmarshalBinary(b []byte) error {
 	var res ServerProperties
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

@@ -22,7 +22,6 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime/middleware"
-
 	"github.com/minio/console/models"
 )
 
@@ -44,11 +43,9 @@ func NewListReleases(ctx *middleware.Context, handler ListReleasesHandler) *List
 	return &ListReleases{Context: ctx, Handler: handler}
 }
 
-/*
-	ListReleases swagger:route GET /releases release listReleases
-
-Get repo releases for a given version
-*/
+// ListReleases swagger:route GET /releases release listReleases
+//
+// Get repo releases for a given version
 type ListReleases struct {
 	Context *middleware.Context
 	Handler ListReleasesHandler
@@ -59,7 +56,7 @@ func (o *ListReleases) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if rCtx != nil {
 		*r = *rCtx
 	}
-	var Params = NewListReleasesParams()
+	params := NewListReleasesParams()
 	uprinc, aCtx, err := o.Context.Authorize(r, route)
 	if err != nil {
 		o.Context.Respond(rw, r, route.Produces, route, err)
@@ -73,12 +70,12 @@ func (o *ListReleases) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		principal = uprinc.(*models.Principal) // this is really a models.Principal, I promise
 	}
 
-	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
+	if err := o.Context.BindValidRequest(r, route, &params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
-	res := o.Handler.Handle(Params, principal) // actually handle the request
+	res := o.Handler.Handle(params, principal) // actually handle the request
 
 	o.Context.Respond(rw, r, route.Produces, route, res)
 

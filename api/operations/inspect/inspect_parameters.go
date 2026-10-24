@@ -25,7 +25,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/conv"
 	"github.com/go-openapi/validate"
 )
 
@@ -44,22 +44,13 @@ func NewInspectParams() InspectParams {
 type InspectParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
-
-	/*
-	  In: query
-	*/
+	// In: query
 	Encrypt *bool
-
-	/*
-	  Required: true
-	  In: query
-	*/
+	// Required: true
+	// In: query
 	File string
-
-	/*
-	  Required: true
-	  In: query
-	*/
+	// Required: true
+	// In: query
 	Volume string
 }
 
@@ -107,7 +98,7 @@ func (o *InspectParams) bindEncrypt(rawData []string, hasKey bool, formats strfm
 		return nil
 	}
 
-	value, err := swag.ConvertBool(raw)
+	value, err := conv.ConvertBool(raw)
 	if err != nil {
 		return errors.InvalidType("encrypt", "query", "bool", raw)
 	}

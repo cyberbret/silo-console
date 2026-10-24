@@ -22,18 +22,15 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // DisableBucketEncryptionOKCode is the HTTP code returned for type DisableBucketEncryptionOK
 const DisableBucketEncryptionOKCode int = 200
 
-/*
-DisableBucketEncryptionOK A successful response.
-
-swagger:response disableBucketEncryptionOK
-*/
+// DisableBucketEncryptionOK A successful response.
+//
+// swagger:response disableBucketEncryptionOK
 type DisableBucketEncryptionOK struct {
 }
 
@@ -51,17 +48,13 @@ func (o *DisableBucketEncryptionOK) WriteResponse(rw http.ResponseWriter, produc
 	rw.WriteHeader(200)
 }
 
-/*
-DisableBucketEncryptionDefault Generic error response.
-
-swagger:response disableBucketEncryptionDefault
-*/
+// DisableBucketEncryptionDefault Generic error response.
+//
+// swagger:response disableBucketEncryptionDefault
 type DisableBucketEncryptionDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

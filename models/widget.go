@@ -25,7 +25,8 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
+	"github.com/go-openapi/swag/typeutils"
 )
 
 // Widget widget
@@ -68,7 +69,7 @@ func (m *Widget) Validate(formats strfmt.Registry) error {
 }
 
 func (m *Widget) validateOptions(formats strfmt.Registry) error {
-	if swag.IsZero(m.Options) { // not required
+	if typeutils.IsZero(m.Options) { // not required
 		return nil
 	}
 
@@ -91,12 +92,12 @@ func (m *Widget) validateOptions(formats strfmt.Registry) error {
 }
 
 func (m *Widget) validateTargets(formats strfmt.Registry) error {
-	if swag.IsZero(m.Targets) { // not required
+	if typeutils.IsZero(m.Targets) { // not required
 		return nil
 	}
 
 	for i := 0; i < len(m.Targets); i++ {
-		if swag.IsZero(m.Targets[i]) { // not required
+		if typeutils.IsZero(m.Targets[i]) { // not required
 			continue
 		}
 
@@ -142,7 +143,7 @@ func (m *Widget) contextValidateOptions(ctx context.Context, formats strfmt.Regi
 
 	if m.Options != nil {
 
-		if swag.IsZero(m.Options) { // not required
+		if typeutils.IsZero(m.Options) { // not required
 			return nil
 		}
 
@@ -169,7 +170,7 @@ func (m *Widget) contextValidateTargets(ctx context.Context, formats strfmt.Regi
 
 		if m.Targets[i] != nil {
 
-			if swag.IsZero(m.Targets[i]) { // not required
+			if typeutils.IsZero(m.Targets[i]) { // not required
 				return nil
 			}
 
@@ -197,13 +198,13 @@ func (m *Widget) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *Widget) UnmarshalBinary(b []byte) error {
 	var res Widget
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res
@@ -234,7 +235,7 @@ func (m *WidgetOptions) Validate(formats strfmt.Registry) error {
 }
 
 func (m *WidgetOptions) validateReduceOptions(formats strfmt.Registry) error {
-	if swag.IsZero(m.ReduceOptions) { // not required
+	if typeutils.IsZero(m.ReduceOptions) { // not required
 		return nil
 	}
 
@@ -274,7 +275,7 @@ func (m *WidgetOptions) contextValidateReduceOptions(ctx context.Context, format
 
 	if m.ReduceOptions != nil {
 
-		if swag.IsZero(m.ReduceOptions) { // not required
+		if typeutils.IsZero(m.ReduceOptions) { // not required
 			return nil
 		}
 
@@ -300,13 +301,13 @@ func (m *WidgetOptions) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *WidgetOptions) UnmarshalBinary(b []byte) error {
 	var res WidgetOptions
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res
@@ -323,12 +324,12 @@ type WidgetOptionsReduceOptions struct {
 }
 
 // Validate validates this widget options reduce options
-func (m *WidgetOptionsReduceOptions) Validate(formats strfmt.Registry) error {
+func (m *WidgetOptionsReduceOptions) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this widget options reduce options based on context it is used
-func (m *WidgetOptionsReduceOptions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *WidgetOptionsReduceOptions) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -337,13 +338,13 @@ func (m *WidgetOptionsReduceOptions) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *WidgetOptionsReduceOptions) UnmarshalBinary(b []byte) error {
 	var res WidgetOptionsReduceOptions
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

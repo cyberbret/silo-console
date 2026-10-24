@@ -41,17 +41,13 @@ func NewGetConfigurationParams() GetConfigurationParams {
 type GetConfigurationParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
-
-	/*IDP Configuration Name
-	  Required: true
-	  In: path
-	*/
+	// IDP Configuration Name
+	// Required: true
+	// In: path
 	Name string
-
-	/*IDP Configuration Type
-	  Required: true
-	  In: path
-	*/
+	// IDP Configuration Type
+	// Required: true
+	// In: path
 	Type string
 }
 

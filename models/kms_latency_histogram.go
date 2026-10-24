@@ -22,7 +22,7 @@ import (
 	"context"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
 )
 
 // KmsLatencyHistogram kms latency histogram
@@ -38,12 +38,12 @@ type KmsLatencyHistogram struct {
 }
 
 // Validate validates this kms latency histogram
-func (m *KmsLatencyHistogram) Validate(formats strfmt.Registry) error {
+func (m *KmsLatencyHistogram) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this kms latency histogram based on context it is used
-func (m *KmsLatencyHistogram) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *KmsLatencyHistogram) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -52,13 +52,13 @@ func (m *KmsLatencyHistogram) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *KmsLatencyHistogram) UnmarshalBinary(b []byte) error {
 	var res KmsLatencyHistogram
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

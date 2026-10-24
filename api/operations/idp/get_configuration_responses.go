@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // GetConfigurationOKCode is the HTTP code returned for type GetConfigurationOK
 const GetConfigurationOKCode int = 200
 
-/*
-GetConfigurationOK A successful response.
-
-swagger:response getConfigurationOK
-*/
+// GetConfigurationOK A successful response.
+//
+// swagger:response getConfigurationOK
 type GetConfigurationOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.IdpServerConfiguration `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *GetConfigurationOK) WriteResponse(rw http.ResponseWriter, producer runt
 	}
 }
 
-/*
-GetConfigurationDefault Generic error response.
-
-swagger:response getConfigurationDefault
-*/
+// GetConfigurationDefault Generic error response.
+//
+// swagger:response getConfigurationDefault
 type GetConfigurationDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

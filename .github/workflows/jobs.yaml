@@ -92,22 +92,16 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        # The pinned Python runtime has a 24.04 build, but no 26.04 build.
-        os: [ubuntu-24.04]
+        os: [ubuntu-latest]
     steps:
       - name: Check out source code
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
-      - name: Set up the pinned Semgrep Python runtime
-        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
-        with:
-          python-version: "3.12.12"
-          cache: pip
-          cache-dependency-path: .github/requirements/semgrep.txt
-      - name: Install and run the locked Semgrep tool graph
+      - name: Install and run Semgrep with the runner's Python
         run: |
-          python -m pip install --require-hashes -r .github/requirements/semgrep.txt
-          semgrep --config semgrep.yaml web-app --error --metrics off
-          python hack/check-ci-contract.py
+          python3 -m venv "$RUNNER_TEMP/semgrep-venv"
+          "$RUNNER_TEMP/semgrep-venv/bin/python" -m pip install --require-hashes -r .github/requirements/semgrep.txt
+          "$RUNNER_TEMP/semgrep-venv/bin/semgrep" --config semgrep.yaml web-app --error --metrics off
+          python3 hack/check-ci-contract.py
 
   ui-assets:
     name: "React Code Has No Warnings & Prettified"

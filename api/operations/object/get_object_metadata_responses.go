@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // GetObjectMetadataOKCode is the HTTP code returned for type GetObjectMetadataOK
 const GetObjectMetadataOKCode int = 200
 
-/*
-GetObjectMetadataOK A successful response.
-
-swagger:response getObjectMetadataOK
-*/
+// GetObjectMetadataOK A successful response.
+//
+// swagger:response getObjectMetadataOK
 type GetObjectMetadataOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.Metadata `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *GetObjectMetadataOK) WriteResponse(rw http.ResponseWriter, producer run
 	}
 }
 
-/*
-GetObjectMetadataDefault Generic error response.
-
-swagger:response getObjectMetadataDefault
-*/
+// GetObjectMetadataDefault Generic error response.
+//
+// swagger:response getObjectMetadataDefault
 type GetObjectMetadataDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

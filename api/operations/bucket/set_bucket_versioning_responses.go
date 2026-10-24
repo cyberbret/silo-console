@@ -22,18 +22,15 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // SetBucketVersioningCreatedCode is the HTTP code returned for type SetBucketVersioningCreated
 const SetBucketVersioningCreatedCode int = 201
 
-/*
-SetBucketVersioningCreated A successful response.
-
-swagger:response setBucketVersioningCreated
-*/
+// SetBucketVersioningCreated A successful response.
+//
+// swagger:response setBucketVersioningCreated
 type SetBucketVersioningCreated struct {
 }
 
@@ -51,17 +48,13 @@ func (o *SetBucketVersioningCreated) WriteResponse(rw http.ResponseWriter, produ
 	rw.WriteHeader(201)
 }
 
-/*
-SetBucketVersioningDefault Generic error response.
-
-swagger:response setBucketVersioningDefault
-*/
+// SetBucketVersioningDefault Generic error response.
+//
+// swagger:response setBucketVersioningDefault
 type SetBucketVersioningDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

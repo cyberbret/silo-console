@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // RemoteBucketDetailsOKCode is the HTTP code returned for type RemoteBucketDetailsOK
 const RemoteBucketDetailsOKCode int = 200
 
-/*
-RemoteBucketDetailsOK A successful response.
-
-swagger:response remoteBucketDetailsOK
-*/
+// RemoteBucketDetailsOK A successful response.
+//
+// swagger:response remoteBucketDetailsOK
 type RemoteBucketDetailsOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.RemoteBucket `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *RemoteBucketDetailsOK) WriteResponse(rw http.ResponseWriter, producer r
 	}
 }
 
-/*
-RemoteBucketDetailsDefault Generic error response.
-
-swagger:response remoteBucketDetailsDefault
-*/
+// RemoteBucketDetailsDefault Generic error response.
+//
+// swagger:response remoteBucketDetailsDefault
 type RemoteBucketDetailsDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

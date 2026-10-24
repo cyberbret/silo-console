@@ -31,8 +31,7 @@ import (
 	"github.com/go-openapi/runtime/security"
 	"github.com/go-openapi/spec"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
-
+	"github.com/go-openapi/swag/cmdutils"
 	"github.com/minio/console/api/operations/account"
 	"github.com/minio/console/api/operations/auth"
 	"github.com/minio/console/api/operations/bucket"
@@ -1079,7 +1078,7 @@ func NewConsoleAPI(spec *loads.Document) *ConsoleAPI {
 	}
 }
 
-/*ConsoleAPI the console API */
+// ConsoleAPI the console API
 type ConsoleAPI struct {
 	spec            *loads.Document
 	context         *middleware.Context
@@ -1426,7 +1425,7 @@ type ConsoleAPI struct {
 	ServerShutdown func()
 
 	// Custom command line argument groups with their descriptions
-	CommandLineOptionsGroups []swag.CommandLineOptionsGroup
+	CommandLineOptionsGroups []cmdutils.CommandLineOptionsGroup
 
 	// User defined logger function.
 	Logger func(string, ...any)

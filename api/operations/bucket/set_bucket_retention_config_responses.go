@@ -22,18 +22,15 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // SetBucketRetentionConfigOKCode is the HTTP code returned for type SetBucketRetentionConfigOK
 const SetBucketRetentionConfigOKCode int = 200
 
-/*
-SetBucketRetentionConfigOK A successful response.
-
-swagger:response setBucketRetentionConfigOK
-*/
+// SetBucketRetentionConfigOK A successful response.
+//
+// swagger:response setBucketRetentionConfigOK
 type SetBucketRetentionConfigOK struct {
 }
 
@@ -51,17 +48,13 @@ func (o *SetBucketRetentionConfigOK) WriteResponse(rw http.ResponseWriter, produ
 	rw.WriteHeader(200)
 }
 
-/*
-SetBucketRetentionConfigDefault Generic error response.
-
-swagger:response setBucketRetentionConfigDefault
-*/
+// SetBucketRetentionConfigDefault Generic error response.
+//
+// swagger:response setBucketRetentionConfigDefault
 type SetBucketRetentionConfigDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

@@ -22,7 +22,7 @@ import (
 	"context"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
 )
 
 // User user
@@ -47,12 +47,12 @@ type User struct {
 }
 
 // Validate validates this user
-func (m *User) Validate(formats strfmt.Registry) error {
+func (m *User) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this user based on context it is used
-func (m *User) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *User) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -61,13 +61,13 @@ func (m *User) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *User) UnmarshalBinary(b []byte) error {
 	var res User
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

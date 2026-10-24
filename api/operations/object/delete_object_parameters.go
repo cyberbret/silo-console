@@ -25,7 +25,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/conv"
 	"github.com/go-openapi/validate"
 )
 
@@ -44,42 +44,21 @@ func NewDeleteObjectParams() DeleteObjectParams {
 type DeleteObjectParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
-
-	/*
-	  In: query
-	*/
+	// In: query
 	AllVersions *bool
-
-	/*
-	  Required: true
-	  In: path
-	*/
+	// Required: true
+	// In: path
 	BucketName string
-
-	/*
-	  In: query
-	*/
+	// In: query
 	Bypass *bool
-
-	/*
-	  In: query
-	*/
+	// In: query
 	NonCurrentVersions *bool
-
-	/*
-	  Required: true
-	  In: query
-	*/
+	// Required: true
+	// In: query
 	Prefix string
-
-	/*
-	  In: query
-	*/
+	// In: query
 	Recursive *bool
-
-	/*
-	  In: query
-	*/
+	// In: query
 	VersionID *string
 }
 
@@ -147,7 +126,7 @@ func (o *DeleteObjectParams) bindAllVersions(rawData []string, hasKey bool, form
 		return nil
 	}
 
-	value, err := swag.ConvertBool(raw)
+	value, err := conv.ConvertBool(raw)
 	if err != nil {
 		return errors.InvalidType("all_versions", "query", "bool", raw)
 	}
@@ -184,7 +163,7 @@ func (o *DeleteObjectParams) bindBypass(rawData []string, hasKey bool, formats s
 		return nil
 	}
 
-	value, err := swag.ConvertBool(raw)
+	value, err := conv.ConvertBool(raw)
 	if err != nil {
 		return errors.InvalidType("bypass", "query", "bool", raw)
 	}
@@ -207,7 +186,7 @@ func (o *DeleteObjectParams) bindNonCurrentVersions(rawData []string, hasKey boo
 		return nil
 	}
 
-	value, err := swag.ConvertBool(raw)
+	value, err := conv.ConvertBool(raw)
 	if err != nil {
 		return errors.InvalidType("non_current_versions", "query", "bool", raw)
 	}
@@ -251,7 +230,7 @@ func (o *DeleteObjectParams) bindRecursive(rawData []string, hasKey bool, format
 		return nil
 	}
 
-	value, err := swag.ConvertBool(raw)
+	value, err := conv.ConvertBool(raw)
 	if err != nil {
 		return errors.InvalidType("recursive", "query", "bool", raw)
 	}

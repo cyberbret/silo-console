@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // SetBucketQuotaOKCode is the HTTP code returned for type SetBucketQuotaOK
 const SetBucketQuotaOKCode int = 200
 
-/*
-SetBucketQuotaOK A successful response.
-
-swagger:response setBucketQuotaOK
-*/
+// SetBucketQuotaOK A successful response.
+//
+// swagger:response setBucketQuotaOK
 type SetBucketQuotaOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.Bucket `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *SetBucketQuotaOK) WriteResponse(rw http.ResponseWriter, producer runtim
 	}
 }
 
-/*
-SetBucketQuotaDefault Generic error response.
-
-swagger:response setBucketQuotaDefault
-*/
+// SetBucketQuotaDefault Generic error response.
+//
+// swagger:response setBucketQuotaDefault
 type SetBucketQuotaDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

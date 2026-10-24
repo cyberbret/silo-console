@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // AdminInfoOKCode is the HTTP code returned for type AdminInfoOK
 const AdminInfoOKCode int = 200
 
-/*
-AdminInfoOK A successful response.
-
-swagger:response adminInfoOK
-*/
+// AdminInfoOK A successful response.
+//
+// swagger:response adminInfoOK
 type AdminInfoOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.AdminInfoResponse `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *AdminInfoOK) WriteResponse(rw http.ResponseWriter, producer runtime.Pro
 	}
 }
 
-/*
-AdminInfoDefault Generic error response.
-
-swagger:response adminInfoDefault
-*/
+// AdminInfoDefault Generic error response.
+//
+// swagger:response adminInfoDefault
 type AdminInfoDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

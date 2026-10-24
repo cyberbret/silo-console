@@ -25,7 +25,8 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
+	"github.com/go-openapi/swag/typeutils"
 )
 
 // LdapEntities ldap entities
@@ -69,12 +70,12 @@ func (m *LdapEntities) Validate(formats strfmt.Registry) error {
 }
 
 func (m *LdapEntities) validateGroups(formats strfmt.Registry) error {
-	if swag.IsZero(m.Groups) { // not required
+	if typeutils.IsZero(m.Groups) { // not required
 		return nil
 	}
 
 	for i := 0; i < len(m.Groups); i++ {
-		if swag.IsZero(m.Groups[i]) { // not required
+		if typeutils.IsZero(m.Groups[i]) { // not required
 			continue
 		}
 
@@ -99,12 +100,12 @@ func (m *LdapEntities) validateGroups(formats strfmt.Registry) error {
 }
 
 func (m *LdapEntities) validatePolicies(formats strfmt.Registry) error {
-	if swag.IsZero(m.Policies) { // not required
+	if typeutils.IsZero(m.Policies) { // not required
 		return nil
 	}
 
 	for i := 0; i < len(m.Policies); i++ {
-		if swag.IsZero(m.Policies[i]) { // not required
+		if typeutils.IsZero(m.Policies[i]) { // not required
 			continue
 		}
 
@@ -129,12 +130,12 @@ func (m *LdapEntities) validatePolicies(formats strfmt.Registry) error {
 }
 
 func (m *LdapEntities) validateUsers(formats strfmt.Registry) error {
-	if swag.IsZero(m.Users) { // not required
+	if typeutils.IsZero(m.Users) { // not required
 		return nil
 	}
 
 	for i := 0; i < len(m.Users); i++ {
-		if swag.IsZero(m.Users[i]) { // not required
+		if typeutils.IsZero(m.Users[i]) { // not required
 			continue
 		}
 
@@ -186,7 +187,7 @@ func (m *LdapEntities) contextValidateGroups(ctx context.Context, formats strfmt
 
 		if m.Groups[i] != nil {
 
-			if swag.IsZero(m.Groups[i]) { // not required
+			if typeutils.IsZero(m.Groups[i]) { // not required
 				return nil
 			}
 
@@ -215,7 +216,7 @@ func (m *LdapEntities) contextValidatePolicies(ctx context.Context, formats strf
 
 		if m.Policies[i] != nil {
 
-			if swag.IsZero(m.Policies[i]) { // not required
+			if typeutils.IsZero(m.Policies[i]) { // not required
 				return nil
 			}
 
@@ -244,7 +245,7 @@ func (m *LdapEntities) contextValidateUsers(ctx context.Context, formats strfmt.
 
 		if m.Users[i] != nil {
 
-			if swag.IsZero(m.Users[i]) { // not required
+			if typeutils.IsZero(m.Users[i]) { // not required
 				return nil
 			}
 
@@ -272,13 +273,13 @@ func (m *LdapEntities) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *LdapEntities) UnmarshalBinary(b []byte) error {
 	var res LdapEntities
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

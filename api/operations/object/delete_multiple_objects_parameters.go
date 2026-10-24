@@ -27,8 +27,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
-
+	"github.com/go-openapi/swag/conv"
 	"github.com/minio/console/models"
 )
 
@@ -47,27 +46,15 @@ func NewDeleteMultipleObjectsParams() DeleteMultipleObjectsParams {
 type DeleteMultipleObjectsParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
-
-	/*
-	  In: query
-	*/
+	// In: query
 	AllVersions *bool
-
-	/*
-	  Required: true
-	  In: path
-	*/
+	// Required: true
+	// In: path
 	BucketName string
-
-	/*
-	  In: query
-	*/
+	// In: query
 	Bypass *bool
-
-	/*
-	  Required: true
-	  In: body
-	*/
+	// Required: true
+	// In: body
 	Files []*models.DeleteFile
 }
 
@@ -147,7 +134,7 @@ func (o *DeleteMultipleObjectsParams) bindAllVersions(rawData []string, hasKey b
 		return nil
 	}
 
-	value, err := swag.ConvertBool(raw)
+	value, err := conv.ConvertBool(raw)
 	if err != nil {
 		return errors.InvalidType("all_versions", "query", "bool", raw)
 	}
@@ -184,7 +171,7 @@ func (o *DeleteMultipleObjectsParams) bindBypass(rawData []string, hasKey bool, 
 		return nil
 	}
 
-	value, err := swag.ConvertBool(raw)
+	value, err := conv.ConvertBool(raw)
 	if err != nil {
 		return errors.InvalidType("bypass", "query", "bool", raw)
 	}

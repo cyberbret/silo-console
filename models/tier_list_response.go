@@ -25,7 +25,8 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
+	"github.com/go-openapi/swag/typeutils"
 )
 
 // TierListResponse tier list response
@@ -52,12 +53,12 @@ func (m *TierListResponse) Validate(formats strfmt.Registry) error {
 }
 
 func (m *TierListResponse) validateItems(formats strfmt.Registry) error {
-	if swag.IsZero(m.Items) { // not required
+	if typeutils.IsZero(m.Items) { // not required
 		return nil
 	}
 
 	for i := 0; i < len(m.Items); i++ {
-		if swag.IsZero(m.Items[i]) { // not required
+		if typeutils.IsZero(m.Items[i]) { // not required
 			continue
 		}
 
@@ -101,7 +102,7 @@ func (m *TierListResponse) contextValidateItems(ctx context.Context, formats str
 
 		if m.Items[i] != nil {
 
-			if swag.IsZero(m.Items[i]) { // not required
+			if typeutils.IsZero(m.Items[i]) { // not required
 				return nil
 			}
 
@@ -129,13 +130,13 @@ func (m *TierListResponse) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *TierListResponse) UnmarshalBinary(b []byte) error {
 	var res TierListResponse
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

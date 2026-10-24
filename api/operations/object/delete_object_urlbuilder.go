@@ -24,7 +24,7 @@ import (
 	golangswaggerpaths "path"
 	"strings"
 
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/conv"
 )
 
 // DeleteObjectURL generates an URL for the delete object operation
@@ -81,7 +81,7 @@ func (o *DeleteObjectURL) Build() (*url.URL, error) {
 
 	var allVersionsQ string
 	if o.AllVersions != nil {
-		allVersionsQ = swag.FormatBool(*o.AllVersions)
+		allVersionsQ = conv.FormatBool(*o.AllVersions)
 	}
 	if allVersionsQ != "" {
 		qs.Set("all_versions", allVersionsQ)
@@ -89,7 +89,7 @@ func (o *DeleteObjectURL) Build() (*url.URL, error) {
 
 	var bypassQ string
 	if o.Bypass != nil {
-		bypassQ = swag.FormatBool(*o.Bypass)
+		bypassQ = conv.FormatBool(*o.Bypass)
 	}
 	if bypassQ != "" {
 		qs.Set("bypass", bypassQ)
@@ -97,7 +97,7 @@ func (o *DeleteObjectURL) Build() (*url.URL, error) {
 
 	var nonCurrentVersionsQ string
 	if o.NonCurrentVersions != nil {
-		nonCurrentVersionsQ = swag.FormatBool(*o.NonCurrentVersions)
+		nonCurrentVersionsQ = conv.FormatBool(*o.NonCurrentVersions)
 	}
 	if nonCurrentVersionsQ != "" {
 		qs.Set("non_current_versions", nonCurrentVersionsQ)
@@ -110,7 +110,7 @@ func (o *DeleteObjectURL) Build() (*url.URL, error) {
 
 	var recursiveQ string
 	if o.Recursive != nil {
-		recursiveQ = swag.FormatBool(*o.Recursive)
+		recursiveQ = conv.FormatBool(*o.Recursive)
 	}
 	if recursiveQ != "" {
 		qs.Set("recursive", recursiveQ)

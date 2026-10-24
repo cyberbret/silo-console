@@ -25,7 +25,8 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
+	"github.com/go-openapi/swag/typeutils"
 )
 
 // BucketVersioningResponse bucket versioning response
@@ -61,12 +62,12 @@ func (m *BucketVersioningResponse) Validate(formats strfmt.Registry) error {
 }
 
 func (m *BucketVersioningResponse) validateExcludedPrefixes(formats strfmt.Registry) error {
-	if swag.IsZero(m.ExcludedPrefixes) { // not required
+	if typeutils.IsZero(m.ExcludedPrefixes) { // not required
 		return nil
 	}
 
 	for i := 0; i < len(m.ExcludedPrefixes); i++ {
-		if swag.IsZero(m.ExcludedPrefixes[i]) { // not required
+		if typeutils.IsZero(m.ExcludedPrefixes[i]) { // not required
 			continue
 		}
 
@@ -110,7 +111,7 @@ func (m *BucketVersioningResponse) contextValidateExcludedPrefixes(ctx context.C
 
 		if m.ExcludedPrefixes[i] != nil {
 
-			if swag.IsZero(m.ExcludedPrefixes[i]) { // not required
+			if typeutils.IsZero(m.ExcludedPrefixes[i]) { // not required
 				return nil
 			}
 
@@ -138,13 +139,13 @@ func (m *BucketVersioningResponse) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *BucketVersioningResponse) UnmarshalBinary(b []byte) error {
 	var res BucketVersioningResponse
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res
@@ -161,12 +162,12 @@ type BucketVersioningResponseExcludedPrefixesItems0 struct {
 }
 
 // Validate validates this bucket versioning response excluded prefixes items0
-func (m *BucketVersioningResponseExcludedPrefixesItems0) Validate(formats strfmt.Registry) error {
+func (m *BucketVersioningResponseExcludedPrefixesItems0) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this bucket versioning response excluded prefixes items0 based on context it is used
-func (m *BucketVersioningResponseExcludedPrefixesItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *BucketVersioningResponseExcludedPrefixesItems0) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -175,13 +176,13 @@ func (m *BucketVersioningResponseExcludedPrefixesItems0) MarshalBinary() ([]byte
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *BucketVersioningResponseExcludedPrefixesItems0) UnmarshalBinary(b []byte) error {
 	var res BucketVersioningResponseExcludedPrefixesItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

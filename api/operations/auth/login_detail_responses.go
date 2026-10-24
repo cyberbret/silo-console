@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // LoginDetailOKCode is the HTTP code returned for type LoginDetailOK
 const LoginDetailOKCode int = 200
 
-/*
-LoginDetailOK A successful response.
-
-swagger:response loginDetailOK
-*/
+// LoginDetailOK A successful response.
+//
+// swagger:response loginDetailOK
 type LoginDetailOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.LoginDetails `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *LoginDetailOK) WriteResponse(rw http.ResponseWriter, producer runtime.P
 	}
 }
 
-/*
-LoginDetailDefault Generic error response.
-
-swagger:response loginDetailDefault
-*/
+// LoginDetailDefault Generic error response.
+//
+// swagger:response loginDetailDefault
 type LoginDetailDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

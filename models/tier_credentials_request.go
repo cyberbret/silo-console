@@ -22,7 +22,7 @@ import (
 	"context"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
 )
 
 // TierCredentialsRequest tier credentials request
@@ -41,12 +41,12 @@ type TierCredentialsRequest struct {
 }
 
 // Validate validates this tier credentials request
-func (m *TierCredentialsRequest) Validate(formats strfmt.Registry) error {
+func (m *TierCredentialsRequest) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this tier credentials request based on context it is used
-func (m *TierCredentialsRequest) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *TierCredentialsRequest) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -55,13 +55,13 @@ func (m *TierCredentialsRequest) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *TierCredentialsRequest) UnmarshalBinary(b []byte) error {
 	var res TierCredentialsRequest
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

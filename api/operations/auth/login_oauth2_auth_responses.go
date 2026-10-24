@@ -22,18 +22,15 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // LoginOauth2AuthNoContentCode is the HTTP code returned for type LoginOauth2AuthNoContent
 const LoginOauth2AuthNoContentCode int = 204
 
-/*
-LoginOauth2AuthNoContent A successful login.
-
-swagger:response loginOauth2AuthNoContent
-*/
+// LoginOauth2AuthNoContent A successful login.
+//
+// swagger:response loginOauth2AuthNoContent
 type LoginOauth2AuthNoContent struct {
 }
 
@@ -51,17 +48,13 @@ func (o *LoginOauth2AuthNoContent) WriteResponse(rw http.ResponseWriter, produce
 	rw.WriteHeader(204)
 }
 
-/*
-LoginOauth2AuthDefault Generic error response.
-
-swagger:response loginOauth2AuthDefault
-*/
+// LoginOauth2AuthDefault Generic error response.
+//
+// swagger:response loginOauth2AuthDefault
 type LoginOauth2AuthDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

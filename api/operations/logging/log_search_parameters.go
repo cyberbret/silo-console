@@ -25,7 +25,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/conv"
 	"github.com/go-openapi/validate"
 )
 
@@ -57,39 +57,22 @@ func NewLogSearchParams() LogSearchParams {
 type LogSearchParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
-
-	/*Filter Parameters
-	  In: query
-	  Collection Format: multi
-	*/
+	// Filter Parameters
+	// In: query
+	// Collection Format: multi
 	Fp []string
-
-	/*
-	  In: query
-	  Default: "timeDesc"
-	*/
+	// In: query
+	// Default: "timeDesc"
 	Order *string
-
-	/*
-	  In: query
-	  Default: 0
-	*/
+	// In: query
+	// Default: 0
 	PageNo *int32
-
-	/*
-	  In: query
-	  Default: 10
-	*/
+	// In: query
+	// Default: 10
 	PageSize *int32
-
-	/*
-	  In: query
-	*/
+	// In: query
 	TimeEnd *string
-
-	/*
-	  In: query
-	*/
+	// In: query
 	TimeStart *string
 }
 
@@ -208,7 +191,7 @@ func (o *LogSearchParams) bindPageNo(rawData []string, hasKey bool, formats strf
 		return nil
 	}
 
-	value, err := swag.ConvertInt32(raw)
+	value, err := conv.ConvertInt32(raw)
 	if err != nil {
 		return errors.InvalidType("pageNo", "query", "int32", raw)
 	}
@@ -232,7 +215,7 @@ func (o *LogSearchParams) bindPageSize(rawData []string, hasKey bool, formats st
 		return nil
 	}
 
-	value, err := swag.ConvertInt32(raw)
+	value, err := conv.ConvertInt32(raw)
 	if err != nil {
 		return errors.InvalidType("pageSize", "query", "int32", raw)
 	}

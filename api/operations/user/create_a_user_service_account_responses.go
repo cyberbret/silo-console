@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // CreateAUserServiceAccountCreatedCode is the HTTP code returned for type CreateAUserServiceAccountCreated
 const CreateAUserServiceAccountCreatedCode int = 201
 
-/*
-CreateAUserServiceAccountCreated A successful response.
-
-swagger:response createAUserServiceAccountCreated
-*/
+// CreateAUserServiceAccountCreated A successful response.
+//
+// swagger:response createAUserServiceAccountCreated
 type CreateAUserServiceAccountCreated struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.ServiceAccountCreds `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *CreateAUserServiceAccountCreated) WriteResponse(rw http.ResponseWriter,
 	}
 }
 
-/*
-CreateAUserServiceAccountDefault Generic error response.
-
-swagger:response createAUserServiceAccountDefault
-*/
+// CreateAUserServiceAccountDefault Generic error response.
+//
+// swagger:response createAUserServiceAccountDefault
 type CreateAUserServiceAccountDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

@@ -22,7 +22,7 @@ import (
 	"context"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
 )
 
 // APIError Api error
@@ -38,12 +38,12 @@ type APIError struct {
 }
 
 // Validate validates this Api error
-func (m *APIError) Validate(formats strfmt.Registry) error {
+func (m *APIError) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this Api error based on context it is used
-func (m *APIError) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *APIError) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -52,13 +52,13 @@ func (m *APIError) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *APIError) UnmarshalBinary(b []byte) error {
 	var res APIError
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

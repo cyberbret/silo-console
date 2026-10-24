@@ -22,7 +22,7 @@ import (
 	"context"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
 )
 
 // TierS3 tier s3
@@ -65,12 +65,12 @@ type TierS3 struct {
 }
 
 // Validate validates this tier s3
-func (m *TierS3) Validate(formats strfmt.Registry) error {
+func (m *TierS3) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this tier s3 based on context it is used
-func (m *TierS3) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *TierS3) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -79,13 +79,13 @@ func (m *TierS3) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *TierS3) UnmarshalBinary(b []byte) error {
 	var res TierS3
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

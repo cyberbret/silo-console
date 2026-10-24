@@ -24,7 +24,7 @@ import (
 	golangswaggerpaths "path"
 	"strings"
 
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/conv"
 )
 
 // DownloadObjectURL generates an URL for the download object operation
@@ -92,7 +92,7 @@ func (o *DownloadObjectURL) Build() (*url.URL, error) {
 
 	var previewQ string
 	if o.Preview != nil {
-		previewQ = swag.FormatBool(*o.Preview)
+		previewQ = conv.FormatBool(*o.Preview)
 	}
 	if previewQ != "" {
 		qs.Set("preview", previewQ)

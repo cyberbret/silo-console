@@ -23,7 +23,7 @@ import (
 	"net/url"
 	golangswaggerpaths "path"
 
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/conv"
 )
 
 // InspectURL generates an URL for the inspect operation
@@ -68,7 +68,7 @@ func (o *InspectURL) Build() (*url.URL, error) {
 
 	var encryptQ string
 	if o.Encrypt != nil {
-		encryptQ = swag.FormatBool(*o.Encrypt)
+		encryptQ = conv.FormatBool(*o.Encrypt)
 	}
 	if encryptQ != "" {
 		qs.Set("encrypt", encryptQ)

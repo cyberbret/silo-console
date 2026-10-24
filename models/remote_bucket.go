@@ -24,7 +24,8 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
+	"github.com/go-openapi/swag/typeutils"
 	"github.com/go-openapi/validate"
 )
 
@@ -126,7 +127,7 @@ func (m *RemoteBucket) validateRemoteARN(formats strfmt.Registry) error {
 }
 
 func (m *RemoteBucket) validateSecretKey(formats strfmt.Registry) error {
-	if swag.IsZero(m.SecretKey) { // not required
+	if typeutils.IsZero(m.SecretKey) { // not required
 		return nil
 	}
 
@@ -164,7 +165,7 @@ func (m *RemoteBucket) validateServiceEnum(path, location string, value string) 
 }
 
 func (m *RemoteBucket) validateService(formats strfmt.Registry) error {
-	if swag.IsZero(m.Service) { // not required
+	if typeutils.IsZero(m.Service) { // not required
 		return nil
 	}
 
@@ -186,7 +187,7 @@ func (m *RemoteBucket) validateSourceBucket(formats strfmt.Registry) error {
 }
 
 // ContextValidate validates this remote bucket based on context it is used
-func (m *RemoteBucket) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *RemoteBucket) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -195,13 +196,13 @@ func (m *RemoteBucket) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *RemoteBucket) UnmarshalBinary(b []byte) error {
 	var res RemoteBucket
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // SiteReplicationEditOKCode is the HTTP code returned for type SiteReplicationEditOK
 const SiteReplicationEditOKCode int = 200
 
-/*
-SiteReplicationEditOK A successful response.
-
-swagger:response siteReplicationEditOK
-*/
+// SiteReplicationEditOK A successful response.
+//
+// swagger:response siteReplicationEditOK
 type SiteReplicationEditOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.PeerSiteEditResponse `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *SiteReplicationEditOK) WriteResponse(rw http.ResponseWriter, producer r
 	}
 }
 
-/*
-SiteReplicationEditDefault Generic error response.
-
-swagger:response siteReplicationEditDefault
-*/
+// SiteReplicationEditDefault Generic error response.
+//
+// swagger:response siteReplicationEditDefault
 type SiteReplicationEditDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

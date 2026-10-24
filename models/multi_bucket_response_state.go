@@ -25,7 +25,8 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
+	"github.com/go-openapi/swag/typeutils"
 )
 
 // MultiBucketResponseState multi bucket response state
@@ -52,12 +53,12 @@ func (m *MultiBucketResponseState) Validate(formats strfmt.Registry) error {
 }
 
 func (m *MultiBucketResponseState) validateReplicationState(formats strfmt.Registry) error {
-	if swag.IsZero(m.ReplicationState) { // not required
+	if typeutils.IsZero(m.ReplicationState) { // not required
 		return nil
 	}
 
 	for i := 0; i < len(m.ReplicationState); i++ {
-		if swag.IsZero(m.ReplicationState[i]) { // not required
+		if typeutils.IsZero(m.ReplicationState[i]) { // not required
 			continue
 		}
 
@@ -101,7 +102,7 @@ func (m *MultiBucketResponseState) contextValidateReplicationState(ctx context.C
 
 		if m.ReplicationState[i] != nil {
 
-			if swag.IsZero(m.ReplicationState[i]) { // not required
+			if typeutils.IsZero(m.ReplicationState[i]) { // not required
 				return nil
 			}
 
@@ -129,13 +130,13 @@ func (m *MultiBucketResponseState) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *MultiBucketResponseState) UnmarshalBinary(b []byte) error {
 	var res MultiBucketResponseState
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

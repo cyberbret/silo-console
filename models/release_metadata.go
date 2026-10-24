@@ -24,7 +24,8 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
+	"github.com/go-openapi/swag/typeutils"
 )
 
 // ReleaseMetadata release metadata
@@ -96,7 +97,7 @@ func (m *ReleaseMetadata) Validate(formats strfmt.Registry) error {
 }
 
 func (m *ReleaseMetadata) validateAuthor(formats strfmt.Registry) error {
-	if swag.IsZero(m.Author) { // not required
+	if typeutils.IsZero(m.Author) { // not required
 		return nil
 	}
 
@@ -136,7 +137,7 @@ func (m *ReleaseMetadata) contextValidateAuthor(ctx context.Context, formats str
 
 	if m.Author != nil {
 
-		if swag.IsZero(m.Author) { // not required
+		if typeutils.IsZero(m.Author) { // not required
 			return nil
 		}
 
@@ -162,13 +163,13 @@ func (m *ReleaseMetadata) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *ReleaseMetadata) UnmarshalBinary(b []byte) error {
 	var res ReleaseMetadata
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

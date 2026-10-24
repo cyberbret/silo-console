@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // GetBucketRewindOKCode is the HTTP code returned for type GetBucketRewindOK
 const GetBucketRewindOKCode int = 200
 
-/*
-GetBucketRewindOK A successful response.
-
-swagger:response getBucketRewindOK
-*/
+// GetBucketRewindOK A successful response.
+//
+// swagger:response getBucketRewindOK
 type GetBucketRewindOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.RewindResponse `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *GetBucketRewindOK) WriteResponse(rw http.ResponseWriter, producer runti
 	}
 }
 
-/*
-GetBucketRewindDefault Generic error response.
-
-swagger:response getBucketRewindDefault
-*/
+// GetBucketRewindDefault Generic error response.
+//
+// swagger:response getBucketRewindDefault
 type GetBucketRewindDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

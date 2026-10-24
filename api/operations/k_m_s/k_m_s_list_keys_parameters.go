@@ -42,10 +42,8 @@ func NewKMSListKeysParams() KMSListKeysParams {
 type KMSListKeysParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
-
-	/*pattern to retrieve keys
-	  In: query
-	*/
+	// pattern to retrieve keys
+	// In: query
 	Pattern *string
 }
 

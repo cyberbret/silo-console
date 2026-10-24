@@ -23,7 +23,7 @@ import (
 	"net/url"
 	golangswaggerpaths "path"
 
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/conv"
 )
 
 // ListPoliciesURL generates an URL for the list policies operation
@@ -67,7 +67,7 @@ func (o *ListPoliciesURL) Build() (*url.URL, error) {
 
 	var limitQ string
 	if o.Limit != nil {
-		limitQ = swag.FormatInt32(*o.Limit)
+		limitQ = conv.FormatInteger(*o.Limit)
 	}
 	if limitQ != "" {
 		qs.Set("limit", limitQ)
@@ -75,7 +75,7 @@ func (o *ListPoliciesURL) Build() (*url.URL, error) {
 
 	var offsetQ string
 	if o.Offset != nil {
-		offsetQ = swag.FormatInt32(*o.Offset)
+		offsetQ = conv.FormatInteger(*o.Offset)
 	}
 	if offsetQ != "" {
 		qs.Set("offset", offsetQ)

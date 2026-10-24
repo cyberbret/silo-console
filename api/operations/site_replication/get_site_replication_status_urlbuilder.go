@@ -23,7 +23,7 @@ import (
 	"net/url"
 	golangswaggerpaths "path"
 
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/conv"
 )
 
 // GetSiteReplicationStatusURL generates an URL for the get site replication status operation
@@ -71,7 +71,7 @@ func (o *GetSiteReplicationStatusURL) Build() (*url.URL, error) {
 
 	var bucketsQ string
 	if o.Buckets != nil {
-		bucketsQ = swag.FormatBool(*o.Buckets)
+		bucketsQ = conv.FormatBool(*o.Buckets)
 	}
 	if bucketsQ != "" {
 		qs.Set("buckets", bucketsQ)
@@ -95,7 +95,7 @@ func (o *GetSiteReplicationStatusURL) Build() (*url.URL, error) {
 
 	var groupsQ string
 	if o.Groups != nil {
-		groupsQ = swag.FormatBool(*o.Groups)
+		groupsQ = conv.FormatBool(*o.Groups)
 	}
 	if groupsQ != "" {
 		qs.Set("groups", groupsQ)
@@ -103,7 +103,7 @@ func (o *GetSiteReplicationStatusURL) Build() (*url.URL, error) {
 
 	var policiesQ string
 	if o.Policies != nil {
-		policiesQ = swag.FormatBool(*o.Policies)
+		policiesQ = conv.FormatBool(*o.Policies)
 	}
 	if policiesQ != "" {
 		qs.Set("policies", policiesQ)
@@ -111,7 +111,7 @@ func (o *GetSiteReplicationStatusURL) Build() (*url.URL, error) {
 
 	var usersQ string
 	if o.Users != nil {
-		usersQ = swag.FormatBool(*o.Users)
+		usersQ = conv.FormatBool(*o.Users)
 	}
 	if usersQ != "" {
 		qs.Set("users", usersQ)

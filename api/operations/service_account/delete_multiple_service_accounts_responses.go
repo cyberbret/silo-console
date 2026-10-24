@@ -22,18 +22,15 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // DeleteMultipleServiceAccountsNoContentCode is the HTTP code returned for type DeleteMultipleServiceAccountsNoContent
 const DeleteMultipleServiceAccountsNoContentCode int = 204
 
-/*
-DeleteMultipleServiceAccountsNoContent A successful response.
-
-swagger:response deleteMultipleServiceAccountsNoContent
-*/
+// DeleteMultipleServiceAccountsNoContent A successful response.
+//
+// swagger:response deleteMultipleServiceAccountsNoContent
 type DeleteMultipleServiceAccountsNoContent struct {
 }
 
@@ -51,17 +48,13 @@ func (o *DeleteMultipleServiceAccountsNoContent) WriteResponse(rw http.ResponseW
 	rw.WriteHeader(204)
 }
 
-/*
-DeleteMultipleServiceAccountsDefault Generic error response.
-
-swagger:response deleteMultipleServiceAccountsDefault
-*/
+// DeleteMultipleServiceAccountsDefault Generic error response.
+//
+// swagger:response deleteMultipleServiceAccountsDefault
 type DeleteMultipleServiceAccountsDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

@@ -22,7 +22,6 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime/middleware"
-
 	"github.com/minio/console/models"
 )
 
@@ -44,11 +43,9 @@ func NewAddNotificationEndpoint(ctx *middleware.Context, handler AddNotification
 	return &AddNotificationEndpoint{Context: ctx, Handler: handler}
 }
 
-/*
-	AddNotificationEndpoint swagger:route POST /admin/notification_endpoints Configuration addNotificationEndpoint
-
-Allows to configure a new notification endpoint
-*/
+// AddNotificationEndpoint swagger:route POST /admin/notification_endpoints Configuration addNotificationEndpoint
+//
+// Allows to configure a new notification endpoint
 type AddNotificationEndpoint struct {
 	Context *middleware.Context
 	Handler AddNotificationEndpointHandler
@@ -59,7 +56,7 @@ func (o *AddNotificationEndpoint) ServeHTTP(rw http.ResponseWriter, r *http.Requ
 	if rCtx != nil {
 		*r = *rCtx
 	}
-	var Params = NewAddNotificationEndpointParams()
+	params := NewAddNotificationEndpointParams()
 	uprinc, aCtx, err := o.Context.Authorize(r, route)
 	if err != nil {
 		o.Context.Respond(rw, r, route.Produces, route, err)
@@ -73,12 +70,12 @@ func (o *AddNotificationEndpoint) ServeHTTP(rw http.ResponseWriter, r *http.Requ
 		principal = uprinc.(*models.Principal) // this is really a models.Principal, I promise
 	}
 
-	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
+	if err := o.Context.BindValidRequest(r, route, &params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
-	res := o.Handler.Handle(Params, principal) // actually handle the request
+	res := o.Handler.Handle(params, principal) // actually handle the request
 
 	o.Context.Respond(rw, r, route.Produces, route, res)
 

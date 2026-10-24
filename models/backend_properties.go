@@ -22,7 +22,7 @@ import (
 	"context"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
 )
 
 // BackendProperties backend properties
@@ -47,12 +47,12 @@ type BackendProperties struct {
 }
 
 // Validate validates this backend properties
-func (m *BackendProperties) Validate(formats strfmt.Registry) error {
+func (m *BackendProperties) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this backend properties based on context it is used
-func (m *BackendProperties) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *BackendProperties) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -61,13 +61,13 @@ func (m *BackendProperties) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *BackendProperties) UnmarshalBinary(b []byte) error {
 	var res BackendProperties
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

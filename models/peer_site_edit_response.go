@@ -22,7 +22,7 @@ import (
 	"context"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
 )
 
 // PeerSiteEditResponse peer site edit response
@@ -41,12 +41,12 @@ type PeerSiteEditResponse struct {
 }
 
 // Validate validates this peer site edit response
-func (m *PeerSiteEditResponse) Validate(formats strfmt.Registry) error {
+func (m *PeerSiteEditResponse) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this peer site edit response based on context it is used
-func (m *PeerSiteEditResponse) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *PeerSiteEditResponse) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -55,13 +55,13 @@ func (m *PeerSiteEditResponse) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *PeerSiteEditResponse) UnmarshalBinary(b []byte) error {
 	var res PeerSiteEditResponse
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

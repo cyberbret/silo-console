@@ -22,7 +22,6 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime/middleware"
-
 	"github.com/minio/console/models"
 )
 
@@ -44,11 +43,9 @@ func NewDeleteBucketLifecycleRule(ctx *middleware.Context, handler DeleteBucketL
 	return &DeleteBucketLifecycleRule{Context: ctx, Handler: handler}
 }
 
-/*
-	DeleteBucketLifecycleRule swagger:route DELETE /buckets/{bucket_name}/lifecycle/{lifecycle_id} Bucket deleteBucketLifecycleRule
-
-Delete Lifecycle rule
-*/
+// DeleteBucketLifecycleRule swagger:route DELETE /buckets/{bucket_name}/lifecycle/{lifecycle_id} Bucket deleteBucketLifecycleRule
+//
+// Delete Lifecycle rule
 type DeleteBucketLifecycleRule struct {
 	Context *middleware.Context
 	Handler DeleteBucketLifecycleRuleHandler
@@ -59,7 +56,7 @@ func (o *DeleteBucketLifecycleRule) ServeHTTP(rw http.ResponseWriter, r *http.Re
 	if rCtx != nil {
 		*r = *rCtx
 	}
-	var Params = NewDeleteBucketLifecycleRuleParams()
+	params := NewDeleteBucketLifecycleRuleParams()
 	uprinc, aCtx, err := o.Context.Authorize(r, route)
 	if err != nil {
 		o.Context.Respond(rw, r, route.Produces, route, err)
@@ -73,12 +70,12 @@ func (o *DeleteBucketLifecycleRule) ServeHTTP(rw http.ResponseWriter, r *http.Re
 		principal = uprinc.(*models.Principal) // this is really a models.Principal, I promise
 	}
 
-	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
+	if err := o.Context.BindValidRequest(r, route, &params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
-	res := o.Handler.Handle(Params, principal) // actually handle the request
+	res := o.Handler.Handle(params, principal) // actually handle the request
 
 	o.Context.Respond(rw, r, route.Produces, route, res)
 

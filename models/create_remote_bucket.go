@@ -24,7 +24,8 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
+	"github.com/go-openapi/swag/typeutils"
 	"github.com/go-openapi/validate"
 )
 
@@ -168,7 +169,7 @@ func (m *CreateRemoteBucket) validateSyncModeEnum(path, location string, value s
 }
 
 func (m *CreateRemoteBucket) validateSyncMode(formats strfmt.Registry) error {
-	if swag.IsZero(m.SyncMode) { // not required
+	if typeutils.IsZero(m.SyncMode) { // not required
 		return nil
 	}
 
@@ -199,7 +200,7 @@ func (m *CreateRemoteBucket) validateTargetURL(formats strfmt.Registry) error {
 }
 
 // ContextValidate validates this create remote bucket based on context it is used
-func (m *CreateRemoteBucket) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *CreateRemoteBucket) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -208,13 +209,13 @@ func (m *CreateRemoteBucket) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *CreateRemoteBucket) UnmarshalBinary(b []byte) error {
 	var res CreateRemoteBucket
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

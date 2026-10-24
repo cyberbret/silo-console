@@ -27,7 +27,6 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/validate"
-
 	"github.com/minio/console/models"
 )
 
@@ -46,11 +45,8 @@ func NewSetPolicyParams() SetPolicyParams {
 type SetPolicyParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
-
-	/*
-	  Required: true
-	  In: body
-	*/
+	// Required: true
+	// In: body
 	Body *models.SetPolicyNameRequest
 }
 

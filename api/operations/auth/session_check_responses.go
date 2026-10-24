@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // SessionCheckOKCode is the HTTP code returned for type SessionCheckOK
 const SessionCheckOKCode int = 200
 
-/*
-SessionCheckOK A successful response.
-
-swagger:response sessionCheckOK
-*/
+// SessionCheckOK A successful response.
+//
+// swagger:response sessionCheckOK
 type SessionCheckOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.SessionResponse `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *SessionCheckOK) WriteResponse(rw http.ResponseWriter, producer runtime.
 	}
 }
 
-/*
-SessionCheckDefault Generic error response.
-
-swagger:response sessionCheckDefault
-*/
+// SessionCheckDefault Generic error response.
+//
+// swagger:response sessionCheckDefault
 type SessionCheckDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

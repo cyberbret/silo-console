@@ -23,23 +23,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // ProfilingStopCreatedCode is the HTTP code returned for type ProfilingStopCreated
 const ProfilingStopCreatedCode int = 201
 
-/*
-ProfilingStopCreated A successful response.
-
-swagger:response profilingStopCreated
-*/
+// ProfilingStopCreated A successful response.
+//
+// swagger:response profilingStopCreated
 type ProfilingStopCreated struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload io.ReadCloser `json:"body,omitempty"`
 }
 
@@ -70,17 +65,13 @@ func (o *ProfilingStopCreated) WriteResponse(rw http.ResponseWriter, producer ru
 	}
 }
 
-/*
-ProfilingStopDefault Generic error response.
-
-swagger:response profilingStopDefault
-*/
+// ProfilingStopDefault Generic error response.
+//
+// swagger:response profilingStopDefault
 type ProfilingStopDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

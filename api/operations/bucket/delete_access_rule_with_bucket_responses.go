@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // DeleteAccessRuleWithBucketOKCode is the HTTP code returned for type DeleteAccessRuleWithBucketOK
 const DeleteAccessRuleWithBucketOKCode int = 200
 
-/*
-DeleteAccessRuleWithBucketOK A successful response.
-
-swagger:response deleteAccessRuleWithBucketOK
-*/
+// DeleteAccessRuleWithBucketOK A successful response.
+//
+// swagger:response deleteAccessRuleWithBucketOK
 type DeleteAccessRuleWithBucketOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload bool `json:"body,omitempty"`
 }
 
@@ -69,17 +64,13 @@ func (o *DeleteAccessRuleWithBucketOK) WriteResponse(rw http.ResponseWriter, pro
 	}
 }
 
-/*
-DeleteAccessRuleWithBucketDefault Generic error response.
-
-swagger:response deleteAccessRuleWithBucketDefault
-*/
+// DeleteAccessRuleWithBucketDefault Generic error response.
+//
+// swagger:response deleteAccessRuleWithBucketDefault
 type DeleteAccessRuleWithBucketDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

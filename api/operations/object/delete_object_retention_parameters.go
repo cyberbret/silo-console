@@ -43,23 +43,14 @@ func NewDeleteObjectRetentionParams() DeleteObjectRetentionParams {
 type DeleteObjectRetentionParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
-
-	/*
-	  Required: true
-	  In: path
-	*/
+	// Required: true
+	// In: path
 	BucketName string
-
-	/*
-	  Required: true
-	  In: query
-	*/
+	// Required: true
+	// In: query
 	Prefix string
-
-	/*
-	  Required: true
-	  In: query
-	*/
+	// Required: true
+	// In: query
 	VersionID string
 }
 

@@ -41,11 +41,8 @@ func NewDisableBucketEncryptionParams() DisableBucketEncryptionParams {
 type DisableBucketEncryptionParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
-
-	/*
-	  Required: true
-	  In: path
-	*/
+	// Required: true
+	// In: path
 	BucketName string
 }
 

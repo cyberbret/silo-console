@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // SetConfigOKCode is the HTTP code returned for type SetConfigOK
 const SetConfigOKCode int = 200
 
-/*
-SetConfigOK A successful response.
-
-swagger:response setConfigOK
-*/
+// SetConfigOK A successful response.
+//
+// swagger:response setConfigOK
 type SetConfigOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.SetConfigResponse `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *SetConfigOK) WriteResponse(rw http.ResponseWriter, producer runtime.Pro
 	}
 }
 
-/*
-SetConfigDefault Generic error response.
-
-swagger:response setConfigDefault
-*/
+// SetConfigDefault Generic error response.
+//
+// swagger:response setConfigDefault
 type SetConfigDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

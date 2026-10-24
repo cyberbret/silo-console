@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // GetUserPolicyOKCode is the HTTP code returned for type GetUserPolicyOK
 const GetUserPolicyOKCode int = 200
 
-/*
-GetUserPolicyOK A successful response.
-
-swagger:response getUserPolicyOK
-*/
+// GetUserPolicyOK A successful response.
+//
+// swagger:response getUserPolicyOK
 type GetUserPolicyOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload string `json:"body,omitempty"`
 }
 
@@ -69,17 +64,13 @@ func (o *GetUserPolicyOK) WriteResponse(rw http.ResponseWriter, producer runtime
 	}
 }
 
-/*
-GetUserPolicyDefault Generic error response.
-
-swagger:response getUserPolicyDefault
-*/
+// GetUserPolicyDefault Generic error response.
+//
+// swagger:response getUserPolicyDefault
 type GetUserPolicyDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

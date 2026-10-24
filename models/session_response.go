@@ -26,7 +26,8 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
+	"github.com/go-openapi/swag/typeutils"
 	"github.com/go-openapi/validate"
 )
 
@@ -90,12 +91,12 @@ func (m *SessionResponse) Validate(formats strfmt.Registry) error {
 }
 
 func (m *SessionResponse) validateAllowResources(formats strfmt.Registry) error {
-	if swag.IsZero(m.AllowResources) { // not required
+	if typeutils.IsZero(m.AllowResources) { // not required
 		return nil
 	}
 
 	for i := 0; i < len(m.AllowResources); i++ {
-		if swag.IsZero(m.AllowResources[i]) { // not required
+		if typeutils.IsZero(m.AllowResources[i]) { // not required
 			continue
 		}
 
@@ -120,7 +121,7 @@ func (m *SessionResponse) validateAllowResources(formats strfmt.Registry) error 
 }
 
 func (m *SessionResponse) validateEnvConstants(formats strfmt.Registry) error {
-	if swag.IsZero(m.EnvConstants) { // not required
+	if typeutils.IsZero(m.EnvConstants) { // not required
 		return nil
 	}
 
@@ -169,7 +170,7 @@ func (m *SessionResponse) validateStatusEnum(path, location string, value string
 }
 
 func (m *SessionResponse) validateStatus(formats strfmt.Registry) error {
-	if swag.IsZero(m.Status) { // not required
+	if typeutils.IsZero(m.Status) { // not required
 		return nil
 	}
 
@@ -205,7 +206,7 @@ func (m *SessionResponse) contextValidateAllowResources(ctx context.Context, for
 
 		if m.AllowResources[i] != nil {
 
-			if swag.IsZero(m.AllowResources[i]) { // not required
+			if typeutils.IsZero(m.AllowResources[i]) { // not required
 				return nil
 			}
 
@@ -232,7 +233,7 @@ func (m *SessionResponse) contextValidateEnvConstants(ctx context.Context, forma
 
 	if m.EnvConstants != nil {
 
-		if swag.IsZero(m.EnvConstants) { // not required
+		if typeutils.IsZero(m.EnvConstants) { // not required
 			return nil
 		}
 
@@ -258,13 +259,13 @@ func (m *SessionResponse) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *SessionResponse) UnmarshalBinary(b []byte) error {
 	var res SessionResponse
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

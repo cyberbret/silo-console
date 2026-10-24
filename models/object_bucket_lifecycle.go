@@ -25,7 +25,8 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
+	"github.com/go-openapi/swag/typeutils"
 )
 
 // ObjectBucketLifecycle object bucket lifecycle
@@ -75,7 +76,7 @@ func (m *ObjectBucketLifecycle) Validate(formats strfmt.Registry) error {
 }
 
 func (m *ObjectBucketLifecycle) validateExpiration(formats strfmt.Registry) error {
-	if swag.IsZero(m.Expiration) { // not required
+	if typeutils.IsZero(m.Expiration) { // not required
 		return nil
 	}
 
@@ -98,12 +99,12 @@ func (m *ObjectBucketLifecycle) validateExpiration(formats strfmt.Registry) erro
 }
 
 func (m *ObjectBucketLifecycle) validateTags(formats strfmt.Registry) error {
-	if swag.IsZero(m.Tags) { // not required
+	if typeutils.IsZero(m.Tags) { // not required
 		return nil
 	}
 
 	for i := 0; i < len(m.Tags); i++ {
-		if swag.IsZero(m.Tags[i]) { // not required
+		if typeutils.IsZero(m.Tags[i]) { // not required
 			continue
 		}
 
@@ -128,7 +129,7 @@ func (m *ObjectBucketLifecycle) validateTags(formats strfmt.Registry) error {
 }
 
 func (m *ObjectBucketLifecycle) validateTransition(formats strfmt.Registry) error {
-	if swag.IsZero(m.Transition) { // not required
+	if typeutils.IsZero(m.Transition) { // not required
 		return nil
 	}
 
@@ -176,7 +177,7 @@ func (m *ObjectBucketLifecycle) contextValidateExpiration(ctx context.Context, f
 
 	if m.Expiration != nil {
 
-		if swag.IsZero(m.Expiration) { // not required
+		if typeutils.IsZero(m.Expiration) { // not required
 			return nil
 		}
 
@@ -203,7 +204,7 @@ func (m *ObjectBucketLifecycle) contextValidateTags(ctx context.Context, formats
 
 		if m.Tags[i] != nil {
 
-			if swag.IsZero(m.Tags[i]) { // not required
+			if typeutils.IsZero(m.Tags[i]) { // not required
 				return nil
 			}
 
@@ -230,7 +231,7 @@ func (m *ObjectBucketLifecycle) contextValidateTransition(ctx context.Context, f
 
 	if m.Transition != nil {
 
-		if swag.IsZero(m.Transition) { // not required
+		if typeutils.IsZero(m.Transition) { // not required
 			return nil
 		}
 
@@ -256,13 +257,13 @@ func (m *ObjectBucketLifecycle) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *ObjectBucketLifecycle) UnmarshalBinary(b []byte) error {
 	var res ObjectBucketLifecycle
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

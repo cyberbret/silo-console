@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // DeleteConfigurationOKCode is the HTTP code returned for type DeleteConfigurationOK
 const DeleteConfigurationOKCode int = 200
 
-/*
-DeleteConfigurationOK A successful response.
-
-swagger:response deleteConfigurationOK
-*/
+// DeleteConfigurationOK A successful response.
+//
+// swagger:response deleteConfigurationOK
 type DeleteConfigurationOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.SetIDPResponse `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *DeleteConfigurationOK) WriteResponse(rw http.ResponseWriter, producer r
 	}
 }
 
-/*
-DeleteConfigurationDefault Generic error response.
-
-swagger:response deleteConfigurationDefault
-*/
+// DeleteConfigurationDefault Generic error response.
+//
+// swagger:response deleteConfigurationDefault
 type DeleteConfigurationDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

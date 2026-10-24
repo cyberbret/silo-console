@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // DashboardWidgetDetailsOKCode is the HTTP code returned for type DashboardWidgetDetailsOK
 const DashboardWidgetDetailsOKCode int = 200
 
-/*
-DashboardWidgetDetailsOK A successful response.
-
-swagger:response dashboardWidgetDetailsOK
-*/
+// DashboardWidgetDetailsOK A successful response.
+//
+// swagger:response dashboardWidgetDetailsOK
 type DashboardWidgetDetailsOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.WidgetDetails `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *DashboardWidgetDetailsOK) WriteResponse(rw http.ResponseWriter, produce
 	}
 }
 
-/*
-DashboardWidgetDetailsDefault Generic error response.
-
-swagger:response dashboardWidgetDetailsDefault
-*/
+// DashboardWidgetDetailsDefault Generic error response.
+//
+// swagger:response dashboardWidgetDetailsDefault
 type DashboardWidgetDetailsDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

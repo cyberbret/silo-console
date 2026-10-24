@@ -25,7 +25,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/conv"
 )
 
 // NewListAccessRulesWithBucketParams creates a new ListAccessRulesWithBucketParams object
@@ -53,23 +53,14 @@ func NewListAccessRulesWithBucketParams() ListAccessRulesWithBucketParams {
 type ListAccessRulesWithBucketParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
-
-	/*
-	  Required: true
-	  In: path
-	*/
+	// Required: true
+	// In: path
 	Bucket string
-
-	/*
-	  In: query
-	  Default: 20
-	*/
+	// In: query
+	// Default: 20
 	Limit *int32
-
-	/*
-	  In: query
-	  Default: 0
-	*/
+	// In: query
+	// Default: 0
 	Offset *int32
 }
 
@@ -132,7 +123,7 @@ func (o *ListAccessRulesWithBucketParams) bindLimit(rawData []string, hasKey boo
 		return nil
 	}
 
-	value, err := swag.ConvertInt32(raw)
+	value, err := conv.ConvertInt32(raw)
 	if err != nil {
 		return errors.InvalidType("limit", "query", "int32", raw)
 	}
@@ -156,7 +147,7 @@ func (o *ListAccessRulesWithBucketParams) bindOffset(rawData []string, hasKey bo
 		return nil
 	}
 
-	value, err := swag.ConvertInt32(raw)
+	value, err := conv.ConvertInt32(raw)
 	if err != nil {
 		return errors.InvalidType("offset", "query", "int32", raw)
 	}

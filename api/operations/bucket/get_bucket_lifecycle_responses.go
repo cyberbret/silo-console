@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // GetBucketLifecycleOKCode is the HTTP code returned for type GetBucketLifecycleOK
 const GetBucketLifecycleOKCode int = 200
 
-/*
-GetBucketLifecycleOK A successful response.
-
-swagger:response getBucketLifecycleOK
-*/
+// GetBucketLifecycleOK A successful response.
+//
+// swagger:response getBucketLifecycleOK
 type GetBucketLifecycleOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.BucketLifecycleResponse `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *GetBucketLifecycleOK) WriteResponse(rw http.ResponseWriter, producer ru
 	}
 }
 
-/*
-GetBucketLifecycleDefault Generic error response.
-
-swagger:response getBucketLifecycleDefault
-*/
+// GetBucketLifecycleDefault Generic error response.
+//
+// swagger:response getBucketLifecycleDefault
 type GetBucketLifecycleDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

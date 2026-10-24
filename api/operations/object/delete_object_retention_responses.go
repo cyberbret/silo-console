@@ -22,18 +22,15 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // DeleteObjectRetentionOKCode is the HTTP code returned for type DeleteObjectRetentionOK
 const DeleteObjectRetentionOKCode int = 200
 
-/*
-DeleteObjectRetentionOK A successful response.
-
-swagger:response deleteObjectRetentionOK
-*/
+// DeleteObjectRetentionOK A successful response.
+//
+// swagger:response deleteObjectRetentionOK
 type DeleteObjectRetentionOK struct {
 }
 
@@ -51,17 +48,13 @@ func (o *DeleteObjectRetentionOK) WriteResponse(rw http.ResponseWriter, producer
 	rw.WriteHeader(200)
 }
 
-/*
-DeleteObjectRetentionDefault Generic error response.
-
-swagger:response deleteObjectRetentionDefault
-*/
+// DeleteObjectRetentionDefault Generic error response.
+//
+// swagger:response deleteObjectRetentionDefault
 type DeleteObjectRetentionDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

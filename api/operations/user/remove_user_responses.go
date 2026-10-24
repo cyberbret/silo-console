@@ -22,18 +22,15 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // RemoveUserNoContentCode is the HTTP code returned for type RemoveUserNoContent
 const RemoveUserNoContentCode int = 204
 
-/*
-RemoveUserNoContent A successful response.
-
-swagger:response removeUserNoContent
-*/
+// RemoveUserNoContent A successful response.
+//
+// swagger:response removeUserNoContent
 type RemoveUserNoContent struct {
 }
 
@@ -51,17 +48,13 @@ func (o *RemoveUserNoContent) WriteResponse(rw http.ResponseWriter, producer run
 	rw.WriteHeader(204)
 }
 
-/*
-RemoveUserDefault Generic error response.
-
-swagger:response removeUserDefault
-*/
+// RemoveUserDefault Generic error response.
+//
+// swagger:response removeUserDefault
 type RemoveUserDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

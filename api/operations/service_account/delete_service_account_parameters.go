@@ -41,11 +41,8 @@ func NewDeleteServiceAccountParams() DeleteServiceAccountParams {
 type DeleteServiceAccountParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
-
-	/*
-	  Required: true
-	  In: path
-	*/
+	// Required: true
+	// In: path
 	AccessKey string
 }
 

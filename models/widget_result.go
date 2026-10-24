@@ -22,7 +22,7 @@ import (
 	"context"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
 )
 
 // WidgetResult widget result
@@ -38,12 +38,12 @@ type WidgetResult struct {
 }
 
 // Validate validates this widget result
-func (m *WidgetResult) Validate(formats strfmt.Registry) error {
+func (m *WidgetResult) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this widget result based on context it is used
-func (m *WidgetResult) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *WidgetResult) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -52,13 +52,13 @@ func (m *WidgetResult) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *WidgetResult) UnmarshalBinary(b []byte) error {
 	var res WidgetResult
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

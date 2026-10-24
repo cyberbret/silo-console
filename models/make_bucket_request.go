@@ -24,7 +24,8 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
+	"github.com/go-openapi/swag/typeutils"
 	"github.com/go-openapi/validate"
 )
 
@@ -86,7 +87,7 @@ func (m *MakeBucketRequest) validateName(formats strfmt.Registry) error {
 }
 
 func (m *MakeBucketRequest) validateQuota(formats strfmt.Registry) error {
-	if swag.IsZero(m.Quota) { // not required
+	if typeutils.IsZero(m.Quota) { // not required
 		return nil
 	}
 
@@ -109,7 +110,7 @@ func (m *MakeBucketRequest) validateQuota(formats strfmt.Registry) error {
 }
 
 func (m *MakeBucketRequest) validateRetention(formats strfmt.Registry) error {
-	if swag.IsZero(m.Retention) { // not required
+	if typeutils.IsZero(m.Retention) { // not required
 		return nil
 	}
 
@@ -132,7 +133,7 @@ func (m *MakeBucketRequest) validateRetention(formats strfmt.Registry) error {
 }
 
 func (m *MakeBucketRequest) validateVersioning(formats strfmt.Registry) error {
-	if swag.IsZero(m.Versioning) { // not required
+	if typeutils.IsZero(m.Versioning) { // not required
 		return nil
 	}
 
@@ -180,7 +181,7 @@ func (m *MakeBucketRequest) contextValidateQuota(ctx context.Context, formats st
 
 	if m.Quota != nil {
 
-		if swag.IsZero(m.Quota) { // not required
+		if typeutils.IsZero(m.Quota) { // not required
 			return nil
 		}
 
@@ -205,7 +206,7 @@ func (m *MakeBucketRequest) contextValidateRetention(ctx context.Context, format
 
 	if m.Retention != nil {
 
-		if swag.IsZero(m.Retention) { // not required
+		if typeutils.IsZero(m.Retention) { // not required
 			return nil
 		}
 
@@ -230,7 +231,7 @@ func (m *MakeBucketRequest) contextValidateVersioning(ctx context.Context, forma
 
 	if m.Versioning != nil {
 
-		if swag.IsZero(m.Versioning) { // not required
+		if typeutils.IsZero(m.Versioning) { // not required
 			return nil
 		}
 
@@ -256,13 +257,13 @@ func (m *MakeBucketRequest) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *MakeBucketRequest) UnmarshalBinary(b []byte) error {
 	var res MakeBucketRequest
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

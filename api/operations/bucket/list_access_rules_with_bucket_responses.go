@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // ListAccessRulesWithBucketOKCode is the HTTP code returned for type ListAccessRulesWithBucketOK
 const ListAccessRulesWithBucketOKCode int = 200
 
-/*
-ListAccessRulesWithBucketOK A successful response.
-
-swagger:response listAccessRulesWithBucketOK
-*/
+// ListAccessRulesWithBucketOK A successful response.
+//
+// swagger:response listAccessRulesWithBucketOK
 type ListAccessRulesWithBucketOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.ListAccessRulesResponse `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *ListAccessRulesWithBucketOK) WriteResponse(rw http.ResponseWriter, prod
 	}
 }
 
-/*
-ListAccessRulesWithBucketDefault Generic error response.
-
-swagger:response listAccessRulesWithBucketDefault
-*/
+// ListAccessRulesWithBucketDefault Generic error response.
+//
+// swagger:response listAccessRulesWithBucketDefault
 type ListAccessRulesWithBucketDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

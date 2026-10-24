@@ -23,7 +23,7 @@ import (
 	"net/url"
 	golangswaggerpaths "path"
 
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/conv"
 )
 
 // AdminInfoURL generates an URL for the admin info operation
@@ -66,7 +66,7 @@ func (o *AdminInfoURL) Build() (*url.URL, error) {
 
 	var defaultOnlyQ string
 	if o.DefaultOnly != nil {
-		defaultOnlyQ = swag.FormatBool(*o.DefaultOnly)
+		defaultOnlyQ = conv.FormatBool(*o.DefaultOnly)
 	}
 	if defaultOnlyQ != "" {
 		qs.Set("defaultOnly", defaultOnlyQ)

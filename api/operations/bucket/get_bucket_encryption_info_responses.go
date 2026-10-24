@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // GetBucketEncryptionInfoOKCode is the HTTP code returned for type GetBucketEncryptionInfoOK
 const GetBucketEncryptionInfoOKCode int = 200
 
-/*
-GetBucketEncryptionInfoOK A successful response.
-
-swagger:response getBucketEncryptionInfoOK
-*/
+// GetBucketEncryptionInfoOK A successful response.
+//
+// swagger:response getBucketEncryptionInfoOK
 type GetBucketEncryptionInfoOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.BucketEncryptionInfo `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *GetBucketEncryptionInfoOK) WriteResponse(rw http.ResponseWriter, produc
 	}
 }
 
-/*
-GetBucketEncryptionInfoDefault Generic error response.
-
-swagger:response getBucketEncryptionInfoDefault
-*/
+// GetBucketEncryptionInfoDefault Generic error response.
+//
+// swagger:response getBucketEncryptionInfoDefault
 type GetBucketEncryptionInfoDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

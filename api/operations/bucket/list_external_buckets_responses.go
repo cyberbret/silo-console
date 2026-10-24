@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // ListExternalBucketsOKCode is the HTTP code returned for type ListExternalBucketsOK
 const ListExternalBucketsOKCode int = 200
 
-/*
-ListExternalBucketsOK A successful response.
-
-swagger:response listExternalBucketsOK
-*/
+// ListExternalBucketsOK A successful response.
+//
+// swagger:response listExternalBucketsOK
 type ListExternalBucketsOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.ListBucketsResponse `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *ListExternalBucketsOK) WriteResponse(rw http.ResponseWriter, producer r
 	}
 }
 
-/*
-ListExternalBucketsDefault Generic error response.
-
-swagger:response listExternalBucketsDefault
-*/
+// ListExternalBucketsDefault Generic error response.
+//
+// swagger:response listExternalBucketsDefault
 type ListExternalBucketsDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

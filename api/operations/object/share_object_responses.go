@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // ShareObjectOKCode is the HTTP code returned for type ShareObjectOK
 const ShareObjectOKCode int = 200
 
-/*
-ShareObjectOK A successful response.
-
-swagger:response shareObjectOK
-*/
+// ShareObjectOK A successful response.
+//
+// swagger:response shareObjectOK
 type ShareObjectOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload string `json:"body,omitempty"`
 }
 
@@ -69,17 +64,13 @@ func (o *ShareObjectOK) WriteResponse(rw http.ResponseWriter, producer runtime.P
 	}
 }
 
-/*
-ShareObjectDefault Generic error response.
-
-swagger:response shareObjectDefault
-*/
+// ShareObjectDefault Generic error response.
+//
+// swagger:response shareObjectDefault
 type ShareObjectDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

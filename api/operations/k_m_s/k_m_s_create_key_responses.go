@@ -22,18 +22,15 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // KMSCreateKeyCreatedCode is the HTTP code returned for type KMSCreateKeyCreated
 const KMSCreateKeyCreatedCode int = 201
 
-/*
-KMSCreateKeyCreated A successful response.
-
-swagger:response kMSCreateKeyCreated
-*/
+// KMSCreateKeyCreated A successful response.
+//
+// swagger:response kMSCreateKeyCreated
 type KMSCreateKeyCreated struct {
 }
 
@@ -51,17 +48,13 @@ func (o *KMSCreateKeyCreated) WriteResponse(rw http.ResponseWriter, producer run
 	rw.WriteHeader(201)
 }
 
-/*
-KMSCreateKeyDefault Generic error response.
-
-swagger:response kMSCreateKeyDefault
-*/
+// KMSCreateKeyDefault Generic error response.
+//
+// swagger:response kMSCreateKeyDefault
 type KMSCreateKeyDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

@@ -22,18 +22,15 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // PutObjectRetentionOKCode is the HTTP code returned for type PutObjectRetentionOK
 const PutObjectRetentionOKCode int = 200
 
-/*
-PutObjectRetentionOK A successful response.
-
-swagger:response putObjectRetentionOK
-*/
+// PutObjectRetentionOK A successful response.
+//
+// swagger:response putObjectRetentionOK
 type PutObjectRetentionOK struct {
 }
 
@@ -51,17 +48,13 @@ func (o *PutObjectRetentionOK) WriteResponse(rw http.ResponseWriter, producer ru
 	rw.WriteHeader(200)
 }
 
-/*
-PutObjectRetentionDefault Generic error response.
-
-swagger:response putObjectRetentionDefault
-*/
+// PutObjectRetentionDefault Generic error response.
+//
+// swagger:response putObjectRetentionDefault
 type PutObjectRetentionDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

@@ -22,7 +22,7 @@ import (
 	"context"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
 )
 
 // MultiBucketResponseItem multi bucket response item
@@ -41,12 +41,12 @@ type MultiBucketResponseItem struct {
 }
 
 // Validate validates this multi bucket response item
-func (m *MultiBucketResponseItem) Validate(formats strfmt.Registry) error {
+func (m *MultiBucketResponseItem) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this multi bucket response item based on context it is used
-func (m *MultiBucketResponseItem) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *MultiBucketResponseItem) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -55,13 +55,13 @@ func (m *MultiBucketResponseItem) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *MultiBucketResponseItem) UnmarshalBinary(b []byte) error {
 	var res MultiBucketResponseItem
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

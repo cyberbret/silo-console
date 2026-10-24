@@ -25,7 +25,8 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
+	"github.com/go-openapi/swag/typeutils"
 )
 
 // SetPolicyMultipleNameRequest set policy multiple name request
@@ -62,7 +63,7 @@ func (m *SetPolicyMultipleNameRequest) Validate(formats strfmt.Registry) error {
 }
 
 func (m *SetPolicyMultipleNameRequest) validateGroups(formats strfmt.Registry) error {
-	if swag.IsZero(m.Groups) { // not required
+	if typeutils.IsZero(m.Groups) { // not required
 		return nil
 	}
 
@@ -87,7 +88,7 @@ func (m *SetPolicyMultipleNameRequest) validateGroups(formats strfmt.Registry) e
 }
 
 func (m *SetPolicyMultipleNameRequest) validateUsers(formats strfmt.Registry) error {
-	if swag.IsZero(m.Users) { // not required
+	if typeutils.IsZero(m.Users) { // not required
 		return nil
 	}
 
@@ -133,7 +134,7 @@ func (m *SetPolicyMultipleNameRequest) contextValidateGroups(ctx context.Context
 
 	for i := 0; i < len(m.Groups); i++ {
 
-		if swag.IsZero(m.Groups[i]) { // not required
+		if typeutils.IsZero(m.Groups[i]) { // not required
 			return nil
 		}
 
@@ -159,7 +160,7 @@ func (m *SetPolicyMultipleNameRequest) contextValidateUsers(ctx context.Context,
 
 	for i := 0; i < len(m.Users); i++ {
 
-		if swag.IsZero(m.Users[i]) { // not required
+		if typeutils.IsZero(m.Users[i]) { // not required
 			return nil
 		}
 
@@ -186,13 +187,13 @@ func (m *SetPolicyMultipleNameRequest) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *SetPolicyMultipleNameRequest) UnmarshalBinary(b []byte) error {
 	var res SetPolicyMultipleNameRequest
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

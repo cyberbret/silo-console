@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // UpdateUserInfoLegacyOKCode is the HTTP code returned for type UpdateUserInfoLegacyOK
 const UpdateUserInfoLegacyOKCode int = 200
 
-/*
-UpdateUserInfoLegacyOK A successful response.
-
-swagger:response updateUserInfoLegacyOK
-*/
+// UpdateUserInfoLegacyOK A successful response.
+//
+// swagger:response updateUserInfoLegacyOK
 type UpdateUserInfoLegacyOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.User `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *UpdateUserInfoLegacyOK) WriteResponse(rw http.ResponseWriter, producer 
 	}
 }
 
-/*
-UpdateUserInfoLegacyDefault Generic error response.
-
-swagger:response updateUserInfoLegacyDefault
-*/
+// UpdateUserInfoLegacyDefault Generic error response.
+//
+// swagger:response updateUserInfoLegacyDefault
 type UpdateUserInfoLegacyDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

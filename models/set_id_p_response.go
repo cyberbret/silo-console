@@ -22,7 +22,7 @@ import (
 	"context"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
 )
 
 // SetIDPResponse set ID p response
@@ -35,12 +35,12 @@ type SetIDPResponse struct {
 }
 
 // Validate validates this set ID p response
-func (m *SetIDPResponse) Validate(formats strfmt.Registry) error {
+func (m *SetIDPResponse) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this set ID p response based on context it is used
-func (m *SetIDPResponse) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *SetIDPResponse) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -49,13 +49,13 @@ func (m *SetIDPResponse) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *SetIDPResponse) UnmarshalBinary(b []byte) error {
 	var res SetIDPResponse
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

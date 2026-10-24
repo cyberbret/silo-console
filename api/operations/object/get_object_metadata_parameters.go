@@ -43,22 +43,13 @@ func NewGetObjectMetadataParams() GetObjectMetadataParams {
 type GetObjectMetadataParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
-
-	/*
-	  Required: true
-	  In: path
-	*/
+	// Required: true
+	// In: path
 	BucketName string
-
-	/*
-	  Required: true
-	  In: query
-	*/
+	// Required: true
+	// In: query
 	Prefix string
-
-	/*
-	  In: query
-	*/
+	// In: query
 	VersionID *string
 }
 

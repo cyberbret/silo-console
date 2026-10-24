@@ -25,7 +25,8 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
+	"github.com/go-openapi/swag/typeutils"
 	"github.com/go-openapi/validate"
 )
 
@@ -102,7 +103,7 @@ func (m *BucketReplicationRule) Validate(formats strfmt.Registry) error {
 }
 
 func (m *BucketReplicationRule) validateDestination(formats strfmt.Registry) error {
-	if swag.IsZero(m.Destination) { // not required
+	if typeutils.IsZero(m.Destination) { // not required
 		return nil
 	}
 
@@ -154,7 +155,7 @@ func (m *BucketReplicationRule) validateStatusEnum(path, location string, value 
 }
 
 func (m *BucketReplicationRule) validateStatus(formats strfmt.Registry) error {
-	if swag.IsZero(m.Status) { // not required
+	if typeutils.IsZero(m.Status) { // not required
 		return nil
 	}
 
@@ -196,7 +197,7 @@ func (m *BucketReplicationRule) validateSyncModeEnum(path, location string, valu
 }
 
 func (m *BucketReplicationRule) validateSyncMode(formats strfmt.Registry) error {
-	if swag.IsZero(m.SyncMode) { // not required
+	if typeutils.IsZero(m.SyncMode) { // not required
 		return nil
 	}
 
@@ -226,7 +227,7 @@ func (m *BucketReplicationRule) contextValidateDestination(ctx context.Context, 
 
 	if m.Destination != nil {
 
-		if swag.IsZero(m.Destination) { // not required
+		if typeutils.IsZero(m.Destination) { // not required
 			return nil
 		}
 
@@ -252,13 +253,13 @@ func (m *BucketReplicationRule) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *BucketReplicationRule) UnmarshalBinary(b []byte) error {
 	var res BucketReplicationRule
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

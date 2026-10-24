@@ -22,7 +22,7 @@ import (
 	"context"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
 )
 
 // MakeBucketsResponse make buckets response
@@ -35,12 +35,12 @@ type MakeBucketsResponse struct {
 }
 
 // Validate validates this make buckets response
-func (m *MakeBucketsResponse) Validate(formats strfmt.Registry) error {
+func (m *MakeBucketsResponse) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this make buckets response based on context it is used
-func (m *MakeBucketsResponse) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *MakeBucketsResponse) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -49,13 +49,13 @@ func (m *MakeBucketsResponse) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *MakeBucketsResponse) UnmarshalBinary(b []byte) error {
 	var res MakeBucketsResponse
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

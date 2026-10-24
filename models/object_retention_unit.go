@@ -86,6 +86,6 @@ func (m ObjectRetentionUnit) Validate(formats strfmt.Registry) error {
 }
 
 // ContextValidate validates this object retention unit based on context it is used
-func (m ObjectRetentionUnit) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m ObjectRetentionUnit) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }

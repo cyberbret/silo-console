@@ -41,17 +41,11 @@ func NewDeleteRemoteBucketParams() DeleteRemoteBucketParams {
 type DeleteRemoteBucketParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
-
-	/*
-	  Required: true
-	  In: path
-	*/
+	// Required: true
+	// In: path
 	Arn string
-
-	/*
-	  Required: true
-	  In: path
-	*/
+	// Required: true
+	// In: path
 	SourceBucketName string
 }
 

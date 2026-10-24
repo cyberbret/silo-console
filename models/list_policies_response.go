@@ -25,7 +25,8 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
+	"github.com/go-openapi/swag/typeutils"
 )
 
 // ListPoliciesResponse list policies response
@@ -55,12 +56,12 @@ func (m *ListPoliciesResponse) Validate(formats strfmt.Registry) error {
 }
 
 func (m *ListPoliciesResponse) validatePolicies(formats strfmt.Registry) error {
-	if swag.IsZero(m.Policies) { // not required
+	if typeutils.IsZero(m.Policies) { // not required
 		return nil
 	}
 
 	for i := 0; i < len(m.Policies); i++ {
-		if swag.IsZero(m.Policies[i]) { // not required
+		if typeutils.IsZero(m.Policies[i]) { // not required
 			continue
 		}
 
@@ -104,7 +105,7 @@ func (m *ListPoliciesResponse) contextValidatePolicies(ctx context.Context, form
 
 		if m.Policies[i] != nil {
 
-			if swag.IsZero(m.Policies[i]) { // not required
+			if typeutils.IsZero(m.Policies[i]) { // not required
 				return nil
 			}
 
@@ -132,13 +133,13 @@ func (m *ListPoliciesResponse) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *ListPoliciesResponse) UnmarshalBinary(b []byte) error {
 	var res ListPoliciesResponse
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

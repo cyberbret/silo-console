@@ -25,7 +25,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/conv"
 	"github.com/go-openapi/validate"
 )
 
@@ -55,34 +55,19 @@ func NewDownloadObjectParams() DownloadObjectParams {
 type DownloadObjectParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
-
-	/*
-	  Required: true
-	  In: path
-	*/
+	// Required: true
+	// In: path
 	BucketName string
-
-	/*
-	  In: query
-	  Default: ""
-	*/
+	// In: query
+	// Default: ""
 	OverrideFileName *string
-
-	/*
-	  Required: true
-	  In: query
-	*/
+	// Required: true
+	// In: query
 	Prefix string
-
-	/*
-	  In: query
-	  Default: false
-	*/
+	// In: query
+	// Default: false
 	Preview *bool
-
-	/*
-	  In: query
-	*/
+	// In: query
 	VersionID *string
 }
 
@@ -195,7 +180,7 @@ func (o *DownloadObjectParams) bindPreview(rawData []string, hasKey bool, format
 		return nil
 	}
 
-	value, err := swag.ConvertBool(raw)
+	value, err := conv.ConvertBool(raw)
 	if err != nil {
 		return errors.InvalidType("preview", "query", "bool", raw)
 	}

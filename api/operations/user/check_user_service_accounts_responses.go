@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // CheckUserServiceAccountsOKCode is the HTTP code returned for type CheckUserServiceAccountsOK
 const CheckUserServiceAccountsOKCode int = 200
 
-/*
-CheckUserServiceAccountsOK A successful response.
-
-swagger:response checkUserServiceAccountsOK
-*/
+// CheckUserServiceAccountsOK A successful response.
+//
+// swagger:response checkUserServiceAccountsOK
 type CheckUserServiceAccountsOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.UserServiceAccountSummary `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *CheckUserServiceAccountsOK) WriteResponse(rw http.ResponseWriter, produ
 	}
 }
 
-/*
-CheckUserServiceAccountsDefault Generic error response.
-
-swagger:response checkUserServiceAccountsDefault
-*/
+// CheckUserServiceAccountsDefault Generic error response.
+//
+// swagger:response checkUserServiceAccountsDefault
 type CheckUserServiceAccountsDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

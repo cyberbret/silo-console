@@ -22,7 +22,7 @@ import (
 	"context"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
 )
 
 // TiersNameListResponse tiers name list response
@@ -35,12 +35,12 @@ type TiersNameListResponse struct {
 }
 
 // Validate validates this tiers name list response
-func (m *TiersNameListResponse) Validate(formats strfmt.Registry) error {
+func (m *TiersNameListResponse) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this tiers name list response based on context it is used
-func (m *TiersNameListResponse) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *TiersNameListResponse) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -49,13 +49,13 @@ func (m *TiersNameListResponse) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *TiersNameListResponse) UnmarshalBinary(b []byte) error {
 	var res TiersNameListResponse
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

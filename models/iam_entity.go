@@ -30,11 +30,11 @@ import (
 type IamEntity string
 
 // Validate validates this iam entity
-func (m IamEntity) Validate(formats strfmt.Registry) error {
+func (m IamEntity) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this iam entity based on context it is used
-func (m IamEntity) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m IamEntity) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }

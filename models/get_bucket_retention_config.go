@@ -24,7 +24,8 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
+	"github.com/go-openapi/swag/typeutils"
 )
 
 // GetBucketRetentionConfig get bucket retention config
@@ -61,7 +62,7 @@ func (m *GetBucketRetentionConfig) Validate(formats strfmt.Registry) error {
 }
 
 func (m *GetBucketRetentionConfig) validateMode(formats strfmt.Registry) error {
-	if swag.IsZero(m.Mode) { // not required
+	if typeutils.IsZero(m.Mode) { // not required
 		return nil
 	}
 
@@ -82,7 +83,7 @@ func (m *GetBucketRetentionConfig) validateMode(formats strfmt.Registry) error {
 }
 
 func (m *GetBucketRetentionConfig) validateUnit(formats strfmt.Registry) error {
-	if swag.IsZero(m.Unit) { // not required
+	if typeutils.IsZero(m.Unit) { // not required
 		return nil
 	}
 
@@ -122,7 +123,7 @@ func (m *GetBucketRetentionConfig) ContextValidate(ctx context.Context, formats 
 
 func (m *GetBucketRetentionConfig) contextValidateMode(ctx context.Context, formats strfmt.Registry) error {
 
-	if swag.IsZero(m.Mode) { // not required
+	if typeutils.IsZero(m.Mode) { // not required
 		return nil
 	}
 
@@ -144,7 +145,7 @@ func (m *GetBucketRetentionConfig) contextValidateMode(ctx context.Context, form
 
 func (m *GetBucketRetentionConfig) contextValidateUnit(ctx context.Context, formats strfmt.Registry) error {
 
-	if swag.IsZero(m.Unit) { // not required
+	if typeutils.IsZero(m.Unit) { // not required
 		return nil
 	}
 
@@ -169,13 +170,13 @@ func (m *GetBucketRetentionConfig) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *GetBucketRetentionConfig) UnmarshalBinary(b []byte) error {
 	var res GetBucketRetentionConfig
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

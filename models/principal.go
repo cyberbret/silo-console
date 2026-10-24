@@ -22,7 +22,7 @@ import (
 	"context"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
 )
 
 // Principal principal
@@ -53,12 +53,12 @@ type Principal struct {
 }
 
 // Validate validates this principal
-func (m *Principal) Validate(formats strfmt.Registry) error {
+func (m *Principal) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
 // ContextValidate validates this principal based on context it is used
-func (m *Principal) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m *Principal) ContextValidate(_ context.Context, _ strfmt.Registry) error {
 	return nil
 }
 
@@ -67,13 +67,13 @@ func (m *Principal) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *Principal) UnmarshalBinary(b []byte) error {
 	var res Principal
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

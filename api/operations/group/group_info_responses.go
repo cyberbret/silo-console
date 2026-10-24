@@ -22,23 +22,18 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // GroupInfoOKCode is the HTTP code returned for type GroupInfoOK
 const GroupInfoOKCode int = 200
 
-/*
-GroupInfoOK A successful response.
-
-swagger:response groupInfoOK
-*/
+// GroupInfoOK A successful response.
+//
+// swagger:response groupInfoOK
 type GroupInfoOK struct {
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.Group `json:"body,omitempty"`
 }
 
@@ -71,17 +66,13 @@ func (o *GroupInfoOK) WriteResponse(rw http.ResponseWriter, producer runtime.Pro
 	}
 }
 
-/*
-GroupInfoDefault Generic error response.
-
-swagger:response groupInfoDefault
-*/
+// GroupInfoDefault Generic error response.
+//
+// swagger:response groupInfoDefault
 type GroupInfoDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

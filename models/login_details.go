@@ -26,7 +26,8 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/jsonutils"
+	"github.com/go-openapi/swag/typeutils"
 	"github.com/go-openapi/validate"
 )
 
@@ -103,7 +104,7 @@ func (m *LoginDetails) validateLoginStrategyEnum(path, location string, value st
 }
 
 func (m *LoginDetails) validateLoginStrategy(formats strfmt.Registry) error {
-	if swag.IsZero(m.LoginStrategy) { // not required
+	if typeutils.IsZero(m.LoginStrategy) { // not required
 		return nil
 	}
 
@@ -116,12 +117,12 @@ func (m *LoginDetails) validateLoginStrategy(formats strfmt.Registry) error {
 }
 
 func (m *LoginDetails) validateRedirectRules(formats strfmt.Registry) error {
-	if swag.IsZero(m.RedirectRules) { // not required
+	if typeutils.IsZero(m.RedirectRules) { // not required
 		return nil
 	}
 
 	for i := 0; i < len(m.RedirectRules); i++ {
-		if swag.IsZero(m.RedirectRules[i]) { // not required
+		if typeutils.IsZero(m.RedirectRules[i]) { // not required
 			continue
 		}
 
@@ -165,7 +166,7 @@ func (m *LoginDetails) contextValidateRedirectRules(ctx context.Context, formats
 
 		if m.RedirectRules[i] != nil {
 
-			if swag.IsZero(m.RedirectRules[i]) { // not required
+			if typeutils.IsZero(m.RedirectRules[i]) { // not required
 				return nil
 			}
 
@@ -193,13 +194,13 @@ func (m *LoginDetails) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return swag.WriteJSON(m)
+	return jsonutils.WriteJSON(m)
 }
 
 // UnmarshalBinary interface implementation
 func (m *LoginDetails) UnmarshalBinary(b []byte) error {
 	var res LoginDetails
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if err := jsonutils.ReadJSON(b, &res); err != nil {
 		return err
 	}
 	*m = res

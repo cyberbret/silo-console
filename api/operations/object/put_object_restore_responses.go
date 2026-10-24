@@ -22,18 +22,15 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	"github.com/minio/console/models"
 )
 
 // PutObjectRestoreOKCode is the HTTP code returned for type PutObjectRestoreOK
 const PutObjectRestoreOKCode int = 200
 
-/*
-PutObjectRestoreOK A successful response.
-
-swagger:response putObjectRestoreOK
-*/
+// PutObjectRestoreOK A successful response.
+//
+// swagger:response putObjectRestoreOK
 type PutObjectRestoreOK struct {
 }
 
@@ -51,17 +48,13 @@ func (o *PutObjectRestoreOK) WriteResponse(rw http.ResponseWriter, producer runt
 	rw.WriteHeader(200)
 }
 
-/*
-PutObjectRestoreDefault Generic error response.
-
-swagger:response putObjectRestoreDefault
-*/
+// PutObjectRestoreDefault Generic error response.
+//
+// swagger:response putObjectRestoreDefault
 type PutObjectRestoreDefault struct {
 	_statusCode int
 
-	/*
-	  In: Body
-	*/
+	// In: Body
 	Payload *models.APIError `json:"body,omitempty"`
 }
 

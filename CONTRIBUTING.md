@@ -63,6 +63,10 @@ This will update all the necessary code.
 After a generator upgrade, preserve the configuration-import binding contract
 covered by `TestConfigImportBindingContract`; changes to upload limits, filenames,
 or accepted form encodings require a separate API compatibility review.
+`make swagger-gen` retains the committed configuration-import binder, just as it
+retains the customized server, and restores its multipart consumer through
+`hack/preserve-swagger-compat.py`. Review changes to that binder explicitly rather
+than replacing it with the generator's default upload policy.
 
 `./api/configure_console.go` is a file that contains the handlers to be used by the application, here is the only place
 where we need to update our code to support the new apis. This file is not affected when running the swagger generator
