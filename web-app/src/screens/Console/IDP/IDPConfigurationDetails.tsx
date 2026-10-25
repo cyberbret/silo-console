@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { ModalPresence } from "common/ui/ModalPresence";
 import React, { Fragment, useCallback, useEffect, useState } from "react";
 import {
   BackLink,
@@ -25,6 +26,7 @@ import {
   FormLayout,
   Grid,
   HelpBox,
+  IconButton,
   InputBox,
   PageLayout,
   RefreshIcon,
@@ -46,7 +48,6 @@ import {
 } from "../../../systemSlice";
 import DeleteIDPConfigurationModal from "./DeleteIDPConfigurationModal";
 import PageHeaderWrapper from "../Common/PageHeaderWrapper/PageHeaderWrapper";
-import HelpMenu from "../HelpMenu";
 import { api } from "api";
 import {
   ApiError,
@@ -87,6 +88,8 @@ const IDPConfigurationDetails = ({
   const [loadingEnabledSave, setLoadingEnabledSave] = useState<boolean>(false);
   const [isEnabled, setIsEnabled] = useState<boolean>(false);
   const [fields, setFields] = useState<any>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [submitted, setSubmitted] = useState(false);
   const [overrideFields, setOverrideFields] = useState<any>({});
   const [originalFields, setOriginalFields] = useState<any>({});
   const [record, setRecord] = useState<any>({});
@@ -128,6 +131,8 @@ const IDPConfigurationDetails = ({
   );
 
   const toggleEditMode = () => {
+    setTouched({});
+    setSubmitted(false);
     if (editMode) {
       parseFields(record);
     }
@@ -183,12 +188,16 @@ const IDPConfigurationDetails = ({
   };
 
   const resetForm = () => {
+    setTouched({});
+    setSubmitted(false);
     setFields({});
   };
 
   const saveRecord = (event: React.FormEvent) => {
-    setLoadingSave(true);
     event.preventDefault();
+    setSubmitted(true);
+    if (loadingSave || !validSave()) return;
+    setLoadingSave(true);
     let input = "";
     for (const key of Object.keys(formFields)) {
       if (fields[key] || fields[key] !== originalFields[key]) {
@@ -241,11 +250,12 @@ const IDPConfigurationDetails = ({
       case "toggle":
         return (
           <Switch
+            key={key}
             indicatorLabels={[t("Enabled"), t("Disabled")]}
             checked={fields[key] === "on"}
-            value={"is-field-enabled"}
-            id={"is-field-enabled"}
-            name={"is-field-enabled"}
+            value={fields[key] || "off"}
+            id={`openid-edit-${key}`}
+            name={key}
             label={t(value.label)}
             tooltip={t(value.tooltip)}
             onChange={(e) =>
@@ -258,15 +268,25 @@ const IDPConfigurationDetails = ({
       default:
         return (
           <InputBox
+            key={key}
             id={key}
             required={value.required}
+            reserveErrorSpace={value.required}
             name={key}
             label={t(value.label)}
             tooltip={t(value.tooltip)}
-            error={t(value.hasError(fields[key], editMode))}
+            error={t(
+              value.hasError(
+                fields[key],
+                editMode && (submitted || !!touched[key]),
+              ),
+            )}
             value={fields[key] ? fields[key] : ""}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setFields({ ...fields, [key]: e.target.value })
+            }
+            onBlur={() =>
+              setTouched((current) => ({ ...current, [key]: true }))
             }
             placeholder={t(value.placeholder)}
             disabled={!editMode}
@@ -355,12 +375,12 @@ const IDPConfigurationDetails = ({
         withBorders
         sx={{
           display: "grid",
-          gridTemplateColumns: "1fr",
+          gridTemplateColumns: "minmax(0, 1fr)",
           gridAutoFlow: "dense",
           gap: 3,
           padding: "15px",
           [`@media (min-width: ${breakPoints.sm}px)`]: {
-            gridTemplateColumns: "2fr 1fr",
+            gridTemplateColumns: "minmax(0, 2fr) minmax(0, 1fr)",
             gridAutoFlow: "row",
           },
         }}
@@ -430,20 +450,22 @@ const IDPConfigurationDetails = ({
 
   return (
     <Fragment>
-      {deleteOpen && configurationName && (
-        <DeleteIDPConfigurationModal
-          deleteOpen={deleteOpen}
-          idp={configurationName}
-          idpType={idpType}
-          closeDeleteModalAndRefresh={closeDeleteModalAndRefresh}
-        />
-      )}
+      <ModalPresence open={Boolean(deleteOpen && configurationName)}>
+        {deleteOpen && configurationName && (
+          <DeleteIDPConfigurationModal
+            deleteOpen={deleteOpen}
+            idp={configurationName}
+            idpType={idpType}
+            closeDeleteModalAndRefresh={closeDeleteModalAndRefresh}
+          />
+        )}
+      </ModalPresence>
       <Grid item xs={12}>
         <PageHeaderWrapper
           label={
             <BackLink onClick={() => navigate(backLink)} label={t(header)} />
           }
-          actions={<HelpMenu />}
+          help
         />
         <PageLayout>
           <ScreenTitle
@@ -471,7 +493,7 @@ const IDPConfigurationDetails = ({
                       }}
                       label={t("Delete Configuration")}
                       icon={<TrashIcon />}
-                      variant={"secondary"}
+                      variant={"danger"}
                       disabled={envOverride}
                     />
                   </Tooltip>
@@ -513,12 +535,13 @@ const IDPConfigurationDetails = ({
                     disabled={loadingEnabledSave || envOverride}
                   />
                 </Tooltip>
-                <Button
-                  id={"refresh-idp-config"}
+                <IconButton
+                  id="refresh-idp-config"
                   onClick={() => setLoadingDetails(true)}
                   label={t("Refresh")}
-                  icon={<RefreshIcon />}
-                />
+                >
+                  <RefreshIcon />
+                </IconButton>
               </Fragment>
             }
             sx={{

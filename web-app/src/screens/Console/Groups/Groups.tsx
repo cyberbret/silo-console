@@ -14,6 +14,11 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { OverflowMenu, SkeletonRows } from "common/ui";
+import { useBoundedTable } from "common/ui/useBoundedTable";
+import { useMobile } from "common/ui/useMediaQuery";
+import { FilteredEmptyState } from "common/ui/FilteredEmptyState";
+import { ModalPresence } from "common/ui/ModalPresence";
 import React, { Fragment, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -24,12 +29,9 @@ import {
   HelpBox,
   IAMPoliciesIcon,
   PageLayout,
-  UsersIcon,
   DataTable,
   Grid,
   Box,
-  ProgressBar,
-  ActionLink,
 } from "mds";
 
 import { api } from "api";
@@ -55,9 +57,8 @@ import { setErrorSnackMessage, setHelpName } from "../../../systemSlice";
 import { useAppDispatch } from "../../../store";
 import TooltipWrapper from "../Common/TooltipWrapper/TooltipWrapper";
 import PageHeaderWrapper from "../Common/PageHeaderWrapper/PageHeaderWrapper";
-import HelpMenu from "../HelpMenu";
 import SearchBox from "../Common/SearchBox";
-import { interpolate, useLocalizedLink, useT } from "i18n";
+import { formatText, i18nKey, interpolate, useLocalizedLink, useT } from "i18n";
 
 const DeleteGroup = withSuspense(React.lazy(() => import("./DeleteGroup")));
 const SetPolicy = withSuspense(
@@ -69,21 +70,14 @@ const Groups = () => {
   const navigate = useNavigate();
   const t = useT();
   const localize = useLocalizedLink();
+  const mobile = useMobile();
 
   const [deleteOpen, setDeleteOpen] = useState<boolean>(false);
-  const [loading, isLoading] = useState<boolean>(false);
+  const [loading, isLoading] = useState<boolean>(true);
   const [records, setRecords] = useState<any[]>([]);
   const [filter, setFilter] = useState<string>("");
   const [policyOpen, setPolicyOpen] = useState<boolean>(false);
   const [checkedGroups, setCheckedGroups] = useState<string[]>([]);
-
-  useEffect(() => {
-    isLoading(true);
-  }, []);
-
-  useEffect(() => {
-    isLoading(true);
-  }, []);
 
   useEffect(() => {
     dispatch(setHelpName("groups"));
@@ -161,8 +155,9 @@ const Groups = () => {
   };
 
   const filteredRecords = records.filter((elementItem) =>
-    elementItem.includes(filter),
+    elementItem.includes(filter.trim()),
   );
+  const boundedTable = useBoundedTable(filteredRecords.length, loading);
 
   const viewAction = (group: any) => {
     navigate(`${IAM_PAGES.GROUPS}/${encodeURIComponent(group)}`);
@@ -174,37 +169,40 @@ const Groups = () => {
       onClick: viewAction,
       isDisabled: () => !getGroup,
     },
-    {
-      type: "edit",
-      onClick: viewAction,
-      isDisabled: () => !getGroup,
-    },
   ];
 
   return (
     <Fragment>
-      {deleteOpen && (
-        <DeleteGroup
-          deleteOpen={deleteOpen}
-          selectedGroups={checkedGroups}
-          closeDeleteModalAndRefresh={closeDeleteModalAndRefresh}
-        />
-      )}
-      {policyOpen && (
-        <SetPolicy
-          open={policyOpen}
-          selectedGroups={checkedGroups}
-          selectedUser={null}
-          closeModalAndRefresh={() => {
-            setPolicyOpen(false);
-          }}
-        />
-      )}
-      <PageHeaderWrapper label={t("Groups")} actions={<HelpMenu />} />
+      <ModalPresence open={Boolean(deleteOpen)}>
+        {deleteOpen && (
+          <DeleteGroup
+            deleteOpen={deleteOpen}
+            selectedGroups={checkedGroups}
+            closeDeleteModalAndRefresh={closeDeleteModalAndRefresh}
+          />
+        )}
+      </ModalPresence>
+      <ModalPresence open={Boolean(policyOpen)}>
+        {policyOpen && (
+          <SetPolicy
+            open={policyOpen}
+            selectedGroups={checkedGroups}
+            selectedUser={null}
+            closeModalAndRefresh={() => {
+              setPolicyOpen(false);
+            }}
+          />
+        )}
+      </ModalPresence>
+      <PageHeaderWrapper titleElement="h1" label={t("Groups")} help />
 
       <PageLayout>
         <Grid container>
-          <Grid item xs={12} sx={actionsTray.actionsTray}>
+          <Grid
+            item
+            xs={12}
+            sx={{ ...actionsTray.actionsTray, "& button": { marginLeft: 0 } }}
+          >
             <SecureComponent
               resource={CONSOLE_UI_RESOURCE}
               scopes={displayGroupsPermissions}
@@ -214,213 +212,282 @@ const Groups = () => {
                 placeholder={t("Search Groups")}
                 onChange={setFilter}
                 value={filter}
-                sx={{ maxWidth: 380 }}
+                sx={{
+                  maxWidth: mobile ? "100%" : 380,
+                  width: mobile ? "100%" : undefined,
+                }}
               />
             </SecureComponent>
-            <Box
-              sx={{
-                display: "flex",
-              }}
-            >
-              <SecureComponent
-                resource={CONSOLE_UI_RESOURCE}
-                scopes={applyPolicyPermissions}
-                matchAll
-                errorProps={{ disabled: true }}
-              >
-                <TooltipWrapper
-                  tooltip={
-                    checkedGroups.length < 1
-                      ? t(
-                          "Please select Groups on which you want to apply Policies",
+            {mobile ? (
+              <OverflowMenu
+                label={t("Actions")}
+                items={[
+                  {
+                    label: t("Assign Policy"),
+                    icon: <IAMPoliciesIcon />,
+                    disabled: !applyPolicy || checkedGroups.length === 0,
+                    disabledReason: !applyPolicy
+                      ? permissionTooltipHelper(
+                          applyPolicyPermissions,
+                          i18nKey("apply policies to Groups"),
                         )
-                      : applyPolicy
-                        ? t("Select Policy")
-                        : permissionTooltipHelper(
-                            applyPolicyPermissions,
-                            "apply policies to Groups",
+                      : t(
+                          "Please select Groups on which you want to apply Policies",
+                        ),
+                    onClick: () => {
+                      if (applyPolicy && checkedGroups.length)
+                        setPolicyOpen(true);
+                    },
+                  },
+                  {
+                    label: t("Delete Selected"),
+                    icon: <DeleteIcon />,
+                    danger: true,
+                    disabled:
+                      !deleteGroup || !getGroup || checkedGroups.length === 0,
+                    disabledReason:
+                      !deleteGroup || !getGroup
+                        ? permissionTooltipHelper(
+                            [...deleteGroupPermissions, ...getGroupPermissions],
+                            i18nKey("delete Groups"),
                           )
-                  }
-                >
-                  <Button
-                    id={"assign-policy"}
-                    onClick={() => {
-                      setPolicyOpen(true);
-                    }}
-                    label={t("Assign Policy")}
-                    icon={<IAMPoliciesIcon />}
-                    disabled={checkedGroups.length < 1 || !applyPolicy}
-                    variant={"regular"}
-                  />
-                </TooltipWrapper>
-              </SecureComponent>
-              <SecureComponent
-                resource={CONSOLE_UI_RESOURCE}
-                scopes={deleteGroupPermissions}
-                matchAll
-                errorProps={{ disabled: true }}
+                        : t("Select Groups to delete"),
+                    onClick: () => {
+                      if (deleteGroup && getGroup && checkedGroups.length)
+                        setDeleteOpen(true);
+                    },
+                  },
+                ]}
+              />
+            ) : (
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: 8,
+                }}
               >
-                <TooltipWrapper
-                  tooltip={
-                    checkedGroups.length === 0
-                      ? t("Select Groups to delete")
-                      : getGroup
-                        ? t("Delete Selected")
-                        : permissionTooltipHelper(
-                            getGroupPermissions,
-                            "delete Groups",
+                <SecureComponent
+                  resource={CONSOLE_UI_RESOURCE}
+                  scopes={applyPolicyPermissions}
+                  matchAll
+                  errorProps={{ disabled: true }}
+                >
+                  <TooltipWrapper
+                    tooltip={
+                      checkedGroups.length < 1
+                        ? t(
+                            "Please select Groups on which you want to apply Policies",
                           )
-                  }
+                        : applyPolicy
+                          ? t("Select Policy")
+                          : permissionTooltipHelper(
+                              applyPolicyPermissions,
+                              i18nKey("apply policies to Groups"),
+                            )
+                    }
+                  >
+                    <Button
+                      id={"assign-policy"}
+                      onClick={() => {
+                        setPolicyOpen(true);
+                      }}
+                      label={t("Assign Policy")}
+                      icon={<IAMPoliciesIcon />}
+                      disabled={checkedGroups.length < 1 || !applyPolicy}
+                      variant={"regular"}
+                    />
+                  </TooltipWrapper>
+                </SecureComponent>
+                <SecureComponent
+                  resource={CONSOLE_UI_RESOURCE}
+                  scopes={deleteGroupPermissions}
+                  matchAll
+                  errorProps={{ disabled: true }}
                 >
-                  <Button
-                    id="delete-selected-groups"
-                    onClick={() => {
-                      setDeleteOpen(true);
-                    }}
-                    label={t("Delete Selected")}
-                    icon={<DeleteIcon />}
-                    variant="secondary"
-                    disabled={checkedGroups.length === 0 || !getGroup}
-                  />
-                </TooltipWrapper>
-              </SecureComponent>
-              <SecureComponent
-                resource={CONSOLE_UI_RESOURCE}
-                scopes={createGroupPermissions}
-                matchAll
-                errorProps={{ disabled: true }}
-              >
-                <TooltipWrapper tooltip={t("Create Group")}>
-                  <Button
-                    id={"create-group"}
-                    label={t("Create Group")}
-                    variant="callAction"
-                    icon={<AddIcon />}
-                    onClick={() => {
-                      navigate(`${IAM_PAGES.GROUPS_ADD}`);
-                    }}
-                  />
-                </TooltipWrapper>
-              </SecureComponent>
-            </Box>
+                  <TooltipWrapper
+                    tooltip={
+                      checkedGroups.length === 0
+                        ? t("Select Groups to delete")
+                        : getGroup
+                          ? t("Delete Selected")
+                          : permissionTooltipHelper(
+                              getGroupPermissions,
+                              i18nKey("delete Groups"),
+                            )
+                    }
+                  >
+                    <Button
+                      id="delete-selected-groups"
+                      onClick={() => {
+                        setDeleteOpen(true);
+                      }}
+                      label={t("Delete Selected")}
+                      icon={<DeleteIcon />}
+                      variant="danger"
+                      disabled={checkedGroups.length === 0 || !getGroup}
+                    />
+                  </TooltipWrapper>
+                </SecureComponent>
+              </Box>
+            )}
+            <Button
+              id={"create-group"}
+              label={t("Create Group")}
+              icon={<AddIcon />}
+              onClick={() => navigate(IAM_PAGES.GROUPS_ADD)}
+              disabled={
+                !hasPermission(
+                  CONSOLE_UI_RESOURCE,
+                  createGroupPermissions,
+                  true,
+                )
+              }
+              disabledReason={permissionTooltipHelper(
+                createGroupPermissions,
+                i18nKey("create Groups"),
+              )}
+              variant="primary"
+              collapseOnSmall={false}
+            />
           </Grid>
-          {loading && <ProgressBar />}
-          {!loading && (
-            <Fragment>
-              {records.length > 0 && (
-                <Fragment>
-                  <Grid item xs={12} sx={{ marginBottom: 15 }}>
-                    <SecureComponent
-                      resource={CONSOLE_UI_RESOURCE}
-                      scopes={displayGroupsPermissions}
-                      errorProps={{ disabled: true }}
-                    >
-                      <DataTable
-                        itemActions={tableActions}
-                        columns={[{ label: t("Name") }]}
-                        isLoading={loading}
-                        selectedItems={checkedGroups}
-                        onSelect={
-                          deleteGroup || getGroup ? selectionChanged : undefined
-                        }
-                        onSelectAll={
-                          deleteGroup || getGroup
-                            ? () => {
-                                const allVisible =
-                                  filteredRecords.length > 0 &&
-                                  filteredRecords.every((g) =>
-                                    checkedGroups.includes(g),
-                                  );
-                                setCheckedGroups(
-                                  allVisible
-                                    ? checkedGroups.filter(
-                                        (g) => !filteredRecords.includes(g),
-                                      )
-                                    : Array.from(
-                                        new Set([
-                                          ...checkedGroups,
-                                          ...filteredRecords,
-                                        ]),
-                                      ),
-                                );
-                              }
-                            : undefined
-                        }
-                        records={filteredRecords}
-                        entityName={t("Groups")}
-                        customEmptyMessage={t("There are no Groups yet.")}
-                        idField=""
-                      />
-                    </SecureComponent>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <HelpBox
-                      title={t("Groups")}
-                      iconComponent={<GroupsIcon />}
-                      help={
-                        <Fragment>
-                          {t(
-                            "A group can have one attached IAM policy, where all users with membership in that group inherit that policy. Groups support more simplified management of user permissions on the SILO Tenant.",
-                          )}
-                          <br />
-                          <br />
-                          {interpolate(t("You can learn more at the {link}."), {
-                            link: (
-                              <a
-                                href={localize(
-                                  "https://silo.pgsty.com/administration/identity-access-management/minio-group-management/",
-                                )}
-                                target="_blank"
-                                rel="noopener"
-                              >
-                                {t("documentation")}
-                              </a>
-                            ),
+
+          <Grid item xs={12} sx={{ marginBottom: 15 }}>
+            <SecureComponent
+              resource={CONSOLE_UI_RESOURCE}
+              scopes={displayGroupsPermissions}
+              errorProps={{ disabled: true }}
+            >
+              <DataTable
+                {...boundedTable}
+                itemActions={tableActions}
+                columns={[
+                  { label: t("Name"), priority: "high" },
+                  {
+                    label: t("Actions"),
+                    priority: "high",
+                    width: 48,
+                    globalClass: "mds-row-actions",
+                    renderFunction: (group: string) => (
+                      <span onClick={(event) => event.stopPropagation()}>
+                        <OverflowMenu
+                          label={formatText(t("Actions for {name}"), {
+                            name: group,
                           })}
-                        </Fragment>
-                      }
-                    />
-                  </Grid>
-                </Fragment>
-              )}
-              {records.length === 0 && (
-                <Grid container>
-                  <Grid item xs={8}>
-                    <HelpBox
-                      title={t("Groups")}
-                      iconComponent={<UsersIcon />}
-                      help={
-                        <Fragment>
-                          {t(
-                            "A group can have one attached IAM policy, where all users with membership in that group inherit that policy. Groups support more simplified management of user permissions on the SILO Tenant.",
-                          )}
-                          <SecureComponent
-                            resource={CONSOLE_UI_RESOURCE}
-                            scopes={createGroupPermissions}
-                            matchAll
-                          >
-                            <br />
-                            <br />
-                            {interpolate(t("To get started, {link}."), {
-                              link: (
-                                <ActionLink
-                                  onClick={() => {
-                                    navigate(`${IAM_PAGES.GROUPS_ADD}`);
-                                  }}
-                                >
-                                  {t("Create a Group")}
-                                </ActionLink>
+                          items={[
+                            {
+                              label: t("View"),
+                              disabled: !getGroup,
+                              disabledReason: permissionTooltipHelper(
+                                getGroupPermissions,
+                                i18nKey("view Group details"),
                               ),
-                            })}
-                          </SecureComponent>
-                        </Fragment>
+                              onClick: () => {
+                                if (getGroup) viewAction(group);
+                              },
+                            },
+                            {
+                              label: t("Edit"),
+                              disabled: !getGroup,
+                              disabledReason: permissionTooltipHelper(
+                                getGroupPermissions,
+                                i18nKey("view Group details"),
+                              ),
+                              onClick: () => {
+                                if (getGroup) viewAction(group);
+                              },
+                            },
+                          ]}
+                        />
+                      </span>
+                    ),
+                  },
+                ]}
+                isLoading={loading}
+                selectedItems={checkedGroups}
+                onSelect={
+                  deleteGroup || getGroup ? selectionChanged : undefined
+                }
+                onSelectAll={
+                  deleteGroup || getGroup
+                    ? () => {
+                        const allVisible =
+                          filteredRecords.length > 0 &&
+                          filteredRecords.every((g) =>
+                            checkedGroups.includes(g),
+                          );
+                        setCheckedGroups(
+                          allVisible
+                            ? checkedGroups.filter(
+                                (g) => !filteredRecords.includes(g),
+                              )
+                            : Array.from(
+                                new Set([...checkedGroups, ...filteredRecords]),
+                              ),
+                        );
                       }
-                    />
-                  </Grid>
-                </Grid>
-              )}
-            </Fragment>
-          )}
+                    : undefined
+                }
+                records={filteredRecords}
+                entityName={t("Groups")}
+                loadingState={<SkeletonRows rows={5} columns={1} />}
+                emptyState={
+                  <FilteredEmptyState
+                    headingLevel={2}
+                    filtered={Boolean(filter.trim())}
+                    onClear={() => setFilter("")}
+                    icon={<GroupsIcon />}
+                    title={t("No groups yet")}
+                    description={t(
+                      "Groups let users share the same access policies.",
+                    )}
+                    action={
+                      hasPermission(
+                        CONSOLE_UI_RESOURCE,
+                        createGroupPermissions,
+                        true,
+                      ) && (
+                        <Button
+                          id="empty-list-action"
+                          variant="callAction"
+                          label={t("Create Group")}
+                          onClick={() => navigate(IAM_PAGES.GROUPS_ADD)}
+                        />
+                      )
+                    }
+                  />
+                }
+                idField=""
+              />
+            </SecureComponent>
+          </Grid>
+          <Grid item xs={12}>
+            <HelpBox
+              title={t("Groups")}
+              iconComponent={<GroupsIcon />}
+              help={
+                <Fragment>
+                  {t(
+                    "A group can have one attached IAM policy, where all users with membership in that group inherit that policy. Groups support more simplified management of user permissions on the SILO Tenant.",
+                  )}
+                  <br />
+                  <br />
+                  {interpolate(t("You can learn more at the {link}."), {
+                    link: (
+                      <a
+                        href={localize(
+                          "https://silo.pgsty.com/administration/identity-access-management/minio-group-management/",
+                        )}
+                        target="_blank"
+                        rel="noopener"
+                      >
+                        {t("documentation")}
+                      </a>
+                    ),
+                  })}
+                </Fragment>
+              }
+            />
+          </Grid>
         </Grid>
       </PageLayout>
     </Fragment>

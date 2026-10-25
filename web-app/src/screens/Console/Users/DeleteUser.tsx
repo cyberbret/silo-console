@@ -126,6 +126,7 @@ const DeleteUser = ({
 
   return (
     <ConfirmDialog
+      destructive
       title={selectedUsers.length > 1 ? t("Delete Users") : t("Delete User")}
       confirmText={t("Delete")}
       isOpen={deleteOpen}

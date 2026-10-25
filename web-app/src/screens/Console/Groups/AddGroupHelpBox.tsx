@@ -38,7 +38,7 @@ const FeatureItem = ({
       }}
     >
       {icon}{" "}
-      <div style={{ fontSize: "14px", fontStyle: "italic", color: "#5E5E5E" }}>
+      <div style={{ fontSize: "var(--fs-body)", color: "var(--foreground)" }}>
         {description}
       </div>
     </Box>
@@ -50,18 +50,20 @@ const AddGroupHelpBox = () => {
     <Box
       sx={{
         flex: 1,
-        border: "1px solid #eaeaea",
-        borderRadius: "2px",
+        border: 0,
+        background: "var(--hover)",
+        color: "var(--foreground)",
+        borderRadius: "8px",
         display: "flex",
         flexFlow: "column",
-        padding: "20px",
+        padding: "16px",
         marginTop: 0,
       }}
     >
       <Box
         sx={{
-          fontSize: "16px",
-          fontWeight: 600,
+          fontSize: "var(--fs-body)",
+          fontWeight: 550,
           display: "flex",
           alignItems: "center",
           marginBottom: "16px",
@@ -76,7 +78,7 @@ const AddGroupHelpBox = () => {
         <HelpIconFilled />
         <div>{t("Learn more about Groups")}</div>
       </Box>
-      <Box sx={{ fontSize: "14px", marginBottom: "15px" }}>
+      <Box sx={{ fontSize: "var(--fs-body)", marginBottom: "15px" }}>
         {t(
           "Adding groups lets you assign IAM policies to multiple users at once.",
         )}

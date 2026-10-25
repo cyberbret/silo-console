@@ -16,7 +16,7 @@
 
 import React, { useState } from "react";
 import { ConfirmDeleteIcon } from "mds";
-import { interpolate, useT } from "i18n";
+import { i18nKey, interpolate, useT } from "i18n";
 import {
   recordServerRestartRequirement,
   setErrorSnackMessage,
@@ -69,8 +69,9 @@ const DeleteIDPConfigurationModal = ({
 
   return (
     <ConfirmDialog
+      destructive
       title={t("Delete {name}").replace("{name}", () => displayName)}
-      confirmText={"Delete"}
+      confirmText={i18nKey("Delete")}
       isOpen={deleteOpen}
       titleIcon={<ConfirmDeleteIcon />}
       isLoading={deleteLoading}

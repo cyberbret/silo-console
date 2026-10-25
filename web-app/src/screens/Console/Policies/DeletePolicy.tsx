@@ -14,75 +14,180 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import React, { Fragment, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ConfirmDialog from "../Common/ModalWrapper/ConfirmDialog";
-import { ConfirmDeleteIcon } from "mds";
+import { ConfirmDeleteIcon, useModalPresence } from "mds";
 import { setErrorSnackMessage } from "../../../systemSlice";
 import { useAppDispatch } from "../../../store";
 import { api } from "api";
-import { ApiError, HttpResponse } from "api/consoleApi";
+import { ApiError, HttpResponse, Policy } from "api/consoleApi";
 import { errorToHandler } from "api/errors";
-import { interpolate, useT } from "i18n";
+import { formatText, useT } from "i18n";
+import { hasPermission } from "../../../common/SecureComponent";
+import {
+  CONSOLE_UI_RESOURCE,
+  deletePolicyPermissions,
+  listPolicyPermissions,
+} from "../../../common/SecureComponent/permissions";
+import { attachmentCount, policyAction } from "./policyPresentation";
 
 interface IDeletePolicyProps {
   closeDeleteModalAndRefresh: (refresh: boolean) => void;
   deleteOpen: boolean;
-  selectedPolicy: string;
+  policy: Policy;
 }
 
 const DeletePolicy = ({
   closeDeleteModalAndRefresh,
   deleteOpen,
-  selectedPolicy,
+  policy,
 }: IDeletePolicyProps) => {
   const dispatch = useAppDispatch();
   const t = useT();
-  const onClose = () => closeDeleteModalAndRefresh(false);
+  const present = useModalPresence();
+  const canDelete = hasPermission(CONSOLE_UI_RESOURCE, deletePolicyPermissions);
+  const canList = hasPermission(CONSOLE_UI_RESOURCE, listPolicyPermissions);
+  const action = policyAction(policy, canDelete);
+  const [current, setCurrent] = useState<Policy | null>(null);
+  const [loadingInfo, setLoadingInfo] = useState(true);
+  const [loadingDelete, setLoadingDelete] = useState(false);
+  const active = useRef(false);
+  const submitting = useRef(false);
 
-  const [loadingDelete, setLoadingDelete] = useState<boolean>(false);
+  useEffect(() => {
+    active.current = deleteOpen && present;
+    const controller = new AbortController();
+    setCurrent(null);
+    setLoadingInfo(true);
+    if (active.current) {
+      const unknown = {
+        ...policy,
+        userCount: undefined,
+        groupCount: undefined,
+      };
+      if (!canList) {
+        setCurrent(unknown);
+        setLoadingInfo(false);
+      } else
+        api.policies
+          .listPolicies(undefined, { signal: controller.signal })
+          .then(({ data }) => {
+            if (active.current && !controller.signal.aborted)
+              setCurrent(
+                data.policies?.find((item) => item.name === policy.name) ??
+                  null,
+              );
+          })
+          .catch(() => {
+            if (active.current && !controller.signal.aborted)
+              setCurrent(unknown);
+          })
+          .finally(() => {
+            if (active.current && !controller.signal.aborted)
+              setLoadingInfo(false);
+          });
+    }
+    return () => {
+      active.current = false;
+      controller.abort();
+    };
+  }, [policy, deleteOpen, present, canList]);
 
-  if (!selectedPolicy) {
-    return null;
-  }
-
-  const onConfirmDelete = () => {
+  const allowed =
+    !!current && policyAction(current, canDelete) === action && action !== null;
+  const onConfirm = async () => {
+    if (
+      !active.current ||
+      !allowed ||
+      loadingInfo ||
+      submitting.current ||
+      !policy.name
+    )
+      return;
+    submitting.current = true;
     setLoadingDelete(true);
-    api.policy
-      .removePolicy(selectedPolicy)
-      .then((_) => {
-        closeDeleteModalAndRefresh(true);
-      })
-      .catch(async (res: HttpResponse<void, ApiError>) => {
-        const err = (await res.json()) as ApiError;
-        dispatch(setErrorSnackMessage(errorToHandler(err)));
-        closeDeleteModalAndRefresh(false);
-      })
-      .finally(() => setLoadingDelete(false));
+    try {
+      await api.policy.removePolicy(policy.name);
+      if (active.current) closeDeleteModalAndRefresh(true);
+    } catch (response) {
+      const result = response as HttpResponse<void, ApiError>;
+      const error =
+        result.error || (await result.json?.().catch(() => undefined));
+      if (active.current)
+        dispatch(
+          setErrorSnackMessage(
+            errorToHandler(error || { message: t("Could not update policy") }),
+          ),
+        );
+    } finally {
+      submitting.current = false;
+      if (active.current) setLoadingDelete(false);
+    }
   };
-
+  const users = attachmentCount(current?.userCount);
+  const groups = attachmentCount(current?.groupCount);
+  const reset = action === "reset";
   return (
     <ConfirmDialog
-      title={t("Delete Policy")}
-      confirmText={t("Delete")}
+      destructive
+      title={reset ? t("Reset to default") : t("Delete Policy")}
+      confirmText={reset ? t("Reset to default") : t("Delete")}
       isOpen={deleteOpen}
       titleIcon={<ConfirmDeleteIcon />}
       isLoading={loadingDelete}
-      onConfirm={onConfirmDelete}
-      onClose={onClose}
+      confirmButtonProps={{
+        disabled: loadingInfo || !allowed || loadingDelete,
+      }}
+      onConfirm={onConfirm}
+      onClose={() => {
+        if (!submitting.current) closeDeleteModalAndRefresh(false);
+      }}
       confirmationContent={
-        <Fragment>
-          {interpolate(t("Are you sure you want to delete policy {name}?"), {
-            name: (
-              <Fragment>
-                <br />
-                <b>{selectedPolicy}</b>
-              </Fragment>
-            ),
-          })}
-        </Fragment>
+        <>
+          <p>
+            {reset
+              ? formatText(
+                  t("Reset policy {name} to its default definition?"),
+                  { name: policy.name || "" },
+                )
+              : formatText(
+                  t("Are you sure you want to delete policy {name}?"),
+                  { name: policy.name || "" },
+                )}
+          </p>
+          {reset && (
+            <p>
+              {t(
+                "The built-in policy will be restored to the SILO default definition.",
+              )}
+            </p>
+          )}
+          {loadingInfo ? (
+            <p role="status">{t("Loading attachment information…")}</p>
+          ) : !allowed ? (
+            <p role="alert">
+              {t(
+                "This policy has changed or is no longer available. Refresh the list.",
+              )}
+            </p>
+          ) : users === undefined || groups === undefined ? (
+            <p>{t("Attachment information is unavailable.")}</p>
+          ) : (
+            <p>
+              {formatText(
+                t(
+                  "This policy is attached to {users} users and {groups} groups.",
+                ),
+                { users, groups },
+              )}{" "}
+              {reset
+                ? t("Their permissions will follow the default definition.")
+                : t("They will lose the permissions it grants.")}
+            </p>
+          )}
+        </>
       }
     />
   );
 };
-
 export default DeletePolicy;

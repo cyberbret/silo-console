@@ -38,7 +38,7 @@ const FeatureItem = ({
       }}
     >
       {icon}{" "}
-      <div style={{ fontSize: "14px", fontStyle: "italic", color: "#5E5E5E" }}>
+      <div style={{ fontSize: "var(--fs-body)", color: "var(--foreground)" }}>
         {description}
       </div>
     </Box>
@@ -51,17 +51,19 @@ const AddPolicyHelpBox = () => {
     <Box
       sx={{
         flex: 1,
-        border: "1px solid #eaeaea",
-        borderRadius: "2px",
+        border: 0,
+        background: "var(--hover)",
+        color: "var(--foreground)",
+        borderRadius: "8px",
         display: "flex",
         flexFlow: "column",
-        padding: "20px",
+        padding: "16px",
       }}
     >
       <Box
         sx={{
-          fontSize: "16px",
-          fontWeight: 600,
+          fontSize: "var(--fs-body)",
+          fontWeight: 550,
           display: "flex",
           alignItems: "center",
           marginBottom: "16px",
@@ -77,7 +79,7 @@ const AddPolicyHelpBox = () => {
         <HelpIconFilled />
         <div>{t("Learn more about Policies")}</div>
       </Box>
-      <Box sx={{ fontSize: "14px", marginBottom: "15px" }}>
+      <Box sx={{ fontSize: "var(--fs-body)", marginBottom: "15px" }}>
         <Box sx={{ paddingBottom: "20px" }}>
           <FeatureItem
             icon={<IAMPoliciesIcon />}

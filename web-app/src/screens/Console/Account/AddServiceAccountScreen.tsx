@@ -14,6 +14,12 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { ModalPresence } from "common/ui/ModalPresence";
+import { createAccessKeyCommands } from "common/mcli/commands";
+import {
+  FormCliEquivalent,
+  PolicyFileNote,
+} from "common/mcli/FormCliEquivalent";
 import React, { Fragment, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -43,7 +49,6 @@ import AddServiceAccountHelpBox from "./AddServiceAccountHelpBox";
 import CredentialsPrompt from "../Common/CredentialsPrompt/CredentialsPrompt";
 import PanelTitle from "../Common/PanelTitle/PanelTitle";
 import PageHeaderWrapper from "../Common/PageHeaderWrapper/PageHeaderWrapper";
-import HelpMenu from "../HelpMenu";
 import { useAppDispatch } from "store";
 import { getRandomString } from "common/utils";
 import { useLocalizedLink, useT } from "i18n";
@@ -143,25 +148,28 @@ const AddServiceAccount = () => {
 
   return (
     <Fragment>
-      {newServiceAccount !== null && (
-        <CredentialsPrompt
-          newServiceAccount={newServiceAccount}
-          open={true}
-          closeModal={() => {
-            closeCredentialsModal();
-          }}
-          entity={t("Access Key")}
-        />
-      )}
+      <ModalPresence open={Boolean(newServiceAccount !== null)}>
+        {newServiceAccount !== null && (
+          <CredentialsPrompt
+            newServiceAccount={newServiceAccount}
+            open={true}
+            closeModal={() => {
+              closeCredentialsModal();
+            }}
+            entity={t("Access Key")}
+          />
+        )}
+      </ModalPresence>
       <Grid item xs={12}>
         <PageHeaderWrapper
+          titleElement="h1"
           label={
             <BackLink
               label={t("Access Keys")}
               onClick={() => navigate(IAM_PAGES.ACCOUNT)}
             />
           }
-          actions={<HelpMenu />}
+          help
         />
         <PageLayout>
           <FormLayout
@@ -241,6 +249,7 @@ const AddServiceAccount = () => {
                     </HelpTip>
                   </Box>
                   <Grid item xs={12} sx={{ ...modalStyleUtils.formScrollable }}>
+                    <PolicyFileNote />
                     <CodeMirrorWrapper
                       value={policyJSON}
                       onChange={(value) => {
@@ -252,39 +261,14 @@ const AddServiceAccount = () => {
                 </Grid>
               )}
 
-              <Grid
-                xs={12}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "start",
-                  fontWeight: 600,
-                  color: "rgb(7, 25, 62)",
-                  gap: 2,
-                  marginBottom: "15px",
-                  marginTop: "15px",
-                }}
-              >
-                <Box
-                  sx={{
-                    marginTop: "15px",
-                    width: "100%",
-                    "& label": { width: "180px" },
-                  }}
-                >
-                  <DateTimeInput
-                    noLabelMinWidth
-                    value={expiry}
-                    onChange={(e) => {
-                      setExpiry(e);
-                    }}
-                    id="expiryTime"
-                    label={t("Expiry")}
-                    timeFormat={"24h"}
-                    secondsSelector={false}
-                  />
-                </Box>
-              </Grid>
+              <DateTimeInput
+                value={expiry}
+                onChange={setExpiry}
+                id="expiryTime"
+                label={t("Expiry")}
+                timeFormat="24h"
+                secondsSelector={false}
+              />
               <InputBox
                 value={name}
                 label={t("Name")}
@@ -335,6 +319,28 @@ const AddServiceAccount = () => {
                   label={t("Create")}
                 />
               </Grid>
+              <FormCliEquivalent
+                commands={createAccessKeyCommands({
+                  accessKey,
+                  customSecret: Boolean(secretKey),
+                  policy: Boolean(policyJSON),
+                  name,
+                  description,
+                  expiry: expiry?.isValid ? expiry.toUTC().toISO() : undefined,
+                })}
+                notes={[
+                  t(
+                    "Replace <SECRET> with your secret key. Secrets are never included in this preview.",
+                  ),
+                  ...(comments
+                    ? [
+                        t(
+                          "This mcli version has no flag for Comments; the command omits that field.",
+                        ),
+                      ]
+                    : []),
+                ]}
+              />
             </form>
           </FormLayout>
         </PageLayout>

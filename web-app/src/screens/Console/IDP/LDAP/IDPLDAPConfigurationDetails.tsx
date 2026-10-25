@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { ModalPresence } from "common/ui/ModalPresence";
 import React, { Fragment, useEffect, useState } from "react";
 import {
   Box,
@@ -23,6 +24,7 @@ import {
   FormLayout,
   Grid,
   HelpBox,
+  IconButton,
   InputBox,
   Loader,
   PageLayout,
@@ -37,7 +39,7 @@ import { Tooltip } from "common/Tooltip";
 import { api } from "api";
 import { ConfigurationKV } from "api/consoleApi";
 import { errorToHandler } from "api/errors";
-import { formatText, useT } from "i18n";
+import { i18nKey, formatText, useT } from "i18n";
 import { useAppDispatch } from "../../../../store";
 import {
   recordServerRestartRequirement,
@@ -50,7 +52,6 @@ import PageHeaderWrapper from "../../Common/PageHeaderWrapper/PageHeaderWrapper"
 import AddIDPConfigurationHelpBox from "../AddIDPConfigurationHelpbox";
 import LDAPEntitiesQuery from "./LDAPEntitiesQuery";
 import ResetConfigurationModal from "../../EventDestinations/CustomForms/ResetConfigurationModal";
-import HelpMenu from "../../HelpMenu";
 
 const enabledConfigLDAP = [
   "server_addr",
@@ -69,6 +70,8 @@ const IDPLDAPConfigurationDetails = () => {
   const [isEnabled, setIsEnabled] = useState<boolean>(false);
   const [hasConfiguration, setHasConfiguration] = useState<boolean>(false);
   const [fields, setFields] = useState<any>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [submitted, setSubmitted] = useState(false);
   const [overrideFields, setOverrideFields] = useState<any>({});
   const [record, setRecord] = useState<ConfigurationKV[] | undefined>(
     undefined,
@@ -79,6 +82,8 @@ const IDPLDAPConfigurationDetails = () => {
   const [envOverride, setEnvOverride] = useState<boolean>(false);
 
   const toggleEditMode = () => {
+    setTouched({});
+    setSubmitted(false);
     if (editMode && record) {
       parseFields(record);
     }
@@ -174,6 +179,8 @@ const IDPLDAPConfigurationDetails = () => {
   };
 
   const saveRecord = () => {
+    setSubmitted(true);
+    if (loading || !validSave()) return;
     const keyVals = Object.keys(formFields).map((key) => {
       return {
         key,
@@ -203,6 +210,8 @@ const IDPLDAPConfigurationDetails = () => {
 
   const resetConfiguration = (restart: boolean) => {
     setResetOpen(false);
+    setTouched({});
+    setSubmitted(false);
     dispatch(recordServerRestartRequirement(restart));
     setRecord(undefined);
     setFields({});
@@ -243,9 +252,9 @@ const IDPLDAPConfigurationDetails = () => {
             key={key}
             indicatorLabels={[t("Enabled"), t("Disabled")]}
             checked={fields[key] === "on"}
-            value={"is-field-enabled"}
-            id={"is-field-enabled"}
-            name={"is-field-enabled"}
+            value={fields[key] || "off"}
+            id={`ldap-${key}`}
+            name={key}
             label={t(value.label)}
             tooltip={t(value.tooltip)}
             onChange={(e) =>
@@ -261,13 +270,22 @@ const IDPLDAPConfigurationDetails = () => {
             key={key}
             id={key}
             required={value.required}
+            reserveErrorSpace={value.required}
             name={key}
             label={t(value.label)}
             tooltip={t(value.tooltip)}
-            error={t(value.hasError(fields[key], editMode))}
+            error={t(
+              value.hasError(
+                fields[key],
+                editMode && (submitted || !!touched[key]),
+              ),
+            )}
             value={fields[key] ? fields[key] : ""}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setFields({ ...fields, [key]: e.target.value })
+            }
+            onBlur={() =>
+              setTouched((current) => ({ ...current, [key]: true }))
             }
             placeholder={t(value.placeholder)}
             disabled={!editMode}
@@ -284,15 +302,21 @@ const IDPLDAPConfigurationDetails = () => {
 
   return (
     <Grid item xs={12}>
-      {resetOpen && (
-        <ResetConfigurationModal
-          configurationName={"identity_ldap"}
-          onClose={() => setResetOpen(false)}
-          onReset={resetConfiguration}
-          resetOpen={resetOpen}
-        />
-      )}
-      <PageHeaderWrapper label={"LDAP"} actions={<HelpMenu />} />
+      <ModalPresence open={Boolean(resetOpen)}>
+        {resetOpen && (
+          <ResetConfigurationModal
+            configurationName={"identity_ldap"}
+            onClose={() => setResetOpen(false)}
+            onReset={resetConfiguration}
+            resetOpen={resetOpen}
+          />
+        )}
+      </ModalPresence>
+      <PageHeaderWrapper
+        label={i18nKey("LDAP")}
+        titleElement={editMode ? "div" : "h1"}
+        help
+      />
       <PageLayout variant={"constrained"}>
         <Tabs
           horizontal
@@ -349,12 +373,13 @@ const IDPLDAPConfigurationDetails = () => {
                               />
                             </Tooltip>
                           )}
-                          <Button
-                            id={"refresh-idp-config"}
+                          <IconButton
+                            id="refresh-idp-config"
                             onClick={() => setLoading(true)}
                             label={t("Refresh")}
-                            icon={<RefreshIcon />}
-                          />
+                          >
+                            <RefreshIcon />
+                          </IconButton>
                         </Fragment>
                       ) : null
                     }
@@ -377,14 +402,16 @@ const IDPLDAPConfigurationDetails = () => {
                           <FormLayout
                             helpBox={
                               <AddIDPConfigurationHelpBox
-                                helpText={
-                                  "Learn more about LDAP Configurations"
-                                }
+                                helpText={i18nKey(
+                                  "Learn more about LDAP Configurations",
+                                )}
                                 contents={ldapHelpBoxContents}
                                 docLink={
                                   "https://silo.pgsty.com/operations/external-iam/#active-directory-ldap"
                                 }
-                                docText={"Learn more about LDAP Configurations"}
+                                docText={i18nKey(
+                                  "Learn more about LDAP Configurations",
+                                )}
                               />
                             }
                           >
@@ -419,14 +446,15 @@ const IDPLDAPConfigurationDetails = () => {
                                 alignItems: "center",
                                 justifyContent: "flex-end",
                                 marginTop: "20px",
-                                gap: "15px",
+                                gap: "12px",
+                                flexWrap: "wrap",
                               }}
                             >
                               {editMode && hasConfiguration && (
                                 <Button
                                   id={"clear"}
                                   type="button"
-                                  variant="secondary"
+                                  variant="danger"
                                   onClick={() => setResetOpen(true)}
                                   label={t("Reset Configuration")}
                                 />
@@ -455,13 +483,15 @@ const IDPLDAPConfigurationDetails = () => {
                           <Box
                             sx={{
                               display: "grid",
-                              gridTemplateColumns: "1fr",
+                              gridTemplateColumns: "minmax(0, 1fr)",
                               gridAutoFlow: "dense",
                               gap: 3,
                               padding: "15px",
-                              border: "1px solid #eaeaea",
+                              border: "1px solid var(--border)",
+                              borderRadius: 12,
                               [`@media (min-width: 576px)`]: {
-                                gridTemplateColumns: "2fr 1fr",
+                                gridTemplateColumns:
+                                  "minmax(0, 2fr) minmax(0, 1fr)",
                                 gridAutoFlow: "row",
                               },
                             }}

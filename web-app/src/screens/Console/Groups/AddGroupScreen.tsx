@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { createGroupCommands } from "common/mcli/commands";
+import { FormCliEquivalent } from "common/mcli/FormCliEquivalent";
 import React, { Fragment, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { modalStyleUtils } from "../Common/FormComponents/common/styleLibrary";
@@ -36,7 +38,6 @@ import { useAppDispatch } from "../../../store";
 import AddGroupHelpBox from "./AddGroupHelpBox";
 import UsersSelectors from "./UsersSelectors";
 import PageHeaderWrapper from "../Common/PageHeaderWrapper/PageHeaderWrapper";
-import HelpMenu from "../HelpMenu";
 import { useT } from "i18n";
 
 const AddGroupScreen = () => {
@@ -94,13 +95,14 @@ const AddGroupScreen = () => {
   return (
     <Fragment>
       <PageHeaderWrapper
+        titleElement="h1"
         label={
           <BackLink
             label={t("Groups")}
             onClick={() => navigate(IAM_PAGES.GROUPS)}
           />
         }
-        actions={<HelpMenu />}
+        help
       />
       <PageLayout>
         <FormLayout
@@ -146,6 +148,17 @@ const AddGroupScreen = () => {
                 <ProgressBar />
               </Grid>
             )}
+            <FormCliEquivalent
+              commands={createGroupCommands({
+                name: groupName,
+                members: selectedUsers,
+              })}
+              emptyMessage={
+                !selectedUsers.length
+                  ? t("mcli requires at least one member to create a group.")
+                  : undefined
+              }
+            />
           </form>
         </FormLayout>
       </PageLayout>

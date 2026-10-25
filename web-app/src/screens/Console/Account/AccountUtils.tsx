@@ -16,14 +16,18 @@
 
 import React from "react";
 import { DateTime } from "luxon";
+import type { IColumns } from "mds";
 
 // Built per render so the labels follow the active language; callers pass the
 // t() they already hold.
-export const accountTableColumns = (t: (text: string) => string) => [
-  { label: t("Access Key"), elementKey: "accessKey" },
+export const accountTableColumns = (
+  t: (text: string) => string,
+): IColumns[] => [
+  { label: t("Access Key"), elementKey: "accessKey", priority: "high" },
   {
     label: t("Expiry"),
     elementKey: "expiration",
+    priority: "medium",
     renderFunction: (expTime: string) => {
       if (expTime !== "1970-01-01T00:00:00Z") {
         const fmtDate = DateTime.fromISO(expTime)
@@ -39,6 +43,8 @@ export const accountTableColumns = (t: (text: string) => string) => [
   {
     label: t("Status"),
     elementKey: "accountStatus",
+    priority: "high",
+    width: 100,
     renderFunction: (status: string) => {
       if (status === "off") {
         return t("Disabled");
@@ -47,6 +53,6 @@ export const accountTableColumns = (t: (text: string) => string) => [
       }
     },
   },
-  { label: t("Name"), elementKey: "name" },
-  { label: t("Description"), elementKey: "description" },
+  { label: t("Name"), elementKey: "name", priority: "medium" },
+  { label: t("Description"), elementKey: "description", priority: "low" },
 ];

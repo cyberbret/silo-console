@@ -17,7 +17,6 @@
 import React, { Fragment, useState } from "react";
 import { DisabledIcon, EnabledIcon, Box, Grid, HelpTip } from "mds";
 import SearchBox from "../Common/SearchBox";
-import { STATUS_COLORS } from "../Dashboard/BasicDashboard/Utils";
 import { IAMStatement } from "./types";
 import { interpolate, useT } from "i18n";
 
@@ -105,18 +104,21 @@ const PolicyView = ({
           xs={12}
           sx={{
             "& .policy-row": {
-              borderBottom: "1px solid #eaeaea",
+              borderBottom: "1px solid var(--border)",
             },
             "& .policy-row:first-child": {
-              borderTop: "1px solid #eaeaea",
+              borderTop: "1px solid var(--border)",
             },
             "& .policy-row:last-child": {
               borderBottom: "0px",
             },
             paddingTop: "15px",
             "& mark": {
-              color: "#000000",
+              background: "var(--warning-surface)",
+              color: "var(--foreground)",
               fontWeight: 500,
+              borderRadius: "2px",
+              padding: "0 2px",
             },
           }}
         >
@@ -131,7 +133,7 @@ const PolicyView = ({
                   display: "grid",
                   gridTemplateColumns: "1fr",
                   gap: "15px",
-                  fontSize: "14px",
+                  fontSize: "var(--fs-body, 13px)",
                   padding: "10px 0 10px 0",
                   "& .label": {
                     fontWeight: 600,
@@ -147,7 +149,12 @@ const PolicyView = ({
                       alignItems: "center",
                       "& .min-icon": {
                         marginRight: "5px",
-                        fill: isAllow ? STATUS_COLORS.GREEN : STATUS_COLORS.RED,
+                        fill: isAllow
+                          ? "var(--success-text)"
+                          : "var(--destructive-text)",
+                        color: isAllow
+                          ? "var(--success-text)"
+                          : "var(--destructive-text)",
                         height: "14px",
                         width: "14px",
                       },

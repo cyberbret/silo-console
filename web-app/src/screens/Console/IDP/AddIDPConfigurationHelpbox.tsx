@@ -42,18 +42,17 @@ const FeatureItem = ({
     <Box
       sx={{
         display: "flex",
+        alignItems: "center",
+        gap: 8,
+        color: "var(--foreground)",
         "& .min-icon": {
-          marginRight: "10px",
-          height: "23px",
-          width: "23px",
-          marginBottom: "10px",
+          height: 16,
+          width: 16,
+          flexShrink: 0,
         },
       }}
     >
-      {icon}{" "}
-      <div style={{ fontSize: "14px", fontStyle: "italic", color: "#5E5E5E" }}>
-        {description}
-      </div>
+      {icon} <div style={{ fontWeight: 550 }}>{description}</div>
     </Box>
   );
 };
@@ -71,47 +70,54 @@ const AddIDPConfigurationHelpBox = ({
     <Box
       sx={{
         flex: 1,
-        border: "1px solid #eaeaea",
-        borderRadius: "2px",
+        minWidth: 0,
+        border: "1px solid var(--border)",
+        borderRadius: 12,
+        background: "var(--surface-2)",
+        color: "var(--foreground)",
+        fontSize: "var(--fs-body,13px)",
+        lineHeight: "var(--lh-body,20px)",
+        overflowWrap: "anywhere",
         display: "flex",
         flexFlow: "column",
-        padding: "20px",
+        padding: 16,
       }}
     >
       <Box
         sx={{
-          fontSize: "16px",
-          fontWeight: 600,
+          fontSize: "var(--fs-title,16px)",
+          lineHeight: "var(--lh-title,22px)",
+          fontWeight: 550,
           display: "flex",
           alignItems: "center",
           marginBottom: "16px",
-          paddingBottom: "20px",
+          gap: 8,
 
           "& .min-icon": {
-            height: "21px",
-            width: "21px",
-            marginRight: "15px",
+            height: 16,
+            width: 16,
+            flexShrink: 0,
           },
         }}
       >
         <HelpIconFilled />
         <div>{t(helpText)}</div>
       </Box>
-      <Box sx={{ fontSize: "14px", marginBottom: "15px" }}>
+      <Box>
         {contents.map((content, index) => (
           <Fragment key={`feature-item-${index}`}>
             {content.icon && (
-              <Box sx={{ paddingBottom: "20px" }}>
+              <Box sx={{ marginBottom: 8 }}>
                 <FeatureItem
                   icon={content.icon}
                   description={t(content.iconDescription)}
                 />
               </Box>
             )}
-            <Box sx={{ paddingBottom: "20px" }}>{t(content.text)}</Box>
+            <Box sx={{ marginBottom: 16 }}>{t(content.text)}</Box>
           </Fragment>
         ))}
-        <Box sx={{ paddingBottom: "20px" }}>
+        <Box>
           <a href={localize(docLink)} target="_blank" rel="noopener">
             {t(docText)}
           </a>

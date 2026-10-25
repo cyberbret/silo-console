@@ -14,8 +14,17 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { ModalPresence } from "common/ui/ModalPresence";
 import React, { Fragment, useEffect, useState } from "react";
-import { AddIcon, Button, PageLayout, RefreshIcon, Grid, DataTable } from "mds";
+import {
+  AddIcon,
+  Button,
+  IconButton,
+  PageLayout,
+  RefreshIcon,
+  Grid,
+  DataTable,
+} from "mds";
 import { useNavigate } from "react-router-dom";
 import { formatText, useT } from "i18n";
 import { api } from "api";
@@ -34,7 +43,6 @@ import { actionsTray } from "../Common/FormComponents/common/styleLibrary";
 import TooltipWrapper from "../Common/TooltipWrapper/TooltipWrapper";
 import DeleteIDPConfigurationModal from "./DeleteIDPConfigurationModal";
 import PageHeaderWrapper from "../Common/PageHeaderWrapper/PageHeaderWrapper";
-import HelpMenu from "../HelpMenu";
 
 type IDPConfigurationsProps = {
   idpType: string;
@@ -137,17 +145,20 @@ const IDPConfigurations = ({ idpType }: IDPConfigurationsProps) => {
 
   return (
     <Fragment>
-      {deleteOpen && (
-        <DeleteIDPConfigurationModal
-          deleteOpen={deleteOpen}
-          idp={selectedIDP}
-          idpType={idpType}
-          closeDeleteModalAndRefresh={closeDeleteModalAndRefresh}
-        />
-      )}
+      <ModalPresence open={Boolean(deleteOpen)}>
+        {deleteOpen && (
+          <DeleteIDPConfigurationModal
+            deleteOpen={deleteOpen}
+            idp={selectedIDP}
+            idpType={idpType}
+            closeDeleteModalAndRefresh={closeDeleteModalAndRefresh}
+          />
+        )}
+      </ModalPresence>
       <PageHeaderWrapper
+        titleElement="h1"
         label={`${idpType.toUpperCase()} Configurations`}
-        actions={<HelpMenu />}
+        help
       />
       <PageLayout>
         <Grid container>
@@ -165,15 +176,13 @@ const IDPConfigurations = ({ idpType }: IDPConfigurationsProps) => {
               resource={CONSOLE_UI_RESOURCE}
               errorProps={{ disabled: true }}
             >
-              <TooltipWrapper tooltip={t("Refresh")}>
-                <Button
-                  aria-label={t("Refresh list")}
-                  id={"refresh-keys"}
-                  variant="regular"
-                  icon={<RefreshIcon />}
-                  onClick={() => setLoading(true)}
-                />
-              </TooltipWrapper>
+              <IconButton
+                aria-label={t("Refresh list")}
+                id={"refresh-keys"}
+                onClick={() => setLoading(true)}
+              >
+                <RefreshIcon />
+              </IconButton>
             </SecureComponent>
             <SecureComponent
               scopes={[IAM_SCOPES.ADMIN_CONFIG_UPDATE]}

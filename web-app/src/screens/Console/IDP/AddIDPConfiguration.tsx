@@ -26,7 +26,7 @@ import {
   Switch,
 } from "mds";
 import { useNavigate } from "react-router-dom";
-import { useT } from "i18n";
+import { i18nKey, useT } from "i18n";
 import { useAppDispatch } from "../../../store";
 import { modalStyleUtils } from "../Common/FormComponents/common/styleLibrary";
 import {
@@ -35,7 +35,6 @@ import {
   setHelpName,
 } from "../../../systemSlice";
 import PageHeaderWrapper from "../Common/PageHeaderWrapper/PageHeaderWrapper";
-import HelpMenu from "../HelpMenu";
 import { api } from "api";
 import { ApiError, HttpResponse, SetIDPResponse } from "api/consoleApi";
 import { errorToHandler } from "api/errors";
@@ -62,11 +61,11 @@ const AddIDPConfiguration = ({
     name: {
       required: true,
       hasError: (s: string, editMode: boolean) => {
-        return !s && editMode ? "Config Name is required" : "";
+        return !s && editMode ? i18nKey("Config Name is required") : "";
       },
-      label: "Name",
-      tooltip: "Name for identity provider configuration",
-      placeholder: "Name",
+      label: i18nKey("Name"),
+      tooltip: i18nKey("Name for identity provider configuration"),
+      placeholder: i18nKey("Name"),
       type: "text",
     },
     ...formFields,
@@ -77,6 +76,8 @@ const AddIDPConfiguration = ({
   const t = useT();
 
   const [fields, setFields] = useState<any>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [submitted, setSubmitted] = useState(false);
   const [loadingCreate, setLoadingCreate] = useState<boolean>(false);
 
   const validSave = () => {
@@ -96,12 +97,16 @@ const AddIDPConfiguration = ({
   };
 
   const resetForm = () => {
+    setTouched({});
+    setSubmitted(false);
     setFields({});
   };
 
   const addRecord = (event: React.FormEvent) => {
-    setLoadingCreate(true);
     event.preventDefault();
+    setSubmitted(true);
+    if (loadingCreate || !validSave()) return;
+    setLoadingCreate(true);
     const name = fields["name"];
     let input = "";
     for (const key of Object.keys(formFields)) {
@@ -127,11 +132,12 @@ const AddIDPConfiguration = ({
       case "toggle":
         return (
           <Switch
+            key={key}
             indicatorLabels={[t("Enabled"), t("Disabled")]}
             checked={fields[key] === "on" ? true : false}
-            value={"is-field-enabled"}
-            id={"is-field-enabled"}
-            name={"is-field-enabled"}
+            value={fields[key] || "off"}
+            id={`openid-add-${key}`}
+            name={key}
             label={t(value.label)}
             tooltip={t(value.tooltip)}
             onChange={(e) =>
@@ -143,15 +149,20 @@ const AddIDPConfiguration = ({
       default:
         return (
           <InputBox
+            key={key}
             id={key}
             required={value.required}
+            reserveErrorSpace={value.required}
             name={key}
             label={t(value.label)}
             tooltip={t(value.tooltip)}
-            error={t(value.hasError(fields[key], true))}
+            error={t(value.hasError(fields[key], submitted || !!touched[key]))}
             value={fields[key] ? fields[key] : ""}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setFields({ ...fields, [key]: e.target.value })
+            }
+            onBlur={() =>
+              setTouched((current) => ({ ...current, [key]: true }))
             }
             placeholder={t(value.placeholder)}
             type={value.type}
@@ -168,14 +179,17 @@ const AddIDPConfiguration = ({
   return (
     <Grid item xs={12}>
       <PageHeaderWrapper
+        titleElement="h1"
         label={
           <BackLink onClick={() => navigate(backLink)} label={t(header)} />
         }
-        actions={<HelpMenu />}
+        help
       />
       <PageLayout>
         <FormLayout helpBox={helpBox}>
-          <SectionTitle icon={icon}>{t(title)}</SectionTitle>
+          <SectionTitle icon={icon} headingLevel={2}>
+            {t(title)}
+          </SectionTitle>
           <form
             noValidate
             autoComplete="off"

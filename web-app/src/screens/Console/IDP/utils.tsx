@@ -15,20 +15,27 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import { LockIcon, LoginIcon } from "mds";
+import { i18nKey } from "i18n/lang";
 
 export const ldapHelpBoxContents = [
   {
-    text: "SILO supports using an Active Directory or LDAP (AD/LDAP) service for external management of user identities. Configuring an external IDentity Provider (IDP) enables Single-Sign On (SSO) workflows, where applications authenticate against the external IDP before accessing SILO.",
+    text: i18nKey(
+      "SILO supports using an Active Directory or LDAP (AD/LDAP) service for external management of user identities. Configuring an external IDentity Provider (IDP) enables Single-Sign On (SSO) workflows, where applications authenticate against the external IDP before accessing SILO.",
+    ),
     icon: <LoginIcon />,
-    iconDescription: "Create Configurations",
+    iconDescription: i18nKey("Create Configurations"),
   },
   {
-    text: "SILO queries the configured Active Directory / LDAP server to verify the credentials specified by the application and optionally return a list of groups in which the user has membership. SILO supports two modes (Lookup-Bind Mode and Username-Bind Mode) for performing these queries",
+    text: i18nKey(
+      "SILO queries the configured Active Directory / LDAP server to verify the credentials specified by the application and optionally return a list of groups in which the user has membership. SILO supports two modes (Lookup-Bind Mode and Username-Bind Mode) for performing these queries",
+    ),
     icon: null,
     iconDescription: "",
   },
   {
-    text: "SILO recommends using Lookup-Bind mode as the preferred method for verifying AD/LDAP credentials. Username-Bind mode is a legacy method retained for backwards compatibility only.",
+    text: i18nKey(
+      "SILO recommends using Lookup-Bind mode as the preferred method for verifying AD/LDAP credentials. Username-Bind mode is a legacy method retained for backwards compatibility only.",
+    ),
     icon: null,
     iconDescription: "",
   },
@@ -36,25 +43,31 @@ export const ldapHelpBoxContents = [
 
 export const openIDHelpBoxContents = [
   {
-    text: "SILO supports using an OpenID Connect (OIDC) compatible IDentity Provider (IDP) such as Okta, KeyCloak, Dex, Google, or Facebook for external management of user identities.",
+    text: i18nKey(
+      "SILO supports using an OpenID Connect (OIDC) compatible IDentity Provider (IDP) such as Okta, KeyCloak, Dex, Google, or Facebook for external management of user identities.",
+    ),
     icon: <LockIcon />,
-    iconDescription: "Create Configurations",
+    iconDescription: i18nKey("Create Configurations"),
   },
   {
-    text: "Configuring an external IDP enables Single-Sign On workflows, where applications authenticate against the external IDP before accessing SILO.",
+    text: i18nKey(
+      "Configuring an external IDP enables Single-Sign On workflows, where applications authenticate against the external IDP before accessing SILO.",
+    ),
     icon: null,
     iconDescription: "",
   },
 ];
 
+// Display copy is translated by the shared IDP forms. Protocol examples (URLs,
+// DNs, scope/filter syntax) are intentionally raw, not translation keys.
 export const openIDFormFields = {
   config_url: {
     required: true,
     hasError: (s: string, editMode: boolean) => {
-      return !s && editMode ? "Config URL is required" : "";
+      return !s && editMode ? i18nKey("Config URL is required") : "";
     },
-    label: "Config URL",
-    tooltip: "Config URL for identity provider configuration",
+    label: i18nKey("Config URL"),
+    tooltip: i18nKey("Config URL for identity provider configuration"),
     placeholder:
       "https://identity-provider-url/.well-known/openid-configuration",
     type: "text",
@@ -63,55 +76,57 @@ export const openIDFormFields = {
   client_id: {
     required: true,
     hasError: (s: string, editMode: boolean) => {
-      return !s && editMode ? "Client ID is required" : "";
+      return !s && editMode ? i18nKey("Client ID is required") : "";
     },
-    label: "Client ID",
-    tooltip: "Identity provider Client ID",
-    placeholder: "Enter Client ID",
+    label: i18nKey("Client ID"),
+    tooltip: i18nKey("Identity provider Client ID"),
+    placeholder: i18nKey("Enter Client ID"),
     type: "text",
     editOnly: false,
   },
   client_secret: {
     required: true,
     hasError: (s: string, editMode: boolean) => {
-      return !s && editMode ? "Client Secret is required" : "";
+      return !s && editMode ? i18nKey("Client Secret is required") : "";
     },
-    label: "Client Secret",
-    tooltip: "Identity provider Client Secret",
-    placeholder: "Enter Client Secret",
+    label: i18nKey("Client Secret"),
+    tooltip: i18nKey("Identity provider Client Secret"),
+    placeholder: i18nKey("Enter Client Secret"),
     type: "password",
     editOnly: true,
   },
   claim_name: {
     required: false,
-    label: "Claim Name",
-    tooltip: "Claim from which SILO will read the policy or role to use",
-    placeholder: "Enter Claim Name",
+    label: i18nKey("Claim Name"),
+    tooltip: i18nKey(
+      "Claim from which SILO will read the policy or role to use",
+    ),
+    placeholder: i18nKey("Enter Claim Name"),
     type: "text",
     hasError: (s: string, editMode: boolean) => "",
     editOnly: false,
   },
   display_name: {
     required: false,
-    label: "Display Name",
+    label: i18nKey("Display Name"),
     tooltip: "",
-    placeholder: "Enter Display Name",
+    placeholder: i18nKey("Enter Display Name"),
     type: "text",
     hasError: (s: string, editMode: boolean) => "",
     editOnly: false,
   },
   claim_prefix: {
     required: false,
-    label: "Claim Prefix",
+    label: i18nKey("Claim Prefix"),
     tooltip: "",
-    placeholder: "Enter Claim Prefix",
+    placeholder: i18nKey("Enter Claim Prefix"),
     type: "text",
     hasError: (s: string, editMode: boolean) => "",
     editOnly: false,
   },
   scopes: {
     required: false,
-    label: "Scopes",
+    label: i18nKey("Scopes"),
     tooltip: "",
     placeholder: "openid,profile,email",
     type: "text",
@@ -120,7 +135,7 @@ export const openIDFormFields = {
   },
   redirect_uri: {
     required: false,
-    label: "Redirect URI",
+    label: i18nKey("Redirect URI"),
     tooltip: "",
     placeholder: "https://console-endpoint-url/oauth_callback",
     type: "text",
@@ -129,7 +144,7 @@ export const openIDFormFields = {
   },
   role_policy: {
     required: false,
-    label: "Role Policy",
+    label: i18nKey("Role Policy"),
     tooltip: "",
     placeholder: "readonly",
     type: "text",
@@ -138,18 +153,18 @@ export const openIDFormFields = {
   },
   claim_userinfo: {
     required: false,
-    label: "Claim User Info",
+    label: i18nKey("Claim User Info"),
     tooltip: "",
-    placeholder: "Claim User Info",
+    placeholder: i18nKey("Claim User Info"),
     type: "toggle",
     hasError: (s: string, editMode: boolean) => "",
     editOnly: false,
   },
   redirect_uri_dynamic: {
     required: false,
-    label: "Redirect URI Dynamic",
+    label: i18nKey("Redirect URI Dynamic"),
     tooltip: "",
-    placeholder: "Redirect URI Dynamic",
+    placeholder: i18nKey("Redirect URI Dynamic"),
     type: "toggle",
     hasError: (s: string, editMode: boolean) => "",
     editOnly: false,
@@ -160,10 +175,10 @@ export const ldapFormFields = {
   server_insecure: {
     required: true,
     hasError: (s: string, editMode: boolean) => {
-      return !s && editMode ? "Server Address is required" : "";
+      return !s && editMode ? i18nKey("Server Address is required") : "";
     },
-    label: "Server Insecure",
-    tooltip: "Disable SSL certificate verification ",
+    label: i18nKey("Server Insecure"),
+    tooltip: i18nKey("Disable SSL certificate verification "),
     placeholder: "myldapserver.com:636",
     type: "toggle",
     editOnly: false,
@@ -171,10 +186,10 @@ export const ldapFormFields = {
   server_addr: {
     required: true,
     hasError: (s: string, editMode: boolean) => {
-      return !s && editMode ? "Server Address is required" : "";
+      return !s && editMode ? i18nKey("Server Address is required") : "";
     },
-    label: "Server Address",
-    tooltip: 'AD/LDAP server address e.g. "myldapserver.com:636"',
+    label: i18nKey("Server Address"),
+    tooltip: i18nKey('AD/LDAP server address e.g. "myldapserver.com:636"'),
     placeholder: "myldapserver.com:636",
     type: "text",
     editOnly: false,
@@ -182,11 +197,12 @@ export const ldapFormFields = {
   lookup_bind_dn: {
     required: true,
     hasError: (s: string, editMode: boolean) => {
-      return !s && editMode ? "Lookup Bind DN is required" : "";
+      return !s && editMode ? i18nKey("Lookup Bind DN is required") : "";
     },
-    label: "Lookup Bind DN",
-    tooltip:
+    label: i18nKey("Lookup Bind DN"),
+    tooltip: i18nKey(
       "DN (Distinguished Name) for LDAP read-only service account used to perform DN and group lookups",
+    ),
     placeholder: "cn=admin,dc=min,dc=io",
     type: "text",
     editOnly: false,
@@ -194,11 +210,12 @@ export const ldapFormFields = {
   lookup_bind_password: {
     required: true,
     hasError: (s: string, editMode: boolean) => {
-      return !s && editMode ? "Lookup Bind Password is required" : "";
+      return !s && editMode ? i18nKey("Lookup Bind Password is required") : "";
     },
-    label: "Lookup Bind Password",
-    tooltip:
+    label: i18nKey("Lookup Bind Password"),
+    tooltip: i18nKey(
       "Password for LDAP read-only service account used to perform DN and group lookups",
+    ),
     placeholder: "admin",
     type: "password",
     editOnly: true,
@@ -206,9 +223,11 @@ export const ldapFormFields = {
   user_dn_search_base_dn: {
     required: true,
     hasError: (s: string, editMode: boolean) => {
-      return !s && editMode ? "User DN Search Base DN is required" : "";
+      return !s && editMode
+        ? i18nKey("User DN Search Base DN is required")
+        : "";
     },
-    label: "User DN Search Base",
+    label: i18nKey("User DN Search Base"),
     tooltip: "",
     placeholder: "DC=example,DC=net",
     type: "text",
@@ -217,9 +236,9 @@ export const ldapFormFields = {
   user_dn_search_filter: {
     required: true,
     hasError: (s: string, editMode: boolean) => {
-      return !s && editMode ? "User DN Search Filter is required" : "";
+      return !s && editMode ? i18nKey("User DN Search Filter is required") : "";
     },
-    label: "User DN Search Filter",
+    label: i18nKey("User DN Search Filter"),
     tooltip: "",
     placeholder: "(sAMAccountName=%s)",
     type: "text",
@@ -228,7 +247,7 @@ export const ldapFormFields = {
   group_search_base_dn: {
     required: false,
     hasError: (s: string, editMode: boolean) => "",
-    label: "Group Search Base DN",
+    label: i18nKey("Group Search Base DN"),
     tooltip: "",
     placeholder: "ou=swengg,dc=min,dc=io",
     type: "text",
@@ -237,7 +256,7 @@ export const ldapFormFields = {
   group_search_filter: {
     required: false,
     hasError: (s: string, editMode: boolean) => "",
-    label: "Group Search Filter",
+    label: i18nKey("Group Search Filter"),
     tooltip: "",
     placeholder: "(&(objectclass=groupofnames)(member=%d))",
     type: "text",
