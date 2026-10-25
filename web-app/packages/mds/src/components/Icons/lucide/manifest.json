@@ -1,0 +1,1264 @@
+{
+  "upstream": "Lucide",
+  "version": "1.61.0",
+  "commit": "c29c276f16590cf017126671535ad8c792be64d8",
+  "source": "https://github.com/lucide-icons/lucide/tree/c29c276f16590cf017126671535ad8c792be64d8/icons",
+  "license": "ISC AND MIT",
+  "licenseFile": "web-app/licenses/lucide-LICENSE.txt",
+  "adaptation": "SVG geometry is unchanged; React elements use the local createLucideIcon adapter. Existing MDS and application export paths are retained.",
+  "icons": [
+    {
+      "name": "activity",
+      "source": "icons/activity.svg",
+      "sha256": "050fbcda05e13c2051cf857683645e19c6b180861ef4d0cc28a6f09ba1ea1666"
+    },
+    {
+      "name": "archive",
+      "source": "icons/archive.svg",
+      "sha256": "78c732e34e232db63af06a2330b4448045cfdf49b48b59f2d31922df54c7bb17"
+    },
+    {
+      "name": "arrow-left",
+      "source": "icons/arrow-left.svg",
+      "sha256": "c5f4b88076108eb1a0d95336e1aa7e7bb1419a3a92af96f6247d88cd3456f933"
+    },
+    {
+      "name": "arrow-right",
+      "source": "icons/arrow-right.svg",
+      "sha256": "288397fdb73bb4f783cf9eabb726ff47357df1d4e3f1201dd748090579f108b9"
+    },
+    {
+      "name": "bell",
+      "source": "icons/bell.svg",
+      "sha256": "394889e9631fe3a9a63be9a479a95b451b708e432d895978d21d9130b5ee5dbe"
+    },
+    {
+      "name": "book-open",
+      "source": "icons/book-open.svg",
+      "sha256": "9b9bed0ff057283d5c5c5a1c71f8d3e927db26a56639603a92fdf7b25961510e"
+    },
+    {
+      "name": "book-text",
+      "source": "icons/book-text.svg",
+      "sha256": "a731200c1b22332967c6c9b5b25307cc8c130ad38a063a568ddaae6ba016b8c8"
+    },
+    {
+      "name": "boxes",
+      "source": "icons/boxes.svg",
+      "sha256": "7e301f6c38337389f5a96675d14cb9d8ef8a613329e99c3dfcf7c635bdd1faae"
+    },
+    {
+      "name": "braces",
+      "source": "icons/braces.svg",
+      "sha256": "4180c1c93504e1220e60a53411f7d7d2cdda5361f68f5210202a0380eb011431"
+    },
+    {
+      "name": "calendar-clock",
+      "source": "icons/calendar-clock.svg",
+      "sha256": "864c14f4f305bcfb3796b86bdfd21e5218ced8eccb6ccf42f799fe1283bcbb2c"
+    },
+    {
+      "name": "calendar-days",
+      "source": "icons/calendar-days.svg",
+      "sha256": "9330eb8d7c4989e97b6361314abbf02953243c602874725c9e58ceca00da3bd7"
+    },
+    {
+      "name": "chart-no-axes-column",
+      "source": "icons/chart-no-axes-column.svg",
+      "sha256": "5dfd8fc5b5417dad858991de4969c3fe1c4a466104d0880a15b691ff7c5b1f12"
+    },
+    {
+      "name": "chart-no-axes-combined",
+      "source": "icons/chart-no-axes-combined.svg",
+      "sha256": "2f8a708c357488cfde7428d9b055b9bb4a99c08dc71e9296da03ecc19291c4ab"
+    },
+    {
+      "name": "chart-pie",
+      "source": "icons/chart-pie.svg",
+      "sha256": "1ae765b638fe588b392f7da6e2c274fb438b257d936f9f4c7d548c73d5f9d8a1"
+    },
+    {
+      "name": "chevron-down",
+      "source": "icons/chevron-down.svg",
+      "sha256": "66ea878e72ed3488bb3b464c39dfdccee8d1f78e560dccea40e5e12da0e87e87"
+    },
+    {
+      "name": "chevron-left",
+      "source": "icons/chevron-left.svg",
+      "sha256": "83b0681aa38bf55e9d52a1e4b4cced624abe1fe7678ecafda133a574f1161d93"
+    },
+    {
+      "name": "chevron-right",
+      "source": "icons/chevron-right.svg",
+      "sha256": "2758143d7b2434e4aa7307dfd34405c87909ff4052f21b5f3f40d45224b4f19b"
+    },
+    {
+      "name": "chevron-up",
+      "source": "icons/chevron-up.svg",
+      "sha256": "d09f13fcbef3c493ead7e4663b5ee91804fec38d5edb5e7cc3acfbd547641cf4"
+    },
+    {
+      "name": "chevrons-down",
+      "source": "icons/chevrons-down.svg",
+      "sha256": "9dca099985dea6e28522bff10671b3b5e7ea88f7409a5efd8ede631480f4e133"
+    },
+    {
+      "name": "chevrons-up",
+      "source": "icons/chevrons-up.svg",
+      "sha256": "dcc30f99a1e3177505dee39749fec4722cf567d420d6829780990ef744ea533c"
+    },
+    {
+      "name": "circle-check",
+      "source": "icons/circle-check.svg",
+      "sha256": "9711e045a5999f8a3b0782eb88e09b04e0559bc7b379dcc0a4ae645223e10345"
+    },
+    {
+      "name": "circle-question-mark",
+      "source": "icons/circle-question-mark.svg",
+      "sha256": "975db087da041530dbf59ba1e61a7b99c3519fad43dae6375e42ccc74ba63924"
+    },
+    {
+      "name": "circle-slash",
+      "source": "icons/circle-slash.svg",
+      "sha256": "86bba60e60134a9fe08300401ff9886f07d48bb275860016bbaadd8da9de16b0"
+    },
+    {
+      "name": "clipboard-clock",
+      "source": "icons/clipboard-clock.svg",
+      "sha256": "1f1b148e3a3cea0aee357feb8879a56850e4bc3f6348d1202a4f5c0e168d6573"
+    },
+    {
+      "name": "clipboard-list",
+      "source": "icons/clipboard-list.svg",
+      "sha256": "2b91abc2e8ee8ba4c2e0f77d506a47a7a9774b0d4de3fa4b27e822a6376ab892"
+    },
+    {
+      "name": "clock",
+      "source": "icons/clock.svg",
+      "sha256": "e9d3e3acf4d1c280fcf8092293439dc0a4756a908ceb859de144b12451cd1cb9"
+    },
+    {
+      "name": "cloud",
+      "source": "icons/cloud.svg",
+      "sha256": "28a34022ed00177eb1f218eea5d2b7af30d09b529187fe32219e4dd8ea2b9740"
+    },
+    {
+      "name": "code",
+      "source": "icons/code.svg",
+      "sha256": "83235d4a0352d74234f949c9fc23f89c65ff165f1b6d54a90e5f0ea5bfc2c3d7"
+    },
+    {
+      "name": "columns-3",
+      "source": "icons/columns-3.svg",
+      "sha256": "c297e5d7d9b4f7e685b9beceaeb8819fa5eed97101b38090a036385e37a9a85e"
+    },
+    {
+      "name": "contact-round",
+      "source": "icons/contact-round.svg",
+      "sha256": "626df5e99895ce1b0c8c62f80d6ff2aef227bf7e1b937d3898edb389656ce574"
+    },
+    {
+      "name": "copy",
+      "source": "icons/copy.svg",
+      "sha256": "ea80e566c7a12628a447cb53179b19aea4f60b9143e2becd0d0f20bf260e5718"
+    },
+    {
+      "name": "database",
+      "source": "icons/database.svg",
+      "sha256": "471eb14bc8d144896a82dfc4aa9daf350f769f0896f4bef33e50aabdbb51130d"
+    },
+    {
+      "name": "download",
+      "source": "icons/download.svg",
+      "sha256": "3daeee13ded5a3afa2198b1bb4e2262d163922f97d96ac6ff9953e8ed4fe039d"
+    },
+    {
+      "name": "eye",
+      "source": "icons/eye.svg",
+      "sha256": "5bf90197dd7629cad64a2e48d1186a71559deb6121207d10e3dc5b19ebaffdcf"
+    },
+    {
+      "name": "eye-off",
+      "source": "icons/eye-off.svg",
+      "sha256": "774bcd975c5de781a4ee778c76e5591bcdeb409955f7054847e7e6003da0a520"
+    },
+    {
+      "name": "file",
+      "source": "icons/file.svg",
+      "sha256": "499039795d7412d67664ff79d2eb6b7412e746b24c18c8fd8aba383c24ddada0"
+    },
+    {
+      "name": "file-archive",
+      "source": "icons/file-archive.svg",
+      "sha256": "203682f219d2f51c1a9e43c9b74c045ceae1b4f72c016a11e3670edee6725999"
+    },
+    {
+      "name": "file-code",
+      "source": "icons/file-code.svg",
+      "sha256": "8ac619671f53653a483c2d5e2e6afe6d009c3198918cf76632e2cb4abf0d6721"
+    },
+    {
+      "name": "file-cog",
+      "source": "icons/file-cog.svg",
+      "sha256": "f5213e08b45b4cb44cd9424001289c292509c53dd3cbee698ad5a25e4dc5a9c5"
+    },
+    {
+      "name": "file-image",
+      "source": "icons/file-image.svg",
+      "sha256": "82a9140926814aa4287fb6f4b479da6f99e752ebde557e19ffb066a239eab2f9"
+    },
+    {
+      "name": "file-lock",
+      "source": "icons/file-lock.svg",
+      "sha256": "268177a51e8fac557a664655ed6361e1dedcd73f7249a46a5ecaa7dbbf962056"
+    },
+    {
+      "name": "file-music",
+      "source": "icons/file-music.svg",
+      "sha256": "3590a42fac78e9d87e28062cf5572ddb963ba501b197c983033745cad0793954"
+    },
+    {
+      "name": "file-spreadsheet",
+      "source": "icons/file-spreadsheet.svg",
+      "sha256": "69960bb43dec3b66f0d1c2dd26c2f637a10540b8bea4ffb90f8764a8404016a0"
+    },
+    {
+      "name": "file-text",
+      "source": "icons/file-text.svg",
+      "sha256": "52ca55846c202335fb870c8aa23e9345630ec10489303756d62e750f7109605c"
+    },
+    {
+      "name": "file-type",
+      "source": "icons/file-type.svg",
+      "sha256": "207578c8e5a323cd84020b0c071ded28253494ce0da43a6592dabd89743e932d"
+    },
+    {
+      "name": "file-video-camera",
+      "source": "icons/file-video-camera.svg",
+      "sha256": "a1496d106b1d0d62da11f85fc36707924ff8c340b26083161959724c4c8acc3c"
+    },
+    {
+      "name": "files",
+      "source": "icons/files.svg",
+      "sha256": "97adf06fc0511e7a40be93ecda04466ed196718ab4a5e3a62b1148cc49697775"
+    },
+    {
+      "name": "fingerprint-pattern",
+      "source": "icons/fingerprint-pattern.svg",
+      "sha256": "26a4e5756ca8fb809c7cf488a1b6b44f6921d4a34a37ca9be8facf53d362ad9b"
+    },
+    {
+      "name": "folder",
+      "source": "icons/folder.svg",
+      "sha256": "f0d92b94b797a8ab7d4c4ae33c3236c47f64068351b4e14bdb5014ee42898a39"
+    },
+    {
+      "name": "folder-plus",
+      "source": "icons/folder-plus.svg",
+      "sha256": "76d62eb7796ce6c7e303c437464923de2d1ae19a5c8d010f8b36dfc1d6180890"
+    },
+    {
+      "name": "folder-up",
+      "source": "icons/folder-up.svg",
+      "sha256": "059eecddec0b50f445b905c21cc917c5b74ae90a3fb3804e6d6bbbe64c1e2a82"
+    },
+    {
+      "name": "gauge",
+      "source": "icons/gauge.svg",
+      "sha256": "d7710543a5085c5a61d0bbac1da8b89ef28e541b38ed739357991dff33d475b5"
+    },
+    {
+      "name": "globe",
+      "source": "icons/globe.svg",
+      "sha256": "82c6b8fa0b8e8d775ec9becd86f74a4e50bff7bee4c81f7362de45348504f14d"
+    },
+    {
+      "name": "hard-drive",
+      "source": "icons/hard-drive.svg",
+      "sha256": "324363c40f54e4ca843de0ad1d023b063b70a26a83bb2e0a9e9f4aad9af37378"
+    },
+    {
+      "name": "heart-pulse",
+      "source": "icons/heart-pulse.svg",
+      "sha256": "103d6b99ac9ab53c5861317673880ae5d6e2491efa7a40e8b89ecac449842df2"
+    },
+    {
+      "name": "info",
+      "source": "icons/info.svg",
+      "sha256": "bc977a64eb96f3e9c1041ffd09a3fceb70e3e65c02b571f76064062ed31f3cb9"
+    },
+    {
+      "name": "key-round",
+      "source": "icons/key-round.svg",
+      "sha256": "f8cdea843754ed360e36b04bf6aa2c2b3610935dd39ffc685a36c4d0a05be248"
+    },
+    {
+      "name": "key-square",
+      "source": "icons/key-square.svg",
+      "sha256": "6338e0e2b44881af238dc43955525626cc678101cdfbfa886083e1a3cb06d219"
+    },
+    {
+      "name": "languages",
+      "source": "icons/languages.svg",
+      "sha256": "ae9048feb2c7b19855da9a8f5414f68125573039777a89b9c253cceed5dc5075"
+    },
+    {
+      "name": "layers",
+      "source": "icons/layers.svg",
+      "sha256": "ce16d0a955e3581cda17f6b2fd5c5bc2034b405f9cecc31c8ebb8495b4afc1bb"
+    },
+    {
+      "name": "layers-2",
+      "source": "icons/layers-2.svg",
+      "sha256": "2d659a3be70f6c517d24bf37c26c03c316db6d4dff941dc3464e26ece99beff3"
+    },
+    {
+      "name": "link",
+      "source": "icons/link.svg",
+      "sha256": "4f3237183dcaabfac92f4e94c776a9a9e45c3c5e77a921061a6b34b61eb5413f"
+    },
+    {
+      "name": "list-checks",
+      "source": "icons/list-checks.svg",
+      "sha256": "08d26ab05aaf724222c4c0cd5a19d5eae753b2a5fff0eb2d81759dde11bac6b6"
+    },
+    {
+      "name": "list-filter",
+      "source": "icons/list-filter.svg",
+      "sha256": "36b94082bd7f161244c06a27cdeea647cb99ee5b805183cbeaf7ac3155a7103b"
+    },
+    {
+      "name": "lock-keyhole",
+      "source": "icons/lock-keyhole.svg",
+      "sha256": "fc0b8b7590d1d9e9bb0112c5c2e15a78ade0bfeca6d6f8c79fbbe149236d74be"
+    },
+    {
+      "name": "lock-keyhole-open",
+      "source": "icons/lock-keyhole-open.svg",
+      "sha256": "9dbc41c9cd23e3bad8f3edb885e91d0ed514619ef632a2c5cd8a2e21ec37be35"
+    },
+    {
+      "name": "log-in",
+      "source": "icons/log-in.svg",
+      "sha256": "80c1d2a429824e86166775e3f81e84bd9e5630ed5da85d209eb87d91ccd3e936"
+    },
+    {
+      "name": "log-out",
+      "source": "icons/log-out.svg",
+      "sha256": "f24b5b45c05a3acc346af8095408f6ba197ff58ea1641a4f2cb25a9702d2c0ac"
+    },
+    {
+      "name": "logs",
+      "source": "icons/logs.svg",
+      "sha256": "86ea68bf946c5717c5a873d6e679c0ce90b95e04fb91164e3f978d0cab783fc8"
+    },
+    {
+      "name": "maximize-2",
+      "source": "icons/maximize-2.svg",
+      "sha256": "9b8413ad44a3d4f5a80049713743daddcdc3c5465a71c218cac156a99f582b5b"
+    },
+    {
+      "name": "menu",
+      "source": "icons/menu.svg",
+      "sha256": "af6491988ac1ba30dc5414f485bc48713e957e1edb0fbef4a0dd8691c3c21598"
+    },
+    {
+      "name": "minimize",
+      "source": "icons/minimize.svg",
+      "sha256": "7daa304bc3dccac1f100304e66a41139662cc6c0ba3eba67480d97466a9ce02b"
+    },
+    {
+      "name": "minus",
+      "source": "icons/minus.svg",
+      "sha256": "a0c743ab6dbf545d8a6e19ef3874f48ede686ce68d25e231bd81f540d97b1f19"
+    },
+    {
+      "name": "monitor",
+      "source": "icons/monitor.svg",
+      "sha256": "d1a443233345724859de8e4fb48968ba91e885e12ddbd710701548bd91b39428"
+    },
+    {
+      "name": "moon",
+      "source": "icons/moon.svg",
+      "sha256": "205b959e940d5841f0ce1d09c933153da9d9c94130a54d5cc0c68c2af1d403da"
+    },
+    {
+      "name": "network",
+      "source": "icons/network.svg",
+      "sha256": "626be730feea1e5ea7539fbf78b4a3fcb927ce5d7dc43364f2216908672ac792"
+    },
+    {
+      "name": "panel-left-close",
+      "source": "icons/panel-left-close.svg",
+      "sha256": "8f5b1fc9255e60f212379e8e315087a2f0a595a639ad2fb25c255dc3295c4e7d"
+    },
+    {
+      "name": "paperclip",
+      "source": "icons/paperclip.svg",
+      "sha256": "28308381efeab2e711feffe560a8eea33b092d440711aec108058041e5879f9f"
+    },
+    {
+      "name": "pencil",
+      "source": "icons/pencil.svg",
+      "sha256": "7e1ca7a6f5c1eb949671df762f2baadd32f5bd841d43153c3a15279af7d78d0c"
+    },
+    {
+      "name": "plus",
+      "source": "icons/plus.svg",
+      "sha256": "7f6af73bf1ff6c4bca3f18351c8d1bdec6749c0c2530c4de5da85d520c21df17"
+    },
+    {
+      "name": "presentation",
+      "source": "icons/presentation.svg",
+      "sha256": "5d15abfdfca21e40abe3b8daead5e8f6a7d38e623fb1a4dd8890448c79e75342"
+    },
+    {
+      "name": "radio",
+      "source": "icons/radio.svg",
+      "sha256": "e55ef723902350caaabb68c8814ba57c4c2d237e0747a5f0520624e6f2f8c861"
+    },
+    {
+      "name": "refresh-cw",
+      "source": "icons/refresh-cw.svg",
+      "sha256": "2e10dd403c85a24f163d59fc6151aa21147fe9402e1305dfc8979208caee8944"
+    },
+    {
+      "name": "repeat-2",
+      "source": "icons/repeat-2.svg",
+      "sha256": "788912bbfdeab0401a36e29cde95ef594b59957a13d3e08a392d10f59c49e7da"
+    },
+    {
+      "name": "rotate-ccw",
+      "source": "icons/rotate-ccw.svg",
+      "sha256": "622685386ab4017eabfde01cd74550a20b1924df233b353f73b6b155371f2afd"
+    },
+    {
+      "name": "rotate-ccw-clock",
+      "source": "icons/rotate-ccw-clock.svg",
+      "sha256": "a98ff758157910b9fc9d42d5d5dc80c2f4e037afa5f8ea4dee5f5649f03d438d"
+    },
+    {
+      "name": "rss",
+      "source": "icons/rss.svg",
+      "sha256": "68297d9ec163f3d07bb4efac82c54bc62679a5e3ba37cf2dabb27d4c8de8bfe4"
+    },
+    {
+      "name": "scale",
+      "source": "icons/scale.svg",
+      "sha256": "a7faa238b153311b18aaffb14ade8989128eaac35a92482edb7a7ee04c7333de"
+    },
+    {
+      "name": "scan-search",
+      "source": "icons/scan-search.svg",
+      "sha256": "a2919e740bb122bb737542119c1d3c1042bcd62c79d702804553cc95ac768e1e"
+    },
+    {
+      "name": "scroll-text",
+      "source": "icons/scroll-text.svg",
+      "sha256": "57739b59816cedf5b2fd92559784431ce59f3d14eb77eabb659591b6789e223d"
+    },
+    {
+      "name": "search",
+      "source": "icons/search.svg",
+      "sha256": "283d371c2e433817bb9c0c8310caa6c77fa4177c0f4f1168d9c83b97af7389dc"
+    },
+    {
+      "name": "server",
+      "source": "icons/server.svg",
+      "sha256": "f7bea54b609dc488f3b848995014041846b2443fd2a880653e9e583d7a034f61"
+    },
+    {
+      "name": "settings",
+      "source": "icons/settings.svg",
+      "sha256": "0ae27fd0f81999229e3127ac96c5b32edfea448e291d509e76212b917551d66b"
+    },
+    {
+      "name": "share-2",
+      "source": "icons/share-2.svg",
+      "sha256": "de283acf45610a564ade56bc55bb94e7cf4040bc942efe9163fd98cdfe07672c"
+    },
+    {
+      "name": "shield",
+      "source": "icons/shield.svg",
+      "sha256": "be32f6a86df7cbe43a83c439dd8849e5bcf5145e484d23420c20d8b98a78e82b"
+    },
+    {
+      "name": "shield-check",
+      "source": "icons/shield-check.svg",
+      "sha256": "8d4fcdbde5bba4abb1a2f6fe53e37ceb6343a1d5449a9d88f6f97c1971d26c4e"
+    },
+    {
+      "name": "shield-plus",
+      "source": "icons/shield-plus.svg",
+      "sha256": "0352cbbaa149b1f808dba3c704f40aed04500702f1b7c41b99d09500c18b2a72"
+    },
+    {
+      "name": "stethoscope",
+      "source": "icons/stethoscope.svg",
+      "sha256": "a5621a048bcb911d4d51a6b8e6b5821dc68b0e7554dc001389ee9bc5f251c3ad"
+    },
+    {
+      "name": "sun",
+      "source": "icons/sun.svg",
+      "sha256": "a3955c8b0425fcc5c9ba12d2bdd77fe53b2cd5dd05e7742a56f342e996fb2ef8"
+    },
+    {
+      "name": "tag",
+      "source": "icons/tag.svg",
+      "sha256": "85e11c07b29f5b67410e0f14c84799d9406320cd4575b7c8322f31910e0582cc"
+    },
+    {
+      "name": "terminal",
+      "source": "icons/terminal.svg",
+      "sha256": "4f9b6488b237757d5cb615ccd07502fa99774826839e2a99017784bdb2596f1a"
+    },
+    {
+      "name": "trash",
+      "source": "icons/trash.svg",
+      "sha256": "27299f69ad7c6272be64b1b8e2d48cbd6dcf0ef0d4f92827a1affa945c91700e"
+    },
+    {
+      "name": "triangle-alert",
+      "source": "icons/triangle-alert.svg",
+      "sha256": "4866f38b8560d410f21e3226413e0b77997b6dfbb6931fadfe0a0d5aef9ffeb4"
+    },
+    {
+      "name": "upload",
+      "source": "icons/upload.svg",
+      "sha256": "42816ee1fa0e9d3b82272a97615c1e562b0e9de64780ebf21963bc1db0ceffd1"
+    },
+    {
+      "name": "user-round",
+      "source": "icons/user-round.svg",
+      "sha256": "84870f26f3faf8da45da84174517519e81b9e8f00319c78954fcbb74f50038a1"
+    },
+    {
+      "name": "user-round-plus",
+      "source": "icons/user-round-plus.svg",
+      "sha256": "03c10a74bcc653585368a82cc565c6f153d0174c52daad052d63fd30ce11d588"
+    },
+    {
+      "name": "users",
+      "source": "icons/users.svg",
+      "sha256": "eeed488a1ec95ba730dd69996536fb65061d6ea273afb2429ae47e65eebf401c"
+    },
+    {
+      "name": "users-round",
+      "source": "icons/users-round.svg",
+      "sha256": "8b41ee3ada1609e25a410d64056aa333952cf27d770f0c379a100065270de7f7"
+    },
+    {
+      "name": "webhook",
+      "source": "icons/webhook.svg",
+      "sha256": "8b3c5bcbdb81932fef0ea9a653a9ca7340fe47b82ef98e9b21dcd422e9e0a0a2"
+    },
+    {
+      "name": "wrench",
+      "source": "icons/wrench.svg",
+      "sha256": "b5f3bf792743edb9e81b543dd1b13ccc26d3afe1d33500a1cd8dee2e052d6197"
+    },
+    {
+      "name": "x",
+      "source": "icons/x.svg",
+      "sha256": "4a9cdab38fbb96162e7dace28e33f4ca0e49d8963a6162abc3d4691b7d675117"
+    }
+  ],
+  "exports": [
+    {
+      "path": "web-app/packages/mds/src/components/Icons/SidebarMenus/AccessMenuIcon.tsx",
+      "icon": "shield-check"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/AccessRuleIcon.tsx",
+      "icon": "shield-check"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/AccountIcon.tsx",
+      "icon": "user-round"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/SidebarMenus/AccountsMenuIcon.tsx",
+      "icon": "contact-round"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/AddAccessRuleIcon.tsx",
+      "icon": "shield-plus"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/AddIcon.tsx",
+      "icon": "plus"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/AddMembersToGroupIcon.tsx",
+      "icon": "user-round-plus"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/AddNewTagIcon.tsx",
+      "icon": "tag"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/AlertCloseIcon.tsx",
+      "icon": "x"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/AlertIcon.tsx",
+      "icon": "triangle-alert"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/AllBucketsIcon.tsx",
+      "icon": "archive"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/ArrowDropDown.tsx",
+      "icon": "chevron-down"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/ArrowDropUp.tsx",
+      "icon": "chevron-up"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/ArrowIcon.tsx",
+      "icon": "arrow-right"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/ArrowRightIcon.tsx",
+      "icon": "chevron-right"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/AttachFileIcon.tsx",
+      "icon": "paperclip"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/SidebarMenus/AuditLogsMenuIcon.tsx",
+      "icon": "clipboard-list"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/BackCaretIcon.tsx",
+      "icon": "chevron-left"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/BackSettingsIcon.tsx",
+      "icon": "arrow-left"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/BoxArrowDown.tsx",
+      "icon": "chevrons-down"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/BoxArrowUp.tsx",
+      "icon": "chevrons-up"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/BucketEncryptionIcon.tsx",
+      "icon": "shield"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/BucketQuotaIcon.tsx",
+      "icon": "gauge"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/BucketReplicationIcon.tsx",
+      "icon": "repeat-2"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/BucketsIcon.tsx",
+      "icon": "archive"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/CalendarIcon.tsx",
+      "icon": "calendar-days"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/CancelledIcon.tsx",
+      "icon": "x"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/ChangeAccessPolicyIcon.tsx",
+      "icon": "shield-check"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/ChangePasswordIcon.tsx",
+      "icon": "key-round"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/CheckCircleIcon.tsx",
+      "icon": "circle-check"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/CloudIcon.tsx",
+      "icon": "cloud"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/ClustersIcon.tsx",
+      "icon": "network"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/CodeIcon.tsx",
+      "icon": "code"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/CollapseCaret.tsx",
+      "icon": "chevron-up"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/CollapseIcon.tsx",
+      "icon": "menu"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/CollapseMenuIcon.tsx",
+      "icon": "panel-left-close"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/CompressIcon.tsx",
+      "icon": "minimize"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/ComputerLineIcon.tsx",
+      "icon": "monitor"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/ConfirmDeleteIcon.tsx",
+      "icon": "trash"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/ConfirmModalIcon.tsx",
+      "icon": "circle-check"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/ConsoleIcon.tsx",
+      "icon": "terminal"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/CopyIcon.tsx",
+      "icon": "copy"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/CreateGroupIcon.tsx",
+      "icon": "users-round"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/CreateNewPathIcon.tsx",
+      "icon": "folder-plus"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/CreateUserIcon.tsx",
+      "icon": "user-round-plus"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/DarkModeIcon.tsx",
+      "icon": "moon"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/DeleteIcon.tsx",
+      "icon": "trash"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/DeleteNonCurrentIcon.tsx",
+      "icon": "trash"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/DiagnosticsIcon.tsx",
+      "icon": "stethoscope"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/SidebarMenus/DiagnosticsMenuIcon.tsx",
+      "icon": "stethoscope"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/DisableIcon.tsx",
+      "icon": "circle-slash"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/DisabledIcon.tsx",
+      "icon": "circle-slash"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/DocumentationIcon.tsx",
+      "icon": "book-open"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/DownloadIcon.tsx",
+      "icon": "download"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/DownloadStatIcon.tsx",
+      "icon": "download"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/DrivesIcon.tsx",
+      "icon": "hard-drive"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/EditIcon.tsx",
+      "icon": "pencil"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/EditTagIcon.tsx",
+      "icon": "tag"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/EnabledIcon.tsx",
+      "icon": "circle-check"
+    },
+    {
+      "path": "web-app/src/icons/SidebarMenus/EncryptionIcon.tsx",
+      "icon": "shield"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/EventSubscriptionIcon.tsx",
+      "icon": "bell"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/ExpandCaret.tsx",
+      "icon": "chevron-down"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/ExpandIcon.tsx",
+      "icon": "maximize-2"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/FileIcons/FileBookIcon.tsx",
+      "icon": "book-text"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/FileIcons/FileCodeIcon.tsx",
+      "icon": "file-code"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/FileIcons/FileConfigIcon.tsx",
+      "icon": "file-cog"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/FileIcons/FileDbIcon.tsx",
+      "icon": "database"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/FileIcons/FileFontIcon.tsx",
+      "icon": "file-type"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/FileIcons/FileImageIcon.tsx",
+      "icon": "file-image"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/FileIcons/FileLockIcon.tsx",
+      "icon": "file-lock"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/FileIcons/FileMissingIcon.tsx",
+      "icon": "file"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/FileIcons/FileMusicIcon.tsx",
+      "icon": "file-music"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/FileIcons/FileNonType.tsx",
+      "icon": "file"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/FileIcons/FilePdfIcon.tsx",
+      "icon": "file-text"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/FileIcons/FilePptIcon.tsx",
+      "icon": "presentation"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/FileIcons/FileTxtIcon.tsx",
+      "icon": "file-text"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/FileIcons/FileVideoIcon.tsx",
+      "icon": "file-video-camera"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/FileIcons/FileXlsIcon.tsx",
+      "icon": "file-spreadsheet"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/FileIcons/FileZipIcon.tsx",
+      "icon": "file-archive"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/FilterIcon.tsx",
+      "icon": "list-filter"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/FindReplaceIcon.tsx",
+      "icon": "scan-search"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/FirstAidIcon.tsx",
+      "icon": "heart-pulse"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/FileIcons/FolderBrowserIcon.tsx",
+      "icon": "folder"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/FolderIcon.tsx",
+      "icon": "folder"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/FormatDriveIcon.tsx",
+      "icon": "hard-drive"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/FormatDrivesIcon.tsx",
+      "icon": "hard-drive"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/GroupsIcon.tsx",
+      "icon": "users-round"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/SidebarMenus/GroupsMenuIcon.tsx",
+      "icon": "users-round"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/HealIcon.tsx",
+      "icon": "heart-pulse"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/SidebarMenus/HealthMenuIcon.tsx",
+      "icon": "heart-pulse"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/HelpIcon.tsx",
+      "icon": "circle-question-mark"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/HelpIconFilled.tsx",
+      "icon": "circle-question-mark"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/HistoryIcon.tsx",
+      "icon": "rotate-ccw-clock"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/IAMPoliciesIcon.tsx",
+      "icon": "shield-check"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/SidebarMenus/IdentitiesMenuIcon.tsx",
+      "icon": "fingerprint-pattern"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/SidebarMenus/IdentityMenuIcon.tsx",
+      "icon": "user-round"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/InfoIcon.tsx",
+      "icon": "info"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/SidebarMenus/InspectMenuIcon.tsx",
+      "icon": "scan-search"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/JSONIcon.tsx",
+      "icon": "braces"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/KeyIcon.tsx",
+      "icon": "key-round"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/LambdaIcon.tsx",
+      "icon": "webhook"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/LambdaNotificationsIcon.tsx",
+      "icon": "bell"
+    },
+    {
+      "path": "web-app/src/icons/LanguageToggleIcon.tsx",
+      "icon": "languages"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/LegalHoldIcon.tsx",
+      "icon": "scale"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/LicenseIcon.tsx",
+      "icon": "scroll-text"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/LifecycleConfigIcon.tsx",
+      "icon": "calendar-clock"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/LightModeIcon.tsx",
+      "icon": "sun"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/LinkIcon.tsx",
+      "icon": "link"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/LockFilledIcon.tsx",
+      "icon": "lock-keyhole"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/LockIcon.tsx",
+      "icon": "lock-keyhole"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/LockOpenIcon.tsx",
+      "icon": "lock-keyhole-open"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/LoginIcon.tsx",
+      "icon": "log-in"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/LogoutIcon.tsx",
+      "icon": "log-out"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/LogsIcon.tsx",
+      "icon": "logs"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/SidebarMenus/LogsMenuIcon.tsx",
+      "icon": "logs"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/SidebarMenus/MenuExpandedIcon.tsx",
+      "icon": "chevron-up"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/MenuToggleIcon.tsx",
+      "icon": "menu"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/SidebarMenus/MetricsMenuIcon.tsx",
+      "icon": "chart-no-axes-combined"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/SidebarMenus/MonitoringMenuIcon.tsx",
+      "icon": "activity"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/MultipleBucketsIcon.tsx",
+      "icon": "boxes"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/NetworkGetIcon.tsx",
+      "icon": "download"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/NetworkPutIcon.tsx",
+      "icon": "upload"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/NewPathIcon.tsx",
+      "icon": "folder-plus"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/NextCaretIcon.tsx",
+      "icon": "chevron-right"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/ObjectManagerIcon.tsx",
+      "icon": "files"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/ObjectPreviewIcon.tsx",
+      "icon": "eye"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/PasswordKeyIcon.tsx",
+      "icon": "key-round"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/PendingItemsIcon.tsx",
+      "icon": "clipboard-clock"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/SidebarMenus/PerformanceMenuIcon.tsx",
+      "icon": "gauge"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/PrevCaretIcon.tsx",
+      "icon": "chevron-left"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/PreviewIcon.tsx",
+      "icon": "eye"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/SidebarMenus/ProfileMenuIcon.tsx",
+      "icon": "chart-no-axes-column"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/PublicIcon.tsx",
+      "icon": "globe"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/RecoverIcon.tsx",
+      "icon": "rotate-ccw"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/RefreshIcon.tsx",
+      "icon": "refresh-cw"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/RemoveIcon.tsx",
+      "icon": "minus"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/ReportIcon.tsx",
+      "icon": "rss"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/ReportedUsageIcon.tsx",
+      "icon": "chart-pie"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/RetentionIcon.tsx",
+      "icon": "calendar-clock"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/SearchIcon.tsx",
+      "icon": "search"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/SelectMultipleIcon.tsx",
+      "icon": "list-checks"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/ServersIcon.tsx",
+      "icon": "server"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/ServiceAccountCredentialsIcon.tsx",
+      "icon": "key-round"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/ServiceAccountIcon.tsx",
+      "icon": "key-square"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/SettingsIcon.tsx",
+      "icon": "settings"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/ShareIcon.tsx",
+      "icon": "share-2"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/SpeedtestIcon.tsx",
+      "icon": "gauge"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/StorageIcon.tsx",
+      "icon": "database"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/SuccessIcon.tsx",
+      "icon": "circle-check"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/SyncIcon.tsx",
+      "icon": "refresh-cw"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/TagsIcon.tsx",
+      "icon": "tag"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/TiersIcon.tsx",
+      "icon": "layers"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/TiersNotAvailableIcon.tsx",
+      "icon": "layers-2"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/TimeIcon.tsx",
+      "icon": "clock"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/ToolsIcon.tsx",
+      "icon": "wrench"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/TotalObjectsIcon.tsx",
+      "icon": "boxes"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/TraceIcon.tsx",
+      "icon": "activity"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/SidebarMenus/TraceMenuIcon.tsx",
+      "icon": "activity"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/TrashIcon.tsx",
+      "icon": "trash"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/UploadFolderIcon.tsx",
+      "icon": "folder-up"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/UploadIcon.tsx",
+      "icon": "upload"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/UploadStatIcon.tsx",
+      "icon": "upload"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/UptimeIcon.tsx",
+      "icon": "clock"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/UserFilledIcon.tsx",
+      "icon": "user-round"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/UsersIcon.tsx",
+      "icon": "users"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/SidebarMenus/UsersMenuIcon.tsx",
+      "icon": "users"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/VersionsIcon.tsx",
+      "icon": "rotate-ccw-clock"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/ViewColumnIcon.tsx",
+      "icon": "columns-3"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/VisibilityOffIcon.tsx",
+      "icon": "eye-off"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/VisibilityOnIcon.tsx",
+      "icon": "eye"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/WarnFilledIcon.tsx",
+      "icon": "triangle-alert"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/WarnIcon.tsx",
+      "icon": "triangle-alert"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/WatchIcon.tsx",
+      "icon": "radio"
+    },
+    {
+      "path": "web-app/packages/mds/src/components/Icons/WebhookIcon.tsx",
+      "icon": "webhook"
+    }
+  ]
+}

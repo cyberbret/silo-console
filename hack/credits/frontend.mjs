@@ -6,8 +6,14 @@
 // (sorted, normalized) so `go run ./hack/credits check --frontend` can compare
 // it byte for byte. Fails when a package has no legal file and no declared
 // license, or when a listed font text is missing.
-import { readdirSync, readFileSync, statSync, existsSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import {
+  readdirSync,
+  readFileSync,
+  realpathSync,
+  statSync,
+  existsSync,
+} from "node:fs";
+import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -18,8 +24,33 @@ const SEPARATOR = "=".repeat(64);
 const FILE_SEPARATOR = "-".repeat(64);
 const STEMS = ["LICENSE", "LICENCE", "COPYING", "UNLICENSE", "NOTICE"];
 const SOURCE_EXTENSIONS = new Set([
-  "go", "py", "js", "mjs", "cjs", "ts", "tsx", "jsx", "sh", "rs", "c", "h", "cpp", "cc", "java", "rb", "php", "pl",
-  "yaml", "yml", "json", "toml", "xml", "html", "css", "proto", "s",
+  "go",
+  "py",
+  "js",
+  "mjs",
+  "cjs",
+  "ts",
+  "tsx",
+  "jsx",
+  "sh",
+  "rs",
+  "c",
+  "h",
+  "cpp",
+  "cc",
+  "java",
+  "rb",
+  "php",
+  "pl",
+  "yaml",
+  "yml",
+  "json",
+  "toml",
+  "xml",
+  "html",
+  "css",
+  "proto",
+  "s",
 ]);
 
 const fail = (message) => {
@@ -66,30 +97,49 @@ const readJSON = (path) => JSON.parse(readFileSync(path, "utf8"));
 
 const root = readJSON(join(webApp, "package.json"));
 const closure = new Map(); // key: name@version -> { name, version, dir, license }
-const queue = Object.keys(root.dependencies ?? {}).map((name) => ({ name, from: webApp }));
+const queue = Object.keys(root.dependencies ?? {}).map((name) => ({
+  name,
+  from: webApp,
+}));
 const seenDirs = new Set();
 
 while (queue.length > 0) {
   const { name, from } = queue.shift();
   const dir = resolvePackage(name, from);
   if (dir === null) fail(`cannot resolve ${name} from ${from}`);
-  const real = resolve(dir);
+  // Yarn workspaces are symlinks. Walk their real dependency tree and retain
+  // their in-tree provenance instead of attributing them to an npm release.
+  const real = realpathSync(dir);
   if (seenDirs.has(real)) continue;
   seenDirs.add(real);
   const manifest = readJSON(join(real, "package.json"));
   const license =
     typeof manifest.license === "string"
       ? manifest.license
-      : manifest.license?.type ??
-        (Array.isArray(manifest.licenses) ? manifest.licenses.map((l) => l.type ?? l).join(" OR ") : "");
-  closure.set(`${manifest.name}@${manifest.version}`, { name: manifest.name, version: manifest.version, dir: real, license });
-  for (const dep of Object.keys(manifest.dependencies ?? {})) queue.push({ name: dep, from: real });
+      : (manifest.license?.type ??
+        (Array.isArray(manifest.licenses)
+          ? manifest.licenses.map((l) => l.type ?? l).join(" OR ")
+          : ""));
+  const workspace = real.startsWith(join(webApp, "packages") + sep);
+  const source = workspace
+    ? `${manifest.repository?.url ?? manifest.homepage ?? fail(`${manifest.name}: workspace has no source URL`)}\nIn-tree workspace: ${relative(repo, real).split(sep).join("/")}`
+    : `https://www.npmjs.com/package/${manifest.name}`;
+  closure.set(`${manifest.name}@${manifest.version}`, {
+    name: manifest.name,
+    version: manifest.version,
+    dir: real,
+    license,
+    source,
+  });
+  for (const dep of Object.keys(manifest.dependencies ?? {}))
+    queue.push({ name: dep, from: real });
   // PDF.js uses this optional native dependency only in NodeCanvasFactory.
   // The browser bundle uses DOMCanvasFactory and ships neither the Node wrapper
   // nor its platform binaries. Exclude that subtree so credits are host-independent.
   for (const dep of Object.keys(manifest.optionalDependencies ?? {})) {
     if (manifest.name === "pdfjs-dist" && dep === "@napi-rs/canvas") continue;
-    if (resolvePackage(dep, real) !== null) queue.push({ name: dep, from: real });
+    if (resolvePackage(dep, real) !== null)
+      queue.push({ name: dep, from: real });
   }
 }
 
@@ -98,10 +148,14 @@ const keys = [...closure.keys()].sort();
 for (const key of keys) {
   const pkg = closure.get(key);
   const files = readdirSync(pkg.dir)
-    .filter((entry) => isLegalFileName(entry) && statSync(join(pkg.dir, entry)).isFile())
+    .filter(
+      (entry) =>
+        isLegalFileName(entry) && statSync(join(pkg.dir, entry)).isFile(),
+    )
     .sort();
-  if (files.length === 0 && !pkg.license) fail(`${key}: no legal file and no declared license`);
-  out += `${pkg.name}@${pkg.version}${pkg.license ? ` (${pkg.license})` : ""}\nhttps://www.npmjs.com/package/${pkg.name}\n${FILE_SEPARATOR}\n`;
+  if (files.length === 0 && !pkg.license)
+    fail(`${key}: no legal file and no declared license`);
+  out += `${pkg.name}@${pkg.version}${pkg.license ? ` (${pkg.license})` : ""}\n${pkg.source}\n${FILE_SEPARATOR}\n`;
   if (files.length === 0) {
     out += `License: ${pkg.license} (declared in package.json; the package ships no license file)\n`;
   }
@@ -115,9 +169,19 @@ for (const key of keys) {
 const fonts = readJSON(join(webApp, "licenses", "fonts.json")).fonts;
 for (const font of fonts) {
   const textPath = join(webApp, font.text_file);
-  if (!existsSync(textPath)) fail(`font ${font.family}: ${font.text_file} is missing`);
+  if (!existsSync(textPath))
+    fail(`font ${font.family}: ${font.text_file} is missing`);
   out += `Font: ${font.family} (${font.license})\n${font.source}\nbundled files: ${font.files}\n${FILE_SEPARATOR}\n`;
   out += normalize(readFileSync(textPath, "utf8")) + `\n${SEPARATOR}\n\n`;
+}
+
+// Source adaptations have no npm dependency but ship in the browser bundle.
+for (const source of readJSON(join(webApp, "licenses", "sources.json"))
+  .sources) {
+  out += `Source: ${source.name} (${source.license})\n${source.source}\n${FILE_SEPARATOR}\n`;
+  out +=
+    normalize(readFileSync(join(webApp, source.text_file), "utf8")) +
+    `\n${SEPARATOR}\n\n`;
 }
 
 process.stdout.write(out);

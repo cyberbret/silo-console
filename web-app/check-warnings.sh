@@ -2,18 +2,24 @@
 
 yell() { echo "$0: $*" >&2; }
 
+warnings_log=${CHECK_WARNINGS_LOG:-yarn.log}
+if [[ -n ${CHECK_WARNINGS_LOG:-} && $warnings_log != /* ]]; then
+  yell "CHECK_WARNINGS_LOG must be an absolute path"
+  exit 111
+fi
+
 die() {
   yell "$*"
-  cat yarn.log
+  cat "$warnings_log"
   exit 111
 }
 
-try() { "$@" &> yarn.log || die "cannot $*"; }
+try() { "$@" &> "$warnings_log" || die "cannot $*"; }
 
-rm -f yarn.log
+rm -f "$warnings_log"
 try yarn build
 
-if cat yarn.log | grep "Warning"; then
+if cat "$warnings_log" | grep "Warning"; then
   echo "There are warnings in the code"
   exit 1
 fi

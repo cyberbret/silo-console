@@ -4,6 +4,7 @@ WORKDIR /app
 RUN corepack enable
 COPY web-app/package.json web-app/yarn.lock web-app/.yarnrc.yml ./
 COPY web-app/.yarn ./.yarn
+COPY web-app/packages ./packages
 RUN yarn install --immutable
 COPY web-app ./
 RUN yarn build && ./optimize-embed.sh

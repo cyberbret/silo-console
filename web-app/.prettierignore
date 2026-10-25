@@ -7,3 +7,8 @@ storage
 test-results
 public/scripts/pdf.worker.min.mjs
 /src/api/consoleApi.ts
+
+# Preserve upstream formatting in the vendored library.
+packages/mds/src/
+packages/mds/assets/
+packages/mds/LICENSE
