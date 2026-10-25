@@ -6,6 +6,84 @@
   authorization behavior. Refresh the dependency verification record and
   embedding guidance; published Console v2.4.2 artifacts remain unchanged.
 
+### Navigation and overview
+
+- Add a permission-aware Overview landing page with server/drive health, raw
+  capacity, data freshness, alerts, quick actions and expandable drive details.
+  Group links to Tools, Settings, Monitoring and Identity in four navigation panels.
+  Capacity uses server-reported measurements, without an EC usable-capacity
+  estimate; missing statistics remain unknown. Metrics remains under Monitoring.
+- Group Identity, Monitoring, Settings and Tools, retain one Buckets entry with
+  recent buckets, and share Objects/settings navigation. Preserve remembered
+  post-login destinations and existing object deep links. Redirect `/browser`
+  to `/buckets` and bare bucket administration links to Summary.
+
+### Buckets and objects
+
+- Add sortable, filterable bucket tables with URL query persistence, table/card
+  views, large-list virtualization and explicit unknown usage. Show reasons for
+  unavailable actions and retain bucket identities through sorting and filtering.
+- Add bounded text, Markdown and CSV/TSV previews, source views, safe HTML handling
+  and a visible 1 MiB truncation notice. Show secret-free mcli equivalents for
+  supported bucket, lifecycle, event and IAM forms.
+- Extend Tasks to transfers, ZIP downloads, bulk deletion, non-current cleanup
+  and version restoration, with bounded mutation concurrency and safe retries
+  limited to failed targets. Cancellation does not undo completed mutations;
+  native browser handoff does not prove a download was saved to disk. Singular
+  file deletion from object details retains its existing direct request.
+- Add keyboard navigation, range selection, current-page Select All, shortcut
+  help and context menus that share object-detail permissions and action reasons.
+
+### Identity
+
+- Show user status, direct policies and groups, inherited policy sources and
+  access-key counts. Distinguish built-in, modified built-in and custom policies
+  with direct user/group assignment counts and impact-aware confirmations.
+- Keep default built-ins read-only until explicitly overridden, and offer Reset
+  to default for modified built-ins. Preserve drafts across language changes;
+  failed policy reloads clear stale editable content and expose Refresh.
+- Require Reset to restore the native policy on its first subsequent read,
+  with the matching SILO IAM cache fix. Fix OpenID field-label associations,
+  defer identity-form errors until interaction and mask remote storage secrets.
+
+### Responsive and accessibility
+
+- Apply neutral light/dark surfaces, system UI fonts, consistent density and
+  focus states, reduced-motion behavior and compact Help/Language/Theme controls.
+  Retain the original icons, login hero artwork and temporary-credential sign-in.
+- Keep Documentation, Video and Blog/RSS available in Help on every page, with
+  hover previews and clickable resource cards. Align the fixed sidebar emblem,
+  smaller wordmark, animated collapse control and quieter footer links.
+- Place list actions in body toolbars, align configuration tabs and Watch fields,
+  and show disabled webhooks with a neutral badge that respects environment overrides.
+  Refine responsive login typography, PGSTY links and the four-link footer.
+- Add a mobile navigation drawer, automatic tablet rail with saved preference
+  precedence, responsive table columns and retained toolbar actions. Object
+  details use a mobile sheet with keyboard focus restoration; dialogs and forms
+  fit narrow screens. Hide the login hero only below 768px.
+- Refine page headings, short-table heights, Metrics, Logs, Health and License
+  hierarchy. Keep full guidance in Help; Inspect validation appears after field
+  interaction or submission instead of marking untouched fields as invalid.
+- Stack phone form labels above full-width controls, wrap Profile actions and
+  Trace filters, and organize replication fields by site. Keep Trace name and
+  status visible with the remaining request data in accessible details. Unify
+  help targets, refresh controls, theme contrast and page landmarks.
+
+### Under the hood
+
+- Vendor MDS as a source workspace with retained provenance and license notices;
+  share UI primitives and registry-driven navigation without adding a UI or
+  animation framework. Keep charts, PDF, Markdown and editor code behind lazy
+  boundaries and enforce gzip budgets of 259,000 bytes for initial Login
+  JavaScript and 350,000 bytes per chunk.
+- Add AST-based Chinese translation coverage and an opt-in standalone GUI
+  regression, accessibility and external visual-baseline workflow. Keep the
+  Console-screen dictionary deferred while public and shared labels stay eager.
+- Add backward-compatible optional `usageUpdatedAt` metadata to bucket-list and
+  admin-info responses, and `builtin`, `modified`, `userCount` and `groupCount`
+  to policy responses. Older clients can ignore these fields; unavailable
+  timestamps and counts remain omitted rather than being reported as zero.
+
 ## Release v2.4.2
 
 - Select the published mcli 20261018 source (`fa3b8bf72458`), silo-pkg v3.14.2 and upstream minio-go v7.4.1. This includes failed multipart-upload cleanup after cancellation, UTC retention timestamps and preserved STS durations; parallel GET and ComposeObject remain opt-in.

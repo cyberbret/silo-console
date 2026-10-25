@@ -6,7 +6,7 @@ As of **2026-10-18**, **2 community contributors** are credited in `pgsty/silo-c
 
 Opening an issue or PR counts, whether open, closed, draft, or unmerged. Each account appears once. Merged PR authors come first, followed by other PR authors and reporters. Within each group, significant fixes, adopted proposals, and reports that led to fixes take priority, followed by first participation. Gold rings highlight significant contributions.
 
-When a proposal was incorporated through a later repair, its adoption is credited separately from the original PR status. A closed issue does not necessarily mean a fix, and merged source does not imply a published release. Automated accounts are excluded. Upstream authorship remains in Git history and copyright notices.
+When a proposal was incorporated through a later repair, its adoption is credited alongside the original PR status. Automated accounts are excluded. Upstream authorship remains in Git history and copyright notices.
 
 <p align="center">
 <a href="https://github.com/Vonng"><img src="https://silo.pgsty.com/images/contributors/Vonng.svg" width="60" height="60" alt="@Vonng" title="@Vonng — Maintains SILO Console, including fixes, tests, releases, and documentation"></a>
