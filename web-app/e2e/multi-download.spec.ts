@@ -38,7 +38,7 @@ async function select(page: Page, names: string[]) {
   for (const name of names) {
     const checkbox = page.locator(`input[type="checkbox"][value="${name}"]`);
     await checkbox.waitFor({ state: "attached" });
-    await page.locator("label").filter({ has: checkbox }).click();
+    await checkbox.click();
   }
 }
 async function picker(page: Page, delay = 0) {
@@ -195,7 +195,7 @@ test("cancelling a queued save dialog settles without waiting for a download slo
   await page.getByRole("button", { name: "Download", exact: true }).click();
   for (const name of ["zero.txt", "nested/"]) {
     const checkbox = page.locator(`input[type="checkbox"][value="${name}"]`);
-    await page.locator("label").filter({ has: checkbox }).click();
+    await checkbox.click();
   }
   await page.getByRole("button", { name: "Download", exact: true }).click();
   await openManager(page);

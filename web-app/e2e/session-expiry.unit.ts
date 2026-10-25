@@ -102,12 +102,34 @@ test.describe("return route", () => {
     expect(isReturnableRoute("/\\evil.example")).toBe(false);
     expect(isReturnableRoute("/login")).toBe(false);
     expect(isReturnableRoute("/login/")).toBe(false);
+    expect(isReturnableRoute("/login#form")).toBe(false);
     expect(isReturnableRoute("/logout")).toBe(false);
     expect(isReturnableRoute("/oauth_callback?code=x")).toBe(false);
     expect(isReturnableRoute("/sso")).toBe(false);
     expect(isReturnableRoute("/logs")).toBe(true);
     expect(isReturnableRoute(null)).toBe(false);
     expect(isReturnableRoute(42)).toBe(false);
+  });
+
+  test("expiry preserves encoded object prefixes, queries and fragments through login", () => {
+    const storage = new MemoryStorage();
+    const target = "/browser/demo-data/docs%2F?view=test&literal=a%2Bb#details";
+    const navigated: string[] = [];
+    expect(
+      handleExpiredSession({
+        pathname: "/console/browser/demo-data/docs%2F",
+        search: "?view=test&literal=a%2Bb",
+        hash: "#details",
+        basePath: "/console/",
+        storage,
+        anonymous: false,
+        clearSession: () => {},
+        navigate: (path) => navigated.push(path),
+      }),
+    ).toBe(true);
+    expect(navigated).toEqual(["/console/login"]);
+    expect(takeRememberedRoute(storage, "/")).toBe(target);
+    expect(takeRememberedRoute(storage, "/")).toBe("/");
   });
 
   test("remember/take round-trips once and falls back on junk", () => {

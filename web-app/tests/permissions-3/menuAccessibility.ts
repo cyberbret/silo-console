@@ -81,7 +81,7 @@ test("navigation controls remain named when the sidebar collapses", async (t) =>
     .notEql("none")
     .pressKey("tab")
     .expect(focusedElementId())
-    .eql("menu-create-bucket")
+    .eql("overview")
     .pressKey("shift+tab")
     .pressKey("enter")
     .expect(menu.hasClass("collapsed"))

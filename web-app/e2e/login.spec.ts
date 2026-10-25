@@ -9,5 +9,6 @@ test("Basic `minioadmin` Login", async ({ page, context }) => {
   await page.getByPlaceholder("Password").fill(adminSecretKey);
   await page.getByRole("button", { name: "Login" }).click();
   await context.storageState({ path: "storage/minioadmin.json" });
-  await expect(page.getByRole("main").getByText("Object Browser")).toBeTruthy();
+  await expect(page).toHaveURL(/\/buckets$/);
+  await expect(page.locator("#buckets")).toBeVisible();
 });

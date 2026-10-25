@@ -42,7 +42,7 @@ const selectObject = async (page: Page, objectName: string) => {
     `input[type="checkbox"][value="${objectName}"]`,
   );
   await checkbox.waitFor({ state: "attached" });
-  await page.locator("label").filter({ has: checkbox }).click();
+  await checkbox.click();
 };
 
 const startDownload = async (page: Page, objectName: string) => {

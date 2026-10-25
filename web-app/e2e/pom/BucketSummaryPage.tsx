@@ -4,14 +4,9 @@ export class BucketSummaryPage {
   page: Page;
   bucketName: string;
 
-  /* Locators */
-  deleteBucketBtn: Locator | undefined;
-
   constructor(page: Page, bucketName: string) {
     this.page = page;
     this.bucketName = bucketName;
-
-    this.initLocators();
   }
   getLocator(selector: string): Locator {
     const page = this.page;
@@ -19,22 +14,21 @@ export class BucketSummaryPage {
     return locator;
   }
 
-  initLocators() {
-    this.deleteBucketBtn = this.getLocator("#delete-bucket-button");
-  }
-
   async loadPage() {
-    await this.clickOnTab(`Summary`);
+    await this.clickOnTab("Summary");
   }
 
-  async clickOnTab(tabID: string) {
-    await this.getLocator(`#${tabID}`).click();
-
-    // await page.goto(`${BUCKET_LIST_PAGE}/${this.bucketName}/admin/${tabName}`);
+  async clickOnTab(label: string) {
+    await this.page.getByRole("tab", { name: label, exact: true }).click();
   }
 
   async confirmDeleteBucket() {
-    await this.getLocator("#delete-bucket-button").click();
+    await this.page
+      .getByRole("button", { name: "Bucket actions", exact: true })
+      .click();
+    await this.page
+      .getByRole("menuitem", { name: "Delete Bucket", exact: true })
+      .click();
     await this.getLocator("#confirm-ok").click();
   }
 

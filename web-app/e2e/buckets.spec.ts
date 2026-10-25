@@ -28,16 +28,15 @@ test.beforeEach(async ({ page }) => {
 test("create a new bucket", async ({ page }) => {
   await page.locator(`#buckets`).click();
   await page.locator(`#create-bucket`).click();
-  await page.getByLabel("Bucket Name*").click();
+  await page.locator("#bucket-name").click();
 
   const bucketName = `new-bucket-${generateUUID()}`;
 
-  await page.getByLabel("Bucket Name*").fill(bucketName);
+  await page.locator("#bucket-name").fill(bucketName);
   await page.locator(`#create-bucket`).click();
   await page.waitForTimeout(2000);
   await page.locator(`#buckets`).click();
-  // Reload so both the sidebar and the main list contain the new bucket. Their
-  // selectors must remain unique even when both representations are mounted.
+  // The unified list opens Objects; the recent sidebar entry appears on visit.
   await page.reload();
   await page.locator("#refresh-buckets").click();
   await page.waitForTimeout(2000);
@@ -46,11 +45,16 @@ test("create a new bucket", async ({ page }) => {
   const bucketLocatorEl = `#manageBucket-${bucketName}`;
   const bucketLocator = page.locator(bucketLocatorEl);
   await expect(bucketLocator).toHaveCount(1);
+  await bucketLocator.click();
   await expect(page.locator(`#sidebarManageBucket-${bucketName}`)).toHaveCount(
     1,
   );
-  await bucketLocator.click();
-  await page.locator("#delete-bucket-button").click();
+  await page
+    .getByRole("button", { name: "Bucket actions", exact: true })
+    .click();
+  await page
+    .getByRole("menuitem", { name: "Delete Bucket", exact: true })
+    .click();
   //confirm modal
   await page.locator("#confirm-ok").click();
   const listItemsCount = await page.locator(bucketLocatorEl).count();
@@ -60,8 +64,8 @@ test("create a new bucket", async ({ page }) => {
 test("invalid bucket name", async ({ page }) => {
   await page.locator(`#buckets`).click();
   await page.locator(`#create-bucket`).click();
-  await page.getByLabel("Bucket Name*").click();
-  await page.getByLabel("Bucket Name*").fill("invalid name");
+  await page.locator("#bucket-name").click();
+  await page.locator("#bucket-name").fill("invalid name");
   await page.getByRole("button", { name: "View Bucket Naming Rules" }).click();
   await expect(
     page.getByText(

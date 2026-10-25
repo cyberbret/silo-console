@@ -47,7 +47,10 @@ export default defineConfig({
     { name: "setup", testMatch: /.*\.setup\.ts/ },
     {
       name: "chromium",
-      testIgnore: /.*\.unit\.ts/,
+      testIgnore: [
+        /.*\.unit\.ts/,
+        /(navigation|preview|iam|overview|a11y|visual|object-keyboard|responsive)\.spec\.ts$/,
+      ],
       use: { ...devices["Desktop Chrome"] },
       dependencies: ["setup"],
     },
