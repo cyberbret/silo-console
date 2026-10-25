@@ -32,7 +32,7 @@ const userDeleteIconButton = userListItem
   .child("checkbox")
   .withAttribute("aria-label", "secondary checkbox");
 
-const userCheckbox = Selector(".TableCheckbox span.checkbox");
+const userCheckbox = Selector('.TableCheckbox input[type="checkbox"]');
 
 fixture("For user with Users permissions")
   .page("http://localhost:9090")

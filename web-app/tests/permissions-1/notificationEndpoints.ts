@@ -16,7 +16,10 @@
 
 import * as roles from "../utils/roles";
 import * as elements from "../utils/elements";
-import { notificationEndpointsElement } from "../utils/elements-menu";
+import {
+  notificationEndpointsElement,
+  settingsElement,
+} from "../utils/elements-menu";
 
 fixture("For user with Notification Endpoints permissions")
   .page("http://localhost:9090")
@@ -25,7 +28,10 @@ fixture("For user with Notification Endpoints permissions")
   });
 
 test("Notification Endpoints sidebar item exists", async (t) => {
-  await t.expect(notificationEndpointsElement.exists).ok();
+  await t
+    .click(settingsElement)
+    .expect(notificationEndpointsElement.visible)
+    .ok();
 });
 
 test("Add Notification Target button exists", async (t) => {

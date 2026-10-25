@@ -25,9 +25,35 @@ concurrency:
 env:
   # Historical test recipes call this MINIO_VERSION. The release gate uses the
   # maintained SILO server; upstream MinIO is probed separately as best effort.
-  MINIO_VERSION: docker.io/pgsty/silo:RELEASE.2026-09-03T13-18-01Z
+  MINIO_VERSION: silo-test:${{ github.run_id }}
+  # Coordinated IAM Reset and fresh bucket inventory, without unrelated storage work.
+  SILO_TEST_REVISION: 030c6d740e9fc9d9f3e1d3fcce52d49721704dbf
 
 jobs:
+  compile-silo:
+    name: Build the coordinated SILO fixture
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          repository: pgsty/silo
+          ref: ${{ env.SILO_TEST_REVISION }}
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
+      - name: Build the Server binary
+        env:
+          CGO_ENABLED: "0"
+        run: |
+          mkdir -p "$RUNNER_TEMP/silo-fixture"
+          go build -trimpath -ldflags="-s -w" -o "$RUNNER_TEMP/silo-fixture/silo" .
+      - uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ${{ runner.temp }}/silo-fixture/silo
+          key: ${{ runner.os }}-silo-fixture-${{ github.run_id }}
+
   lint-job:
     name: Checking Lint
     runs-on: [ubuntu-latest]
@@ -346,6 +372,7 @@ jobs:
   compile-binary:
     name: Compiles on Go ${{ matrix.go-version }} and ${{ matrix.os }}
     needs:
+      - compile-silo
       - lint-job
       - downstream-embedder-compat
       - ui-assets
@@ -426,6 +453,9 @@ jobs:
           docker stop minio || true;
           docker container prune -f || true;
 
+      - name: Prepare the coordinated SILO fixture
+        uses: ./.github/actions/test-silo
+
       - name: Start Console, MinIO and Nginx
         run: |
           (CONSOLE_SUBPATH=/console/subpath ./console server ) & (make test-initialize-minio-nginx)
@@ -490,6 +520,9 @@ jobs:
           docker stop minio || true;
           docker container prune -f || true;
 
+      - name: Prepare the coordinated SILO fixture
+        uses: ./.github/actions/test-silo
+
       - name: Start Console, front-end app and initialize users/policies
         run: |
           (./console server) & (make initialize-permissions)
@@ -551,6 +584,9 @@ jobs:
         run: |
           docker stop minio || true;
           docker container prune -f || true;
+
+      - name: Prepare the coordinated SILO fixture
+        uses: ./.github/actions/test-silo
 
       - name: Start Console, front-end app and initialize users/policies
         run: |
@@ -614,6 +650,9 @@ jobs:
           docker stop minio || true;
           docker container prune -f || true;
 
+      - name: Prepare the coordinated SILO fixture
+        uses: ./.github/actions/test-silo
+
       - name: Start Console, front-end app and initialize users/policies
         run: |
           (./console server) & (make initialize-permissions)
@@ -676,6 +715,9 @@ jobs:
           docker stop minio || true;
           docker container prune -f || true;
 
+      - name: Prepare the coordinated SILO fixture
+        uses: ./.github/actions/test-silo
+
       - name: Start Console, front-end app and initialize users/policies
         run: |
           (./console server) & (make initialize-permissions)
@@ -733,6 +775,9 @@ jobs:
         run: |
           docker stop minio || true;
           docker container prune -f || true;
+
+      - name: Prepare the coordinated SILO fixture
+        uses: ./.github/actions/test-silo
 
       - name: Start Console, front-end app and initialize users/policies
         run: |
@@ -792,6 +837,9 @@ jobs:
           docker stop minio || true;
           docker container prune -f || true;
 
+      - name: Prepare the coordinated SILO fixture
+        uses: ./.github/actions/test-silo
+
       - name: Start Console, front-end app and initialize users/policies
         run: |
           (./console server) & (make initialize-permissions)
@@ -849,6 +897,9 @@ jobs:
         run: |
           docker stop minio || true;
           docker container prune -f || true;
+
+      - name: Prepare the coordinated SILO fixture
+        uses: ./.github/actions/test-silo
 
       - name: Start Console, front-end app and initialize users/policies
         run: |
@@ -908,6 +959,9 @@ jobs:
           docker stop minio || true;
           docker container prune -f || true;
 
+      - name: Prepare the coordinated SILO fixture
+        uses: ./.github/actions/test-silo
+
       - name: Start Console, front-end app and initialize users/policies
         run: |
           (./console server) & (make initialize-permissions)
@@ -965,6 +1019,9 @@ jobs:
         run: |
           docker stop minio || true;
           docker container prune -f || true;
+
+      - name: Prepare the coordinated SILO fixture
+        uses: ./.github/actions/test-silo
 
       - name: Start Console, front-end app and initialize users/policies
         run: |
@@ -1026,6 +1083,9 @@ jobs:
         run: |
           docker stop minio || true;
           docker container prune -f || true;
+
+      - name: Prepare the coordinated SILO fixture
+        uses: ./.github/actions/test-silo
 
       - name: Start Console, front-end app and initialize users/policies
         run: |
@@ -1149,6 +1209,9 @@ jobs:
           path: |
             ./console
           key: ${{ runner.os }}-binary-${{ github.run_id }}
+      - name: Prepare the coordinated SILO fixture
+        uses: ./.github/actions/test-silo
+
       - name: Build on ${{ runner.os }}
         run: |
           echo "The idea is to build console image from cached binary";
@@ -1158,7 +1221,7 @@ jobs:
           echo "Create Console image: $TAG";
           docker build -q --no-cache -t $TAG . -f Dockerfile.release
 
-          echo "Use the pinned SILO image for integration tests";
+          echo "Use the coordinated SILO fixture for integration tests";
           echo $MINIO_VERSION;
 
           make test-integration MINIO_VERSION=$MINIO_VERSION TAG=$TAG;
@@ -1194,9 +1257,12 @@ jobs:
           go-version: ${{ matrix.go-version }}
         id: go
 
+      - name: Prepare the coordinated SILO fixture
+        uses: ./.github/actions/test-silo
+
       - name: Build on ${{ runner.os }}
         run: |
-          echo "Use the pinned SILO image for site-replication tests";
+          echo "Use the coordinated SILO fixture for site-replication tests";
           echo $MINIO_VERSION;
 
           make test-replication MINIO_VERSION=$MINIO_VERSION;
@@ -1231,9 +1297,12 @@ jobs:
           go-version: ${{ matrix.go-version }}
         id: go
 
+      - name: Prepare the coordinated SILO fixture
+        uses: ./.github/actions/test-silo
+
       - name: Build on ${{ runner.os }}
         run: |
-          echo "Use the pinned SILO release for the Console compatibility gate";
+          echo "Use the coordinated SILO fixture for the Console compatibility gate";
           echo $MINIO_VERSION;
 
           make test-sso-integration MINIO_VERSION=$MINIO_VERSION;
@@ -1606,6 +1675,9 @@ jobs:
             ./console
           key: ${{ runner.os }}-binary-istanbul-coverage-${{ github.run_id }}
 
+      - name: Prepare the coordinated SILO fixture
+        uses: ./.github/actions/test-silo
+
       - name: Start Console, front-end app and initialize users/policies
         run: |
           (./console server) & (make initialize-permissions)
@@ -1631,7 +1703,7 @@ jobs:
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           repository: pgsty/silo
-          ref: 9b4ae82a29cc2290fb5be7b551ec3d8cf7acdd99
+          ref: ${{ env.SILO_TEST_REVISION }}
           path: .sharing-silo
       - name: Set up Go
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
@@ -1682,6 +1754,7 @@ jobs:
     name: Required matrix
     if: always()
     needs:
+      - compile-silo
       - lint-job
       - downstream-embedder-compat
       - semgrep-static-code-analysis

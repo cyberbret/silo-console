@@ -35,10 +35,13 @@ const iamPolicyListItem = Selector(
   ".ReactVirtualized__Table__rowColumn",
 ).withText(constants.TEST_IAM_POLICY_NAME);
 
-const iamPolicyDelete = iamPolicyListItem
-  .nextSibling()
-  .child("button")
-  .withAttribute("aria-label", "delete");
+const iamPolicyActions = Selector("button").withAttribute(
+  "aria-label",
+  `Actions for ${constants.TEST_IAM_POLICY_NAME}`,
+);
+const iamPolicyDelete = Selector('button[role="menuitem"]').withExactText(
+  "Delete",
+);
 
 const policiesURL = `http://localhost:9090${IAM_PAGES.POLICIES}`;
 
@@ -105,6 +108,7 @@ test("Create Policy modal can be submitted after inputs are entered", async (t) 
   await waitForPage(policiesPageHeader, "the Policies page");
   await t
     .typeText(elements.searchResourceInput, constants.TEST_IAM_POLICY_NAME)
+    .click(iamPolicyActions)
     .click(iamPolicyDelete)
     .click(elements.deleteButton);
 });
@@ -123,6 +127,7 @@ test("Created Policy can be viewed and deleted", async (t) => {
     .typeText(elements.searchResourceInput, constants.TEST_IAM_POLICY_NAME)
     .expect(iamPolicyListItemExists)
     .ok()
+    .click(iamPolicyActions)
     .click(iamPolicyDelete)
     .click(elements.deleteButton)
     .expect(iamPolicyListItemExists)

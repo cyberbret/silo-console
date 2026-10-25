@@ -119,10 +119,7 @@ export const createGroupUserTable = Selector(
 //----------------------------------------------------
 // Bucket page vertical tabs
 //----------------------------------------------------
-export const bucketAccessRulesTab = Selector("button").withAttribute(
-  "id",
-  "anonymous",
-);
+export const bucketAccessRulesTab = Selector('a[href$="/admin/prefix"]');
 
 //----------------------------------------------------
 // Settings window
@@ -178,10 +175,7 @@ export const nodeSelector = Selector("#node-selector-select");
 //----------------------------------------------------
 // User Details
 //----------------------------------------------------
-export const userPolicies = Selector(".optionsList button").withAttribute(
-  "id",
-  "policies",
-);
+export const userPolicies = Selector('button[role="tab"][id$="-policies"]');
 //----------------------------------------------------
 // Rewind Options
 //----------------------------------------------------

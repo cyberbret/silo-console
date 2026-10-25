@@ -42,10 +42,11 @@ test("create a new bucket", async ({ page }) => {
   await page.waitForTimeout(2000);
   await page.getByPlaceholder("Search Buckets").fill(bucketName);
 
-  const bucketLocatorEl = `#manageBucket-${bucketName}`;
+  const bucketLocatorEl = `a[href="/browser/${encodeURIComponent(bucketName)}"]`;
   const bucketLocator = page.locator(bucketLocatorEl);
   await expect(bucketLocator).toHaveCount(1);
   await bucketLocator.click();
+  await expect(page).toHaveURL(new RegExp(`/browser/${bucketName}$`));
   await expect(page.locator(`#sidebarManageBucket-${bucketName}`)).toHaveCount(
     1,
   );
@@ -57,8 +58,8 @@ test("create a new bucket", async ({ page }) => {
     .click();
   //confirm modal
   await page.locator("#confirm-ok").click();
-  const listItemsCount = await page.locator(bucketLocatorEl).count();
-  await expect(listItemsCount).toEqual(0);
+  await expect(page).toHaveURL(/\/buckets(?:\?|$)/);
+  await expect(page.locator(bucketLocatorEl)).toHaveCount(0);
 });
 
 test("invalid bucket name", async ({ page }) => {

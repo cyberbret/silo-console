@@ -19,8 +19,8 @@ import * as elements from "../utils/elements";
 import { monitoringElement, traceElement } from "../utils/elements-menu";
 import { Selector } from "testcafe";
 
-export const traceStartButton = Selector('[data-test-id="trace-start-button"]');
-export const traceStopButton = Selector('[data-test-id="trace-stop-button"]');
+export const traceStartButton = Selector("#start-trace");
+export const traceStopButton = Selector("#stop-trace");
 
 fixture("For user with Trace permissions")
   .page("http://localhost:9090")

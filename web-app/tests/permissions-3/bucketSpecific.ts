@@ -18,7 +18,8 @@ import * as roles from "../utils/roles";
 import * as elements from "../utils/elements";
 import * as functions from "../utils/functions";
 import {
-  namedManageButtonFor,
+  namedBucketActionsFor,
+  bucketSettingsItem,
   namedTestBucketBrowseButtonFor,
 } from "../utils/functions";
 import { bucketsElement, logoutItem } from "../utils/elements-menu";
@@ -47,7 +48,8 @@ test
       // using the specific role we use in this module
       .useRole(roles.bucketSpecific)
       .navigateTo("http://localhost:9090/buckets")
-      .click(namedManageButtonFor(`${TEST_BUCKET_NAME_SPECIFIC}-1`))
+      .click(namedBucketActionsFor(`${TEST_BUCKET_NAME_SPECIFIC}-1`))
+      .click(bucketSettingsItem)
       .click(elements.bucketAccessRulesTab)
       .click(elements.addAccessRuleButton)
       .typeText(elements.bucketsPrefixInput, "readonlytest")
@@ -70,7 +72,8 @@ test
       // using the specific role we use in this module
       .useRole(roles.bucketSpecific)
       .navigateTo("http://localhost:9090/buckets")
-      .click(namedManageButtonFor(`${TEST_BUCKET_NAME_SPECIFIC}-2`))
+      .click(namedBucketActionsFor(`${TEST_BUCKET_NAME_SPECIFIC}-2`))
+      .click(bucketSettingsItem)
       .click(elements.bucketAccessRulesTab)
       .click(elements.addAccessRuleButton)
       .typeText(elements.bucketsPrefixInput, "writeonlytest")
@@ -93,7 +96,8 @@ test
       // using the specific role we use in this module
       .useRole(roles.bucketSpecific)
       .navigateTo("http://localhost:9090/buckets")
-      .click(namedManageButtonFor(`${TEST_BUCKET_NAME_SPECIFIC}-3`))
+      .click(namedBucketActionsFor(`${TEST_BUCKET_NAME_SPECIFIC}-3`))
+      .click(bucketSettingsItem)
       .click(elements.bucketAccessRulesTab)
       .click(elements.addAccessRuleButton)
       .typeText(elements.bucketsPrefixInput, "readwritetest")
@@ -136,8 +140,11 @@ test
     await t
       .useRole(roles.bucketRead)
       .navigateTo("http://localhost:9090/buckets")
-      .expect(Selector(`#access-${TEST_BUCKET_NAME_SPECIFIC}-5`).innerText)
-      .eql("Access: R");
+      .expect(
+        functions.namedBucketAccessFor(`${TEST_BUCKET_NAME_SPECIFIC}-5`)
+          .innerText,
+      )
+      .eql("Read only");
   })
   .after(async (t) => {
     // Cleanup created bucket and corresponding uploads
@@ -205,8 +212,11 @@ test
     await t
       .useRole(roles.bucketSpecific)
       .navigateTo("http://localhost:9090/buckets")
-      .expect(Selector(`#access-${TEST_BUCKET_NAME_SPECIFIC}-8`).innerText)
-      .eql("Access: R/W");
+      .expect(
+        functions.namedBucketAccessFor(`${TEST_BUCKET_NAME_SPECIFIC}-8`)
+          .innerText,
+      )
+      .eql("Read & write");
   })
   .after(async (t) => {
     // Cleanup created bucket and corresponding uploads

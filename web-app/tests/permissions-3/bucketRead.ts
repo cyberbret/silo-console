@@ -60,9 +60,11 @@ test
       .useRole(roles.bucketRead)
       .navigateTo("http://localhost:9090/buckets")
       .expect(
-        Selector(`#access-${constants.TEST_BUCKET_NAME}-bucketread2`).innerText,
+        functions.namedBucketAccessFor(
+          `${constants.TEST_BUCKET_NAME}-bucketread2`,
+        ).innerText,
       )
-      .eql("Access: R");
+      .eql("Read only");
   })
   .after(async (t) => {
     // Cleanup created bucket and corresponding uploads

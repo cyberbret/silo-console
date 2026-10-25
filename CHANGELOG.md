@@ -46,6 +46,8 @@ Target: **v2.5.0**. No v2.5.0 tag, binaries or images have been published.
 - Add sortable, filterable bucket tables with URL query persistence, table/card
   views, large-list virtualization and explicit unknown usage. Show reasons for
   unavailable actions and retain bucket identities through sorting and filtering.
+- Coordinate with the Server account-info fix so a refresh immediately reflects
+  successful bucket creation and deletion instead of retaining its cached list.
 - Add bounded text, Markdown and CSV/TSV previews, source views, safe HTML handling
   and a visible 1 MiB truncation notice. Show secret-free mcli equivalents for
   supported bucket, lifecycle, event and IAM forms.

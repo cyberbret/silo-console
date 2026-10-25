@@ -33,7 +33,7 @@ export class BucketSummaryPage {
   }
 
   async getObjectVersionOption() {
-    await this.page.getByRole("button", { name: "Add Lifecycle Rule" }).click();
+    await this.getLocator("#add-bucket-lifecycle-rule").click();
     return this.getLocator("#object_version-select > div").nth(0);
   }
 }
