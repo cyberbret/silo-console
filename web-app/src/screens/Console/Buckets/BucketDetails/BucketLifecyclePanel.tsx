@@ -14,6 +14,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { EmptyState, SkeletonRows } from "common/ui";
+import { LifecycleConfigIcon } from "mds";
+import { ModalPresence } from "common/ui/ModalPresence";
 import React, { Fragment, useEffect, useState } from "react";
 import get from "lodash/get";
 import {
@@ -277,30 +280,37 @@ const BucketLifecyclePanel = () => {
 
   return (
     <Fragment>
-      {editLifecycleOpen && selectedLifecycleRule && (
-        <EditLifecycleConfiguration
-          open={editLifecycleOpen}
-          closeModalAndRefresh={closeEditLCAndRefresh}
-          selectedBucket={bucketName}
-          lifecycleRule={selectedLifecycleRule}
-        />
-      )}
-      {addLifecycleOpen && (
-        <AddLifecycleModal
-          open={addLifecycleOpen}
-          bucketName={bucketName}
-          closeModalAndRefresh={closeAddLCAndRefresh}
-        />
-      )}
-      {deleteLifecycleOpen && selectedID && (
-        <DeleteBucketLifecycleRule
-          id={selectedID}
-          bucket={bucketName}
-          deleteOpen={deleteLifecycleOpen}
-          onCloseAndRefresh={closeDelLCRefresh}
-        />
-      )}
+      <ModalPresence open={Boolean(editLifecycleOpen && selectedLifecycleRule)}>
+        {editLifecycleOpen && selectedLifecycleRule && (
+          <EditLifecycleConfiguration
+            open={editLifecycleOpen}
+            closeModalAndRefresh={closeEditLCAndRefresh}
+            selectedBucket={bucketName}
+            lifecycleRule={selectedLifecycleRule}
+          />
+        )}
+      </ModalPresence>
+      <ModalPresence open={Boolean(addLifecycleOpen)}>
+        {addLifecycleOpen && (
+          <AddLifecycleModal
+            open={addLifecycleOpen}
+            bucketName={bucketName}
+            closeModalAndRefresh={closeAddLCAndRefresh}
+          />
+        )}
+      </ModalPresence>
+      <ModalPresence open={Boolean(deleteLifecycleOpen && selectedID)}>
+        {deleteLifecycleOpen && selectedID && (
+          <DeleteBucketLifecycleRule
+            id={selectedID}
+            bucket={bucketName}
+            deleteOpen={deleteLifecycleOpen}
+            onCloseAndRefresh={closeDelLCRefresh}
+          />
+        )}
+      </ModalPresence>
       <SectionTitle
+        headingLevel={2}
         separator
         sx={{ marginBottom: 15 }}
         actions={
@@ -368,7 +378,33 @@ const BucketLifecyclePanel = () => {
               isLoading={loadingLifecycle}
               records={lifecycleRecords}
               entityName={t("Lifecycle")}
-              customEmptyMessage={t("There are no Lifecycle rules yet")}
+              loadingState={<SkeletonRows rows={5} columns={5} />}
+              emptyState={
+                <EmptyState
+                  icon={<LifecycleConfigIcon />}
+                  title={t("No lifecycle rules yet")}
+                  description={t(
+                    "Create rules to expire objects or transition them to remote storage.",
+                  )}
+                  action={
+                    hasPermission(
+                      bucketName,
+                      [
+                        IAM_SCOPES.S3_PUT_LIFECYCLE_CONFIGURATION,
+                        IAM_SCOPES.S3_PUT_ACTIONS,
+                      ],
+                      true,
+                    ) && (
+                      <Button
+                        id="empty-list-action"
+                        variant="callAction"
+                        label={t("Add Lifecycle Rule")}
+                        onClick={() => setAddLifecycleOpen(true)}
+                      />
+                    )
+                  }
+                />
+              }
               idField="id"
               customPaperHeight={"400px"}
             />

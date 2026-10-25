@@ -14,13 +14,12 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { ModalPresence } from "common/ui/ModalPresence";
 import React, { Fragment, useEffect, useState } from "react";
 import {
   Box,
-  breakPoints,
   Button,
   FormLayout,
-  HelpBox,
   InputBox,
   InspectMenuIcon,
   PageLayout,
@@ -39,55 +38,13 @@ import {
   setHelpName,
 } from "../../../systemSlice";
 import { useAppDispatch } from "../../../store";
-import { interpolate, useLocalizedLink, useT } from "i18n";
+import { i18nKey, useLocalizedLink, useT } from "i18n";
 import ModalWrapper from "../Common/ModalWrapper/ModalWrapper";
 import DistributedOnly from "../Common/DistributedOnly/DistributedOnly";
 import KeyRevealer from "./KeyRevealer";
 import PageHeaderWrapper from "../Common/PageHeaderWrapper/PageHeaderWrapper";
-import HelpMenu from "../HelpMenu";
 
 import { inspectDownload } from "./inspectDownload";
-
-const ExampleBlock = ({
-  volumeVal,
-  pathVal,
-}: {
-  volumeVal: string;
-  pathVal: string;
-}) => {
-  const t = useT();
-
-  return (
-    <Box className="code-block-container">
-      <Box className="example-code-block">
-        <Box
-          sx={{
-            display: "flex",
-            marginBottom: "5px",
-            flexFlow: "row",
-            [`@media (max-width: ${breakPoints.sm}px)`]: {
-              flexFlow: "column",
-            },
-          }}
-        >
-          <label>{t("Volume/bucket Name :")}</label> <code>{volumeVal}</code>
-        </Box>
-        <Box
-          sx={{
-            display: "flex",
-            flexFlow: "row",
-            [`@media (max-width: ${breakPoints.sm}px)`]: {
-              flexFlow: "column",
-            },
-          }}
-        >
-          <label>{t("Path : ")}</label>
-          <code>{pathVal}</code>
-        </Box>
-      </Box>
-    </Box>
-  );
-};
 
 const Inspect = () => {
   const dispatch = useAppDispatch();
@@ -103,43 +60,23 @@ const Inspect = () => {
 
   const [insFileName, setInsFileName] = useState<string>("");
 
-  const [isFormValid, setIsFormValid] = useState<boolean>(false);
-  const [volumeError, setVolumeError] = useState<string>("");
-  const [pathError, setPathError] = useState<string>("");
-  /**
-   * Validation Effect
-   */
-  useEffect(() => {
-    let isVolValid;
-    let isPathValid;
-
-    isVolValid = volumeName.trim().length > 0;
-    if (!isVolValid) {
-      setVolumeError(t("This field is required"));
-    } else if (volumeName.slice(0, 1) === "/") {
-      isVolValid = false;
-      setVolumeError(t("Volume/Bucket name cannot start with /"));
-    }
-    isPathValid = inspectPath.trim().length > 0;
-    if (!inspectPath) {
-      setPathError(t("This field is required"));
-    } else if (inspectPath.slice(0, 1) === "/") {
-      isPathValid = false;
-      setPathError(t("Path cannot start with /"));
-    }
-    const isValid = isVolValid && isPathValid;
-
-    if (isVolValid) {
-      setVolumeError("");
-    }
-    if (isPathValid) {
-      setPathError("");
-    }
-
-    setIsFormValid(isValid);
-  }, [volumeName, inspectPath, t]);
+  const [touched, setTouched] = useState({ volume: false, path: false });
+  const [submitted, setSubmitted] = useState(false);
+  const volumeError = !volumeName.trim()
+    ? t("This field is required")
+    : volumeName.trimStart().startsWith("/")
+      ? t("Volume/Bucket name cannot start with /")
+      : "";
+  const pathError = !inspectPath.trim()
+    ? t("This field is required")
+    : inspectPath.trimStart().startsWith("/")
+      ? t("Path cannot start with /")
+      : "";
+  const isFormValid = !volumeError && !pathError;
 
   const performInspect = async () => {
+    setSubmitted(true);
+    if (!isFormValid) return;
     let basename = document.baseURI.replace(window.location.origin, "");
     const urlOfInspectApi = `${basename}api/v1/admin/inspect?volume=${encodeURIComponent(volumeName)}&file=${encodeURIComponent(inspectPath)}&encrypt=${isEncrypt}`;
 
@@ -160,6 +97,8 @@ const Inspect = () => {
     setVolumeName("");
     setInspectPath("");
     setIsEncrypt(true);
+    setTouched({ volume: false, path: false });
+    setSubmitted(false);
   };
 
   const onCloseDecKeyModal = () => {
@@ -175,174 +114,16 @@ const Inspect = () => {
 
   return (
     <Fragment>
-      <PageHeaderWrapper label={"Inspect"} actions={<HelpMenu />} />
+      <PageHeaderWrapper label={i18nKey("Inspect")} titleElement="h1" help />
 
       <PageLayout>
         {!distributedSetup ? (
           <DistributedOnly
             iconComponent={<InspectMenuIcon />}
-            entity={"Inspect"}
+            entity={i18nKey("Inspect")}
           />
         ) : (
-          <FormLayout
-            helpBox={
-              <HelpBox
-                title={t("Learn more about the Inspect feature")}
-                iconComponent={<InspectMenuIcon />}
-                help={
-                  <Fragment>
-                    <Box
-                      sx={{
-                        marginTop: "16px",
-                        fontWeight: 600,
-                        fontStyle: "italic",
-                        fontSize: "14px",
-                      }}
-                    >
-                      {t("Examples:")}
-                    </Box>
-
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexFlow: "column",
-                        fontSize: "14px",
-                        flex: "2",
-
-                        "& .step-row": {
-                          fontSize: "14px",
-                          display: "flex",
-                          marginTop: "15px",
-                          marginBottom: "15px",
-
-                          "&.step-text": {
-                            fontWeight: 400,
-                          },
-                          "&:before": {
-                            content: "' '",
-                            height: "7px",
-                            width: "7px",
-                            backgroundColor: "#2781B0",
-                            marginRight: "10px",
-                            marginTop: "7px",
-                            flexShrink: 0,
-                          },
-                        },
-
-                        "& .code-block-container": {
-                          flex: "1",
-                          marginTop: "15px",
-                          marginLeft: "35px",
-
-                          "& input": {
-                            color: "#737373",
-                          },
-                        },
-
-                        "& .example-code-block label": {
-                          display: "inline-block",
-                          width: 160,
-                          fontWeight: 600,
-                          fontSize: 14,
-                          [`@media (max-width: ${breakPoints.sm}px)`]: {
-                            width: "100%",
-                          },
-                        },
-
-                        "& code": {
-                          width: 100,
-                          paddingLeft: "10px",
-                          fontFamily: "monospace",
-                          paddingRight: "10px",
-                          paddingTop: "3px",
-                          paddingBottom: "3px",
-                          borderRadius: "2px",
-                          border: "1px solid #eaeaea",
-                          fontSize: "10px",
-                          fontWeight: 500,
-                          [`@media (max-width: ${breakPoints.sm}px)`]: {
-                            width: "100%",
-                          },
-                        },
-                        "& .spacer": {
-                          marginBottom: "5px",
-                        },
-                      }}
-                    >
-                      <Box>
-                        <Box className="step-row">
-                          <div className="step-text">
-                            {t(
-                              "To Download 'xl.meta' for a specific object from all the drives in a zip file:",
-                            )}
-                          </div>
-                        </Box>
-
-                        <ExampleBlock
-                          pathVal={`test*/xl.meta`}
-                          volumeVal={`test-bucket`}
-                        />
-                      </Box>
-
-                      <Box>
-                        <Box className="step-row">
-                          <div className="step-text">
-                            {t(
-                              "To Download all constituent parts for a specific object, and optionally encrypt the downloaded zip:",
-                            )}
-                          </div>
-                        </Box>
-
-                        <ExampleBlock
-                          pathVal={`test*/xl.meta`}
-                          volumeVal={`test*/*/part.*`}
-                        />
-                      </Box>
-                      <Box>
-                        <Box className="step-row">
-                          <div className="step-text">
-                            {t(
-                              "To Download recursively all objects at a prefix.",
-                            )}
-                            <br />
-                            {t(
-                              "NOTE: This can be an expensive operation use it with caution.",
-                            )}
-                          </div>
-                        </Box>
-                        <ExampleBlock
-                          pathVal={`test*/xl.meta`}
-                          volumeVal={`test/**`}
-                        />
-                      </Box>
-                    </Box>
-
-                    <Box
-                      sx={{
-                        marginTop: "30px",
-                        marginLeft: "15px",
-                        fontSize: "14px",
-                      }}
-                    >
-                      {interpolate(t("You can learn more at the {link}."), {
-                        link: (
-                          <a
-                            href={localize(
-                              "https://silo.pgsty.com/operations/troubleshooting/",
-                            )}
-                            target="_blank"
-                            rel="noopener"
-                          >
-                            {t("documentation")}
-                          </a>
-                        ),
-                      })}
-                    </Box>
-                  </Fragment>
-                }
-              />
-            }
-          >
+          <FormLayout sx={{ maxWidth: 760, padding: 24, gap: 16 }}>
             <form
               noValidate
               autoComplete="off"
@@ -359,14 +140,20 @@ const Inspect = () => {
                 }}
                 label={t("Volume or Bucket Name")}
                 value={volumeName}
-                error={volumeError}
+                error={touched.volume || submitted ? volumeError : ""}
+                onBlur={() =>
+                  setTouched((current) => ({ ...current, volume: true }))
+                }
                 required
                 placeholder={"test-bucket"}
               />
               <InputBox
                 id="inspect_path"
                 name="inspect_path"
-                error={pathError}
+                error={touched.path || submitted ? pathError : ""}
+                onBlur={() =>
+                  setTouched((current) => ({ ...current, path: true }))
+                }
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   setInspectPath(e.target.value);
                 }}
@@ -387,18 +174,47 @@ const Inspect = () => {
                 }}
               />
               <Box
+                role="note"
+                sx={{
+                  marginTop: 24,
+                  padding: 16,
+                  background: "var(--surface-2)",
+                  borderRadius: "var(--radius-control)",
+                  color: "var(--muted-foreground)",
+                  fontSize: "var(--fs-body)",
+                  lineHeight: "var(--lh-body)",
+                  "& a": {
+                    textDecoration: "underline",
+                    textUnderlineOffset: 3,
+                  },
+                }}
+              >
+                {t(
+                  "Recursive inspections can be expensive. Limit the bucket and path before starting.",
+                )}{" "}
+                {t("Open Help for examples, or read the")}{" "}
+                <a
+                  href={localize(
+                    "https://silo.pgsty.com/operations/troubleshooting/",
+                  )}
+                  target="_blank"
+                  rel="noopener"
+                >
+                  {t("documentation")}
+                </a>
+                .
+              </Box>
+              <Box
                 sx={{
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "flex-end",
-                  marginTop: "55px",
+                  marginTop: 24,
+                  gap: 8,
                 }}
               >
                 <Button
                   id={"inspect-clear-button"}
-                  style={{
-                    marginRight: "15px",
-                  }}
                   type="button"
                   variant="regular"
                   data-test-id="inspect-clear-button"
@@ -417,30 +233,34 @@ const Inspect = () => {
             </form>
           </FormLayout>
         )}
-        {decryptionKey ? (
-          <ModalWrapper
-            modalOpen={true}
-            title={t("Inspect Decryption Key")}
-            onClose={onCloseDecKeyModal}
-            titleIcon={<PasswordKeyIcon />}
-          >
-            <Fragment>
-              <Box>
-                {t("This will be displayed only once. It cannot be recovered.")}
-                <br />
-                {t("Use secure medium to share this key.")}
-              </Box>
-              <form
-                noValidate
-                onSubmit={() => {
-                  return false;
-                }}
-              >
-                <KeyRevealer value={decryptionKey} />
-              </form>
-            </Fragment>
-          </ModalWrapper>
-        ) : null}
+        <ModalPresence open={Boolean(decryptionKey)}>
+          {decryptionKey ? (
+            <ModalWrapper
+              modalOpen={true}
+              title={t("Inspect Decryption Key")}
+              onClose={onCloseDecKeyModal}
+              titleIcon={<PasswordKeyIcon />}
+            >
+              <Fragment>
+                <Box>
+                  {t(
+                    "This will be displayed only once. It cannot be recovered.",
+                  )}
+                  <br />
+                  {t("Use secure medium to share this key.")}
+                </Box>
+                <form
+                  noValidate
+                  onSubmit={() => {
+                    return false;
+                  }}
+                >
+                  <KeyRevealer value={decryptionKey} />
+                </form>
+              </Fragment>
+            </ModalWrapper>
+          ) : null}
+        </ModalPresence>
       </PageLayout>
     </Fragment>
   );

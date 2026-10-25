@@ -52,6 +52,16 @@ for (const lang of ["en", "zh"]) {
         await page.setViewportSize({ width, height: 900 });
         await page.goto(`${SERVER_ENDPOINT}/buckets`);
         const signOut = page.locator("#sign-out");
+        if (width < 600) {
+          await expect(signOut).toBeHidden();
+          const opener = page.getByRole("button", {
+            name: lang === "zh" ? "打开菜单" : "Open menu",
+            exact: true,
+          });
+          await opener.focus();
+          await page.keyboard.press("Enter");
+          await expect(page.locator("#console-mobile-menu")).toBeVisible();
+        }
         await expect(signOut).toHaveAccessibleName(
           lang === "zh" ? "登出" : "Sign Out",
         );
@@ -63,21 +73,24 @@ for (const lang of ["en", "zh"]) {
         };
         await auditNames();
         const toggle = page.getByRole("button", {
-          name:
-            width < 600
-              ? lang === "zh"
-                ? "展开菜单"
-                : "Expand menu"
-              : lang === "zh"
-                ? "折叠菜单"
-                : "Collapse menu",
+          name: lang === "zh" ? "折叠菜单" : "Collapse menu",
           exact: true,
         });
         await toggle.focus();
         await page.keyboard.press("Enter");
-        await expect(signOut).toHaveAccessibleName(
-          lang === "zh" ? "登出" : "Sign Out",
-        );
+        if (width < 600) {
+          await expect(signOut).toBeHidden();
+          await expect(
+            page.getByRole("button", {
+              name: lang === "zh" ? "打开菜单" : "Open menu",
+              exact: true,
+            }),
+          ).toBeFocused();
+        } else {
+          await expect(signOut).toHaveAccessibleName(
+            lang === "zh" ? "登出" : "Sign Out",
+          );
+        }
         await auditNames();
         const refresh = page.locator("#refresh-buckets");
         await expect(refresh).toHaveAccessibleName(
@@ -86,7 +99,7 @@ for (const lang of ["en", "zh"]) {
         await refresh.focus();
         await expect(page.getByRole("tooltip")).toBeVisible();
         await expect(refresh).toHaveAccessibleDescription(
-          lang === "zh" ? "刷新" : "Refresh",
+          lang === "zh" ? "刷新存储桶" : "Refresh buckets",
         );
         await page.keyboard.press("Escape");
         await expect(page.getByRole("tooltip")).toHaveCount(0);
@@ -99,6 +112,14 @@ for (const lang of ["en", "zh"]) {
       await page.goto(`${SERVER_ENDPOINT}/buckets`);
       for (const width of [390, 1440]) {
         await page.setViewportSize({ width, height: 900 });
+        if (width < 600) {
+          await page
+            .getByRole("button", {
+              name: lang === "zh" ? "打开菜单" : "Open menu",
+              exact: true,
+            })
+            .click();
+        }
         await expect(page.locator("#sign-out")).toHaveAccessibleName(
           lang === "zh" ? "登出" : "Sign Out",
         );

@@ -6,11 +6,69 @@
 // (at your option) any later version.
 
 // Chinese dictionary for console chrome. Keys are the exact English source
-// strings — including any odd whitespace. In particular "Logs " (menu entry in
-// valid-routes.tsx) carries a trailing space; never trim keys here.
+// strings — including any meaningful whitespace; never trim keys here.
 // Untranslated strings simply fall back to English at runtime.
 
 export const zh: Record<string, string> = {
+  "Keyboard shortcuts": "键盘快捷键",
+  "Move through objects": "在对象之间移动",
+  "Move one visible page": "移动一个可见页面",
+  "Open folder or object details": "打开文件夹或对象详情",
+  "Go to parent folder within this bucket": "返回此存储桶内的上级文件夹",
+  "Toggle object selection": "切换对象选择",
+  "Extend selection range": "扩展选择范围",
+  "Select all objects on the current page": "选择当前页的所有对象",
+  "Close menu, clear selection or close details":
+    "关闭菜单、清除选择或关闭详情",
+  "Focus object filter": "聚焦对象筛选框",
+  "Preview the focused object when available": "预览当前聚焦的对象（若支持）",
+  "Open object actions": "打开对象操作菜单",
+  "Object browser shortcuts are available while browsing objects. They pause while typing or using a dialog.":
+    "浏览对象时可使用这些快捷键。输入文字或打开对话框时暂停生效。",
+  "Selected {count} objects on this page.": "已选择当前页的 {count} 个对象。",
+  "Object actions": "对象操作",
+  "Folder actions": "文件夹操作",
+  "Size unavailable": "大小不可用",
+  File: "文件",
+  Folder: "文件夹",
+  "Object details unavailable": "对象详情不可用",
+  "Exit rewind mode to create a path.": "退出回溯模式后才能创建路径。",
+  "You need s3:PutObject permission.": "需要 s3:PutObject 权限。",
+  "{height} px": "{height} 像素",
+  "Display type": "展示文字",
+  "Title type": "标题文字",
+  "Subtitle type": "副标题文字",
+  "Body type": "正文文字",
+  "Caption type": "说明文字",
+  "Micro type": "微型文字",
+  "Light palette": "浅色调色板",
+  "Dark palette": "深色调色板",
+  "Surface {level}": "表面 {level}",
+  "Primary text": "主要文字",
+  "Secondary text": "次要文字",
+  "Typography roles": "文字层级",
+  "Shadow ladder": "阴影层级",
+  "Density comparison": "密度对比",
+  "Default density": "默认密度",
+  "Compact density": "紧凑密度",
+  "Motion tiers": "动效档位",
+  "Fast · 80 ms": "快速 · 80 毫秒",
+  "Moderate · 160 ms": "适中 · 160 毫秒",
+  "Slow · 240 ms": "缓慢 · 240 毫秒",
+  "Save the JSON below as policy.json.": "将下方 JSON 保存为 policy.json。",
+  "Complete the form to see the command.": "填写表单后即可查看命令。",
+  "For example, create your mcli alias with {command}.":
+    "例如，可使用 {command} 创建 mcli 别名。",
+  "Replace <SECRET> with your secret key. Secrets are never included in this preview.":
+    "请将 <SECRET> 替换为你的密钥。此预览不会包含真实密钥。",
+  "mcli requires at least one member to create a group.":
+    "mcli 创建组时要求至少指定一名成员。",
+  "No policy changes.": "策略未发生变更。",
+  "Loading current group policies…": "正在加载当前用户组策略…",
+  "Could not load current group policies. Reopen the dialog to retry.":
+    "无法加载当前用户组策略。请重新打开对话框重试。",
+  "This mcli version has no flag for Comments; the command omits that field.":
+    "此版本 mcli 没有备注选项，命令中不包含该字段。",
   // ---- Login page: brand panel -------------------------------------------
   "Open-Source S3/MinIO-Compatible Object Storage":
     "开源的 S3/MinIO 兼容对象存储",
@@ -18,15 +76,17 @@ export const zh: Record<string, string> = {
   "S3 Interface": "S3 接口",
   "Own the {store}": "掌控 {store}",
   "Object Store": "对象存储",
-  "Community maintained {minio}, forked by {pigsty} · {agpl}":
-    "社区维护的 {minio}，由 {pigsty} 分叉维护 · {agpl}",
-  "A high-performance object store that runs on any infrastructure — public cloud, private cloud, or bare metal. It powers data lakes, AI/ML, and fast backup & recovery, with erasure coding, encryption, and replication built in.":
-    "一个可以运行在任何基础设施上的高性能对象存储——公有云、私有云或裸金属均可。内建纠删码、加密与复制能力，为数据湖、AI/ML 以及快速备份恢复提供支撑。",
+  "{minio} fork maintained by {pgsty}, {agpl} License":
+    "由 {pgsty} 维护的 {minio} 分支，采用 {agpl} 许可证",
+  "A high-performance object store that runs on any infrastructure — public cloud, private cloud, or bare metal.":
+    "一个能在任意基础设施上运行的高性能对象存储 —— 公有云、私有云或裸金属。",
+  "Erasure coding, encryption, and replication power data lakes, AI/ML, and fast backup & recovery.":
+    "内建纠删码、加密与复制能力，为数据湖、AI / ML 以及快速备份恢复提供支撑。",
   "MinIO® is a registered trademark of {minioInc}; SILO incorporates {minioSource}.":
     "MinIO® 是 {minioInc} 的注册商标；SILO 包含 {minioSource}。",
   "MinIO source code": "MinIO 源代码",
-  "SILO is maintained by {pigsty}, without MinIO affiliation, endorsement, or sponsorship.":
-    "SILO 由 {pigsty} 维护，与 MinIO 无隶属、背书或赞助关系。",
+  "SILO is maintained by {pgsty}, without MinIO affiliation, endorsement, or sponsorship.":
+    "SILO 由 {pgsty} 维护，与 MinIO 无任何隶属、背书或赞助关系。",
   "SILO website": "SILO 官网",
   "Object Storage Console": "对象存储控制台",
 
@@ -46,12 +106,25 @@ export const zh: Record<string, string> = {
   "The backend cannot be reached.": "无法连接到后端服务。",
   Retry: "重试",
   Documentation: "文档",
+  DOCS: "文档",
   Download: "下载",
   "Error from IDP": "IDP 返回错误",
   "Back to Login": "返回登录",
+  "Return home": "返回首页",
+  "404 Error": "404 错误",
+  "Sorry, the page could not be found.": "抱歉，找不到此页面。",
+
+  "Unable to display this page.": "无法显示此页面。",
+  "Reload the page or return home. Your preferences will be kept.":
+    "请重新加载页面或返回首页。你的偏好设置将保留。",
+  "Reload page": "重新加载页面",
+
+  Source: "源代码",
+  Notice: "声明",
+  On: "开启",
+  Off: "关闭",
 
   // ---- Navigation menu ----------------------------------------------------
-  Administrator: "管理",
   User: "用户",
   Buckets: "存储桶",
   Policies: "策略",
@@ -60,7 +133,6 @@ export const zh: Record<string, string> = {
   Groups: "用户组",
   Monitoring: "监控",
   Metrics: "指标",
-  "Logs ": "日志",
   Logs: "日志",
   Audit: "审计",
   Trace: "跟踪",
@@ -80,11 +152,11 @@ export const zh: Record<string, string> = {
   "Access Keys": "访问密钥",
   "Collapse menu": "折叠菜单",
   "Expand menu": "展开菜单",
+  Menu: "菜单",
   License: "许可证",
 
   // ---- Command palette (kbar) ---------------------------------------------
   Navigation: "导航",
-  "List of Buckets": "存储桶列表",
 
   // ---- Help menu chrome ---------------------------------------------------
   Video: "视频",
@@ -99,6 +171,10 @@ export const zh: Record<string, string> = {
   "Visit MinIO Videos (upstream)": "访问 MinIO 视频（上游）",
   "Visit SILO Blog": "访问 SILO 博客",
   "Learn more": "了解更多",
+  "Set by environment variable": "由环境变量设置",
+  "Explore upstream videos about object storage, replication, and administration.":
+    "浏览上游关于对象存储、复制与管理的视频。",
+  "RSS feed": "RSS 订阅",
   "Open help": "打开帮助",
   "Close help": "关闭帮助",
 
@@ -122,8 +198,6 @@ export const zh: Record<string, string> = {
   Sync: "同步",
   Advanced: "高级",
   "We can’t retrieve advanced metrics at this time.": "目前无法获取高级指标。",
-  "It looks like Prometheus is not available or reachable at the moment.":
-    "Prometheus 目前似乎不可用或无法访问。",
   "Console Dashboard will display basic metrics as we couldn’t connect to Prometheus successfully. Please try again in a few minutes. If the problem persists, you can review your configuration and confirm that Prometheus server is up and running.":
     "由于未能成功连接 Prometheus，控制台仪表盘将只显示基础指标。请过几分钟再试；若问题持续，请检查相关配置并确认 Prometheus 服务正常运行。",
   "Read more about Prometheus on the Docs site.":
@@ -212,4 +286,45 @@ export const zh: Record<string, string> = {
   // ---- Aria labels ---------------------------------------------------------
   "Switch to light mode": "切换到亮色模式",
   "Switch to dark mode": "切换到暗色模式",
+  "Show password": "显示密码",
+  "Hide password": "隐藏密码",
+  "Input action": "输入操作",
+  "Choose date": "选择日期",
+  "Choose date and time": "选择日期与时间",
+  Time: "时间",
+  Hour: "小时",
+  Minute: "分钟",
+  Second: "秒",
+  "AM/PM": "上午/下午",
+  AM: "上午",
+  PM: "下午",
+  "Previous calendar period": "上一个日历周期",
+  "Next calendar period": "下一个日历周期",
+  "Control craft": "控件细节",
+  "Hover, press or use Tab to inspect each control. All changes here are local demos.":
+    "悬停、按下或使用 Tab 查看控件状态。此处的更改仅用于本地演示。",
+  "Buttons and loading": "按钮与加载",
+  Secondary: "次要",
+  Outline: "描边",
+  Ghost: "无边框",
+  "Fields and validation": "字段与校验",
+  "A name is required.": "请输入名称。",
+  "Selection controls": "选择控件",
+  "Status and feedback": "状态与反馈",
+  "First tooltip": "第一个提示",
+  "Second tooltip": "第二个提示",
+  Dialogs: "对话框",
+  "Show notification": "显示通知",
+  "Dialog controls": "对话框控件",
+  "Nested dialog": "嵌套对话框",
+  Default: "默认",
+  Compact: "紧凑",
+  Loading: "加载中",
+  "Save changes": "保存更改",
+  Unavailable: "不可用",
+  Density: "密度",
+  Select: "选择",
+  Information: "信息",
+  Progress: "进度",
+  Remove: "移除",
 };

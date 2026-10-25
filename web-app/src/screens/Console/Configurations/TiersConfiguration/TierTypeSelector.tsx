@@ -30,7 +30,6 @@ import {
   TiersIcon,
 } from "mds";
 import PageHeaderWrapper from "../../Common/PageHeaderWrapper/PageHeaderWrapper";
-import HelpMenu from "../../HelpMenu";
 import { setHelpName } from "../../../../systemSlice";
 import { useAppDispatch } from "../../../../store";
 import { useLocalizedLink, useT } from "i18n";
@@ -51,6 +50,7 @@ const TierTypeSelector = () => {
   return (
     <Fragment>
       <PageHeaderWrapper
+        titleElement="h1"
         label={
           <Fragment>
             <BackLink
@@ -59,7 +59,7 @@ const TierTypeSelector = () => {
             />
           </Fragment>
         }
-        actions={<HelpMenu />}
+        help
       />
 
       <PageLayout>

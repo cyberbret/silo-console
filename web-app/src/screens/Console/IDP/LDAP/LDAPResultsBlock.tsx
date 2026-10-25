@@ -17,7 +17,7 @@
 import React, { Fragment } from "react";
 import { Box, CollapseCaret, GroupsMenuIcon, SectionTitle } from "mds";
 import { LdapEntities } from "api/consoleApi";
-import { interpolate, useT } from "i18n";
+import { i18nKey, interpolate, useT } from "i18n";
 
 interface IResultBlock {
   entityName: "Group" | "User" | "Policy";
@@ -92,8 +92,8 @@ const LDAPResultsBlock = ({ entityName, results }: IResultBlock) => {
             {interpolate(
               t(
                 entityLength === 1
-                  ? "{count} Entity Found"
-                  : "{count} Entities Found",
+                  ? i18nKey("{count} Entity Found")
+                  : i18nKey("{count} Entities Found"),
               ),
               { count: <strong>{entityLength}</strong> },
             )}
@@ -106,7 +106,7 @@ const LDAPResultsBlock = ({ entityName, results }: IResultBlock) => {
         className={"resultsList"}
         sx={{
           h4: {
-            borderBottom: "#e2e2e2 1px solid",
+            borderBottom: "1px solid var(--border)",
             padding: "12px 0",
             margin: 0,
             marginBottom: 15,
@@ -114,7 +114,7 @@ const LDAPResultsBlock = ({ entityName, results }: IResultBlock) => {
             alignItems: "center",
             "& svg": {
               marginRight: 10,
-              fill: "#3C77A7",
+              color: "var(--brand)",
             },
           },
         }}
@@ -126,7 +126,7 @@ const LDAPResultsBlock = ({ entityName, results }: IResultBlock) => {
                 <EntityResultTitle name={groupData.group || ""} />
                 {groupData.policies && (
                   <EntityResultItems
-                    blockName={"Policies"}
+                    blockName={i18nKey("Policies")}
                     results={groupData.policies}
                   />
                 )}
@@ -140,7 +140,7 @@ const LDAPResultsBlock = ({ entityName, results }: IResultBlock) => {
                 <EntityResultTitle name={groupData.user || ""} />
                 {groupData.policies && (
                   <EntityResultItems
-                    blockName={"Policies"}
+                    blockName={i18nKey("Policies")}
                     results={groupData.policies}
                   />
                 )}
@@ -154,13 +154,13 @@ const LDAPResultsBlock = ({ entityName, results }: IResultBlock) => {
                 <EntityResultTitle name={groupData.policy || ""} />
                 {groupData.groups && (
                   <EntityResultItems
-                    blockName={"Groups"}
+                    blockName={i18nKey("Groups")}
                     results={groupData.groups}
                   />
                 )}
                 {groupData.users && (
                   <EntityResultItems
-                    blockName={"Users"}
+                    blockName={i18nKey("Users")}
                     results={groupData.users}
                   />
                 )}

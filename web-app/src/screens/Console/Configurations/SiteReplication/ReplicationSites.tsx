@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { ModalPresence } from "common/ui/ModalPresence";
 import React, { Fragment, useState } from "react";
 import {
   Box,
@@ -108,44 +109,49 @@ const ReplicationSites = ({
         sx={{ marginBottom: 20 }}
       />
 
-      {deleteSiteKey !== "" && (
-        <ConfirmDialog
-          title={t("Delete Replication Site")}
-          confirmText={t("Delete")}
-          isOpen={deleteSiteKey !== ""}
-          titleIcon={<ConfirmDeleteIcon />}
-          isLoading={false}
-          onConfirm={() => {
-            onDeleteSite(false, [deleteSiteKey]);
-          }}
-          onClose={() => {
-            setIsDeleteSiteKey("");
-          }}
-          confirmationContent={
-            <Fragment>
-              {interpolate(
-                t(
-                  "Are you sure you want to remove the replication site: {name}?",
-                ),
-                { name: <strong>{deleteSiteKey}</strong> },
-              )}
-            </Fragment>
-          }
-        />
-      )}
+      <ModalPresence open={Boolean(deleteSiteKey !== "")}>
+        {deleteSiteKey !== "" && (
+          <ConfirmDialog
+            destructive
+            title={t("Delete Replication Site")}
+            confirmText={t("Delete")}
+            isOpen={deleteSiteKey !== ""}
+            titleIcon={<ConfirmDeleteIcon />}
+            isLoading={false}
+            onConfirm={() => {
+              onDeleteSite(false, [deleteSiteKey]);
+            }}
+            onClose={() => {
+              setIsDeleteSiteKey("");
+            }}
+            confirmationContent={
+              <Fragment>
+                {interpolate(
+                  t(
+                    "Are you sure you want to remove the replication site: {name}?",
+                  ),
+                  { name: <strong>{deleteSiteKey}</strong> },
+                )}
+              </Fragment>
+            }
+          />
+        )}
+      </ModalPresence>
 
-      {editSite !== null && (
-        <EditSiteEndPoint
-          onComplete={() => {
-            setEditSite(null);
-            onRefresh();
-          }}
-          editSite={editSite}
-          onClose={() => {
-            setEditSite(null);
-          }}
-        />
-      )}
+      <ModalPresence open={Boolean(editSite !== null)}>
+        {editSite !== null && (
+          <EditSiteEndPoint
+            onComplete={() => {
+              setEditSite(null);
+              onRefresh();
+            }}
+            editSite={editSite}
+            onClose={() => {
+              setEditSite(null);
+            }}
+          />
+        )}
+      </ModalPresence>
     </Fragment>
   );
 };

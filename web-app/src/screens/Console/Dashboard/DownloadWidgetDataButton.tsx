@@ -15,10 +15,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import React, { Fragment } from "react";
-import { useTheme } from "styled-components";
-import get from "lodash/get";
-import { Box, DownloadIcon, DropdownSelector } from "mds";
-import { exportComponentAsPNG } from "react-component-export-image";
+import { Box, DownloadIcon, DropdownSelector, IconButton } from "mds";
 import { ErrorResponseHandler } from "../../../common/types";
 import { useAppDispatch } from "../../../../src/store";
 import { setErrorSnackMessage } from "../../../../src/systemSlice";
@@ -35,7 +32,6 @@ const DownloadWidgetDataButton = ({
   componentRef,
   data,
 }: IDownloadWidgetDataButton) => {
-  const theme = useTheme();
   const t = useT();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const openDownloadMenu = Boolean(anchorEl);
@@ -94,7 +90,9 @@ const DownloadWidgetDataButton = ({
     }
   };
 
-  const downloadAsPNG = () => {
+  const downloadAsPNG = async () => {
+    const { exportComponentAsPNG } =
+      await import("react-component-export-image");
     if (title !== null) {
       const pngFileName = (title + "_" + Date.now().toString() + ".png")
         .replace(/\s+/g, "")
@@ -117,40 +115,20 @@ const DownloadWidgetDataButton = ({
 
   return (
     <Fragment>
-      <Box
-        sx={{
-          justifyItems: "center",
-          "& .download-icon": {
-            backgroundColor: "transparent",
-            border: 0,
-            padding: 0,
-            width: 32,
-            height: 32,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            borderRadius: 4,
-            cursor: "pointer",
-            "& svg": {
-              color: get(theme, "mutedText", "#87888d"),
-              width: 18,
-              height: 18,
-            },
-            "&:hover": {
-              "& svg": {
-                color: get(theme, "fontColor", "#404143"),
-              },
-            },
-          },
-        }}
-      >
-        <button
-          className={"download-icon"}
+      <Box>
+        <IconButton
+          className="download-icon"
           onClick={handleClick}
           aria-label={t("Download widget data")}
+          aria-haspopup="menu"
+          aria-expanded={openDownloadMenu}
+          sx={{
+            color: "var(--muted-foreground)",
+            "&:hover": { color: "var(--foreground)" },
+          }}
         >
           <DownloadIcon />
-        </button>
+        </IconButton>
         <DropdownSelector
           id={"download-widget-main-menu"}
           options={[

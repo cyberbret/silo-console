@@ -14,7 +14,17 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import React, { Fragment, useCallback, useEffect, useState } from "react";
+import { useMobile } from "common/ui/useMediaQuery";
+import { EmptyState, SkeletonRows, StatusBadge } from "common/ui";
+import { GroupsIcon } from "mds";
+import { ModalPresence } from "common/ui/ModalPresence";
+import React, {
+  Fragment,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   AddIcon,
@@ -24,18 +34,22 @@ import {
   DataTable,
   Grid,
   IAMPoliciesIcon,
+  IconButton,
   PageLayout,
   PasswordKeyIcon,
+  RefreshIcon,
   ScreenTitle,
+  UsersIcon,
   SectionTitle,
   Switch,
   Tabs,
   TrashIcon,
-  UsersIcon,
 } from "mds";
+import { nonEmptyNames } from "./userList";
 import { IPolicyItem } from "./types";
 import { ErrorResponseHandler } from "../../../common/types";
-import { setHelpName, setModalErrorSnackMessage } from "../../../systemSlice";
+import { setErrorSnackMessage, setHelpName } from "../../../systemSlice";
+import { ApiError } from "../../../api/consoleApi";
 import {
   assignGroupPermissions,
   assignIAMPolicyPermissions,
@@ -54,40 +68,67 @@ import { useSelector } from "react-redux";
 import { policyDetailsSort } from "../../../utils/sortFunctions";
 import TooltipWrapper from "../Common/TooltipWrapper/TooltipWrapper";
 import PageHeaderWrapper from "../Common/PageHeaderWrapper/PageHeaderWrapper";
-import HelpMenu from "../HelpMenu";
-import api from "../../../common/api";
+import { api } from "../../../api";
+import UserOverview from "./UserOverview";
 import ChangeUserGroups from "./ChangeUserGroups";
 import SetUserPolicies from "./SetUserPolicies";
 import UserServiceAccountsPanel from "./UserServiceAccountsPanel";
 import ChangeUserPasswordModal from "../Account/ChangeUserPasswordModal";
 import DeleteUser from "./DeleteUser";
-import { useT } from "i18n";
+import { i18nKey, useT } from "i18n";
 import { getUserServiceAccountCapabilities } from "./userServiceAccountControls";
 
 interface IGroupItem {
   group: string;
 }
 
-const UserDetails = () => {
+const userRequestError = (
+  response: unknown,
+  fallback: string,
+): ErrorResponseHandler => {
+  const error = (response as { error?: ApiError } | null)?.error;
+  return {
+    errorMessage:
+      typeof error?.message === "string" && error.message
+        ? error.message
+        : fallback,
+    detailedError:
+      typeof error?.detailedMessage === "string" ? error.detailedMessage : "",
+  };
+};
+
+const UserDetailsContent = () => {
+  const mobile = useMobile();
   const dispatch = useAppDispatch();
   const params = useParams();
   const navigate = useNavigate();
   const t = useT();
 
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [addGroupOpen, setAddGroupOpen] = useState<boolean>(false);
   const [policyOpen, setPolicyOpen] = useState<boolean>(false);
   const [addLoading, setAddLoading] = useState<boolean>(false);
   const [enabled, setEnabled] = useState<boolean>(false);
+  const [statusKnown, setStatusKnown] = useState(false);
   const [currentGroups, setCurrentGroups] = useState<IGroupItem[]>([]);
   const [currentPolicies, setCurrentPolicies] = useState<IPolicyItem[]>([]);
   const [changeUserPasswordModalOpen, setChangeUserPasswordModalOpen] =
     useState<boolean>(false);
   const [deleteOpen, setDeleteOpen] = useState<boolean>(false);
   const [hasPolicy, setHasPolicy] = useState<boolean>(false);
-  const [selectedTab, setSelectedTab] = useState<string>("groups");
+  const [selectedTab, setSelectedTab] = useState<string>("overview");
 
   const userName = params.userName || "";
+  const [revision, setRevision] = useState(0);
+  const [userFailed, setUserFailed] = useState(false);
+  const alive = useRef(true);
+  const statusPending = useRef(false);
+  useEffect(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+    };
+  }, []);
   // The session response names the account; it is empty for identity-provider
   // sessions, which must never read as a match.
   const currentAccount = useSelector(
@@ -127,61 +168,79 @@ const UserDetails = () => {
     hasPermission(CONSOLE_UI_RESOURCE, [scope]),
   ).canList;
 
-  const getUserInformation = useCallback(() => {
-    if (userName === "") {
-      return null;
-    }
+  const getUserInformation = useCallback(
+    () => setRevision((value) => value + 1),
+    [],
+  );
+  useEffect(() => {
+    const controller = new AbortController();
     setLoading(true);
-    api
-      .invoke("GET", `/api/v1/user/${encodeURIComponent(userName)}`)
-      .then((res) => {
-        setAddLoading(false);
-        const memberOf = res.memberOf || [];
-        const currentGroups: IGroupItem[] = memberOf.map((group: string) => {
-          return {
-            group: group,
-          };
-        });
-
-        setCurrentGroups(currentGroups);
-        const currentPolicies: IPolicyItem[] = res.policy.map(
-          (policy: string) => {
-            return {
-              policy: policy,
-            };
-          },
+    setUserFailed(false);
+    api.user
+      .getUserInfo(userName, { signal: controller.signal })
+      .then(({ data }) => {
+        if (controller.signal.aborted) return;
+        setCurrentGroups(
+          nonEmptyNames(data.memberOf).map((group) => ({ group })),
         );
-
-        currentPolicies.sort(policyDetailsSort);
-
-        setCurrentPolicies(currentPolicies);
-        setEnabled(res.status === "enabled");
-        setHasPolicy(res.hasPolicy);
-        setLoading(false);
+        setCurrentPolicies(
+          nonEmptyNames(data.policy)
+            .map((policy) => ({ policy }))
+            .sort(policyDetailsSort),
+        );
+        setEnabled(data.status === "enabled");
+        setStatusKnown(data.status === "enabled" || data.status === "disabled");
+        setHasPolicy(data.hasPolicy === true);
       })
-      .catch((err: ErrorResponseHandler) => {
-        setAddLoading(false);
-        setLoading(false);
-        dispatch(setModalErrorSnackMessage(err));
+      .catch((err: unknown) => {
+        if (!controller.signal.aborted) {
+          setUserFailed(true);
+          dispatch(
+            setErrorSnackMessage(
+              userRequestError(err, t("Could not load user")),
+            ),
+          );
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
       });
-  }, [userName, dispatch]);
+    return () => controller.abort();
+  }, [userName, revision, dispatch, t]);
 
   const saveRecord = (isEnabled: boolean) => {
-    if (addLoading) {
+    if (
+      statusPending.current ||
+      loading ||
+      userFailed ||
+      !statusKnown ||
+      (isEnabled ? !enableEnabled : !disableEnabled)
+    ) {
       return;
     }
+    statusPending.current = true;
     setAddLoading(true);
-    api
-      .invoke("PUT", `/api/v1/user/${encodeURIComponent(userName)}/status`, {
+    api.user
+      .updateUserInfo(userName, {
         status: isEnabled ? "enabled" : "disabled",
       })
-      .then((res) => {
-        setEnabled(res.status === "enabled");
+      .then(({ data }) => {
+        if (!alive.current) return;
+        setEnabled(data.status === "enabled");
+        setStatusKnown(data.status === "enabled" || data.status === "disabled");
         setAddLoading(false);
       })
-      .catch((err: ErrorResponseHandler) => {
+      .catch((err: unknown) => {
+        if (!alive.current) return;
         setAddLoading(false);
-        dispatch(setModalErrorSnackMessage(err));
+        dispatch(
+          setErrorSnackMessage(
+            userRequestError(err, t("Could not update user status")),
+          ),
+        );
+      })
+      .finally(() => {
+        statusPending.current = false;
       });
   };
 
@@ -190,10 +249,6 @@ const UserDetails = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    getUserInformation();
-  }, [getUserInformation]);
-
   const closeDeleteModalAndRefresh = (refresh: boolean) => {
     setDeleteOpen(false);
     if (refresh) {
@@ -201,7 +256,7 @@ const UserDetails = () => {
     }
   };
 
-  const groupViewAction = (group: any) => {
+  const groupViewAction = (group: IGroupItem) => {
     navigate(`${IAM_PAGES.GROUPS}/${encodeURIComponent(group.group)}`);
   };
 
@@ -213,45 +268,116 @@ const UserDetails = () => {
     },
   ];
 
+  const statusControl = (
+    <>
+      <StatusBadge
+        tone={
+          loading || userFailed || !statusKnown
+            ? "neutral"
+            : enabled
+              ? "success"
+              : "neutral"
+        }
+        label={
+          loading || userFailed || !statusKnown
+            ? t("Unknown")
+            : enabled
+              ? t("Enabled")
+              : t("Disabled")
+        }
+      />
+      <TooltipWrapper
+        tooltip={
+          isCurrentUser
+            ? t("You cannot enable or disable the currently logged in User")
+            : enableEnabled || disableEnabled
+              ? ""
+              : hasPermission(CONSOLE_UI_RESOURCE, enableUserPermissions)
+                ? permissionTooltipHelper(
+                    disableUserPermissions,
+                    i18nKey("disable users"),
+                  )
+                : hasPermission(CONSOLE_UI_RESOURCE, disableUserPermissions)
+                  ? permissionTooltipHelper(
+                      enableUserPermissions,
+                      i18nKey("enable users"),
+                    )
+                  : permissionTooltipHelper(
+                      enableDisableUserPermissions,
+                      i18nKey("enable or disable users"),
+                    )
+        }
+      >
+        <Switch
+          aria-label={t("Status")}
+          indicatorLabels={[t("Enabled"), t("Disabled")]}
+          checked={enabled}
+          value={"user_enabled"}
+          id="user-status"
+          name="user-status"
+          onChange={() => {
+            saveRecord(!enabled);
+          }}
+          switchOnly
+          disabled={
+            loading ||
+            userFailed ||
+            !statusKnown ||
+            addLoading ||
+            (!enableEnabled && !disableEnabled)
+          }
+        />
+      </TooltipWrapper>
+    </>
+  );
+
   return (
     <Fragment>
-      {addGroupOpen && (
-        <ChangeUserGroups
-          open={addGroupOpen}
-          selectedUser={userName}
-          closeModalAndRefresh={() => {
-            setAddGroupOpen(false);
-            getUserInformation();
-          }}
-        />
-      )}
-      {policyOpen && (
-        <SetUserPolicies
-          open={policyOpen}
-          selectedUser={userName}
-          currentPolicies={currentPolicies}
-          closeModalAndRefresh={() => {
-            setPolicyOpen(false);
-            getUserInformation();
-          }}
-        />
-      )}
-      {deleteOpen && (
-        <DeleteUser
-          deleteOpen={deleteOpen}
-          selectedUsers={[userName]}
-          closeDeleteModalAndRefresh={(refresh: boolean) => {
-            closeDeleteModalAndRefresh(refresh);
-          }}
-        />
-      )}
-      {changeUserPasswordModalOpen && (
-        <ChangeUserPasswordModal
-          open={changeUserPasswordModalOpen}
-          userName={userName}
-          closeModal={() => setChangeUserPasswordModalOpen(false)}
-        />
-      )}
+      <ModalPresence open={Boolean(addGroupOpen)}>
+        {addGroupOpen && (
+          <ChangeUserGroups
+            open={addGroupOpen}
+            selectedUser={userName}
+            closeModalAndRefresh={() => {
+              setAddGroupOpen(false);
+              getUserInformation();
+            }}
+          />
+        )}
+      </ModalPresence>
+      <ModalPresence open={Boolean(policyOpen)}>
+        {policyOpen && (
+          <SetUserPolicies
+            open={policyOpen}
+            selectedUser={userName}
+            currentPolicies={currentPolicies}
+            closeModalAndRefresh={() => {
+              setPolicyOpen(false);
+              getUserInformation();
+            }}
+          />
+        )}
+      </ModalPresence>
+      <ModalPresence open={Boolean(deleteOpen)}>
+        {deleteOpen && (
+          <DeleteUser
+            deleteOpen={deleteOpen}
+            selectedUsers={[userName]}
+            closeDeleteModalAndRefresh={(refresh: boolean) => {
+              closeDeleteModalAndRefresh(refresh);
+            }}
+          />
+        )}
+      </ModalPresence>
+      <ModalPresence open={Boolean(changeUserPasswordModalOpen)}>
+        {changeUserPasswordModalOpen && (
+          <ChangeUserPasswordModal
+            open={changeUserPasswordModalOpen}
+            userName={userName}
+            closeModal={() => setChangeUserPasswordModalOpen(false)}
+          />
+        )}
+      </ModalPresence>
       <PageHeaderWrapper
         label={
           <Fragment>
@@ -261,79 +387,17 @@ const UserDetails = () => {
             />
           </Fragment>
         }
-        actions={<HelpMenu />}
+        help
       />
       <PageLayout>
         <Grid container>
           <Grid item xs={12}>
             <ScreenTitle
-              icon={<UsersIcon width={40} />}
+              icon={null}
               title={userName}
               subTitle={""}
               actions={
                 <Fragment>
-                  <span
-                    style={{
-                      fontSize: ".8rem",
-                      marginRight: ".5rem",
-                    }}
-                  >
-                    {t("User Status:")}
-                  </span>
-                  <span
-                    style={{
-                      fontWeight: "bold",
-                      fontSize: ".9rem",
-                      marginRight: ".5rem",
-                    }}
-                  >
-                    {enabled ? t("Enabled") : t("Disabled")}
-                  </span>
-                  <TooltipWrapper
-                    tooltip={
-                      isCurrentUser
-                        ? t(
-                            "You cannot enable or disable the currently logged in User",
-                          )
-                        : enableEnabled || disableEnabled
-                          ? ""
-                          : hasPermission(
-                                CONSOLE_UI_RESOURCE,
-                                enableUserPermissions,
-                              )
-                            ? permissionTooltipHelper(
-                                disableUserPermissions,
-                                "disable users",
-                              )
-                            : hasPermission(
-                                  CONSOLE_UI_RESOURCE,
-                                  disableUserPermissions,
-                                )
-                              ? permissionTooltipHelper(
-                                  enableUserPermissions,
-                                  "enable users",
-                                )
-                              : permissionTooltipHelper(
-                                  enableDisableUserPermissions,
-                                  "enable or disable users",
-                                )
-                    }
-                  >
-                    <Switch
-                      indicatorLabels={[t("Enabled"), t("Disabled")]}
-                      checked={enabled}
-                      value={"group_enabled"}
-                      id="group-status"
-                      name="group-status"
-                      onChange={() => {
-                        saveRecord(!enabled);
-                      }}
-                      switchOnly
-                      disabled={
-                        addLoading || (!enableEnabled && !disableEnabled)
-                      }
-                    />
-                  </TooltipWrapper>
                   <TooltipWrapper
                     tooltip={
                       hasPermission(CONSOLE_UI_RESOURCE, deleteUserPermissions)
@@ -342,7 +406,7 @@ const UserDetails = () => {
                           : t("Delete User")
                         : permissionTooltipHelper(
                             deleteUserPermissions,
-                            "delete user",
+                            i18nKey("delete user"),
                           )
                     }
                   >
@@ -351,7 +415,7 @@ const UserDetails = () => {
                       id={"delete-user"}
                       onClick={deleteUser}
                       icon={<TrashIcon />}
-                      variant={"secondary"}
+                      variant={"danger"}
                       disabled={
                         !hasPermission(
                           CONSOLE_UI_RESOURCE,
@@ -371,17 +435,78 @@ const UserDetails = () => {
                       disabled={isCurrentUser}
                     />
                   </TooltipWrapper>
+
+                  <IconButton
+                    id="refresh-user-overview"
+                    label={t("Refresh")}
+                    onClick={getUserInformation}
+                    disabled={loading || addLoading}
+                  >
+                    <RefreshIcon />
+                  </IconButton>
                 </Fragment>
               }
-              sx={{ marginBottom: 15 }}
+              sx={{
+                marginBottom: 16,
+                "&.screenTitle-container .stContainer": {
+                  display: "flex",
+                  flexFlow: "row wrap",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  width: "100%",
+                  padding: "0 0 16px",
+                  borderBottom: "none",
+                  gap: 16,
+                },
+                "& .titleColumn h1": {
+                  fontSize: "var(--fs-title)",
+                  lineHeight: "var(--lh-title)",
+                  fontWeight: 550,
+                },
+                "&.screenTitle-container .rightItems": {
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  width: "auto",
+                  marginLeft: "auto",
+                  justifyContent: "flex-end",
+                },
+              }}
             />
           </Grid>
 
           <Grid item xs={12}>
             <Tabs
+              horizontal={mobile}
               currentTabOrPath={selectedTab}
               onTabClick={setSelectedTab}
               options={[
+                {
+                  tabConfig: { id: "overview", label: t("Overview") },
+                  content: loading ? (
+                    <SkeletonRows rows={5} columns={2} />
+                  ) : userFailed ? (
+                    <EmptyState
+                      icon={<UsersIcon />}
+                      title={t("Could not load user")}
+                      description={t("Refresh to try again.")}
+                      action={
+                        <Button
+                          id="retry-user"
+                          label={t("Refresh")}
+                          onClick={getUserInformation}
+                        />
+                      }
+                    />
+                  ) : (
+                    <UserOverview
+                      user={userName}
+                      policies={currentPolicies.map((item) => item.policy)}
+                      groups={currentGroups.map((item) => item.group)}
+                      statusControl={statusControl}
+                    />
+                  ),
+                },
                 {
                   tabConfig: {
                     id: "groups",
@@ -396,6 +521,7 @@ const UserDetails = () => {
                         }
                       >
                         <SectionTitle
+                          headingLevel={2}
                           separator
                           sx={{ marginBottom: 15 }}
                           actions={
@@ -405,7 +531,7 @@ const UserDetails = () => {
                                   ? t("Assign groups")
                                   : permissionTooltipHelper(
                                       assignGroupPermissions,
-                                      "add users to groups",
+                                      i18nKey("add users to groups"),
                                     )
                               }
                             >
@@ -438,7 +564,26 @@ const UserDetails = () => {
                           isLoading={loading}
                           records={currentGroups}
                           entityName={t("Groups")}
-                          customEmptyMessage={t("There are no Groups yet.")}
+                          loadingState={<SkeletonRows rows={5} columns={1} />}
+                          emptyState={
+                            <EmptyState
+                              icon={<GroupsIcon />}
+                              title={t("No groups assigned")}
+                              description={t(
+                                "Add this user to a group to share its access policies.",
+                              )}
+                              action={
+                                canAssignGroup && (
+                                  <Button
+                                    id="empty-list-action"
+                                    variant="callAction"
+                                    label={t("Add to Groups")}
+                                    onClick={() => setAddGroupOpen(true)}
+                                  />
+                                )
+                              }
+                            />
+                          }
                           idField="group"
                         />
                       </Grid>
@@ -472,6 +617,7 @@ const UserDetails = () => {
                         }
                       >
                         <SectionTitle
+                          headingLevel={2}
                           separator
                           sx={{ marginBottom: 15 }}
                           actions={
@@ -481,7 +627,7 @@ const UserDetails = () => {
                                   ? t("Assign Policies")
                                   : permissionTooltipHelper(
                                       assignIAMPolicyPermissions,
-                                      "assign policies",
+                                      i18nKey("assign policies"),
                                     )
                               }
                             >
@@ -519,7 +665,26 @@ const UserDetails = () => {
                           isLoading={loading}
                           records={currentPolicies}
                           entityName={t("Policies")}
-                          customEmptyMessage={t("There are no Policies yet.")}
+                          loadingState={<SkeletonRows rows={5} columns={1} />}
+                          emptyState={
+                            <EmptyState
+                              icon={<IAMPoliciesIcon />}
+                              title={t("No policies assigned")}
+                              description={t(
+                                "Policies define which actions and resources this user can access.",
+                              )}
+                              action={
+                                canAssignPolicy && (
+                                  <Button
+                                    id="empty-list-action"
+                                    variant="callAction"
+                                    label={t("Assign Policies")}
+                                    onClick={() => setPolicyOpen(true)}
+                                  />
+                                )
+                              }
+                            />
+                          }
                           idField="policy"
                         />
                       </Box>
@@ -535,4 +700,8 @@ const UserDetails = () => {
   );
 };
 
+const UserDetails = () => {
+  const { userName } = useParams();
+  return <UserDetailsContent key={userName} />;
+};
 export default UserDetails;

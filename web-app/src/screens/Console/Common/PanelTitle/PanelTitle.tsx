@@ -17,7 +17,7 @@
 import React from "react";
 import styled from "styled-components";
 
-const PanelTitleContainer = styled.h1(() => ({
+const PanelTitleContainer = styled.h3(() => ({
   padding: 0,
   margin: 0,
   fontSize: ".9rem",

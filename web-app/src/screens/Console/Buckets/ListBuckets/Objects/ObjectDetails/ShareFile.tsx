@@ -24,6 +24,7 @@ import {
   Grid,
   ProgressBar,
   Switch,
+  useModalPresence,
 } from "mds";
 import { Tooltip } from "common/Tooltip";
 import CopyToClipboard from "react-copy-to-clipboard";
@@ -41,7 +42,7 @@ import { errorToHandler } from "api/errors";
 import { getMaxShareLinkExpTime } from "screens/Console/ObjectBrowser/objectBrowserThunks";
 import { maxShareLinkExpTime } from "screens/Console/ObjectBrowser/objectBrowserSlice";
 import debounce from "lodash/debounce";
-import { formatText, interpolate, useT } from "i18n";
+import { i18nKey, formatText, interpolate, useT } from "i18n";
 import { isObjectTarget } from "../objectIdentity";
 import { isAbortError, ObjectRequestGuard } from "../requestGuard";
 import {
@@ -64,10 +65,12 @@ interface SubjectResolution {
 }
 
 const ShareFile = ({
-  open,
+  open: requestedOpen,
   closeModalAndRefresh,
   subject,
 }: IShareFileProps) => {
+  const visible = useModalPresence();
+  const open = requestedOpen && visible;
   const dispatch = useAppDispatch();
   const t = useT();
   const distributedSetup = useSelector(selDistSet);
@@ -110,7 +113,7 @@ const ShareFile = ({
     return () => {
       debouncedDateChange.cancel();
     };
-  }, [debouncedDateChange]);
+  }, [debouncedDateChange, open]);
 
   useEffect(() => {
     const versions = versionGuard.current;
@@ -119,7 +122,7 @@ const ShareFile = ({
       versions.invalidate();
       share.invalidate();
     };
-  }, []);
+  }, [open]);
 
   useEffect(() => {
     dispatch(getMaxShareLinkExpTime());
@@ -129,6 +132,7 @@ const ShareFile = ({
   // requested object is resolved against the exact-key versions listing, and
   // nothing is shared until that lookup has settled for this very subject.
   useEffect(() => {
+    if (!open) return;
     if (subjectIsTarget) {
       setResolution({
         subjectKey,
@@ -188,6 +192,7 @@ const ShareFile = ({
       guard.invalidate();
     };
   }, [
+    open,
     bucket,
     key,
     subjectIsTarget,
@@ -205,7 +210,7 @@ const ShareFile = ({
     activeResolution?.kind === "version" ? activeResolution.versionId : null;
 
   useEffect(() => {
-    if (!dateValid || resolvedVersionId === null) {
+    if (!open || !dateValid || resolvedVersionId === null) {
       return;
     }
     const guard = shareGuard.current;
@@ -250,6 +255,7 @@ const ShareFile = ({
       guard.invalidate();
     };
   }, [
+    open,
     bucket,
     key,
     subjectKey,
@@ -285,7 +291,7 @@ const ShareFile = ({
     <React.Fragment>
       <ModalWrapper
         title={t("Share File")}
-        titleIcon={<ShareIcon style={{ fill: "#4CCB92" }} />}
+        titleIcon={<ShareIcon style={{ color: "#4CCB92" }} />}
         modalOpen={open}
         onClose={() => {
           closeModalAndRefresh();
@@ -353,7 +359,7 @@ const ShareFile = ({
                 label={t("Active for")}
                 maxSeconds={maxShareLinkExpTimeVal}
                 onChange={debouncedDateChange}
-                entity="Link"
+                entity={i18nKey("Link")}
               />
             </Grid>
             <Grid

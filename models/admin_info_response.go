@@ -55,6 +55,10 @@ type AdminInfoResponse struct {
 	// usage
 	Usage int64 `json:"usage,omitempty"`
 
+	// Time the server last finished computing data usage; absent when unknown
+	// Format: date-time
+	UsageUpdatedAt *strfmt.DateTime `json:"usageUpdatedAt,omitempty"`
+
 	// widgets
 	Widgets []*Widget `json:"widgets"`
 }
@@ -72,6 +76,10 @@ func (m *AdminInfoResponse) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateServers(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateUsageUpdatedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -178,6 +186,18 @@ func (m *AdminInfoResponse) validateServers(formats strfmt.Registry) error {
 			}
 		}
 
+	}
+
+	return nil
+}
+
+func (m *AdminInfoResponse) validateUsageUpdatedAt(formats strfmt.Registry) error {
+	if typeutils.IsZero(m.UsageUpdatedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("usageUpdatedAt", "body", "date-time", m.UsageUpdatedAt.String(), formats); err != nil {
+		return err
 	}
 
 	return nil

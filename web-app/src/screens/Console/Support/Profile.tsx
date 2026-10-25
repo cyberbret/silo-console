@@ -15,13 +15,19 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import React, { Fragment, useEffect, useState } from "react";
-import { Button, PageLayout, FormLayout, Box, Checkbox, InputLabel } from "mds";
+import {
+  Button,
+  PageLayout,
+  FormLayout,
+  Box,
+  Checkbox,
+  breakPoints,
+} from "mds";
 import { wsProtocol } from "../../../utils/wsUtils";
 import { useAppDispatch } from "../../../store";
 import { setHelpName } from "../../../systemSlice";
-import { useT } from "i18n";
+import { i18nKey, useT } from "i18n";
 import PageHeaderWrapper from "../Common/PageHeaderWrapper/PageHeaderWrapper";
-import HelpMenu from "../HelpMenu";
 import { useDiagnosticSocket } from "../Common/Hooks/useDiagnosticSocket";
 
 const Profile = () => {
@@ -103,18 +109,34 @@ const Profile = () => {
 
   return (
     <Fragment>
-      <PageHeaderWrapper label="Profile" actions={<HelpMenu />} />
+      <PageHeaderWrapper titleElement="h1" label={i18nKey("Profile")} help />
       <PageLayout>
-        <FormLayout>
+        <FormLayout
+          sx={{
+            minWidth: 0,
+            gridTemplateColumns: "minmax(0, 1fr)",
+            "& > div": { minWidth: 0 },
+            [`@media (max-width: ${breakPoints.md - 0.02}px)`]: { padding: 16 },
+          }}
+        >
           <Box
+            role="group"
+            aria-labelledby="profile-types-label"
             sx={{
               display: "flex",
-              gap: 10,
-              "& div": { width: "initial" },
-              "& .inputItem:not(:last-of-type)": { marginBottom: 0 },
+              flexWrap: "wrap",
+              alignItems: "center",
+              gap: "8px 16px",
+              "& .inputItem, & .inputItem:not(:last-of-type)": { margin: 0 },
+              "& label": { marginRight: 0 },
             }}
           >
-            <InputLabel noMinWidth>{t("Types to profile:")}</InputLabel>
+            <Box
+              id="profile-types-label"
+              sx={{ width: "100%", fontWeight: 550, marginBottom: 4 }}
+            >
+              {t("Types to profile:")}
+            </Box>
             {typesList.map((t) => (
               <Checkbox
                 checked={types.indexOf(t.value) > -1}
@@ -131,14 +153,19 @@ const Profile = () => {
           <Box
             sx={{
               display: "flex",
+              flexWrap: "wrap",
               justifyContent: "flex-end",
               marginTop: 24,
-              gap: 10,
+              gap: 8,
+              [`@media (max-width: ${breakPoints.md - 0.02}px)`]: {
+                flexDirection: "column",
+                "& button": { width: "100%" },
+              },
             }}
           >
             <Button
               id={"start-profiling"}
-              type="submit"
+              type="button"
               variant={"callAction"}
               disabled={profilingStarted || types.length < 1}
               onClick={() => {
@@ -148,9 +175,8 @@ const Profile = () => {
             />
             <Button
               id={"stop-profiling"}
-              type="submit"
-              variant="callAction"
-              color="primary"
+              type="button"
+              variant="regular"
               disabled={!profilingStarted}
               onClick={() => {
                 stopProfiling();

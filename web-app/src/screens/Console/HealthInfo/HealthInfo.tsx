@@ -15,7 +15,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import React, { Fragment, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { Box, Button, Grid, HelpBox, InfoIcon, Loader, PageLayout } from "mds";
+import { Box, Button, HelpBox, InfoIcon, Loader, PageLayout } from "mds";
 import {
   DiagStatError,
   DiagStatInProgress,
@@ -35,10 +35,9 @@ import {
   healthInfoMessageReceived,
   healthInfoResetMessage,
 } from "./healthInfoSlice";
-import { useT } from "i18n";
+import { i18nKey, useT } from "i18n";
 import TestWrapper from "../Common/TestWrapper/TestWrapper";
 import PageHeaderWrapper from "../Common/PageHeaderWrapper/PageHeaderWrapper";
-import HelpMenu from "../HelpMenu";
 import HealthInfoResults from "./HealthInfoResults";
 import { useDiagnosticSocket } from "../Common/Hooks/useDiagnosticSocket";
 
@@ -56,9 +55,9 @@ const HealthInfo = () => {
   const [downloadDisabled, setDownloadDisabled] = useState(true);
   const [localMessage, setMessage] = useState<string>("");
   const [buttonStartText, setButtonStartText] = useState<string>(
-    "Start Health Report",
+    i18nKey("Start Health Report"),
   );
-  const [title, setTitle] = useState<string>("Health Report");
+  const [title, setTitle] = useState<string>(i18nKey("Health Report"));
   const [diagFileContent, setDiagFileContent] = useState<string>("");
   const [reportStatus, setReportStatus] = useState<string>("");
   const [serverHealthInfo, setServerHealthInfo] = useState<HealthInfoMessage>();
@@ -81,24 +80,28 @@ const HealthInfo = () => {
 
   useEffect(() => {
     if (serverDiagnosticStatus === DiagStatInProgress) {
-      setTitle("Health Report in progress...");
+      setTitle(i18nKey("Health Report in progress..."));
       setMessage(
-        "Health Report started. Please do not refresh page during diagnosis.",
+        i18nKey(
+          "Health Report started. Please do not refresh page during diagnosis.",
+        ),
       );
       return;
     }
 
     if (serverDiagnosticStatus === DiagStatSuccess) {
-      setTitle("Health Report complete");
-      setMessage("Health Report file is ready to be downloaded.");
-      setButtonStartText("Start Health Report");
+      setTitle(i18nKey("Health Report complete"));
+      setMessage(i18nKey("Health Report file is ready to be downloaded."));
+      setButtonStartText(i18nKey("Start Health Report"));
       return;
     }
 
     if (serverDiagnosticStatus === DiagStatError) {
-      setTitle("Error");
-      setMessage("An error occurred while getting the Health Report file.");
-      setButtonStartText("Retry Health Report");
+      setTitle(i18nKey("Error"));
+      setMessage(
+        i18nKey("An error occurred while getting the Health Report file."),
+      );
+      setButtonStartText(i18nKey("Retry Health Report"));
       return;
     }
   }, [serverDiagnosticStatus, startDiagnostic]);
@@ -155,7 +158,9 @@ const HealthInfo = () => {
       heartbeatMs: 10 * 1000,
       onOpen: () => {
         setMessage(
-          "Health Report started. Please do not refresh page during diagnosis.",
+          i18nKey(
+            "Health Report started. Please do not refresh page during diagnosis.",
+          ),
         );
         dispatch(setServerDiagStat(DiagStatInProgress));
       },
@@ -185,12 +190,14 @@ const HealthInfo = () => {
         ) {
           // handle close with error
           console.log("connection closed by server with code:", event.code);
-          setMessage("An error occurred while getting the Health Report file.");
+          setMessage(
+            i18nKey("An error occurred while getting the Health Report file."),
+          );
           dispatch(setServerDiagStat(DiagStatError));
         } else {
           console.log("connection closed by server");
 
-          setMessage("Health Report file is ready to be downloaded.");
+          setMessage(i18nKey("Health Report file is ready to be downloaded."));
           dispatch(setServerDiagStat(DiagStatSuccess));
         }
       },
@@ -207,115 +214,91 @@ const HealthInfo = () => {
 
   return (
     <Fragment>
-      <PageHeaderWrapper label="Health" actions={<HelpMenu />} />
+      <PageHeaderWrapper label={i18nKey("Health")} titleElement="h1" help />
 
       <PageLayout>
-        <Box withBorders>
+        <Box withBorders sx={{ padding: 16 }}>
           <TestWrapper title={t(title)}>
-            <Grid
-              container
-              sx={{
-                justifyContent: "flex-start",
-                gap: 20,
-              }}
-            >
-              <Grid
-                key="start-download"
-                item
-                xs={12}
-                sx={{
-                  textAlign: "center",
-                  marginBottom: 25,
-                }}
-              >
-                <h2>{t(localMessage)}</h2>
+            <Box sx={{ display: "grid", gap: 16 }}>
+              {localMessage !== "" && (
                 <Box
                   sx={{
-                    textAlign: "center",
-                    marginBottom: 25,
+                    fontSize: "var(--fs-body)",
+                    lineHeight: "var(--lh-body)",
+                    color:
+                      serverDiagnosticStatus === DiagStatError
+                        ? "var(--destructive-text)"
+                        : "var(--foreground)",
                   }}
                 >
-                  {" "}
-                  {reportStatus !== "" &&
-                    !reportStatus.toLowerCase().includes("error") && (
-                      <Grid item xs={12}>
-                        <strong>
-                          {t("Health report generated successfully!")}
-                        </strong>
-                        &nbsp;{" "}
-                        <strong>
-                          {t(
-                            "You can download the the Health report JSON File.",
-                          )}
-                        </strong>
-                      </Grid>
-                    )}
-                  {(reportStatus === "" ||
-                    reportStatus.toLowerCase().includes("error")) &&
-                    serverDiagnosticStatus === DiagStatSuccess && (
-                      <Grid item xs={12}>
-                        <strong>{t("Something went wrong.")}</strong>
-                        &nbsp;{" "}
-                        <strong>
-                          {t(
-                            "May try again or download Health report JSON File.",
-                          )}
-                        </strong>
-                      </Grid>
-                    )}
+                  {t(localMessage)}
                 </Box>
-                {serverDiagnosticStatus === DiagStatInProgress ? (
+              )}
+              {serverDiagnosticStatus === DiagStatSuccess &&
+                reportStatus !== "" &&
+                !reportStatus.toLowerCase().includes("error") && (
                   <Box
                     sx={{
-                      paddingTop: 8,
-                      paddingLeft: 40,
+                      fontSize: "var(--fs-body)",
+                      lineHeight: "var(--lh-body)",
+                      color: "var(--muted-foreground)",
                     }}
                   >
-                    <Loader style={{ width: 25, height: 25 }} />
+                    {t("Health report generated successfully!")}{" "}
+                    {t("You can download the the Health report JSON File.")}
                   </Box>
-                ) : (
-                  <Fragment>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        gap: 10,
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <Box>
-                        {serverDiagnosticStatus !== DiagStatError &&
-                          !downloadDisabled && (
-                            <Button
-                              id={"download"}
-                              type="submit"
-                              variant="callAction"
-                              onClick={() => download()}
-                              disabled={downloadDisabled}
-                              label={t("Download")}
-                            />
-                          )}
-                      </Box>
-                      <Box>
-                        <Button
-                          id="start-new-diagnostic"
-                          type="submit"
-                          variant={"callAction"}
-                          disabled={startDiagnostic}
-                          onClick={startDiagnosticAction}
-                          label={t(buttonStartText)}
-                        />
-                      </Box>
-                    </Box>
-                  </Fragment>
                 )}
-              </Grid>
-            </Grid>
+              {(reportStatus === "" ||
+                reportStatus.toLowerCase().includes("error")) &&
+                serverDiagnosticStatus === DiagStatSuccess && (
+                  <Box
+                    sx={{
+                      fontSize: "var(--fs-body)",
+                      lineHeight: "var(--lh-body)",
+                      color: "var(--foreground)",
+                    }}
+                  >
+                    {t("Something went wrong.")}{" "}
+                    {t("May try again or download Health report JSON File.")}
+                  </Box>
+                )}
+              {serverDiagnosticStatus === DiagStatInProgress ? (
+                <Loader style={{ width: 24, height: 24 }} />
+              ) : (
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: 8,
+                    alignItems: "center",
+                  }}
+                >
+                  {serverDiagnosticStatus !== DiagStatError &&
+                    !downloadDisabled && (
+                      <Button
+                        id={"download"}
+                        type="submit"
+                        variant="callAction"
+                        onClick={() => download()}
+                        disabled={downloadDisabled}
+                        label={t("Download")}
+                      />
+                    )}
+                  <Button
+                    id="start-new-diagnostic"
+                    type="submit"
+                    variant={downloadDisabled ? "callAction" : "regular"}
+                    disabled={startDiagnostic}
+                    onClick={startDiagnosticAction}
+                    label={t(buttonStartText)}
+                  />
+                </Box>
+              )}
+            </Box>
           </TestWrapper>
         </Box>
         {!startDiagnostic && (
-          <Fragment>
-            <br />
+          <Box sx={{ marginTop: 16 }}>
             {serverHealthInfo === undefined ? (
               <HelpBox
                 title={t(
@@ -327,11 +310,9 @@ const HealthInfo = () => {
                 )}
               />
             ) : (
-              <HealthInfoResults
-                serverHealthInfo={serverHealthInfo}
-              ></HealthInfoResults>
+              <HealthInfoResults serverHealthInfo={serverHealthInfo} />
             )}
-          </Fragment>
+          </Box>
         )}
       </PageLayout>
     </Fragment>

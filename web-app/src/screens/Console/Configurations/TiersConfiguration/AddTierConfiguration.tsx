@@ -44,7 +44,6 @@ import { setErrorSnackMessage, setHelpName } from "../../../../systemSlice";
 import { useAppDispatch } from "../../../../store";
 import RegionSelectWrapper from "./RegionSelectWrapper";
 import PageHeaderWrapper from "../../Common/PageHeaderWrapper/PageHeaderWrapper";
-import HelpMenu from "../../HelpMenu";
 import { formatText, useT } from "i18n";
 
 const AddTierConfiguration = () => {
@@ -288,6 +287,7 @@ const AddTierConfiguration = () => {
   return (
     <Fragment>
       <PageHeaderWrapper
+        titleElement="h1"
         label={
           <Fragment>
             <BackLink
@@ -296,7 +296,7 @@ const AddTierConfiguration = () => {
             />
           </Fragment>
         }
-        actions={<HelpMenu />}
+        help
       />
 
       <PageLayout>
@@ -304,13 +304,20 @@ const AddTierConfiguration = () => {
           item
           xs={12}
           sx={{
-            border: "1px solid #eaeaea",
-            padding: "25px",
+            border: "1px solid var(--border)",
+            borderRadius: 12,
+            padding: 24,
+            minWidth: 0,
+            "@media (max-width: 767.98px)": { padding: 16 },
           }}
         >
           <form noValidate onSubmit={submitForm}>
             {type !== "" && targetElement ? (
-              <SectionTitle icon={targetElement.logo} sx={{ marginBottom: 20 }}>
+              <SectionTitle
+                icon={targetElement.logo}
+                headingLevel={2}
+                sx={{ marginBottom: 20 }}
+              >
                 {formatText(t("{provider} - Add Tier Configuration"), {
                   provider: titleSelection ? titleSelection : "",
                 })}
@@ -321,12 +328,12 @@ const AddTierConfiguration = () => {
               xs={12}
               sx={{
                 display: "grid",
-                gridTemplateColumns: "1fr 1fr",
+                gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
                 gridAutoFlow: "row",
                 gridRowGap: 20,
-                gridColumnGap: 50,
-                [`@media (max-width: ${breakPoints.sm}px)`]: {
-                  gridTemplateColumns: "1fr",
+                gridColumnGap: 24,
+                [`@media (max-width: ${breakPoints.md}px)`]: {
+                  gridTemplateColumns: "minmax(0, 1fr)",
                   gridAutoFlow: "dense",
                 },
               }}
@@ -369,6 +376,7 @@ const AddTierConfiguration = () => {
                       />
                       <InputBox
                         id="secretKey"
+                        type="password"
                         name="secretKey"
                         label={t("Secret Key")}
                         placeholder={t("Enter Secret Key")}
@@ -412,6 +420,7 @@ const AddTierConfiguration = () => {
                       />
                       <InputBox
                         id="accountKey"
+                        type="password"
                         name="accountKey"
                         label={t("Account Key")}
                         placeholder={t("Enter Account Key")}

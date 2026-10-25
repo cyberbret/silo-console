@@ -33,6 +33,7 @@ const ConfirmDeleteDestinationModal = ({
   const t = useT();
   return (
     <ConfirmDialog
+      destructive
       title={t("Delete Endpoint")}
       confirmText={t("Delete")}
       isOpen={true}

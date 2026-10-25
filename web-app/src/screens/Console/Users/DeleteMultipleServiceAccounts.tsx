@@ -59,6 +59,7 @@ const DeleteMultipleSAs = ({
   };
   return (
     <ConfirmDialog
+      destructive
       title={t("Delete Access Keys")}
       confirmText={t("Delete")}
       isOpen={deleteOpen}

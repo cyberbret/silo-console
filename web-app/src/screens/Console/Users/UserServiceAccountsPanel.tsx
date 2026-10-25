@@ -14,6 +14,10 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { AccessKeyRowMenu } from "../Account/AccessKeyRowMenu";
+import { EmptyState, SkeletonRows } from "common/ui";
+import { AccountIcon } from "mds";
+import { ModalPresence } from "common/ui/ModalPresence";
 import React, { Fragment, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AddIcon, Box, Button, DataTable, DeleteIcon, SectionTitle } from "mds";
@@ -66,7 +70,7 @@ const UserServiceAccountsPanel = ({
   );
 
   const [records, setRecords] = useState<ServiceAccounts>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(canListServiceAccounts);
   const [deleteOpen, setDeleteOpen] = useState<boolean>(false);
   const [selectedServiceAccount, setSelectedServiceAccount] = useState<
     string | null
@@ -163,42 +167,51 @@ const UserServiceAccountsPanel = ({
   }, []);
   return (
     <Fragment>
-      {deleteOpen && (
-        <DeleteServiceAccount
-          deleteOpen={deleteOpen}
-          selectedServiceAccount={selectedServiceAccount}
-          closeDeleteModalAndRefresh={(refresh: boolean) => {
-            closeDeleteModalAndRefresh(refresh);
-          }}
-        />
-      )}
-      {deleteMultipleOpen && (
-        <DeleteMultipleServiceAccounts
-          deleteOpen={deleteMultipleOpen}
-          selectedSAs={selectedSAs}
-          closeDeleteModalAndRefresh={closeDeleteMultipleModalAndRefresh}
-        />
-      )}
-      {showNewCredentials && (
-        <CredentialsPrompt
-          newServiceAccount={newServiceAccount}
-          open={showNewCredentials}
-          closeModal={() => {
-            closeCredentialsModal();
-          }}
-          entity={t("Access Key")}
-        />
-      )}
-      {editOpen && (
-        <EditServiceAccount
-          open={editOpen}
-          selectedAccessKey={selectedServiceAccount}
-          closeModalAndRefresh={closePolicyModal}
-          readOnly={serviceAccountReadOnly}
-        />
-      )}
+      <ModalPresence open={Boolean(deleteOpen)}>
+        {deleteOpen && (
+          <DeleteServiceAccount
+            deleteOpen={deleteOpen}
+            selectedServiceAccount={selectedServiceAccount}
+            closeDeleteModalAndRefresh={(refresh: boolean) => {
+              closeDeleteModalAndRefresh(refresh);
+            }}
+          />
+        )}
+      </ModalPresence>
+      <ModalPresence open={Boolean(deleteMultipleOpen)}>
+        {deleteMultipleOpen && (
+          <DeleteMultipleServiceAccounts
+            deleteOpen={deleteMultipleOpen}
+            selectedSAs={selectedSAs}
+            closeDeleteModalAndRefresh={closeDeleteMultipleModalAndRefresh}
+          />
+        )}
+      </ModalPresence>
+      <ModalPresence open={Boolean(showNewCredentials)}>
+        {showNewCredentials && (
+          <CredentialsPrompt
+            newServiceAccount={newServiceAccount}
+            open={showNewCredentials}
+            closeModal={() => {
+              closeCredentialsModal();
+            }}
+            entity={t("Access Key")}
+          />
+        )}
+      </ModalPresence>
+      <ModalPresence open={Boolean(editOpen)}>
+        {editOpen && (
+          <EditServiceAccount
+            open={editOpen}
+            selectedAccessKey={selectedServiceAccount}
+            closeModalAndRefresh={closePolicyModal}
+            readOnly={serviceAccountReadOnly}
+          />
+        )}
+      </ModalPresence>
 
       <SectionTitle
+        headingLevel={2}
         separator
         sx={{ marginBottom: 15 }}
         actions={
@@ -212,7 +225,7 @@ const UserServiceAccountsPanel = ({
                 label={t("Delete Selected")}
                 icon={<DeleteIcon />}
                 disabled={selectedSAs.length === 0 || !canRemoveServiceAccount}
-                variant={"secondary"}
+                variant={"danger"}
               />
             </TooltipWrapper>
             <TooltipWrapper tooltip={t("Create Access Key")}>
@@ -236,10 +249,47 @@ const UserServiceAccountsPanel = ({
       </SectionTitle>
 
       <DataTable
-        itemActions={tableActions}
+        itemActions={tableActions.filter((action) => action.type === "view")}
         entityName={t("Access Keys")}
-        customEmptyMessage={t("There are no Access Keys yet.")}
-        columns={accountTableColumns(t)}
+        loadingState={<SkeletonRows rows={5} columns={4} />}
+        emptyState={
+          <EmptyState
+            icon={<AccountIcon />}
+            title={t("No access keys yet")}
+            description={t(
+              "Access keys let applications connect with the permissions assigned to this user.",
+            )}
+            action={
+              hasPolicy &&
+              canCreateServiceAccount && (
+                <Button
+                  id="empty-list-action"
+                  variant="callAction"
+                  label={t("Create Access Key")}
+                  onClick={() =>
+                    navigate(
+                      `/identity/users/new-user-sa/${encodeURIComponent(user)}`,
+                    )
+                  }
+                />
+              )
+            }
+          />
+        }
+        columns={[
+          ...accountTableColumns(t),
+          {
+            label: t("Actions"),
+            elementKey: "actions",
+            priority: "high",
+            width: 48,
+            globalClass: "mds-row-actions",
+            renderFullObject: true,
+            renderFunction: (record: ServiceAccounts[number]) => (
+              <AccessKeyRowMenu record={record} actions={tableActions} />
+            ),
+          },
+        ]}
         onSelect={
           canRemoveServiceAccount
             ? (e) => selectSAs(e, setSelectedSAs, selectedSAs)

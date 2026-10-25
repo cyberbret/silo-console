@@ -34,19 +34,39 @@
 > sponsored by MinIO, Inc. The MinIO name is used only to identify the upstream
 > project and compatibility lineage.
 
-## Version 2.4.2
+## Version 2.5.0 (in preparation)
 
-Console v2.4.2 uses silo-pkg v3.14.2, mcli 20261018 and upstream minio-go v7.4.1.
-Published binaries, packages and release status are available on
-[GitHub Releases](https://github.com/pgsty/silo-console/releases).
-It includes streaming ZIP downloads, the password-permission split, hardened
-object sharing and signed release metadata. See [CHANGELOG.md](CHANGELOG.md),
+[English](README.md) · [简体中文](README_ZH.md)
+
+Current source prepares **v2.5.0** with Go **1.27.3**, **silo-pkg v3.15.1**,
+and the published **mcli 20261025** source (`dcc78d506f94`). The upstream S3 SDK
+is `minio-go v7.4.2-0.20261020194015-ab93db7ba435`, which contains multipart,
+read/seek and batch-delete fixes after v7.4.1; upstream has not tagged v7.4.2.
+Existing policy behavior and output-format compatibility selections are retained.
+
+This version includes permission-aware navigation, Overview, bucket tables,
+richer object previews, Tasks, updated identity management, and a compact
+light/dark interface. It also fixes diagnostic WebSocket closing handshakes
+reported in [#63](https://github.com/pgsty/silo-console/issues/63): after sending
+the final report and Close frame, the server waits for the peer Close or a
+bounded five-second timeout. Thanks to [Azat (@azataiot)](https://github.com/azataiot)
+for the report and analysis.
+Health reports also preserve all buffered JSON frames from the admin API,
+close the response body, and reject truncated or canceled responses.
+
+**v2.5.0 has not been published.** The latest downloadable Console remains
+[v2.4.2](https://github.com/pgsty/silo-console/releases/tag/v2.4.2), built with
+Go 1.27.2 / Node 24.22.0, silo-pkg v3.14.2, mcli 20261018 and minio-go v7.4.1.
+See [CHANGELOG.md](CHANGELOG.md#unreleased), the
+[maintenance announcement](https://silo.pgsty.com/blog/release/silo-20261025/),
 the [password-policy migration](https://silo.pgsty.com/compatibility/password-permissions/)
 and the [component matrix](https://silo.pgsty.com/compatibility/versions/).
-
-Current source selects silo-pkg v3.14.3 for faster policy evaluation with
-unchanged authorization behavior. This update is not included in the
-published v2.4.2 binaries and does not require a coordinated component release.
+Updating standalone Console does not replace the Console embedded in SILO;
+that requires a separate Server build and release.
+Policy **Reset to default** also requires the Server IAM cache repair. Published
+Server 20261018 does not contain it and can fail the first policy read after a
+reset; this action must ship with the coordinated Server update. The repaired
+Server source passes the immediate-read regression with Console 2.5.0.
 
 ## Overview
 
@@ -61,6 +81,8 @@ The Console provides:
 - bucket, object, lifecycle, replication, notification, and tier management;
 - users, groups, service accounts, policies, identity providers, and KMS setup;
 - server configuration and day-to-day administrative workflows.
+
+The screenshots in this README predate the current-source GUI changes.
 
 ![SILO Console sign-in page](images/silo-console-home.webp)
 
@@ -80,6 +102,32 @@ management.
 
 ![SILO Console object browser](images/silo-console-objects.webp)
 
+### Navigation and everyday operations
+
+After sign-in, current source restores a remembered destination. With no
+remembered destination, full-console mode opens Overview (`/overview`) for users
+with server-information permission; other users open Buckets (`/buckets`).
+Object-browser-only mode defaults to Buckets even for administrators. One
+Buckets entry connects object browsing and bucket settings; Identity,
+Monitoring, Settings and Tools group the remaining pages.
+Existing object deep links remain valid. `/browser` redirects to `/buckets`, and
+bare bucket administration links open Summary.
+
+Overview also groups permitted destinations into Tools, Settings, Monitoring and
+Identity panels. Help keeps Documentation, Video and Blog/RSS accessible by hover,
+click or keyboard; phones retain a visible Help control.
+
+Overview shows health, alerts, data freshness and raw drive capacity reported by
+the server. It does not estimate EC usable capacity; missing measurements remain
+unknown. Buckets offers sortable tables and compact cards. Object browsing adds
+bounded text, Markdown and CSV/TSV previews, keyboard selection and context menus.
+Tasks tracks transfers and supported bulk delete/restore operations; a browser
+download handoff does not confirm that a file has been saved to disk.
+
+User and policy pages show status, policy sources and direct assignment counts.
+Default built-in policies are read-only until explicitly overridden; modified
+built-ins can be reset to their defaults.
+
 ### Metrics V3 dashboard
 
 The dashboard is built on **MinIO Metrics V3**, the metric set current
@@ -92,9 +140,17 @@ the mapping.
 
 ### A refreshed interface
 
-The sign-in page, theme system, and console chrome were reworked to current
-frontend practice — one design language across matched light and dark themes,
-consistent spacing and motion, and accessible focus states.
+Current source uses neutral light/dark surfaces, system UI fonts, compact
+controls, consistent focus states and reduced-motion support. The original MDS
+icons and login hero remain, with Chakra Petch confined to the hero. The existing
+React and styled-components stack gains no new UI or animation framework.
+
+Navigation becomes a drawer below 768px and defaults to an icon rail from 768px
+to 1199px; an explicit saved sidebar preference takes precedence at widths of
+768px and above. Narrow layouts retain page actions and use a sheet for object
+details.
+The login hero is hidden only below 768px. Temporary-credential (STS) sign-in
+remains available independently of configured identity-provider redirects.
 
 ### Small, clean, and quiet
 
@@ -154,20 +210,25 @@ The retained Go module, import paths, environment variables, API fields, and
 protocol identifiers are compatibility interfaces, not product branding. Any
 future rename of those interfaces will require aliases and a migration period.
 
+The supported and release-tested stack is `pgsty/silo`, `pgsty/silo-console`,
+`pgsty/mc` and `pgsty/silo-pkg`. Compatibility with unmodified upstream MinIO is
+best effort and does not replace validation against that maintained stack.
+
 Standalone Console directly requires `github.com/pgsty/silo-pkg/v3` at the
 revision selected by `go.mod` and recorded in `hack/deps-release.json`,
 and resolves `github.com/minio/minio-go/v7` upstream. The maintained mc source
 keeps the compatibility module path `github.com/minio/mc` and lives in
 `pgsty/mc`. Console pins an immutable Go pseudo-version: either a published
 calendar release or a commit accepted on main with successful CI. The current
-selection is an unpublished MC source commit; it does not publish a new mcli
-binary or tag. An embedding server must copy this replacement because Go
-ignores replacements declared by dependency modules:
+selection is the published mcli 20261025 source (`dcc78d506f94`). Selecting it
+as a dependency does not create another mcli release. An embedding server must
+copy this replacement because Go ignores replacements declared by dependency
+modules:
 
 <!-- silo-replacements:begin -->
 ```go
 replace (
-	github.com/minio/mc => github.com/pgsty/mc v0.0.0-20261017101407-fa3b8bf72458
+	github.com/minio/mc => github.com/pgsty/mc v0.0.0-20261025104502-dcc78d506f94
 )
 ```
 <!-- silo-replacements:end -->
@@ -263,16 +324,19 @@ configuration.
 
 ### Frontend Development
 
-The repository includes the generated frontend bundle used by the Go server.
-When changing the web application, rebuild it with:
+The repository includes the generated frontend bundle embedded by the Go
+server. For an embedded GUI update, rebuild it after source, tests and
+documentation are final:
 
 ```bash
 make assets
 ```
 
-The required Node.js version is recorded in [`.nvmrc`](.nvmrc). See
-[`DEVELOPMENT.md`](DEVELOPMENT.md) for the frontend development server and
-embedded-server compatibility workflow.
+Keep generated assets in a separate reviewed commit from source changes.
+Building assets does not publish or deploy them. The required Node.js version is
+recorded in [`.nvmrc`](.nvmrc). See [`web-app/README.md`](web-app/README.md) for the
+source workspace, bundle gates and GUI regression runner, and
+[`DEVELOPMENT.md`](DEVELOPMENT.md) for the local server workflow.
 
 ## Maintenance Scope
 

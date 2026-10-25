@@ -15,14 +15,15 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import React from "react";
-import { Button, DarkModeIcon, LightModeIcon } from "mds";
+import { DarkModeIcon, LightModeIcon } from "mds";
 import { useSelector } from "react-redux";
 import { AppState, useAppDispatch } from "../../../../store";
 import { setDarkMode } from "../../../../systemSlice";
 import { storeDarkMode } from "../../../../utils/stylesUtils";
 import { useT } from "i18n";
+import HeaderIconButton from "../PageHeaderWrapper/HeaderIconButton";
 
-const DarkModeActivator = () => {
+export const useThemeAction = () => {
   const dispatch = useAppDispatch();
   const t = useT();
 
@@ -35,15 +36,23 @@ const DarkModeActivator = () => {
     storeDarkMode(!currentStatus ? "on" : "off");
   };
 
+  return {
+    label: darkMode ? t("Switch to light mode") : t("Switch to dark mode"),
+    onClick: darkModeActivator,
+    icon: darkMode ? <LightModeIcon /> : <DarkModeIcon />,
+  };
+};
+
+const DarkModeActivator = () => {
+  const action = useThemeAction();
   return (
-    <Button
+    <HeaderIconButton
       id={"dark-mode-activator"}
-      aria-label={
-        darkMode ? t("Switch to light mode") : t("Switch to dark mode")
-      }
-      icon={darkMode ? <LightModeIcon /> : <DarkModeIcon />}
-      onClick={darkModeActivator}
-    />
+      aria-label={action.label}
+      onClick={action.onClick}
+    >
+      {action.icon}
+    </HeaderIconButton>
   );
 };
 

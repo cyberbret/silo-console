@@ -19,15 +19,18 @@ import { ErrorResponseHandler, IEmbeddedCustomStyles } from "./common/types";
 import { AppState } from "./store";
 import { isDarkModeOn } from "./utils/stylesUtils";
 import { getStoredLanguage, Lang } from "./i18n/lang";
-import { addBucketAsync } from "./screens/Console/Buckets/ListBuckets/AddBucket/addBucketThunks";
 import { retainRestartRequirement } from "./utils/restartRequirement";
-import { getStoredSidebarOpen } from "./utils/sidebarState";
+import {
+  getStoredSidebarPreference,
+  resolveSidebarOpen,
+} from "./utils/sidebarState";
 
 interface SystemState {
   value: number;
   loggedIn: boolean;
   showMarketplace: boolean;
   sidebarOpen: boolean;
+  sidebarPreference: boolean | undefined;
   userName: string;
   serverNeedsRestart: boolean;
   serverIsLoading: boolean;
@@ -45,8 +48,6 @@ interface SystemState {
   locationPath: string;
   darkMode: boolean;
   language: Lang;
-  filterBucketList: string;
-  loadBucketsListing: boolean;
 }
 
 const initialState: SystemState = {
@@ -54,7 +55,11 @@ const initialState: SystemState = {
   loggedIn: false,
   showMarketplace: false,
   userName: "",
-  sidebarOpen: getStoredSidebarOpen(),
+  sidebarPreference: getStoredSidebarPreference(),
+  sidebarOpen: resolveSidebarOpen(
+    getStoredSidebarPreference(),
+    window.innerWidth,
+  ),
   siteReplicationInfo: { siteName: "", curSite: false, enabled: false },
   serverNeedsRestart: false,
   serverIsLoading: false,
@@ -79,8 +84,6 @@ const initialState: SystemState = {
   locationPath: "",
   darkMode: isDarkModeOn(),
   language: getStoredLanguage(),
-  filterBucketList: "",
-  loadBucketsListing: true,
 };
 
 const systemSlice = createSlice({
@@ -103,7 +106,14 @@ const systemSlice = createSlice({
       } catch {
         // A blocked or full storage area must not break the sidebar toggle.
       }
+      state.sidebarPreference = action.payload;
       state.sidebarOpen = action.payload;
+    },
+    syncSidebarViewport: (state, action: PayloadAction<number>) => {
+      state.sidebarOpen = resolveSidebarOpen(
+        state.sidebarPreference,
+        action.payload,
+      );
     },
     setServerNeedsRestart: (state, action: PayloadAction<boolean>) => {
       state.serverNeedsRestart = action.payload;
@@ -195,17 +205,6 @@ const systemSlice = createSlice({
     resetSystem: () => {
       return initialState;
     },
-    setFilterBucket: (state, action: PayloadAction<string>) => {
-      state.filterBucketList = action.payload;
-    },
-    setBucketLoadListing: (state, action: PayloadAction<boolean>) => {
-      state.loadBucketsListing = action.payload;
-    },
-  },
-  extraReducers: (builder) => {
-    builder.addCase(addBucketAsync.fulfilled, (state, action) => {
-      state.loadBucketsListing = true;
-    });
   },
 });
 
@@ -213,6 +212,7 @@ const systemSlice = createSlice({
 export const {
   userLogged,
   menuOpen,
+  syncSidebarViewport,
   setServerNeedsRestart,
   recordServerRestartRequirement,
   serverIsLoading,
@@ -232,8 +232,6 @@ export const {
   setLocationPath,
   setDarkMode,
   setLanguage,
-  setFilterBucket,
-  setBucketLoadListing,
 } = systemSlice.actions;
 
 export const selDistSet = (state: AppState) => state.system.distributedSetup;

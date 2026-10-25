@@ -15,16 +15,23 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import React, { Fragment, useEffect, useState } from "react";
-import { DrivesIcon, Loader, SectionTitle, Grid } from "mds";
+import { Box, DrivesIcon, Loader, type } from "mds";
+import styled from "styled-components";
 import { api } from "api";
 import { ServerProperties } from "api/consoleApi";
 import { SiloBrand } from "../../../../common/SiloBrand";
-import { interpolate, useT } from "i18n";
+import { formatText, useT } from "i18n";
 
 interface ITestWrapper {
   title: any;
   children: any;
 }
+
+const ReportTitle = styled.h2`
+  ${type("title")}
+  margin: 0;
+  color: var(--foreground);
+`;
 
 const TestWrapper = ({ title, children }: ITestWrapper) => {
   const t = useT();
@@ -67,84 +74,76 @@ const TestWrapper = ({ title, children }: ITestWrapper) => {
   }, [loading]);
 
   return (
-    <Grid item xs={12}>
-      <SectionTitle separator>{title}</SectionTitle>
-      <Grid item xs={12}>
-        <Grid
-          item
-          xs={12}
-          sx={{
-            padding: 0,
-            marginBottom: 25,
-          }}
-        >
-          <Grid
-            container
-            sx={{
-              padding: 25,
-            }}
-          >
-            {!loading ? (
-              <Fragment>
-                <Grid
-                  item
-                  xs={12}
-                  md={4}
-                  sx={{
-                    fontSize: 18,
-                    display: "flex",
-                    alignItems: "center",
-                    "& svg": {
-                      marginRight: 10,
-                    },
-                  }}
-                >
-                  <DrivesIcon />{" "}
-                  {interpolate(t("{nodes} nodes, {drives} drives"), {
-                    nodes: <strong>{totalNodes}</strong>,
-                    drives: <strong>{totalDrives}</strong>,
-                  })}
-                </Grid>
-                <Grid
-                  item
-                  xs={12}
-                  md={4}
-                  sx={{
-                    fontSize: 12,
-                    justifyContent: "center",
-                    alignSelf: "center",
-                    alignItems: "center",
-                    display: "flex",
-                  }}
-                >
-                  <span
-                    style={{
-                      display: "inline-flex",
-                      marginRight: 12,
-                    }}
-                  >
-                    <SiloBrand
-                      variant="emblem"
-                      alt=""
-                      aria-hidden="true"
-                      style={{ width: 32, height: 32, objectFit: "contain" }}
-                    />
-                  </span>{" "}
-                  {t("SILO VERSION")}&nbsp;<strong>{version}</strong>
-                </Grid>
-              </Fragment>
-            ) : (
-              <Fragment>
-                <Grid item xs={12} sx={{ textAlign: "center" }}>
-                  <Loader style={{ width: 25, height: 25 }} />
-                </Grid>
-              </Fragment>
-            )}
-          </Grid>
-        </Grid>
-        {children}
-      </Grid>
-    </Grid>
+    <Box sx={{ display: "grid", gap: 16 }}>
+      <ReportTitle>{title}</ReportTitle>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: "12px 24px",
+          fontSize: "var(--fs-body)",
+          lineHeight: "var(--lh-body)",
+          color: "var(--muted-foreground)",
+          fontVariantNumeric: "tabular-nums",
+        }}
+      >
+        {!loading ? (
+          <Fragment>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                "& svg": {
+                  width: 20,
+                  height: 20,
+                  color: "var(--muted-foreground)",
+                },
+              }}
+            >
+              <DrivesIcon />
+              <span>
+                {formatText(
+                  totalNodes === 1 ? t("{count} node") : t("{count} nodes"),
+                  { count: totalNodes },
+                )}
+                {" · "}
+                {formatText(
+                  totalDrives === 1 ? t("{count} drive") : t("{count} drives"),
+                  { count: totalDrives },
+                )}
+              </span>
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                flexWrap: "wrap",
+                gap: 8,
+                "& strong": {
+                  fontWeight: 550,
+                  color: "var(--foreground)",
+                  overflowWrap: "anywhere",
+                },
+              }}
+            >
+              <SiloBrand
+                variant="emblem"
+                alt=""
+                aria-hidden="true"
+                style={{ width: 24, height: 24, objectFit: "contain" }}
+              />
+              <span>{t("SILO version")}</span>
+              <strong>{version}</strong>
+            </Box>
+          </Fragment>
+        ) : (
+          <Loader style={{ width: 24, height: 24 }} />
+        )}
+      </Box>
+      {children}
+    </Box>
   );
 };
 

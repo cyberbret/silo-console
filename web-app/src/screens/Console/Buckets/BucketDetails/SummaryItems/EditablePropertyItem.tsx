@@ -14,123 +14,52 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import React from "react";
-import { ActionLink, Box, HelpTip, ValuePair } from "mds";
-import { SecureComponent } from "../../../../../common/SecureComponent";
-
-import EditActionButton from "./EditActionButton";
+import React, { ReactNode } from "react";
+import { HelpTip } from "mds";
+import { hasPermission } from "common/SecureComponent";
+import { StatusValue } from "common/ui/StatusValue";
+import { useT } from "i18n";
 
 type EditablePropertyItemProps = {
   isLoading: boolean;
   resourceName: string;
   iamScopes: string[];
-  property: any;
-  value: any;
+  property: string;
+  value: ReactNode;
   onEdit: () => void;
-  secureCmpProps?: Record<any, any>;
   disabled?: boolean;
-  helpTip?: any;
-};
-
-const SecureAction = ({
-  resourceName,
-  iamScopes,
-  secureCmpProps = {},
-  children,
-}: {
-  resourceName: string;
-  iamScopes: string[];
-  children: any;
-  secureCmpProps?: Record<any, any>;
-}) => {
-  return (
-    <SecureComponent
-      scopes={iamScopes}
-      resource={resourceName}
-      errorProps={{ disabled: true }}
-      {...secureCmpProps}
-    >
-      {children}
-    </SecureComponent>
-  );
+  helpTip?: ReactNode;
 };
 
 const EditablePropertyItem = ({
-  isLoading = true,
-  resourceName = "",
+  isLoading,
+  resourceName,
   iamScopes,
-  secureCmpProps = {},
-  property = null,
-  value = null,
+  property,
+  value,
   onEdit,
   disabled = false,
   helpTip,
 }: EditablePropertyItemProps) => {
+  const t = useT();
+  const canEdit =
+    !disabled && !isLoading && hasPermission(resourceName, iamScopes);
   return (
-    <Box
-      sx={{
-        display: "flex",
-        alignItems: "baseline",
-        justifyContent: "flex-start",
-        gap: 10,
-      }}
-    >
-      <ValuePair
-        label={property}
-        value={
-          helpTip ? (
-            <SecureAction
-              resourceName={resourceName}
-              iamScopes={iamScopes}
-              secureCmpProps={secureCmpProps}
-            >
-              <HelpTip placement="left" content={helpTip}>
-                <ActionLink
-                  isLoading={isLoading}
-                  onClick={onEdit}
-                  label={value}
-                  sx={{ fontWeight: "bold", textTransform: "capitalize" }}
-                  disabled={disabled}
-                />
-              </HelpTip>
-            </SecureAction>
-          ) : (
-            <SecureAction
-              resourceName={resourceName}
-              iamScopes={iamScopes}
-              secureCmpProps={secureCmpProps}
-            >
-              <ActionLink
-                isLoading={isLoading}
-                onClick={onEdit}
-                label={value}
-                sx={{ fontWeight: "bold", textTransform: "capitalize" }}
-                disabled={disabled}
-              />
-            </SecureAction>
-          )
-        }
-      />
-      <SecureAction
-        resourceName={resourceName}
-        iamScopes={iamScopes}
-        secureCmpProps={secureCmpProps}
-      >
-        <EditActionButton
-          onClick={onEdit}
-          sx={{
-            background: "#f8f8f8",
-            marginLeft: "3px",
-            top: 3,
-            "& .min-icon": {
-              width: "16px",
-              height: "16px",
-            },
-          }}
-          disabled={disabled}
-        />
-      </SecureAction>
-    </Box>
+    <StatusValue
+      label={property}
+      value={
+        isLoading ? (
+          t("Loading…")
+        ) : helpTip ? (
+          <HelpTip placement="left" content={helpTip}>
+            {value}
+          </HelpTip>
+        ) : (
+          value
+        )
+      }
+      onEdit={canEdit ? onEdit : undefined}
+    />
   );
 };
 

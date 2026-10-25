@@ -3340,6 +3340,11 @@ definitions:
   listBucketsResponse:
     type: object
     properties:
+      usageUpdatedAt:
+        type: string
+        format: date-time
+        x-nullable: true
+        description: Time the server last finished computing data usage; absent when unknown
       buckets:
         type: array
         items:
@@ -3534,6 +3539,24 @@ definitions:
   policy:
     type: object
     properties:
+      builtin:
+        type: boolean
+        x-nullable: true
+        description: Whether the policy name is one of the SILO built-in policies
+      modified:
+        type: boolean
+        x-nullable: true
+        description: Whether this is a built-in policy whose stored document differs semantically from the SILO default
+      userCount:
+        type: integer
+        format: int64
+        x-nullable: true
+        description: Number of distinct users directly assigned to this policy; absent when unknown
+      groupCount:
+        type: integer
+        format: int64
+        x-nullable: true
+        description: Number of distinct groups directly assigned to this policy; absent when unknown
       name:
         type: string
       policy:
@@ -4234,6 +4257,11 @@ definitions:
   adminInfoResponse:
     type: object
     properties:
+      usageUpdatedAt:
+        type: string
+        format: date-time
+        x-nullable: true
+        description: Time the server last finished computing data usage; absent when unknown
       buckets:
         type: integer
       objects:

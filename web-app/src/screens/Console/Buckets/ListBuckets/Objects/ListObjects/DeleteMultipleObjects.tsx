@@ -15,17 +15,12 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import React, { Fragment, useState } from "react";
-import { ErrorResponseHandler } from "../../../../../../common/types";
-import useApi from "../../../../Common/Hooks/useApi";
 import ConfirmDialog from "../../../../Common/ModalWrapper/ConfirmDialog";
 import { ConfirmDeleteIcon, Switch } from "mds";
-import { setErrorSnackMessage } from "../../../../../../systemSlice";
-import { AppState, useAppDispatch } from "../../../../../../store";
 import { hasPermission } from "../../../../../../common/SecureComponent";
 import { IAM_SCOPES } from "../../../../../../common/SecureComponent/permissions";
-import { useSelector } from "react-redux";
 import { BucketVersioningResponse } from "api/consoleApi";
-import { api } from "../../../../../../api";
+import { startMutationTask } from "../../../../Common/ObjectManager/mutationTasks";
 import { useT } from "i18n";
 
 interface IDeleteObjectProps {
@@ -45,21 +40,11 @@ const DeleteObject = ({
 
   versioning,
 }: IDeleteObjectProps) => {
-  const dispatch = useAppDispatch();
   const t = useT();
-  const onDelSuccess = () => closeDeleteModalAndRefresh(true);
-  const onDelError = (err: ErrorResponseHandler) =>
-    dispatch(setErrorSnackMessage(err));
   const onClose = () => closeDeleteModalAndRefresh(false);
-
-  const [deleteLoading, invokeDeleteApi] = useApi(onDelSuccess, onDelError);
-
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteVersions, setDeleteVersions] = useState<boolean>(false);
   const [bypassGovernance, setBypassGovernance] = useState<boolean>(false);
-
-  const retentionConfig = useSelector(
-    (state: AppState) => state.objectBrowser.retentionConfig,
-  );
 
   // A bucket default does not describe retention on individual versions.
   // Keep bypass an explicit, permission-gated choice; SILO enforces the lock.
@@ -77,60 +62,20 @@ const DeleteObject = ({
     return null;
   }
   const onConfirmDelete = () => {
-    let toSend = [];
-    for (let i = 0; i < selectedObjects.length; i++) {
-      if (selectedObjects[i].endsWith("/")) {
-        toSend.push({
-          path: selectedObjects[i],
-          versionID: "",
-          recursive: true,
-        });
-      } else {
-        toSend.push({
-          path: selectedObjects[i],
-          versionID: "",
-          recursive: false,
-        });
-      }
-    }
-
-    if (toSend) {
-      if (selectedObjects.length === 1) {
-        const firstObject = selectedObjects[0];
-        api.buckets
-          .deleteObject(selectedBucket, {
-            prefix: firstObject,
-            all_versions: deleteVersions,
-            bypass: bypassGovernance,
-            recursive: firstObject.endsWith("/"), //if it is just a prefix
-          })
-          .then(onDelSuccess)
-          .catch((err) => {
-            dispatch(
-              setErrorSnackMessage({
-                errorMessage: `${t("Could not delete object.")} ${
-                  err.statusText
-                }. ${
-                  retentionConfig
-                    ? t(
-                        "Please check retention mode and if object is WORM protected.",
-                      )
-                    : ""
-                }`,
-                detailedError: "",
-              }),
-            );
-          });
-      } else {
-        invokeDeleteApi(
-          "POST",
-          `/api/v1/buckets/${selectedBucket}/delete-objects?all_versions=${deleteVersions}${
-            bypassGovernance ? "&bypass=true" : ""
-          }`,
-          toSend,
-        );
-      }
-    }
+    if (deleteLoading) return;
+    setDeleteLoading(true);
+    startMutationTask(
+      "delete",
+      selectedObjects.map((key) => ({
+        bucket: selectedBucket,
+        key,
+        recursive: key.endsWith("/"),
+        allVersions: deleteVersions,
+        bypass: canBypass && bypassGovernance,
+      })),
+      "Delete Objects",
+    );
+    closeDeleteModalAndRefresh(false);
   };
 
   const isVersionedDelete =
@@ -138,6 +83,7 @@ const DeleteObject = ({
 
   return (
     <ConfirmDialog
+      destructive
       title={t("Delete Objects")}
       confirmText={t("Delete")}
       isOpen={deleteOpen}
@@ -193,11 +139,11 @@ const DeleteObject = ({
                   <div
                     style={{
                       marginTop: 10,
-                      border: "#c83b51 1px solid",
-                      borderRadius: 3,
-                      padding: 5,
-                      backgroundColor: "#c83b5120",
-                      color: "#c83b51",
+                      border: "1px solid var(--destructive)",
+                      borderRadius: "var(--radius-control, 4px)",
+                      padding: "6px 10px",
+                      backgroundColor: "var(--destructive-bg)",
+                      color: "var(--destructive-text)",
                     }}
                   >
                     {t(

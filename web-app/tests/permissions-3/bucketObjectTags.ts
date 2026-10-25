@@ -24,6 +24,9 @@ fixture("For user with Bucket Read & Write permissions").page(
   "http://localhost:9090",
 );
 
+const tagsButton = Selector("#details-panel button").withExactText("Tags");
+const tag = Selector("span").withExactText("tag1 : test");
+
 const testObjectRow = Selector(
   ".ReactVirtualized__Table__rowColumn",
 ).withExactText("test.txt");
@@ -46,17 +49,21 @@ test
       .navigateTo("http://localhost:9090/browser")
       .click(testBucketBrowseButtonFor("bucketobjecttags"))
       .click(testObjectRow)
-      .click(Selector("button").withText("Tags"))
+      .click(tagsButton)
       .typeText("#newTagKey", "tag1")
       .typeText("#newTagLabel", "test")
       .click(Selector("#saveTag:enabled"))
-      .click(Selector("button").withText("Tags"), { offsetX: -1, offsetY: -1 })
-      .expect(Selector("span").withText("tag1 : test").exists)
+      .expect(Selector("#newTagKey").exists)
+      .notOk()
+      .click(tagsButton)
+      .expect(tag.exists)
       .ok()
       .click(Selector(".deleteTagButton"))
       .click(Selector("#deleteTag"))
-      .click(Selector("button").withText("Tags"))
-      .expect(Selector("span").withText("tag1 : test").exists)
+      .expect(Selector("#newTagKey").exists)
+      .notOk()
+      .click(tagsButton)
+      .expect(tag.exists)
       .notOk();
   })
   .after(async (t) => {
@@ -82,12 +89,13 @@ test
       .navigateTo("http://localhost:9090/browser")
       .click(testBucketBrowseButtonFor("bucketcannottag"))
       .click(testObjectRow)
-      .click(Selector("button").withText("Tags"))
+      .click(tagsButton)
       .typeText("#newTagKey", "tag1")
       .typeText("#newTagLabel", "test")
       .click(Selector("#saveTag:enabled"))
-      .click(Selector("button").withText("Tags"))
-      .expect(Selector(".MuiChip-label").withText("tag1 : test").exists)
+      .expect(Selector('[role="alert"]').withText("Access Denied").exists)
+      .ok()
+      .expect(tag.exists)
       .notOk();
   })
   .after(async (t) => {

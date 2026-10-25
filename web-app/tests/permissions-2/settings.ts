@@ -16,7 +16,7 @@
 
 import * as roles from "../utils/roles";
 import * as elements from "../utils/elements";
-import { configurationsElement } from "../utils/elements-menu";
+import { configurationsElement, settingsElement } from "../utils/elements-menu";
 
 fixture("For user with Settings permissions")
   .page("http://localhost:9090")
@@ -25,7 +25,7 @@ fixture("For user with Settings permissions")
   });
 
 test("Settings sidebar item exists", async (t) => {
-  await t.expect(configurationsElement.exists).ok();
+  await t.click(settingsElement).expect(configurationsElement.exists).ok();
 });
 
 test("Settings window exists in Settings page", async (t) => {

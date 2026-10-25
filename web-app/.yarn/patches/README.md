@@ -1,17 +1,9 @@
 # Dependency patches
 
-## MDS dropdown selection
-
-The `mds@1.1.5.9` patch makes a clicked or tapped option use its own index.
-Previously, selection used the last rendered hover index, so a quick click or
-touch could select the first item, even when the user clicked a disabled item.
-Keyboard Enter continues to use the highlighted index. Appearance, callbacks,
-option values, and disabled-item behavior are otherwise unchanged.
-
-The patch updates the TypeScript source and the distributed ESM build used by
-Console. Browser regressions bundle the installed dependency and exercise mouse,
-touch, keyboard, and disabled-option selection. Remove the patch when a future
-MDS version includes this fix; keep those behavioral tests.
+The MDS DropdownSelector click-index fix now lives in
+`packages/mds/src/components/DropdownSelector/DropdownSelector.tsx`. Keep its
+browser regression tests: they bundle the workspace source and exercise mouse,
+touch, keyboard, and disabled-option selection.
 
 ## Development SDK compatibility
 

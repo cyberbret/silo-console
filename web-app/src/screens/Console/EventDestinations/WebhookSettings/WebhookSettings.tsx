@@ -14,21 +14,17 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { ModalPresence } from "common/ui/ModalPresence";
 import React, { Fragment, useState } from "react";
 import { IConfigurationSys, IElementValue } from "../../Configurations/types";
-import {
-  Button,
-  ConsoleIcon,
-  DataTable,
-  Grid,
-  TierOfflineIcon,
-  TierOnlineIcon,
-} from "mds";
+import { Button, ConsoleIcon, DataTable, Grid, Box, Tooltip } from "mds";
 import AddEndpointModal from "./AddEndpointModal";
 import DeleteWebhookEndpoint from "./DeleteWebhookEndpoint";
 import EditWebhookEndpoint from "./EditWebhookEndpoint";
 import { Configuration } from "api/consoleApi";
 import { useT } from "i18n";
+import { StatusBadge } from "common/ui/StatusBadge";
+import { useBoundedTable } from "common/ui/useBoundedTable";
 
 interface WebhookSettingsProps {
   WebhookSettingslist: Configuration[];
@@ -42,6 +38,7 @@ const WebhookSettings = ({
   type,
 }: WebhookSettingsProps) => {
   const t = useT();
+  const boundedTable = useBoundedTable(WebhookSettingslist.length);
   const [newEndpointOpen, setNewEndpointOpen] = useState<boolean>(false);
   const [deleteWebhookOpen, setDeleteWebhookOpen] = useState<boolean>(false);
   const [editWebhookOpen, setEditWebhookOpen] = useState<boolean>(false);
@@ -64,65 +61,32 @@ const WebhookSettings = ({
   };
 
   const renderWebhookStatus = (item: IElementValue[]) => {
-    const EnableFilter = item.find((itm) => itm.key === "enable");
-
-    if (EnableFilter?.env_override) {
-      const overrideEnabled =
-        !EnableFilter?.env_override.value ||
-        EnableFilter?.env_override.value === "on" ||
-        !EnableFilter?.env_override.value
-          ? "Enabled"
-          : "Disabled";
-      return (
-        <Grid
-          container
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyItems: "start",
-            fontSize: "8px",
-          }}
-        >
-          <ConsoleIcon style={{ fill: "#052F51", width: "14px" }} />
-          {overrideEnabled ? t("Enabled") : t("Disabled")}
-        </Grid>
-      );
-    }
-
-    // If enable is not set, then enabled by default
-    if (!EnableFilter || EnableFilter.value === "on" || !EnableFilter.value) {
-      return (
-        <Grid
-          container
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyItems: "start",
-            fontSize: "8px",
-          }}
-        >
-          <TierOnlineIcon style={{ fill: "#4CCB92", width: 14, height: 14 }} />
-          {t("Enabled")}
-        </Grid>
-      );
-    }
-
+    const enable = item.find((entry) => entry.key === "enable");
+    const value = enable?.env_override
+      ? enable.env_override.value
+      : enable?.value;
+    // An unset value enables the endpoint; an environment override wins.
+    const enabled = !value || value === "on";
     return (
-      <Grid
-        container
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyItems: "start",
-          fontSize: "8px",
-        }}
-      >
-        <TierOfflineIcon style={{ fill: "#C83B51", width: 14, height: 14 }} />
-        {t("Disabled")}
-      </Grid>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <StatusBadge
+          tone={enabled ? "success" : "neutral"}
+          label={enabled ? t("Enabled") : t("Disabled")}
+        />
+        {enable?.env_override && (
+          <Tooltip tooltip={t("Set by environment variable")}>
+            <span tabIndex={0} aria-label={t("Set by environment variable")}>
+              <ConsoleIcon
+                style={{
+                  color: "var(--muted-foreground)",
+                  width: 14,
+                  height: 14,
+                }}
+              />
+            </span>
+          </Tooltip>
+        )}
+      </Box>
     );
   };
 
@@ -177,32 +141,59 @@ const WebhookSettings = ({
   ];
   return (
     <Grid container>
-      {newEndpointOpen && (
-        <AddEndpointModal
-          open={newEndpointOpen}
-          type={type}
-          onCloseEndpoint={() => {
-            setNewEndpointOpen(false);
+      <ModalPresence open={Boolean(newEndpointOpen)}>
+        {newEndpointOpen && (
+          <AddEndpointModal
+            open={newEndpointOpen}
+            type={type}
+            onCloseEndpoint={() => {
+              setNewEndpointOpen(false);
+            }}
+          />
+        )}
+      </ModalPresence>
+      <ModalPresence open={Boolean(deleteWebhookOpen)}>
+        {deleteWebhookOpen && (
+          <DeleteWebhookEndpoint
+            modalOpen={deleteWebhookOpen}
+            onClose={onCloseDelete}
+            selectedARN={selectedARN}
+            type={type}
+          />
+        )}
+      </ModalPresence>
+      <ModalPresence open={Boolean(editWebhookOpen && selectedEndpoint)}>
+        {editWebhookOpen && selectedEndpoint && (
+          <EditWebhookEndpoint
+            open={editWebhookOpen}
+            type={type}
+            endpointInfo={selectedEndpoint}
+            onCloseEndpoint={onCloseEditWebhook}
+          />
+        )}
+      </ModalPresence>
+      <Grid
+        item
+        xs={12}
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 12,
+          marginBottom: 16,
+          flexWrap: "wrap",
+        }}
+      >
+        <h2
+          style={{
+            margin: 0,
+            fontSize: "var(--fs-title)",
+            lineHeight: "var(--lh-title)",
+            fontWeight: 550,
           }}
-        />
-      )}
-      {deleteWebhookOpen && (
-        <DeleteWebhookEndpoint
-          modalOpen={deleteWebhookOpen}
-          onClose={onCloseDelete}
-          selectedARN={selectedARN}
-          type={type}
-        />
-      )}
-      {editWebhookOpen && selectedEndpoint && (
-        <EditWebhookEndpoint
-          open={editWebhookOpen}
-          type={type}
-          endpointInfo={selectedEndpoint}
-          onCloseEndpoint={onCloseEditWebhook}
-        />
-      )}
-      <Grid item xs={12} sx={{ display: "flex", justifyContent: "flex-end" }}>
+        >
+          {t("Currently Configured Endpoints")}
+        </h2>
         <Button
           id={"newWebhook"}
           variant="callAction"
@@ -213,22 +204,24 @@ const WebhookSettings = ({
           {t("New Endpoint")}
         </Button>
       </Grid>
-      <Grid item xs={12} sx={{ padding: "0 10px 10px" }}>
+      <Grid item xs={12}>
         <Fragment>
-          <h3>{t("Currently Configured Endpoints")}</h3>
           <DataTable
+            {...boundedTable}
             columns={[
               {
                 label: t("Status"),
                 elementKey: "key_values",
                 renderFunction: renderWebhookStatus,
-                width: 50,
+                width: 140,
+                priority: "high",
               },
-              { label: t("Name"), elementKey: "name" },
+              { label: t("Name"), elementKey: "name", priority: "high" },
               {
                 label: t("Endpoint"),
                 elementKey: "key_values",
                 renderFunction: renderEndpoint,
+                priority: "low",
               },
             ]}
             itemActions={actions}
@@ -237,7 +230,6 @@ const WebhookSettings = ({
             records={WebhookSettingslist}
             entityName={t("endpoints")}
             customEmptyMessage={t("There are no endpoints yet.")}
-            customPaperHeight={"calc(100vh - 750px)"}
           />
         </Fragment>
       </Grid>

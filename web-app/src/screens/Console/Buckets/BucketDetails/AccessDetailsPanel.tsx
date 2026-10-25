@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { EmptyState, SkeletonRows } from "common/ui";
+import { IAMPoliciesIcon, UsersIcon, Button } from "mds";
 import React, { Fragment, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
@@ -147,7 +149,7 @@ const AccessDetails = () => {
 
   return (
     <Fragment>
-      <SectionTitle separator>
+      <SectionTitle headingLevel={2} separator>
         <HelpTip
           content={
             <Fragment>
@@ -200,18 +202,37 @@ const AccessDetails = () => {
                 resource={bucketName}
                 errorProps={{ disabled: true }}
               >
-                {bucketPolicy && (
-                  <DataTable
-                    noBackground={true}
-                    itemActions={PolicyActions}
-                    columns={[{ label: t("Name"), elementKey: "name" }]}
-                    isLoading={loadingPolicies}
-                    records={bucketPolicy}
-                    entityName={t("Policies")}
-                    customEmptyMessage={t("There are no Policies yet.")}
-                    idField="name"
-                  />
-                )}
+                <DataTable
+                  noBackground={true}
+                  itemActions={PolicyActions}
+                  columns={[{ label: t("Name"), elementKey: "name" }]}
+                  isLoading={loadingPolicies}
+                  records={bucketPolicy || []}
+                  entityName={t("Policies")}
+                  loadingState={<SkeletonRows rows={5} columns={1} />}
+                  emptyState={
+                    <EmptyState
+                      icon={<IAMPoliciesIcon />}
+                      title={t("No policies grant access")}
+                      description={t(
+                        "No listed policy currently grants access to this bucket.",
+                      )}
+                      action={
+                        hasPermission(CONSOLE_UI_RESOURCE, [
+                          IAM_SCOPES.ADMIN_LIST_USER_POLICIES,
+                        ]) && (
+                          <Button
+                            id="empty-list-action"
+                            variant="callAction"
+                            label={t("View Policies")}
+                            onClick={() => navigate(IAM_PAGES.POLICIES)}
+                          />
+                        )
+                      }
+                    />
+                  }
+                  idField="name"
+                />
               </SecureComponent>
             ),
           },
@@ -235,7 +256,28 @@ const AccessDetails = () => {
                   isLoading={loadingUsers}
                   records={bucketUsers}
                   entityName={t("Users")}
-                  customEmptyMessage={t("There are no Users yet.")}
+                  loadingState={<SkeletonRows rows={5} columns={1} />}
+                  emptyState={
+                    <EmptyState
+                      icon={<UsersIcon />}
+                      title={t("No users have access")}
+                      description={t(
+                        "No listed user currently has a policy granting access to this bucket.",
+                      )}
+                      action={
+                        hasPermission(CONSOLE_UI_RESOURCE, [
+                          IAM_SCOPES.ADMIN_LIST_USERS,
+                        ]) && (
+                          <Button
+                            id="empty-list-action"
+                            variant="callAction"
+                            label={t("View Users")}
+                            onClick={() => navigate(IAM_PAGES.USERS)}
+                          />
+                        )
+                      }
+                    />
+                  }
                   idField="accessKey"
                 />
               </SecureComponent>

@@ -33,7 +33,7 @@ test.describe("text preview classification", () => {
       ["README", "application/json; charset=utf-8", "text"],
       ["page.html", "text/plain", "none"],
       ["page.txt", "text/html", "text"],
-      ["notes.md", "text/plain", "text"],
+      ["notes.md", "text/plain", "markdown"],
       ["image.svg", "image/svg+xml", "image"],
     ] as const;
 
@@ -42,16 +42,42 @@ test.describe("text preview classification", () => {
     }
   });
 
-  test("accepts only the four target extensions, case-insensitively", () => {
-    for (const extension of ["log", "txt", "json", "xml"]) {
-      expect(previewObjectType(null, `file.${extension}`)).toBe("text");
-      expect(previewObjectType(null, `file.${extension.toUpperCase()}`)).toBe(
+  test("accepts exactly the design extensions and basenames case-insensitively", () => {
+    const extensions =
+      "txt log json xml md markdown yaml yml toml ini cfg conf env properties csv tsv sql sh bash zsh py go rs js mjs cjs ts tsx jsx java kt c h cpp hpp cs rb php lua pl r swift scala gradle tf hcl proto graphql dockerfile makefile gitignore editorconfig".split(
+        " ",
+      );
+    for (const extension of extensions) {
+      const kind = ["md", "markdown"].includes(extension)
+        ? "markdown"
+        : ["csv", "tsv"].includes(extension)
+          ? "csv"
+          : "text";
+      for (const name of [
+        `dir/file.${extension}`,
+        `dir/file.${extension.toUpperCase()}`,
+        `.${extension}`,
+      ])
+        expect(previewObjectType(null, name)).toBe(kind);
+    }
+    for (const basename of "LICENSE LICENCE NOTICE README AUTHORS CHANGELOG CONTRIBUTING MAKEFILE DOCKERFILE CODEOWNERS VERSION".split(
+      " ",
+    )) {
+      expect(previewObjectType(null, `docs/${basename}`)).toBe("text");
+      expect(previewObjectType(null, `docs/${basename.toLowerCase()}`)).toBe(
         "text",
       );
+      expect(previewObjectType(null, `docs/${basename}.bin`)).toBe("none");
     }
-
-    expect(previewObjectType(null, "file.md")).toBe("none");
-    expect(previewObjectType(null, "file.csv")).toBe("none");
+    for (const name of [
+      "file.css",
+      "file.rtf",
+      "file.tar",
+      "docs/unknown",
+      "docs/README/",
+      "README.",
+    ])
+      expect(previewObjectType(null, name)).toBe("none");
   });
 
   test("accepts four exact normalized MIME types with parameters", () => {
@@ -82,18 +108,38 @@ test.describe("text preview classification", () => {
     expect(previewObjectType(metadata("image/png"), "page.html")).toBe("image");
   });
 
-  test("does not broaden text MIME matching", () => {
+  test("broadens text MIME types but not application suffix matching", () => {
     for (const contentType of [
-      "text/csv",
-      "text/*",
       "application/ld+json",
       "application/problem+json",
       "application/json-patch+json",
       "application/xml-dtd",
       "application/octet-stream",
     ]) {
-      expect(previewObjectType(metadata(contentType), "README")).toBe("none");
+      expect(previewObjectType(metadata(contentType), "unknown")).toBe("none");
     }
+  });
+
+  test("accepts text MIME types except active HTML", () => {
+    for (const mime of [
+      "text/csv",
+      "text/tab-separated-values",
+      "text/markdown",
+      "text/x-python",
+      "text/css",
+    ])
+      expect(
+        previewObjectType(
+          metadata(` ${mime.toUpperCase()}; charset=UTF-8 `),
+          "unknown",
+        ),
+      ).toBe("text");
+    for (const mime of ["text/html", "application/xhtml+xml"])
+      expect(previewObjectType(metadata(mime), "unknown")).toBe("none");
+    expect(previewObjectType(metadata("text/plain"), "image.svg")).toBe(
+      "image",
+    );
+    expect(TEXT_PREVIEW_RANGE).toBe("bytes=0-1048575");
   });
 
   test("preserves every legacy media family and extension precedence", () => {
@@ -207,14 +253,21 @@ test.describe("bounded text loading", () => {
     }
   });
 
-  test("rejects known 1 MiB plus one without a body request", async () => {
-    const loaded = await loadResponse(encoder.encode("must not be requested"), {
+  test("fetches a known oversized object and truncates its range", async () => {
+    const bytes = new Uint8Array(MAX_TEXT_PREVIEW_BYTES).fill(0x61);
+    const loaded = await loadResponse(bytes, {
       knownSize: MAX_TEXT_PREVIEW_BYTES + 1,
+      status: 206,
+      headers: {
+        "Content-Range": `bytes 0-${MAX_TEXT_PREVIEW_BYTES - 1}/${MAX_TEXT_PREVIEW_BYTES + 1}`,
+      },
     });
-    expect(loaded.requests).toBe(0);
+    expect(loaded.requests).toBe(1);
     expect(loaded.result).toEqual({
-      status: "too_large",
-      objectSize: MAX_TEXT_PREVIEW_BYTES + 1,
+      status: "success",
+      content: "a".repeat(MAX_TEXT_PREVIEW_BYTES),
+      byteLength: MAX_TEXT_PREVIEW_BYTES,
+      truncated: true,
     });
   });
 
@@ -257,33 +310,24 @@ test.describe("bounded text loading", () => {
     }
   });
 
-  test("uses Content-Range to reject an oversized object", async () => {
-    for (const objectSize of [
-      MAX_TEXT_PREVIEW_BYTES + 1,
-      MAX_TEXT_PREVIEW_BYTES * 4,
-    ]) {
-      const loaded = await loadResponse(
-        encoder.encode("prefix must stay hidden"),
-        {
-          status: 206,
-          headers: {
-            "Content-Range": `bytes 0-${MAX_TEXT_PREVIEW_BYTES}/${objectSize}`,
-          },
-        },
-      );
-      expect(loaded.result).toEqual({
-        status: "too_large",
-        objectSize,
-      });
-    }
+  test("does not accept an incomplete prefix of a large object", async () => {
+    const loaded = await loadResponse(encoder.encode("short"), {
+      status: 206,
+      headers: {
+        "Content-Range": `bytes 0-${MAX_TEXT_PREVIEW_BYTES - 1}/${MAX_TEXT_PREVIEW_BYTES * 4}`,
+      },
+    });
+    expect(loaded.result).toEqual({ status: "error" });
   });
 
   test("enforces the limit when Range is ignored with a 200", async () => {
     const bytes = new Uint8Array(MAX_TEXT_PREVIEW_BYTES + 1).fill(0x61);
     const loaded = await loadResponse(bytes);
     expect(loaded.result).toEqual({
-      status: "too_large",
-      objectSize: undefined,
+      status: "success",
+      content: "a".repeat(MAX_TEXT_PREVIEW_BYTES),
+      byteLength: MAX_TEXT_PREVIEW_BYTES,
+      truncated: true,
     });
   });
 
@@ -302,26 +346,69 @@ test.describe("bounded text loading", () => {
     expect(incorrect.result).toEqual({ status: "error" });
   });
 
-  test("rejects a revealing oversized Content-Length before reading", async () => {
+  test("cancels an oversized response as soon as its prefix is read", async () => {
     let cancelled = false;
     const stream = new ReadableStream<Uint8Array>({
-      cancel: () => {
+      start(controller) {
+        controller.enqueue(new Uint8Array(MAX_TEXT_PREVIEW_BYTES).fill(0x61));
+      },
+      cancel() {
         cancelled = true;
       },
     });
-    const controller = new AbortController();
     const result = await loadTextPreview({
-      signal: controller.signal,
+      signal: new AbortController().signal,
       request: async () =>
         response(stream, 200, {
           "Content-Length": `${MAX_TEXT_PREVIEW_BYTES + 1}`,
         }),
     });
-    expect(result).toEqual({
-      status: "too_large",
-      objectSize: MAX_TEXT_PREVIEW_BYTES + 1,
+    expect(result.status).toBe("success");
+    expect(result).toMatchObject({
+      truncated: true,
+      byteLength: MAX_TEXT_PREVIEW_BYTES,
     });
     expect(cancelled).toBe(true);
+  });
+
+  test("stale oversized listing does not truncate a now small object", async () => {
+    const loaded = await loadResponse(encoder.encode("small"), {
+      knownSize: MAX_TEXT_PREVIEW_BYTES * 4,
+    });
+    expect(loaded.result).toEqual({
+      status: "success",
+      content: "small",
+      byteLength: 5,
+    });
+  });
+
+  test("cuts UTF-8 only at a code point boundary", async () => {
+    for (const char of ["é", "中", "🙂"]) {
+      for (
+        let retained = 1;
+        retained < encoder.encode(char).length;
+        retained += 1
+      ) {
+        const prefix = "a".repeat(MAX_TEXT_PREVIEW_BYTES - retained);
+        const loaded = await loadResponse(encoder.encode(prefix + char));
+        expect(loaded.result).toEqual({
+          status: "success",
+          content: prefix,
+          byteLength: MAX_TEXT_PREVIEW_BYTES,
+          truncated: true,
+        });
+      }
+    }
+  });
+
+  test("still rejects malformed interior bytes and binary content in a truncated file", async () => {
+    for (const value of [0xff, 0x00]) {
+      const bytes = new Uint8Array(MAX_TEXT_PREVIEW_BYTES + 1).fill(0x61);
+      bytes[5] = value;
+      expect((await loadResponse(bytes)).result).toEqual({
+        status: "invalid_text",
+      });
+    }
   });
 
   test("treats list size as a hint and displays the complete current object", async () => {

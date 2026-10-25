@@ -17,7 +17,7 @@
 import React, { Fragment } from "react";
 import { DropdownSelector, SelectorType } from "mds";
 import styled from "styled-components";
-import get from "lodash/get";
+import { type } from "../../../../../common/ui/typography";
 
 interface IInputUnitBox {
   id: string;
@@ -27,13 +27,26 @@ interface IInputUnitBox {
   onUnitChange?: (newValue: string) => void;
 }
 
-const UnitMenuButton = styled.button(({ theme }) => ({
-  border: `1px solid ${get(theme, "borderColor", "#E2E2E2")}`,
-  borderRadius: 3,
-  color: get(theme, "secondaryText", "#5B5C5C"),
-  backgroundColor: get(theme, "boxBackground", "#FBFAFA"),
-  fontSize: 12,
-}));
+const UnitMenuButton = styled.button`
+  ${type("caption")}
+  border: 0;
+  border-radius: 6px;
+  padding: 4px 8px;
+  background: var(--tint);
+  color: var(--foreground);
+  cursor: pointer;
+  &:hover:not(:disabled) {
+    background: var(--tint-hover);
+  }
+  &:disabled {
+    color: var(--muted-foreground);
+    cursor: not-allowed;
+  }
+  &:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 1px;
+  }
+`;
 
 const InputUnitMenu = ({
   id,
@@ -59,7 +72,7 @@ const InputUnitMenu = ({
       <UnitMenuButton
         id={`${id}-button`}
         aria-controls={`${id}-menu`}
-        aria-haspopup="true"
+        aria-haspopup="listbox"
         aria-expanded={open ? "true" : undefined}
         onClick={handleClick}
         disabled={disabled}
@@ -71,7 +84,7 @@ const InputUnitMenu = ({
       <DropdownSelector
         id={`${id}-menu`}
         options={unitsList}
-        selectedOption={""}
+        selectedOption={unitSelected}
         onSelect={(value) => handleClose(value)}
         hideTriggerAction={() => {
           handleClose("");

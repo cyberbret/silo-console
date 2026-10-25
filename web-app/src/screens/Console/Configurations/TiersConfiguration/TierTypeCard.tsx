@@ -47,7 +47,7 @@ const TierButtonBase = styled.button(({ theme }) => ({
   "& .tierNotifTitle": {
     color: get(theme, "buttons.callAction.enabled.background", "#07193E"),
     fontSize: 16,
-    fontFamily: "Inter,sans-serif",
+    fontFamily: "var(--font-sans)",
     paddingLeft: 18,
     fontWeight: "bold",
   },

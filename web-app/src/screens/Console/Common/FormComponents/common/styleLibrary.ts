@@ -26,10 +26,10 @@ export const modalBasic = {
     marginBottom: 25,
   },
   clearButton: {
-    fontFamily: "Inter, sans-serif",
+    fontFamily: "var(--font-sans)",
     border: "0",
     backgroundColor: "transparent",
-    color: "#393939",
+    color: "var(--foreground)",
     fontWeight: 600,
     fontSize: 14,
     marginRight: 10,
@@ -38,12 +38,12 @@ export const modalBasic = {
     cursor: "pointer",
   },
   configureString: {
-    border: "#EAEAEA 1px solid",
-    borderRadius: 4,
+    border: "1px solid var(--border)",
+    borderRadius: "var(--radius-control, 4px)",
     padding: "24px 50px",
     overflowY: "auto" as const,
     height: 170,
-    backgroundColor: "#FBFAFA",
+    backgroundColor: "var(--surface-2)",
   },
 };
 
@@ -52,7 +52,14 @@ export const actionsTray = {
     display: "flex" as const,
     justifyContent: "space-between" as const,
     alignItems: "center",
+    flexWrap: "wrap" as const,
+    gap: 8,
+    minWidth: 0,
     marginBottom: "1rem",
+    "@media (max-width: 767px)": {
+      "& > :first-child": { width: "100%", minWidth: 0 },
+      "& button": { marginLeft: 0 },
+    },
     "& button": {
       flexGrow: 0,
       marginLeft: 8,
@@ -73,9 +80,9 @@ export const typesSelection = {
     height: "80px",
   },
   lambdaNotif: {
-    background: "#ffffff50",
-    border: "#E5E5E5 1px solid",
-    borderRadius: 5,
+    background: "var(--surface-2)",
+    border: "1px solid var(--border)",
+    borderRadius: "var(--radius-control, 5px)",
     width: 250,
     height: 80,
     display: "flex",
@@ -87,7 +94,7 @@ export const typesSelection = {
     padding: 0,
     overflow: "hidden",
     "&:hover": {
-      backgroundColor: "#ebebeb",
+      backgroundColor: "var(--hover)",
     },
   },
 
@@ -105,33 +112,35 @@ export const typesSelection = {
     },
   },
   lambdaNotifTitle: {
-    color: "#07193E",
+    color: "var(--foreground)",
     fontSize: 16,
-    fontFamily: "Inter,sans-serif",
+    fontFamily: "var(--font-sans)",
     paddingLeft: 18,
   },
 };
 
-export const widgetCommon = (theme: any) => ({
+export const widgetCommon = (_theme: unknown) => ({
   "& .singleValueContainer": {
-    border: `${get(theme, "borderColor", "#E2E2E2")} 1px solid`,
-    borderRadius: 12,
-    backgroundColor: get(theme, "bgColor", "#fff"),
-    padding: "16px 20px",
+    border: 0,
+    boxShadow: "var(--shadow-2)",
+    borderRadius: "var(--radius-card)",
+    backgroundColor: "var(--surface-3)",
+    padding: 16,
   },
   "& .widgetHeader": {
     display: "flex" as const,
     alignItems: "center" as const,
     justifyContent: "space-between" as const,
     gap: 12,
-    minHeight: 32,
+    minHeight: "var(--control-height, 36px)",
     marginBottom: 8,
+    "@media (pointer: coarse)": { minHeight: 40 },
   },
   "& .titleContainer": {
-    color: get(theme, "mutedText", "#87888d"),
-    fontSize: 13,
-    fontWeight: 500,
-    letterSpacing: "0.02em",
+    color: "var(--muted-foreground)",
+    fontSize: "var(--fs-subtitle)",
+    lineHeight: "var(--lh-subtitle)",
+    fontWeight: 550,
     minWidth: 0,
     overflow: "hidden" as const,
     textOverflow: "ellipsis" as const,
@@ -143,8 +152,9 @@ export const widgetCommon = (theme: any) => ({
     gap: 4,
     flexShrink: 0,
     "& .actionSlot": {
-      width: 32,
-      height: 32,
+      width: "var(--control-height, 36px)",
+      height: "var(--control-height, 36px)",
+      "@media (pointer: coarse)": { minWidth: 40, minHeight: 40 },
     },
   },
   "& .contentContainer": {
@@ -157,7 +167,7 @@ export const widgetCommon = (theme: any) => ({
   "& .singleLegendContainer": {
     display: "flex",
     alignItems: "center",
-    padding: "2px 0",
+    padding: "4px 0",
     maxWidth: "100%",
     minWidth: 0,
     flexShrink: 0,
@@ -167,12 +177,12 @@ export const widgetCommon = (theme: any) => ({
     height: 8,
     minWidth: 8,
     borderRadius: 2,
-    marginRight: 6,
+    marginRight: 8,
   },
   "& .legendLabel": {
-    fontSize: 12,
-    lineHeight: "18px",
-    color: get(theme, "mutedText", "#87888d"),
+    fontSize: "var(--fs-caption)",
+    lineHeight: "var(--lh-caption)",
+    color: "var(--muted-foreground)",
     whiteSpace: "nowrap" as const,
     overflow: "hidden" as const,
     textOverflow: "ellipsis" as const,
@@ -184,9 +194,10 @@ export const widgetCommon = (theme: any) => ({
     alignItems: "center" as const,
     justifyContent: "center" as const,
     borderRadius: 8,
-    backgroundColor: get(theme, "boxBackground", "#FBFAFA"),
-    color: get(theme, "mutedText", "#87888d"),
-    fontSize: 13,
+    backgroundColor: "var(--surface-2)",
+    color: "var(--muted-foreground)",
+    fontSize: "var(--fs-body)",
+    lineHeight: "var(--lh-body)",
   },
   "& .zoomChartCont": {
     position: "relative" as const,
@@ -197,10 +208,12 @@ export const widgetCommon = (theme: any) => ({
 
 export const tooltipCommon = {
   customTooltip: {
-    backgroundColor: "rgba(255, 255, 255, 0.90)",
-    border: "#eaeaea 1px solid",
-    borderRadius: 3,
-    padding: "5px 10px",
+    backgroundColor: "var(--foreground)",
+    border: 0,
+    color: "var(--surface-1)",
+    boxShadow: "var(--shadow-3)",
+    borderRadius: "var(--radius-control)",
+    padding: "8px 12px",
     maxHeight: 300,
     overflowY: "auto" as const,
   },
@@ -213,20 +226,21 @@ export const tooltipCommon = {
     height: 6,
     display: "block" as const,
     borderRadius: "100%",
-    marginRight: 5,
+    marginRight: 8,
   },
   itemValue: {
-    fontSize: "75%",
-    color: "#393939",
+    fontSize: "var(--fs-caption)",
+    lineHeight: "var(--lh-caption)",
+    color: "inherit",
   },
   valueContainer: {
-    fontWeight: 600,
+    fontWeight: 550,
   },
   timeStampTitle: {
-    fontSize: "80%",
-    color: "#9c9c9c",
+    fontSize: "var(--fs-caption)",
+    color: "inherit",
     textAlign: "center" as const,
-    marginBottom: 6,
+    marginBottom: 8,
   },
 };
 
@@ -241,6 +255,12 @@ export const formFieldStyles: any = {
 
 export const modalStyleUtils: any = {
   modalButtonBar: {
+    "@media (max-width: 575px)": {
+      flexDirection: "column",
+      alignItems: "stretch",
+      gap: 8,
+      "& > button, & > span > button": { width: "100%", margin: 0 },
+    },
     marginTop: 15,
     display: "flex",
     alignItems: "center",

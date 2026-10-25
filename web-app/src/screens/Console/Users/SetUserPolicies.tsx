@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { setPoliciesCommands } from "common/mcli/commands";
+import { FormCliEquivalent } from "common/mcli/FormCliEquivalent";
 import React, { useEffect, useState } from "react";
 import {
   Box,
@@ -127,6 +129,15 @@ const SetUserPolicies = ({
           label={t("Save")}
         />
       </Box>
+      <FormCliEquivalent
+        commands={setPoliciesCommands({
+          entity: "user",
+          name: selectedUser,
+          policies: statePolicies,
+          currentPolicies: actualPolicy,
+        })}
+        emptyMessage={t("No policy changes.")}
+      />
       {loading && (
         <Grid item xs={12}>
           <ProgressBar />

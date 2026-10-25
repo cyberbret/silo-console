@@ -14,40 +14,27 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import React, { Fragment, useEffect } from "react";
-import {
-  IAM_PAGES,
-  IAM_PERMISSIONS,
-  IAM_ROLES,
-  IAM_SCOPES,
-} from "../../../common/SecureComponent/permissions";
-import { SecureComponent } from "../../../common/SecureComponent";
-import TooltipWrapper from "../Common/TooltipWrapper/TooltipWrapper";
-import { BackLink, Button, SettingsIcon, Grid } from "mds";
-import AutoColorIcon from "../Common/Components/AutoColorIcon";
+import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
-import { selFeatures } from "../consoleSlice";
-import hasPermission from "../../../common/SecureComponent/accessControl";
-import { useNavigate } from "react-router-dom";
+import { SecureComponent } from "../../../common/SecureComponent";
+import { IAM_SCOPES } from "../../../common/SecureComponent/permissions";
+import { AppState, useAppDispatch } from "../../../store";
+import { setHelpName } from "../../../systemSlice";
 import SearchBox from "../Common/SearchBox";
 import { setSearchVersions } from "./objectBrowserSlice";
-import { AppState, useAppDispatch } from "../../../store";
 import FilterObjectsSB from "./FilterObjectsSB";
-import PageHeaderWrapper from "../Common/PageHeaderWrapper/PageHeaderWrapper";
-import ObjectManagerButton from "../Common/ObjectManager/ObjectManagerButton";
-import HelpMenu from "../HelpMenu";
-import { setHelpName } from "../../../systemSlice";
 import { formatText, useT } from "i18n";
 
-interface IOBHeader {
+// Object-only toolbar content; the common bucket shell owns page navigation.
+const OBHeader = ({
+  bucketName,
+  inputRef,
+}: {
   bucketName: string;
-}
-
-const OBHeader = ({ bucketName }: IOBHeader) => {
+  inputRef?: React.Ref<HTMLInputElement>;
+}) => {
   const dispatch = useAppDispatch();
   const t = useT();
-  const features = useSelector(selFeatures);
-
   const versionsMode = useSelector(
     (state: AppState) => state.objectBrowser.versionsMode,
   );
@@ -57,142 +44,26 @@ const OBHeader = ({ bucketName }: IOBHeader) => {
   const searchVersions = useSelector(
     (state: AppState) => state.objectBrowser.searchVersions,
   );
-
-  const obOnly = !!features?.includes("object-browser-only");
-
-  const navigate = useNavigate();
-
-  const configureBucketAllowed = hasPermission(bucketName, [
-    IAM_SCOPES.S3_GET_BUCKET_POLICY,
-    IAM_SCOPES.S3_PUT_BUCKET_POLICY,
-    IAM_SCOPES.S3_GET_BUCKET_VERSIONING,
-    IAM_SCOPES.S3_PUT_BUCKET_VERSIONING,
-    IAM_SCOPES.S3_GET_BUCKET_ENCRYPTION_CONFIGURATION,
-    IAM_SCOPES.S3_PUT_BUCKET_ENCRYPTION_CONFIGURATION,
-    IAM_SCOPES.S3_DELETE_BUCKET,
-    IAM_SCOPES.S3_GET_BUCKET_NOTIFICATIONS,
-    IAM_SCOPES.S3_PUT_BUCKET_NOTIFICATIONS,
-    IAM_SCOPES.S3_GET_REPLICATION_CONFIGURATION,
-    IAM_SCOPES.S3_PUT_REPLICATION_CONFIGURATION,
-    IAM_SCOPES.S3_GET_LIFECYCLE_CONFIGURATION,
-    IAM_SCOPES.S3_PUT_LIFECYCLE_CONFIGURATION,
-    IAM_SCOPES.ADMIN_GET_BUCKET_QUOTA,
-    IAM_SCOPES.ADMIN_SET_BUCKET_QUOTA,
-    IAM_SCOPES.S3_PUT_BUCKET_TAGGING,
-    IAM_SCOPES.S3_GET_BUCKET_TAGGING,
-    IAM_SCOPES.S3_LIST_BUCKET_VERSIONS,
-    IAM_SCOPES.S3_GET_BUCKET_POLICY_STATUS,
-    IAM_SCOPES.S3_DELETE_BUCKET_POLICY,
-    IAM_SCOPES.S3_GET_ACTIONS,
-    IAM_SCOPES.S3_PUT_ACTIONS,
-  ]);
-
-  const searchBar = (
-    <Fragment>
-      {!versionsMode ? (
-        <SecureComponent
-          scopes={[IAM_SCOPES.S3_LIST_BUCKET, IAM_SCOPES.S3_ALL_LIST_BUCKET]}
-          resource={bucketName}
-          errorProps={{ disabled: true }}
-        >
-          <FilterObjectsSB />
-        </SecureComponent>
-      ) : (
-        <Fragment>
-          <SearchBox
-            placeholder={formatText(
-              t("Start typing to filter versions of {file}"),
-              { file: versionedFile },
-            )}
-            onChange={(value) => {
-              dispatch(setSearchVersions(value));
-            }}
-            value={searchVersions}
-          />
-        </Fragment>
-      )}
-    </Fragment>
-  );
-
   useEffect(() => {
     dispatch(setHelpName("object_browser"));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return (
-    <Fragment>
-      {!obOnly ? (
-        <PageHeaderWrapper
-          label={
-            <BackLink
-              label={t("Object Browser")}
-              onClick={() => {
-                navigate(IAM_PAGES.OBJECT_BROWSER_VIEW);
-              }}
-            />
-          }
-          actions={
-            <Fragment>
-              <SecureComponent
-                scopes={IAM_PERMISSIONS[IAM_ROLES.BUCKET_ADMIN]}
-                resource={bucketName}
-                errorProps={{ disabled: true }}
-              >
-                <TooltipWrapper
-                  tooltip={
-                    configureBucketAllowed
-                      ? t("Configure Bucket")
-                      : t(
-                          "You do not have the required permissions to configure this bucket. Please contact your SILO administrator to request {role} permisions.",
-                        ).replace("{role}", () => IAM_ROLES.BUCKET_ADMIN)
-                  }
-                >
-                  <Button
-                    id={"configure-bucket-main"}
-                    color="primary"
-                    aria-label={t("Configure Bucket")}
-                    onClick={() => navigate(`/buckets/${bucketName}/admin`)}
-                    icon={
-                      <SettingsIcon
-                        style={{ width: 20, height: 20, marginTop: -3 }}
-                      />
-                    }
-                    style={{
-                      padding: "0 10px",
-                    }}
-                  />
-                </TooltipWrapper>
-              </SecureComponent>
-              <HelpMenu />
-            </Fragment>
-          }
-          middleComponent={searchBar}
-        />
-      ) : (
-        <Grid
-          container
-          sx={{
-            padding: "20px 32px 0",
-          }}
-        >
-          <Grid>
-            <AutoColorIcon marginRight={30} marginTop={10} />
-          </Grid>
-          <Grid
-            item
-            xs
-            sx={{
-              display: "flex",
-              gap: 10,
-            }}
-          >
-            {searchBar}
-            <ObjectManagerButton />
-          </Grid>
-        </Grid>
-      )}
-    </Fragment>
+  }, [dispatch]);
+  return !versionsMode ? (
+    <SecureComponent
+      scopes={[IAM_SCOPES.S3_LIST_BUCKET, IAM_SCOPES.S3_ALL_LIST_BUCKET]}
+      resource={bucketName}
+      errorProps={{ disabled: true }}
+    >
+      <FilterObjectsSB inputRef={inputRef} />
+    </SecureComponent>
+  ) : (
+    <SearchBox
+      inputRef={inputRef}
+      placeholder={formatText(t("Start typing to filter versions of {file}"), {
+        file: versionedFile,
+      })}
+      onChange={(value) => dispatch(setSearchVersions(value))}
+      value={searchVersions}
+    />
   );
 };
-
 export default OBHeader;

@@ -169,7 +169,7 @@ const AddTagModal = ({
         modalOpen={modalOpen}
         title={deleteEnabled ? t("Delete Tag") : t("Edit Tags")}
         onClose={() => {
-          onCloseAndUpdate(true);
+          onCloseAndUpdate(false);
         }}
         iconColor={deleteEnabled ? "delete" : "default"}
         titleIcon={deleteEnabled ? <DisabledIcon /> : <EditTagIcon />}
@@ -198,7 +198,7 @@ const AddTagModal = ({
                 />
                 <Button
                   type="submit"
-                  variant="secondary"
+                  variant="danger"
                   onClick={deleteTagProcess}
                   id={"deleteTag"}
                   label={t("Delete Tag")}

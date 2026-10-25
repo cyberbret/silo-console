@@ -16,7 +16,7 @@ test.beforeAll(async () => {
   // transformation and React's runtime must both use production for this bundle.
   const previousNodeEnv = process.env.NODE_ENV;
   process.env.NODE_ENV = "production";
-  // Bundle the installed MDS distribution, as Console does. The regression is
+  // Bundle the MDS workspace source, as Console does. The regression is
   // an event-ordering bug; checking source text would miss actual selection.
   const result = await build({
     configFile: false,
@@ -59,9 +59,13 @@ for (const action of ["click", "tap", "keyboard", "disabled"] as const) {
       await page.addScriptTag({ content: script });
       await page.getByText("Choose target", { exact: true }).click();
       if (action === "keyboard") {
+        await expect(
+          page.getByRole("option", { name: "First", exact: true }),
+        ).toBeFocused();
         await page.keyboard.press("ArrowDown");
-        await expect(page.locator('div[label="Second"]')).toHaveClass(
-          /hovered/,
+        await expect(page.locator('div[label="Second"]')).toHaveAttribute(
+          "data-fluid-hover",
+          "true",
         );
         await page.keyboard.press("Enter");
       } else {
@@ -71,7 +75,14 @@ for (const action of ["click", "tap", "keyboard", "disabled"] as const) {
         // Deliberately do not hover/wait first: touch has no hover, and a
         // quick mouse click can precede React's hover-state render.
         if (action === "tap") await target.tap();
-        else await target.click();
+        else if (action === "disabled") {
+          await expect(target).toHaveAttribute("aria-disabled", "true");
+          const bounds = await target.boundingBox();
+          await page.mouse.click(
+            bounds!.x + bounds!.width / 2,
+            bounds!.y + bounds!.height / 2,
+          );
+        } else await target.click();
       }
       await expect(page.locator('div[label="Second"]')).toHaveCount(0);
       await expect(page.locator("#chosen")).toHaveText(

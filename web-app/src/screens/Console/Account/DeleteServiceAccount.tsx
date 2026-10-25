@@ -62,6 +62,7 @@ const DeleteServiceAccount = ({
 
   return (
     <ConfirmDialog
+      destructive
       title={t("Delete Access Key")}
       confirmText={t("Delete")}
       isOpen={deleteOpen}

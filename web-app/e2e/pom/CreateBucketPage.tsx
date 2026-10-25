@@ -32,7 +32,7 @@ export class CreateBucketPage {
   initLocators() {
     this.submitBtn = this.getLocator("#create-bucket");
     this.clearBtn = this.getLocator("#clear");
-    this.versioningToggle = this.getLocator("#versioned-switch");
+    this.versioningToggle = this.getLocator("#versioned");
     this.lockingToggle = this.getLocator("#locking-switch");
     this.quotaToggle = this.getLocator("#bucket_quota-switch");
     this.bucketNamingRules = this.getLocator("#toggle-naming-rules");

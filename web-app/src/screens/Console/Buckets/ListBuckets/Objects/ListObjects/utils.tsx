@@ -15,6 +15,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import React from "react";
+import styled from "styled-components";
+import get from "lodash/get";
 
 import {
   FileBookIcon,
@@ -36,6 +38,19 @@ import {
   FolderBrowserIcon,
 } from "mds";
 import IconWithLabel from "./IconWithLabel";
+
+const NeutralFileIcon = styled.span(({ theme }) => ({
+  display: "inline-flex",
+  flexShrink: 0,
+  color: `var(--silo-textSecondary, ${get(theme, "secondaryText", "#52525B")})`,
+  // Keep the existing glyphs, including their cutouts, but remove type hues.
+  "& svg [fill]:not([fill='none']):not([fill='#fff']):not([fill='#FFFFFF'])": {
+    fill: "currentColor",
+  },
+  "& svg [fill='#fff'], & svg [fill='#FFFFFF']": {
+    fill: `var(--silo-bg, ${get(theme, "bgColor", "#FFFFFF")})`,
+  },
+}));
 
 interface IExtToIcon {
   icon: any;
@@ -97,7 +112,7 @@ const extensionToIcon: IExtToIcon[] = [
   },
   {
     icon: <FileImageIcon />,
-    extensions: ["jpeg", "jpg", "gif", "tiff", "png", "heic", "dng"],
+    extensions: ["jpeg", "jpg", "gif", "tiff", "png", "webp", "heic", "dng"],
   },
 ];
 
@@ -128,11 +143,12 @@ export const displayFileIconName = (
 
   const splitItem = elementString.split("/");
 
+  const neutralIcon = <NeutralFileIcon>{icon}</NeutralFileIcon>;
   if (returnOnlyIcon) {
-    return icon;
+    return neutralIcon;
   }
 
-  return <IconWithLabel icon={icon} strings={splitItem} />;
+  return <IconWithLabel icon={neutralIcon} strings={splitItem} />;
 };
 
 export const sanitizeFilePath = (filePath: string) => {

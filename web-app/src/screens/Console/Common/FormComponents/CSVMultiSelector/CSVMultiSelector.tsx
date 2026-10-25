@@ -23,8 +23,14 @@ import React, {
   Fragment,
 } from "react";
 import get from "lodash/get";
-import { AddIcon, Box, HelpIcon, InputBox, InputLabel } from "mds";
-import { Tooltip } from "common/Tooltip";
+import {
+  AddIcon,
+  Box,
+  FieldHelp,
+  InputBox,
+  InputLabel,
+  fieldLayout,
+} from "mds";
 
 interface ICSVMultiSelector {
   elements: string;
@@ -125,6 +131,7 @@ const CSVMultiSelector = ({
         key={`csv-multi-${name}-${index.toString()}`}
         id={`${name}-${index.toString()}`}
         label={""}
+        aria-label={`${label} ${index + 1}`}
         name={`${name}-${index.toString()}`}
         value={currentElements[index]}
         onChange={onChangeElement}
@@ -140,36 +147,20 @@ const CSVMultiSelector = ({
 
   return (
     <Fragment>
-      <Box sx={{ display: "flex" }} className={"inputItem"}>
-        <InputLabel
-          sx={{
-            alignItems: "flex-start",
-          }}
-        >
+      <Box sx={fieldLayout} className={"inputItem"}>
+        <InputLabel className="inputLabel" htmlFor={`${name}-0`}>
           <span>{label}</span>
-          {tooltip !== "" && (
-            <Box
-              sx={{
-                marginLeft: 5,
-                display: "flex",
-                alignItems: "center",
-                "& .min-icon": {
-                  width: 13,
-                },
-              }}
-            >
-              <Tooltip tooltip={tooltip} placement="top">
-                <Box className={tooltip}>
-                  <HelpIcon />
-                </Box>
-              </Tooltip>
-            </Box>
-          )}
+          {tooltip !== "" && <FieldHelp text={tooltip} />}
         </InputLabel>
         <Box
           withBorders={withBorder}
           sx={{
             width: "100%",
+            minWidth: 0,
+            display: "flex",
+            flexDirection: "column",
+            gap: 8,
+            "& > .inputItem": { flexGrow: 0 },
             overflowY: "auto",
             height: 150,
             position: "relative",

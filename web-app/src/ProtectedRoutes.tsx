@@ -43,10 +43,10 @@ const ProtectedRoute = ({ Component }: ProtectedRouteProps) => {
   const anonymousMode = useSelector(
     (state: AppState) => state.system.anonymousMode,
   );
-  const { pathname = "" } = useLocation();
+  const { pathname = "", search = "", hash = "" } = useLocation();
 
   const StorePathAndRedirect = () => {
-    rememberCurrentRoute(pathname);
+    rememberCurrentRoute(`${pathname}${search}${hash}`);
     return <Navigate to={{ pathname: `/login` }} />;
   };
 

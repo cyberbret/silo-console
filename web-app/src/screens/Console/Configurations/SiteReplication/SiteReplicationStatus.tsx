@@ -20,7 +20,7 @@ import {
   Box,
   breakPoints,
   BucketsIcon,
-  Button,
+  IconButton,
   Grid,
   GroupsIcon,
   IAMPoliciesIcon,
@@ -36,9 +36,7 @@ import { useAppDispatch } from "../../../../store";
 import { setErrorSnackMessage, setHelpName } from "../../../../systemSlice";
 import StatusCountCard from "../../Dashboard/BasicDashboard/StatusCountCard";
 import EntityReplicationLookup from "./EntityReplicationLookup";
-import TooltipWrapper from "../../Common/TooltipWrapper/TooltipWrapper";
 import PageHeaderWrapper from "../../Common/PageHeaderWrapper/PageHeaderWrapper";
-import HelpMenu from "../../HelpMenu";
 import { api } from "api";
 import { errorToHandler } from "api/errors";
 import {
@@ -46,7 +44,7 @@ import {
   HttpResponse,
   SiteReplicationStatusResponse,
 } from "api/consoleApi";
-import { useT } from "i18n";
+import { i18nKey, useT } from "i18n";
 
 export type StatsResponseType = {
   maxBuckets?: number;
@@ -146,31 +144,30 @@ const SiteReplicationStatus = () => {
   return (
     <Fragment>
       <PageHeaderWrapper
+        titleElement="h1"
         label={
           <BackLink
             label={t("Site Replication")}
             onClick={() => navigate(IAM_PAGES.SITE_REPLICATION)}
           />
         }
-        actions={<HelpMenu />}
+        help
       />
 
       <PageLayout>
         <SectionTitle
+          headingLevel={2}
           actions={
             <Fragment>
-              <TooltipWrapper tooltip={t("Refresh")}>
-                <Button
-                  id={"refresh"}
-                  onClick={() => {
-                    getStats();
-                  }}
-                  label={t("Refresh")}
-                  icon={<RefreshIcon />}
-                  variant={"regular"}
-                  collapseOnSmall={false}
-                />
-              </TooltipWrapper>
+              <IconButton
+                id={"refresh"}
+                onClick={() => {
+                  getStats();
+                }}
+                label={t("Refresh")}
+              >
+                <RefreshIcon />
+              </IconButton>
             </Fragment>
           }
           separator
@@ -195,25 +192,25 @@ const SiteReplicationStatus = () => {
           >
             <SREntityStatus
               entityStatObj={bucketStats}
-              entityTextPlural={"Buckets"}
+              entityTextPlural={i18nKey("Buckets")}
               maxValue={maxBuckets}
               icon={<BucketsIcon />}
             />
             <SREntityStatus
               entityStatObj={userStats}
-              entityTextPlural={"Users"}
+              entityTextPlural={i18nKey("Users")}
               maxValue={maxUsers}
               icon={<UsersIcon />}
             />
             <SREntityStatus
               entityStatObj={groupStats}
-              entityTextPlural={"Groups"}
+              entityTextPlural={i18nKey("Groups")}
               maxValue={maxGroups}
               icon={<GroupsIcon />}
             />
             <SREntityStatus
               entityStatObj={policyStats}
-              entityTextPlural={"Policies"}
+              entityTextPlural={i18nKey("Policies")}
               maxValue={maxPolicies}
               icon={<IAMPoliciesIcon />}
             />

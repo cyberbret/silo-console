@@ -1,9 +1,9 @@
 // Copyright (c) 2026 PGSTY
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-export const getStoredSidebarOpen = (
+export const getStoredSidebarPreference = (
   read = () => localStorage.getItem("sidebarOpen"),
-): boolean => {
+): boolean | undefined => {
   try {
     const value: unknown = JSON.parse(read() || "null");
     if (
@@ -17,5 +17,13 @@ export const getStoredSidebarOpen = (
   } catch {
     // A corrupt preference or unavailable storage must not prevent startup.
   }
-  return true;
+  return undefined;
 };
+
+export const getStoredSidebarOpen = (read?: () => string | null): boolean =>
+  getStoredSidebarPreference(read) ?? true;
+
+export const resolveSidebarOpen = (
+  preference: boolean | undefined,
+  width: number,
+) => preference ?? width >= 1200;

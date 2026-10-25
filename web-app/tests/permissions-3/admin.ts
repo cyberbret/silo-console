@@ -26,6 +26,7 @@ import {
   identityElement,
   monitoringElement,
   notificationEndpointsElement,
+  settingsElement,
   performanceElement,
   serviceAcctsElement,
   tiersElement,
@@ -60,7 +61,8 @@ test("All sidebar items exist", async (t) => {
     .ok()
     .expect(iamPoliciesElement.exists)
     .ok()
-    .expect(notificationEndpointsElement.exists)
+    .click(settingsElement)
+    .expect(notificationEndpointsElement.visible)
     .ok()
     .expect(tiersElement.exists)
     .ok()

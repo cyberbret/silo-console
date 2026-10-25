@@ -33,9 +33,8 @@ import ProgressBarWrapper from "../Common/ProgressBarWrapper/ProgressBarWrapper"
 import InputUnitMenu from "../Common/FormComponents/InputUnitMenu/InputUnitMenu";
 import DistributedOnly from "../Common/DistributedOnly/DistributedOnly";
 import PageHeaderWrapper from "../Common/PageHeaderWrapper/PageHeaderWrapper";
-import HelpMenu from "../HelpMenu";
 import { SecureComponent } from "../../../common/SecureComponent";
-import { useT } from "i18n";
+import { i18nKey, useT } from "i18n";
 import { selDistSet, setHelpName } from "../../../systemSlice";
 import { useAppDispatch } from "../../../store";
 import { wsProtocol } from "../../../utils/wsUtils";
@@ -167,13 +166,17 @@ const Speedtest = () => {
 
   return (
     <Fragment>
-      <PageHeaderWrapper label="Performance" actions={<HelpMenu />} />
+      <PageHeaderWrapper
+        titleElement="h1"
+        label={i18nKey("Performance")}
+        help
+      />
 
       <PageLayout>
         {!distributedSetup ? (
           <DistributedOnly
             iconComponent={<SpeedtestIcon />}
-            entity={"Speedtest"}
+            entity={i18nKey("Speedtest")}
           />
         ) : (
           <SecureComponent

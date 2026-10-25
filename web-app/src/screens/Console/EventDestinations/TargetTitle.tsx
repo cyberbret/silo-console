@@ -15,9 +15,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import React from "react";
-import get from "lodash/get";
 import styled from "styled-components";
-import { Box } from "mds";
+import { Box, type } from "mds";
 import { useT } from "i18n";
 
 interface ITargetTitle {
@@ -25,42 +24,46 @@ interface ITargetTitle {
   title: string;
 }
 
-const TargetBase = styled.div(({ theme }) => ({
-  background: get(theme, "boxBackground", "#fff"),
-  border: `${get(theme, "borderColor", "#E5E5E5")} 1px solid`,
-  borderRadius: 5,
-  height: 80,
+const TargetBase = styled.div({
+  background: "var(--card)",
+  border: "1px solid var(--border)",
+  borderRadius: "var(--radius-card,12px)",
+  minHeight: 80,
   display: "flex",
   alignItems: "center",
   justifyContent: "start",
   marginBottom: 16,
-  cursor: "pointer",
   padding: 0,
   overflow: "hidden",
   "& .logoButton": {
-    height: "80px",
+    display: "block",
   },
   "& .imageContainer": {
-    backgroundColor: get(theme, "bgColor", "#fff"),
+    // Original multicolor logos contain dark strokes. A contained paper inset
+    // preserves their colors in both themes without a halo or image filter.
+    backgroundColor: "#fafafa",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     width: 80,
     height: 80,
+    flexShrink: 0,
 
     "& img": {
       maxWidth: 46,
       maxHeight: 46,
-      filter: "drop-shadow(1px 1px 8px #fff)",
     },
   },
-  "& .titleBox": {
-    color: get(theme, "fontColor", "#000"),
-    fontSize: 16,
-    fontFamily: "Inter,sans-serif",
-    paddingLeft: 18,
-  },
-}));
+});
+
+const TargetHeading = styled.h2`
+  ${type("title")}
+  color: var(--foreground);
+  margin: 0;
+  padding: 16px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+`;
 
 const TargetTitle = ({ logoSrc, title }: ITargetTitle) => {
   const t = useT();
@@ -70,11 +73,9 @@ const TargetTitle = ({ logoSrc, title }: ITargetTitle) => {
         <img src={logoSrc} className={"logoButton"} alt={title} />
       </Box>
 
-      <Box className={"titleBox"}>
-        <b>
-          {t("{target} Event Destination").replace("{target}", () => title)}
-        </b>
-      </Box>
+      <TargetHeading>
+        {t("{target} Event Destination").replace("{target}", () => title)}
+      </TargetHeading>
     </TargetBase>
   );
 };

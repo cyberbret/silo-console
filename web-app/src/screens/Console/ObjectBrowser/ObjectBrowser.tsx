@@ -19,7 +19,6 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { IAM_PAGES } from "../../../common/SecureComponent/permissions";
 import LoadingComponent from "../../../common/LoadingComponent";
 import NotFoundPage from "../../NotFoundPage";
-import OBBucketList from "./OBBucketList";
 
 const BrowserHandler = React.lazy(
   () => import("../Buckets/BucketDetails/BrowserHandler"),
@@ -39,14 +38,7 @@ const ObjectBrowser = () => {
           </Suspense>
         }
       />
-      <Route
-        path="/"
-        element={
-          <Suspense fallback={<LoadingComponent />}>
-            <OBBucketList />
-          </Suspense>
-        }
-      />
+      <Route path="/" element={<Navigate replace to="/buckets" />} />
       <Route
         path="/:bucketName/*"
         element={
@@ -63,7 +55,7 @@ const ObjectBrowser = () => {
           </Suspense>
         }
       />
-      <Route element={<Navigate to={`/browser`} />} path="*" />
+      <Route element={<Navigate to="/buckets" />} path="*" />
 
       <Route
         element={

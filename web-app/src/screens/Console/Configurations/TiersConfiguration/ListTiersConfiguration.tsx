@@ -14,12 +14,15 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { OverflowMenu, SkeletonRows, StatusBadge } from "common/ui";
+import { useMobile } from "common/ui/useMediaQuery";
+import { FilteredEmptyState } from "common/ui/FilteredEmptyState";
+import { ModalPresence } from "common/ui/ModalPresence";
 import React, { Fragment, useEffect, useState } from "react";
 import get from "lodash/get";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
-  ActionLink,
   AddIcon,
   Box,
   Button,
@@ -27,10 +30,8 @@ import {
   Grid,
   HelpBox,
   PageLayout,
-  ProgressBar,
   RefreshIcon,
-  TierOfflineIcon,
-  TierOnlineIcon,
+  IconButton,
   TiersIcon,
   TiersNotAvailableIcon,
 } from "mds";
@@ -44,6 +45,7 @@ import {
   IAM_PERMISSIONS,
   IAM_ROLES,
   IAM_SCOPES,
+  permissionTooltipHelper,
 } from "../../../../common/SecureComponent/permissions";
 import {
   hasPermission,
@@ -60,11 +62,9 @@ import { useAppDispatch } from "../../../../store";
 import SearchBox from "../../Common/SearchBox";
 import withSuspense from "../../Common/Components/withSuspense";
 import DistributedOnly from "../../Common/DistributedOnly/DistributedOnly";
-import TooltipWrapper from "../../Common/TooltipWrapper/TooltipWrapper";
 import PageHeaderWrapper from "../../Common/PageHeaderWrapper/PageHeaderWrapper";
-import HelpMenu from "../../HelpMenu";
 import DeleteTierConfirmModal from "./DeleteTierConfirmModal";
-import { interpolate, useLocalizedLink, useT } from "i18n";
+import { formatText, i18nKey, interpolate, useLocalizedLink, useT } from "i18n";
 
 const UpdateTierCredentialsModal = withSuspense(
   React.lazy(() => import("./UpdateTierCredentialsModal")),
@@ -75,6 +75,7 @@ const ListTiersConfiguration = () => {
   const navigate = useNavigate();
   const t = useT();
   const localize = useLocalizedLink();
+  const mobile = useMobile();
 
   const distributedSetup = useSelector(selDistSet);
   const [records, setRecords] = useState<Tier[]>([]);
@@ -116,13 +117,16 @@ const ListTiersConfiguration = () => {
   }, [isLoading, dispatch, distributedSetup]);
 
   const filteredRecords = records.filter((b: Tier) => {
-    if (filter === "") {
+    if (filter.trim() === "") {
       return true;
     }
     const getItemName = get(b, `${b.type}.name`, "");
     const getItemType = get(b, `type`, "");
 
-    return getItemName.indexOf(filter) >= 0 || getItemType.indexOf(filter) >= 0;
+    return (
+      getItemName.indexOf(filter.trim()) >= 0 ||
+      getItemType.indexOf(filter.trim()) >= 0
+    );
   });
 
   const addTier = () => {
@@ -161,41 +165,20 @@ const ListTiersConfiguration = () => {
     return "";
   };
 
-  const renderTierStatus = (item: boolean) => {
-    if (item) {
-      return (
-        <Grid
-          container
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyItems: "start",
-            color: "#4CCB92",
-            fontSize: "8px",
-            flexDirection: "column",
-          }}
-        >
-          <TierOnlineIcon style={{ fill: "#4CCB92", width: 14, height: 14 }} />
-          {t("ONLINE")}
-        </Grid>
-      );
-    }
-    return (
-      <Grid
-        container
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          color: "#C83B51",
-          fontSize: "8px",
-        }}
-      >
-        <TierOfflineIcon style={{ fill: "#C83B51", width: 14, height: 14 }} />
-        {t("OFFLINE")}
-      </Grid>
-    );
-  };
+  const renderTierStatus = (online: boolean | undefined) => (
+    <StatusBadge
+      tone={
+        online === true ? "success" : online === false ? "danger" : "neutral"
+      }
+      label={
+        online === true
+          ? t("Online")
+          : online === false
+            ? t("Offline")
+            : t("Unknown")
+      }
+    />
+  );
 
   const renderTierPrefix = (item: Tier) => {
     const prefix = get(item, `${item.type}.prefix`, "");
@@ -282,261 +265,275 @@ const ListTiersConfiguration = () => {
 
   return (
     <Fragment>
-      {updateCredentialsOpen && (
-        <UpdateTierCredentialsModal
-          open={updateCredentialsOpen}
-          tierData={selectedTier}
-          closeModalAndRefresh={closeTierCredentials}
-        />
-      )}
-      {deleteTierModalOpen && (
-        <DeleteTierConfirmModal
-          open={deleteTierModalOpen}
-          tierName={get(selectedTier, `${selectedTier.type}.name`, "")}
-          closeModalAndRefresh={closeDeleteTier}
-        />
-      )}
-      <PageHeaderWrapper label="Tiers" actions={<HelpMenu />} />
+      <ModalPresence open={Boolean(updateCredentialsOpen)}>
+        {updateCredentialsOpen && (
+          <UpdateTierCredentialsModal
+            open={updateCredentialsOpen}
+            tierData={selectedTier}
+            closeModalAndRefresh={closeTierCredentials}
+          />
+        )}
+      </ModalPresence>
+      <ModalPresence open={Boolean(deleteTierModalOpen)}>
+        {deleteTierModalOpen && (
+          <DeleteTierConfirmModal
+            open={deleteTierModalOpen}
+            tierName={get(selectedTier, `${selectedTier.type}.name`, "")}
+            closeModalAndRefresh={closeDeleteTier}
+          />
+        )}
+      </ModalPresence>
+      <PageHeaderWrapper titleElement="h1" label={i18nKey("Tiers")} help />
 
       <PageLayout>
         {!distributedSetup ? (
           <DistributedOnly
-            entity={"Tiers"}
+            entity={i18nKey("Tiers")}
             iconComponent={<TiersNotAvailableIcon />}
           />
         ) : (
           <Fragment>
-            <Grid item xs={12} sx={actionsTray.actionsTray}>
+            <Grid
+              item
+              xs={12}
+              sx={{ ...actionsTray.actionsTray, "& button": { marginLeft: 0 } }}
+            >
               <SearchBox
                 placeholder={t("Filter")}
                 onChange={setFilter}
                 value={filter}
                 sx={{
                   marginRight: "auto",
-                  maxWidth: 380,
+                  maxWidth: mobile ? "100%" : 380,
+                  width: mobile ? "100%" : undefined,
                 }}
               />
-
-              <Box
-                sx={{
-                  display: "flex",
-                  flexWrap: "nowrap",
-                  gap: 5,
-                }}
+              <IconButton
+                id="refresh-list"
+                aria-label={t("Refresh List")}
+                size="medium"
+                disabled={isLoading}
+                onClick={() => setIsLoading(true)}
               >
-                <Button
-                  id={"refresh-list"}
-                  icon={<RefreshIcon />}
-                  label={t("Refresh List")}
-                  onClick={() => {
-                    setIsLoading(true);
-                  }}
-                />
-                <TooltipWrapper
-                  tooltip={
-                    hasSetTier
-                      ? ""
-                      : t(
-                          "You require additional permissions in order to create a new Tier. Please ask your SILO administrator to grant you {permission} permission in order to create a Tier.",
-                        ).replace(
-                          "{permission}",
-                          () => IAM_SCOPES.ADMIN_SET_TIER,
-                        )
-                  }
-                >
-                  <SecureComponent
-                    scopes={[IAM_SCOPES.ADMIN_SET_TIER]}
-                    resource={CONSOLE_UI_RESOURCE}
-                    errorProps={{ disabled: true }}
-                  >
-                    <Button
-                      id={"add-tier"}
-                      icon={<AddIcon />}
-                      label={t("Create Tier")}
-                      onClick={addTier}
-                      variant="callAction"
-                    />
-                  </SecureComponent>
-                </TooltipWrapper>
-              </Box>
+                <RefreshIcon />
+              </IconButton>
+              <Button
+                id="add-tier"
+                label={t("Create Tier")}
+                icon={<AddIcon />}
+                variant="primary"
+                collapseOnSmall={false}
+                onClick={addTier}
+                disabled={!hasSetTier}
+                disabledReason={t(
+                  "You require additional permissions in order to create a new Tier. Please ask your SILO administrator to grant you {permission} permission in order to create a Tier.",
+                ).replace("{permission}", () => IAM_SCOPES.ADMIN_SET_TIER)}
+              />
             </Grid>
-            {isLoading && <ProgressBar />}
-            {!isLoading && (
-              <Fragment>
-                {records.length > 0 && (
-                  <Fragment>
-                    <Grid item xs={12}>
-                      <SecureComponent
-                        scopes={[IAM_SCOPES.ADMIN_LIST_TIERS]}
-                        resource={CONSOLE_UI_RESOURCE}
-                        errorProps={{ disabled: true }}
-                      >
-                        <DataTable
-                          itemActions={[
-                            {
-                              type: "edit",
-                              onClick: (tierData: Tier) => {
-                                setSelectedTier(tierData);
-                                setUpdateCredentialsOpen(true);
-                              },
-                            },
-                            {
-                              type: "delete",
-                              isDisabled: !hasPermission(
-                                "*",
-                                IAM_PERMISSIONS[IAM_ROLES.BUCKET_LIFECYCLE],
-                                true,
-                              ),
-                              onClick: (tierData: Tier) => {
-                                setSelectedTier(tierData);
-                                setDeleteTierModalOpen(true);
-                              },
-                            },
-                          ]}
-                          columns={[
-                            {
-                              label: t("Tier Name"),
-                              elementKey: "type",
-                              renderFunction: renderTierName,
-                              renderFullObject: true,
-                            },
-                            {
-                              label: t("Status"),
-                              elementKey: "status",
-                              renderFunction: renderTierStatus,
-                              width: 50,
-                            },
-                            {
-                              label: t("Type"),
-                              elementKey: "type",
-                              renderFunction: renderTierType,
-                              width: 50,
-                            },
-                            {
-                              label: t("Endpoint"),
-                              elementKey: "type",
-                              renderFunction: renderTierEndpoint,
-                              renderFullObject: true,
-                            },
-                            {
-                              label: t("Bucket"),
-                              elementKey: "type",
-                              renderFunction: renderTierBucket,
-                              renderFullObject: true,
-                            },
-                            {
-                              label: t("Prefix"),
-                              elementKey: "type",
-                              renderFunction: renderTierPrefix,
-                              renderFullObject: true,
-                            },
-                            {
-                              label: t("Region"),
-                              elementKey: "type",
-                              renderFunction: renderTierRegion,
-                              renderFullObject: true,
-                            },
-                            {
-                              label: t("Usage"),
-                              elementKey: "type",
-                              renderFunction: renderTierUsage,
-                              renderFullObject: true,
-                            },
-                            {
-                              label: t("Objects"),
-                              elementKey: "type",
-                              renderFunction: renderTierObjects,
-                              renderFullObject: true,
-                            },
-                            {
-                              label: t("Versions"),
-                              elementKey: "type",
-                              renderFunction: renderTierVersions,
-                              renderFullObject: true,
-                            },
-                          ]}
-                          isLoading={isLoading}
-                          records={filteredRecords}
-                          entityName={t("Tiers")}
-                          customEmptyMessage={t("There are no Tiers yet.")}
-                          idField="service_name"
-                          customPaperHeight={"400px"}
-                        />
-                      </SecureComponent>
-                    </Grid>
-                    <Grid
-                      item
-                      xs={12}
-                      sx={{
-                        marginTop: "15px",
-                      }}
-                    >
-                      <HelpBox
-                        title={t("Learn more about TIERS")}
-                        iconComponent={<TiersIcon />}
-                        help={
-                          <Fragment>
-                            {t(
-                              "Tiers are used by the SILO Object Lifecycle Management which allows creating rules for time or date based automatic transition or expiry of objects. For object transition, SILO automatically moves the object to a configured remote storage tier.",
-                            )}
-                            <br />
-                            <br />
-                            {interpolate(
-                              t("You can learn more at the {link}."),
-                              {
-                                link: (
-                                  <a
-                                    href={localize(
-                                      "https://silo.pgsty.com/administration/object-management/object-lifecycle-management/",
-                                    )}
-                                    target="_blank"
-                                    rel="noopener"
-                                  >
-                                    {t("documentation")}
-                                  </a>
-                                ),
-                              },
-                            )}
-                          </Fragment>
-                        }
-                      />
-                    </Grid>
-                  </Fragment>
-                )}
-                {records.length === 0 && (
-                  <HelpBox
-                    title={t("Tiers")}
-                    iconComponent={<TiersIcon />}
-                    help={
-                      <Fragment>
-                        {t(
-                          "Tiers are used by the SILO Object Lifecycle Management which allows creating rules for time or date based automatic transition or expiry of objects. For object transition, SILO automatically moves the object to a configured remote storage tier.",
-                        )}
-                        <br />
-                        <br />
-                        {hasSetTier ? (
-                          <div>
-                            {interpolate(t("To get started, {link}."), {
-                              link: (
-                                <ActionLink
-                                  isLoading={false}
-                                  label={""}
-                                  onClick={addTier}
-                                >
-                                  {t("Create Tier")}
-                                </ActionLink>
-                              ),
+
+            <Grid item xs={12}>
+              <SecureComponent
+                scopes={[IAM_SCOPES.ADMIN_LIST_TIERS]}
+                resource={CONSOLE_UI_RESOURCE}
+                errorProps={{ disabled: true }}
+              >
+                <DataTable
+                  columns={[
+                    {
+                      label: t("Tier Name"),
+                      priority: "high",
+                      elementKey: "type",
+                      renderFunction: renderTierName,
+                      renderFullObject: true,
+                    },
+                    {
+                      label: t("Status"),
+                      priority: "high",
+                      elementKey: "status",
+                      renderFunction: renderTierStatus,
+                      width: 112,
+                    },
+                    {
+                      label: t("Type"),
+                      priority: "medium",
+                      elementKey: "type",
+                      renderFunction: renderTierType,
+                      width: 50,
+                    },
+                    {
+                      label: t("Endpoint"),
+                      priority: "low",
+                      elementKey: "type",
+                      renderFunction: renderTierEndpoint,
+                      renderFullObject: true,
+                    },
+                    {
+                      label: t("Bucket"),
+                      priority: "low",
+                      elementKey: "type",
+                      renderFunction: renderTierBucket,
+                      renderFullObject: true,
+                    },
+                    {
+                      label: t("Prefix"),
+                      priority: "low",
+                      elementKey: "type",
+                      renderFunction: renderTierPrefix,
+                      renderFullObject: true,
+                    },
+                    {
+                      label: t("Region"),
+                      priority: "low",
+                      elementKey: "type",
+                      renderFunction: renderTierRegion,
+                      renderFullObject: true,
+                    },
+                    {
+                      label: t("Usage"),
+                      priority: "medium",
+                      elementKey: "type",
+                      renderFunction: renderTierUsage,
+                      renderFullObject: true,
+                    },
+                    {
+                      label: t("Objects"),
+                      priority: "low",
+                      elementKey: "type",
+                      renderFunction: renderTierObjects,
+                      renderFullObject: true,
+                    },
+                    {
+                      label: t("Versions"),
+                      priority: "low",
+                      elementKey: "type",
+                      renderFunction: renderTierVersions,
+                      renderFullObject: true,
+                    },
+                    {
+                      label: t("Actions"),
+                      priority: "high",
+                      width: 48,
+                      globalClass: "mds-row-actions",
+                      renderFullObject: true,
+                      renderFunction: (tier: Tier) => (
+                        <span onClick={(event) => event.stopPropagation()}>
+                          <OverflowMenu
+                            label={formatText(t("Actions for {name}"), {
+                              name: get(tier, `${tier.type}.name`, ""),
                             })}
-                          </div>
-                        ) : (
-                          ""
-                        )}
-                      </Fragment>
-                    }
-                  />
-                )}
-              </Fragment>
-            )}
+                            items={[
+                              {
+                                label: t("Edit"),
+                                disabled: !hasSetTier,
+                                disabledReason: permissionTooltipHelper(
+                                  [IAM_SCOPES.ADMIN_SET_TIER],
+                                  i18nKey("update Tier credentials"),
+                                ),
+                                onClick: () => {
+                                  if (hasSetTier) {
+                                    setSelectedTier(tier);
+                                    setUpdateCredentialsOpen(true);
+                                  }
+                                },
+                              },
+                              {
+                                label: t("Delete"),
+                                danger: true,
+                                disabled: !hasPermission(
+                                  "*",
+                                  IAM_PERMISSIONS[IAM_ROLES.BUCKET_LIFECYCLE],
+                                  true,
+                                ),
+                                disabledReason: permissionTooltipHelper(
+                                  IAM_PERMISSIONS[IAM_ROLES.BUCKET_LIFECYCLE],
+                                  i18nKey("delete Tiers"),
+                                ),
+                                onClick: () => {
+                                  if (
+                                    hasPermission(
+                                      "*",
+                                      IAM_PERMISSIONS[
+                                        IAM_ROLES.BUCKET_LIFECYCLE
+                                      ],
+                                      true,
+                                    )
+                                  ) {
+                                    setSelectedTier(tier);
+                                    setDeleteTierModalOpen(true);
+                                  }
+                                },
+                              },
+                            ]}
+                          />
+                        </span>
+                      ),
+                    },
+                  ]}
+                  isLoading={isLoading}
+                  records={filteredRecords}
+                  entityName={t("Tiers")}
+                  loadingState={<SkeletonRows rows={5} columns={5} />}
+                  emptyState={
+                    <FilteredEmptyState
+                      headingLevel={2}
+                      filtered={Boolean(filter.trim())}
+                      onClear={() => setFilter("")}
+                      icon={<TiersIcon />}
+                      title={t("No storage tiers yet")}
+                      description={t(
+                        "Connect remote storage to transition objects using lifecycle rules.",
+                      )}
+                      action={
+                        hasSetTier && (
+                          <Button
+                            id="empty-list-action"
+                            variant="callAction"
+                            label={t("Create Tier")}
+                            onClick={addTier}
+                          />
+                        )
+                      }
+                    />
+                  }
+                  idField="service_name"
+                  customPaperHeight={"400px"}
+                />
+              </SecureComponent>
+            </Grid>
+            <Grid
+              item
+              xs={12}
+              sx={{
+                marginTop: "15px",
+              }}
+            >
+              <HelpBox
+                title={t("Learn more about TIERS")}
+                iconComponent={<TiersIcon />}
+                help={
+                  <Fragment>
+                    {t(
+                      "Tiers are used by the SILO Object Lifecycle Management which allows creating rules for time or date based automatic transition or expiry of objects. For object transition, SILO automatically moves the object to a configured remote storage tier.",
+                    )}
+                    <br />
+                    <br />
+                    {interpolate(t("You can learn more at the {link}."), {
+                      link: (
+                        <a
+                          href={localize(
+                            "https://silo.pgsty.com/administration/object-management/object-lifecycle-management/",
+                          )}
+                          target="_blank"
+                          rel="noopener"
+                        >
+                          {t("documentation")}
+                        </a>
+                      ),
+                    })}
+                  </Fragment>
+                }
+              />
+            </Grid>
           </Fragment>
         )}
       </PageLayout>

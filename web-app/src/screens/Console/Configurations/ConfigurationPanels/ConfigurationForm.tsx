@@ -16,12 +16,13 @@
 
 import React from "react";
 import { useLocation } from "react-router-dom";
-import { Grid } from "mds";
+import { Box, useAvailableWidth } from "mds";
 import { configurationElements } from "../utils";
 import EditConfiguration from "../../EventDestinations/CustomForms/EditConfiguration";
 
 const ConfigurationsList = () => {
   const { pathname = "" } = useLocation();
+  const { elementRef, width } = useAvailableWidth();
 
   const configName = pathname.substring(pathname.lastIndexOf("/") + 1);
 
@@ -30,18 +31,13 @@ const ConfigurationsList = () => {
   );
   const containerClassName = `${configName}`;
   return (
-    <Grid
-      item
-      xs={12}
+    <Box
+      elementRef={elementRef}
+      data-field-layout={width < 480 ? "stacked" : undefined}
       sx={{
         height: "100%",
-        //LDAP and api forms have longer labels
-        "& .identity_ldap, .api": {
-          "& label": {
-            minWidth: 220,
-            marginRight: 0,
-          },
-        },
+        width: "100%",
+        minWidth: 0,
       }}
     >
       {validActiveConfig && (
@@ -50,7 +46,7 @@ const ConfigurationsList = () => {
           selectedConfiguration={validActiveConfig}
         />
       )}
-    </Grid>
+    </Box>
   );
 };
 

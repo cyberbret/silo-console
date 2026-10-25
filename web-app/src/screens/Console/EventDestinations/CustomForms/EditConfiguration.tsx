@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { ModalPresence } from "common/ui/ModalPresence";
 import React, { Fragment, useCallback, useEffect, useState } from "react";
 import get from "lodash/get";
 import { Box, Button, Grid, Loader } from "mds";
@@ -179,22 +180,24 @@ const EditConfiguration = ({
           );
         }}
       >
-        {resetConfigurationOpen && (
-          <ResetConfigurationModal
-            configurationName={selectedConfiguration.configuration_id}
-            onClose={() => setResetConfigurationOpen(false)}
-            onReset={continueReset}
-            resetOpen={resetConfigurationOpen}
-          />
-        )}
+        <ModalPresence open={Boolean(resetConfigurationOpen)}>
+          {resetConfigurationOpen && (
+            <ResetConfigurationModal
+              configurationName={selectedConfiguration.configuration_id}
+              onClose={() => setResetConfigurationOpen(false)}
+              onReset={continueReset}
+              resetOpen={resetConfigurationOpen}
+            />
+          )}
+        </ModalPresence>
         {loadingConfig ? (
-          <Grid item xs={12} sx={{ textAlign: "center", paddingTop: "15px" }}>
+          <Grid item xs={12} sx={{ textAlign: "center", paddingTop: 16 }}>
             <Loader />
           </Grid>
         ) : (
           <Box
             sx={{
-              padding: "15px",
+              padding: 0,
               height: "100%",
             }}
           >
@@ -223,7 +226,7 @@ const EditConfiguration = ({
                     sx={{
                       display: "grid",
                       gridTemplateColumns: "1fr",
-                      gap: "10px",
+                      gap: 12,
                     }}
                   >
                     <ConfTargetGeneric
@@ -241,10 +244,11 @@ const EditConfiguration = ({
                     item
                     xs={12}
                     sx={{
-                      paddingTop: "15px ",
+                      paddingTop: 16,
                       textAlign: "right" as const,
-                      maxHeight: "60px",
                       display: "flex",
+                      flexWrap: "wrap",
+                      gap: 8,
                       alignItems: "center",
                       justifyContent: "flex-end",
                     }}
@@ -252,7 +256,7 @@ const EditConfiguration = ({
                     <Button
                       type={"button"}
                       id={"restore-defaults"}
-                      variant="secondary"
+                      variant="danger"
                       onClick={resetConfigurationMOpen}
                       label={t("Restore Defaults")}
                     />

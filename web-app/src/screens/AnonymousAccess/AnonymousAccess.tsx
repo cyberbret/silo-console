@@ -15,12 +15,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import React, { Fragment, Suspense } from "react";
+import styled from "styled-components";
 import { Button } from "mds";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import { IAM_PAGES } from "../../common/SecureComponent/permissions";
-import { resetSession } from "../Console/consoleSlice";
-import { useAppDispatch } from "../../store";
-import { resetSystem } from "../../systemSlice";
 import LoadingComponent from "../../common/LoadingComponent";
 import ObjectManagerButton from "../Console/Common/ObjectManager/ObjectManagerButton";
 import { SiloBrand } from "../../common/SiloBrand";
@@ -35,13 +33,22 @@ import LanguageActivator from "../Console/Common/LanguageActivator/LanguageActiv
 const ObjectBrowser = React.lazy(
   () => import("../Console/ObjectBrowser/ObjectBrowser"),
 );
-const ObjectManager = React.lazy(
-  () => import("../Console/Common/ObjectManager/ObjectManager"),
-);
+import TaskCenterHost from "../Console/Common/ObjectManager/TaskCenterHost";
+
+const AnonymousTools = styled.div`
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 4px;
+  --header-tool-color: #eaf2fa;
+  --header-tool-active-color: #fff;
+  --hover: rgb(255 255 255 / 0.06);
+  --active: rgb(255 255 255 / 0.1);
+`;
 
 const AnonymousAccess = () => {
   const t = useT();
-  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const source = sourceReference();
 
   return (
@@ -62,21 +69,12 @@ const AnonymousAccess = () => {
           <SiloBrand style={{ display: "block", width: "100%", height: 70 }} />
         </div>
         <div style={{ flexGrow: 1 }}></div>
-        <div
-          style={{
-            alignItems: "center",
-            display: "flex",
-            flexDirection: "row",
-            flexShrink: 0,
-            gap: 4,
-          }}
-        >
+        <AnonymousTools>
           <Button
             id={"go-to-login"}
             variant={"text"}
             onClick={() => {
-              dispatch(resetSession());
-              dispatch(resetSystem());
+              navigate("/login");
             }}
             sx={{ color: "white", textTransform: "initial" }}
           >
@@ -85,12 +83,10 @@ const AnonymousAccess = () => {
           <LanguageActivator />
           <DarkModeActivator />
           <ObjectManagerButton />
-        </div>
+        </AnonymousTools>
       </div>
 
-      <Suspense fallback={<LoadingComponent />}>
-        <ObjectManager />
-      </Suspense>
+      <TaskCenterHost />
       <Routes>
         <Route
           path={`${IAM_PAGES.OBJECT_BROWSER_VIEW}/*`}

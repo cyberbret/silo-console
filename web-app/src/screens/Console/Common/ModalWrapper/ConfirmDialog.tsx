@@ -16,11 +16,11 @@
 
 import React from "react";
 import { Box, Button, ModalBox } from "mds";
-import { useT } from "i18n";
+import { i18nKey, useT } from "i18n";
 
 interface ButtonProps {
   label?: string;
-  variant?: "regular" | "callAction" | "secondary";
+  variant?: "regular" | "callAction" | "secondary" | "primary" | "danger-fill";
   icon?: React.ReactNode;
   iconLocation?: "start" | "end";
   fullWidth?: boolean;
@@ -44,6 +44,7 @@ type ConfirmDialogProps = {
     React.ButtonHTMLAttributes<HTMLButtonElement>;
   titleIcon?: React.ReactNode;
   confirmationButtonSimple?: boolean;
+  destructive?: boolean;
 };
 
 const ConfirmDialog = ({
@@ -54,12 +55,13 @@ const ConfirmDialog = ({
   title = "",
   isLoading,
   confirmationContent,
-  cancelText = "Cancel",
-  confirmText = "Confirm",
+  cancelText = i18nKey("Cancel"),
+  confirmText = i18nKey("Confirm"),
   confirmButtonProps = undefined,
   cancelButtonProps = undefined,
   titleIcon = null,
   confirmationButtonSimple = false,
+  destructive = false,
 }: ConfirmDialogProps) => {
   // Translating here covers every caller's title/button strings at once;
   // strings missing from the dictionary render unchanged.
@@ -71,15 +73,20 @@ const ConfirmDialog = ({
       titleIcon={titleIcon}
       onClose={onClose}
       open={isOpen}
-      customMaxWidth={510}
+      size="sm"
+      closeLabel={t("Close")}
     >
       <Box>{confirmationContent}</Box>
       <Box
         sx={{
           display: "flex",
           justifyContent: "flex-end",
-          gap: 10,
-          marginTop: 20,
+          gap: 8,
+          marginTop: 24,
+          "@media (max-width: 575px)": {
+            flexDirection: "column",
+            "& > button": { width: "100%" },
+          },
         }}
       >
         <Button
@@ -97,7 +104,8 @@ const ConfirmDialog = ({
           onClick={onConfirm}
           label={t(confirmText)}
           disabled={isLoading}
-          variant={"secondary"}
+          variant={destructive ? "danger-fill" : "primary"}
+          loading={isLoading}
           {...confirmButtonProps}
         />
       </Box>

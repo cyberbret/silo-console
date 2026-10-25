@@ -14,25 +14,28 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { EmptyState, SkeletonRows } from "common/ui";
+import { hasPermission } from "common/SecureComponent";
+import { ModalPresence } from "common/ui/ModalPresence";
 import React, { Fragment, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  ActionLink,
   AddIcon,
   Box,
   Button,
   ClustersIcon,
   ConfirmDeleteIcon,
-  Grid,
   HelpBox,
-  Loader,
   PageLayout,
   RecoverIcon,
   SectionTitle,
   TrashIcon,
 } from "mds";
 import { ErrorResponseHandler } from "../../../../common/types";
-import { IAM_PAGES } from "../../../../common/SecureComponent/permissions";
+import {
+  IAM_PAGES,
+  CONSOLE_UI_RESOURCE,
+} from "../../../../common/SecureComponent/permissions";
 import {
   setErrorSnackMessage,
   setHelpName,
@@ -44,8 +47,7 @@ import useApi from "../../Common/Hooks/useApi";
 import ReplicationSites from "./ReplicationSites";
 import TooltipWrapper from "../../Common/TooltipWrapper/TooltipWrapper";
 import PageHeaderWrapper from "../../Common/PageHeaderWrapper/PageHeaderWrapper";
-import HelpMenu from "../../HelpMenu";
-import { interpolate, useLocalizedLink, useT } from "i18n";
+import { i18nKey, interpolate, useLocalizedLink, useT } from "i18n";
 
 export type ReplicationSite = {
   deploymentID: string;
@@ -61,11 +63,19 @@ const SiteReplication = () => {
   const localize = useLocalizedLink();
 
   const [sites, setSites] = useState([]);
+  const [hasLoaded, setHasLoaded] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
+  const canAddSites = hasPermission(CONSOLE_UI_RESOURCE, [
+    "admin:SiteReplicationAdd",
+  ]);
 
   const [deleteAll, setIsDeleteAll] = useState(false);
   const [isSiteInfoLoading, invokeSiteInfoApi] = useApi(
     (res: any) => {
-      const { sites: siteList, name: curSiteName } = res;
+      const { name: curSiteName } = res;
+      const siteList = res.sites ?? [];
+      setHasLoaded(true);
+      setLoadFailed(false);
       // current site name to be the fist one.
       const foundIdx = siteList.findIndex((el: any) => el.name === curSiteName);
       if (foundIdx !== -1) {
@@ -84,6 +94,8 @@ const SiteReplication = () => {
     },
     (err: any) => {
       setSites([]);
+      setHasLoaded(true);
+      setLoadFailed(true);
     },
   );
 
@@ -123,9 +135,14 @@ const SiteReplication = () => {
 
   return (
     <Fragment>
-      <PageHeaderWrapper label={"Site Replication"} actions={<HelpMenu />} />
+      <PageHeaderWrapper
+        titleElement="h1"
+        label={i18nKey("Site Replication")}
+        help
+      />
       <PageLayout>
         <SectionTitle
+          headingLevel={2}
           separator={!!hasSites}
           sx={{ marginBottom: 15 }}
           actions={
@@ -143,7 +160,7 @@ const SiteReplication = () => {
                     <Button
                       id={"delete-all"}
                       label={t("Delete All")}
-                      variant="secondary"
+                      variant="danger"
                       disabled={isRemoving}
                       icon={<TrashIcon />}
                       onClick={() => {
@@ -170,7 +187,7 @@ const SiteReplication = () => {
                   id={"add-replication-site"}
                   label={t("Add Sites")}
                   variant="callAction"
-                  disabled={isRemoving}
+                  disabled={isRemoving || !canAddSites}
                   icon={<AddIcon />}
                   onClick={() => {
                     navigate(IAM_PAGES.SITE_REPLICATION_ADD);
@@ -189,63 +206,45 @@ const SiteReplication = () => {
             onRefresh={getSites}
           />
         ) : null}
-        {isSiteInfoLoading ? (
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              height: "calc( 100vh - 450px )",
-            }}
-          >
-            <Loader style={{ width: 16, height: 16 }} />
-          </Box>
-        ) : null}
-        {!hasSites && !isSiteInfoLoading ? (
-          <Grid container>
-            <Grid item xs={8}>
-              <HelpBox
-                title={t("Site Replication")}
-                iconComponent={<ClustersIcon />}
-                help={
-                  <Fragment>
-                    {t(
-                      "This feature allows multiple independent SILO sites (or clusters) that are using the same external IDentity Provider (IDP) to be configured as replicas.",
-                    )}
-                    <br />
-                    <br />
-                    {interpolate(t("To get started, {link}."), {
-                      link: (
-                        <ActionLink
-                          isLoading={false}
-                          label={""}
-                          onClick={() => {
-                            navigate(IAM_PAGES.SITE_REPLICATION_ADD);
-                          }}
-                        >
-                          {t("Add a Replication Site")}
-                        </ActionLink>
-                      ),
-                    })}
-                    <br />
-                    {interpolate(t("You can learn more at the {link}."), {
-                      link: (
-                        <a
-                          href={localize(
-                            "https://silo.pgsty.com/operations/replication/multi-site-replication/",
-                          )}
-                          target="_blank"
-                          rel="noopener"
-                        >
-                          {t("documentation")}
-                        </a>
-                      ),
-                    })}
-                  </Fragment>
-                }
-              />
-            </Grid>
-          </Grid>
+        {isSiteInfoLoading || !hasLoaded ? (
+          <SkeletonRows rows={5} columns={2} />
+        ) : !hasSites ? (
+          <EmptyState
+            headingLevel={2}
+            icon={<ClustersIcon />}
+            title={
+              loadFailed
+                ? t("Unable to load replication sites")
+                : t("No replication sites yet")
+            }
+            description={
+              loadFailed
+                ? t("Refresh to try loading the configured sites again.")
+                : t(
+                    "Connect independent SILO sites to replicate their data and identity configuration.",
+                  )
+            }
+            action={
+              loadFailed ? (
+                <Button
+                  id="retry-sites"
+                  variant="regular"
+                  label={t("Refresh")}
+                  onClick={getSites}
+                />
+              ) : (
+                canAddSites && (
+                  <Button
+                    id="empty-add-sites"
+                    variant="callAction"
+                    label={t("Add Sites")}
+                    onClick={() => navigate(IAM_PAGES.SITE_REPLICATION_ADD)}
+                  />
+                )
+              )
+            }
+            docsUrl="https://silo.pgsty.com/operations/replication/multi-site-replication/"
+          />
         ) : null}
         {hasSites && !isSiteInfoLoading ? (
           <HelpBox
@@ -294,29 +293,32 @@ const SiteReplication = () => {
           />
         ) : null}
 
-        {deleteAll ? (
-          <ConfirmDialog
-            title={t("Delete All")}
-            confirmText={t("Delete")}
-            isOpen={true}
-            titleIcon={<ConfirmDeleteIcon />}
-            isLoading={false}
-            onConfirm={() => {
-              const siteNames = sites.map((s: any) => s.name);
-              removeSites(true, siteNames);
-            }}
-            onClose={() => {
-              setIsDeleteAll(false);
-            }}
-            confirmationContent={
-              <Fragment>
-                {t(
-                  "Are you sure you want to remove all the replication sites?.",
-                )}
-              </Fragment>
-            }
-          />
-        ) : null}
+        <ModalPresence open={Boolean(deleteAll)}>
+          {deleteAll ? (
+            <ConfirmDialog
+              destructive
+              title={t("Delete All")}
+              confirmText={t("Delete")}
+              isOpen={true}
+              titleIcon={<ConfirmDeleteIcon />}
+              isLoading={false}
+              onConfirm={() => {
+                const siteNames = sites.map((s: any) => s.name);
+                removeSites(true, siteNames);
+              }}
+              onClose={() => {
+                setIsDeleteAll(false);
+              }}
+              confirmationContent={
+                <Fragment>
+                  {t(
+                    "Are you sure you want to remove all the replication sites?.",
+                  )}
+                </Fragment>
+              }
+            />
+          ) : null}
+        </ModalPresence>
       </PageLayout>
     </Fragment>
   );

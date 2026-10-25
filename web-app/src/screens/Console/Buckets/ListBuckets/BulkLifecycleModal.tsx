@@ -115,7 +115,7 @@ const AddBulkReplicationModal = ({
           <Box
             sx={{
               paddingTop: 5,
-              color: "#42C91A",
+              color: "var(--success-text)",
             }}
           >
             <CheckCircleIcon />
@@ -129,7 +129,7 @@ const AddBulkReplicationModal = ({
             <Box
               sx={{
                 paddingTop: 5,
-                color: "#C72C48",
+                color: "var(--destructive-text)",
               }}
             >
               <Tooltip tooltip={errString} placement="top">

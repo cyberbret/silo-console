@@ -23,6 +23,15 @@ import {
   waitForPage,
 } from "../utils/ready";
 
+const uploadFile = Selector('[role="menuitem"]').withAttribute(
+  "label",
+  "Upload File",
+);
+const uploadFolder = Selector('[role="menuitem"]').withAttribute(
+  "label",
+  "Upload Folder",
+);
+
 fixture("For user with Bucket Write to specific prefix permissions").page(
   "http://localhost:9090",
 );
@@ -38,17 +47,13 @@ test
       await expectEnabled(uploadControl, "the Upload button");
       await t
         .click(uploadControl)
-        .expect(
-          Selector("div")
-            .withAttribute("label", "Upload File")
-            .hasClass("disabled"),
-        )
+        .expect(uploadFile.exists)
         .ok()
-        .expect(
-          Selector("div")
-            .withAttribute("label", "Upload Folder")
-            .hasClass("disabled"),
-        )
+        .expect(uploadFile.getAttribute("aria-disabled"))
+        .eql("true")
+        .expect(uploadFolder.exists)
+        .ok()
+        .expect(uploadFolder.hasAttribute("aria-disabled"))
         .notOk();
     },
   )
@@ -65,17 +70,13 @@ test
       await expectEnabled(uploadControl, "the Upload button");
       await t
         .click(uploadControl)
-        .expect(
-          Selector("div")
-            .withAttribute("label", "Upload File")
-            .hasClass("disabled"),
-        )
+        .expect(uploadFile.exists)
+        .ok()
+        .expect(uploadFile.hasAttribute("aria-disabled"))
         .notOk()
-        .expect(
-          Selector("div")
-            .withAttribute("label", "Upload Folder")
-            .hasClass("disabled"),
-        )
+        .expect(uploadFolder.exists)
+        .ok()
+        .expect(uploadFolder.hasAttribute("aria-disabled"))
         .notOk();
     },
   )

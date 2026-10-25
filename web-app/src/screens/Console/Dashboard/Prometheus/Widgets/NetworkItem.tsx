@@ -16,7 +16,6 @@
 
 import React from "react";
 import styled from "styled-components";
-import get from "lodash/get";
 import { Box, breakPoints, SpeedtestIcon } from "mds";
 import { IDashboardPanel } from "../types";
 import SingleValueWidget from "./SingleValueWidget";
@@ -24,7 +23,7 @@ import NetworkGetItem from "./NetworkGetItem";
 import NetworkPutItem from "./NetworkPutItem";
 import { useT } from "i18n";
 
-const NetworkItemBase = styled.div(({ theme }) => ({
+const NetworkItemBase = styled.div({
   display: "flex",
   flexDirection: "column",
   justifyContent: "space-between",
@@ -38,17 +37,16 @@ const NetworkItemBase = styled.div(({ theme }) => ({
     justifyContent: "space-between",
     gap: 8,
     "& .cardLabel": {
-      fontSize: 13,
-      fontWeight: 500,
-      letterSpacing: "0.02em",
-      color: get(theme, "mutedText", "#71717A"),
+      fontSize: "var(--fs-body)",
+      fontWeight: 550,
+      color: "var(--muted-foreground)",
     },
     "& .min-icon": {
-      width: 18,
-      height: 18,
+      width: 20,
+      height: 20,
       flexShrink: 0,
-      color: get(theme, "secondaryText", "#52525B"),
-      fill: get(theme, "secondaryText", "#52525B"),
+      color: "var(--muted-foreground)",
+      fill: "var(--muted-foreground)",
     },
   },
   "& .statRow": {
@@ -60,7 +58,7 @@ const NetworkItemBase = styled.div(({ theme }) => ({
       gap: 32,
     },
   },
-}));
+});
 
 const NetworkItem = ({
   value,

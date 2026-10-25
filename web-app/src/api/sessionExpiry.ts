@@ -84,7 +84,8 @@ export const isReturnableRoute = (route: unknown): route is string =>
     (auth) =>
       route === auth ||
       route.startsWith(`${auth}/`) ||
-      route.startsWith(`${auth}?`),
+      route.startsWith(`${auth}?`) ||
+      route.startsWith(`${auth}#`),
   );
 
 export const rememberRoute = (route: string, storage: RouteStorage): void => {
@@ -110,6 +111,8 @@ export const forgetRememberedRoute = (storage: RouteStorage): void => {
 
 export interface ExpiredSessionContext {
   pathname: string;
+  search?: string;
+  hash?: string;
   basePath: string;
   storage: RouteStorage;
   // Anonymous public-bucket browsing has no session to expire: a 401 there
@@ -134,7 +137,10 @@ export const handleExpiredSession = (
   ) {
     return false;
   }
-  rememberRoute(appRoute(context.pathname, context.basePath), context.storage);
+  rememberRoute(
+    `${appRoute(context.pathname, context.basePath)}${context.search || ""}${context.hash || ""}`,
+    context.storage,
+  );
   context.clearSession();
   context.navigate(sessionExpiryTarget(context.basePath));
   return true;

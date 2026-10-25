@@ -32,10 +32,10 @@ import {
   setRequestInProgress,
   setSelectedObjectView,
   setVersionsModeEnabled,
+  setSelectedObjects,
 } from "../../ObjectBrowser/objectBrowserSlice";
 import ListObjects from "../ListBuckets/Objects/ListObjects/ListObjects";
 import hasPermission from "../../../../common/SecureComponent/accessControl";
-import OBHeader from "../../ObjectBrowser/OBHeader";
 import {
   ObjectLocation,
   routeObjectIdentity,
@@ -123,9 +123,6 @@ const BrowserHandler = () => {
   // Common path load
   const pathLoad = useCallback(
     (forceLoad: boolean = false) => {
-      // We exit Versions mode in case of path change
-      dispatch(setVersionsModeEnabled({ status: false }));
-
       let searchPath = internalPaths;
 
       if (!internalPaths.endsWith("/") && internalPaths !== "") {
@@ -175,6 +172,11 @@ const BrowserHandler = () => {
     dispatch(setLoadingLocking(true));
   }, [bucketName, dispatch]);
 
+  // Commit selection only after navigation has passed the departure guard.
+  useEffect(() => {
+    dispatch(setSelectedObjects([]));
+  }, [location.key, dispatch]);
+
   // Object Details handler
   useEffect(() => {
     dispatch(setLoadingVersioning(true));
@@ -190,6 +192,35 @@ const BrowserHandler = () => {
       dispatch(setSelectedObjectView(internalPaths || ""));
     }
   }, [bucketName, internalPaths, rewindDate, rewindEnabled, dispatch]);
+
+  // Only route/mode changes leave Versions. A task completion or ordinary
+  // listing refresh keeps the current view and its selected object intact.
+  const versionsNavigation = useRef<string>();
+  useEffect(() => {
+    const requested =
+      versionsNavigation.current !== location.key
+        ? location.state?.objectVersions
+        : undefined;
+    versionsNavigation.current = location.key;
+    dispatch(
+      setVersionsModeEnabled({
+        status:
+          typeof requested === "string" &&
+          requested === internalPaths &&
+          !internalPaths.endsWith("/"),
+        objectName: internalPaths.split("/").pop() || "",
+      }),
+    );
+  }, [
+    bucketName,
+    internalPaths,
+    rewindDate,
+    rewindEnabled,
+    showDeleted,
+    location.key,
+    location.state,
+    dispatch,
+  ]);
 
   // Navigation Listing Request
   useEffect(() => {
@@ -287,7 +318,6 @@ const BrowserHandler = () => {
 
   return (
     <Fragment>
-      {!anonymousMode && <OBHeader bucketName={bucketName} />}
       <ListObjects />
     </Fragment>
   );

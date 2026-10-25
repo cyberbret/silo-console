@@ -23,20 +23,24 @@ interface ISpecificVersionPillProps {
 
 const SpecificVersionPill = ({ type }: ISpecificVersionPillProps) => {
   const t = useT();
-  let bgColor = "#000";
+  let bgColor = "var(--surface-2)";
+  let textColor = "var(--foreground)";
   let message = "";
 
   switch (type) {
     case "null":
-      bgColor = "#07193E";
+      bgColor = "var(--brand-subtle)";
+      textColor = "var(--brand)";
       message = t("NULL VERSION");
       break;
     case "deleted":
-      bgColor = "#868686";
+      bgColor = "var(--surface-2)";
+      textColor = "var(--muted-foreground)";
       message = t("DELETED");
       break;
     default:
-      bgColor = "#174551";
+      bgColor = "var(--success-bg)";
+      textColor = "var(--success-text)";
       message = t("CURRENT VERSION");
   }
 
@@ -44,12 +48,12 @@ const SpecificVersionPill = ({ type }: ISpecificVersionPillProps) => {
     <span
       style={{
         backgroundColor: bgColor,
-        padding: "0 5px",
+        padding: "1px 6px",
         display: "inline-block",
-        color: "#FFF",
-        fontWeight: "bold",
-        fontSize: 12,
-        borderRadius: 2,
+        color: textColor,
+        fontWeight: 600,
+        fontSize: "var(--fs-micro, 11px)",
+        borderRadius: "var(--radius-pill, 4px)",
         whiteSpace: "nowrap",
         margin: "0 10px",
       }}

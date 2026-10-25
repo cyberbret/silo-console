@@ -85,12 +85,23 @@ export const setVersionedBucket = (t, name) => {
   });
 };
 
-export const namedManageButtonFor = (name) => {
-  return Selector("div").withAttribute("id", `manageBucket-${name}`);
+export const namedBucketActionsFor = (name) => {
+  return Selector("button").withAttribute("aria-label", `Actions for ${name}`);
 };
 
-export const manageButtonFor = (modifier) => {
-  return namedManageButtonFor(`${constants.TEST_BUCKET_NAME}-${modifier}`);
+export const bucketActionsFor = (modifier) => {
+  return namedBucketActionsFor(`${constants.TEST_BUCKET_NAME}-${modifier}`);
+};
+
+export const bucketSettingsItem = Selector(
+  'button[role="menuitem"]',
+).withExactText("Settings");
+
+export const namedBucketAccessFor = (name) => {
+  return Selector('[role="row"]')
+    .withAttribute("aria-label", name)
+    .find('[role="cell"]')
+    .withText(/^(Read only|Write only|Read & write|Unknown)$/);
 };
 
 export const cleanUpNamedBucket = (t, name) => {
@@ -110,7 +121,10 @@ export const cleanUpBucket = (t, modifier) => {
 };
 
 export const namedTestBucketBrowseButtonFor = (name) => {
-  return Selector("span").withAttribute("id", `browse-${name}`);
+  return Selector("a").withAttribute(
+    "href",
+    `/browser/${encodeURIComponent(name)}`,
+  );
 };
 
 export const testBucketBrowseButtonFor = (modifier) => {

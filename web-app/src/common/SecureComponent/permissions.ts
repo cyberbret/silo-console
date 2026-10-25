@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import { getStoredLanguage, translate } from "../../i18n/lang";
+import { i18nKey, getStoredLanguage, translate } from "../../i18n/lang";
 
 export const IAM_ROLES = {
   BUCKET_OWNER: "BUCKET_OWNER", // upload/delete objects from the bucket
@@ -70,6 +70,7 @@ export const IAM_SCOPES = {
   ADMIN_GET_USER: "admin:GetUser",
   ADMIN_LIST_USER_POLICIES: "admin:ListUserPolicies",
   ADMIN_SERVER_INFO: "admin:ServerInfo",
+  ADMIN_DATA_USAGE_INFO: "admin:DataUsageInfo",
   ADMIN_GET_BUCKET_QUOTA: "admin:GetBucketQuota",
   ADMIN_SET_BUCKET_QUOTA: "admin:SetBucketQuota",
   ADMIN_LIST_TIERS: "admin:ListTier",
@@ -473,8 +474,12 @@ export const permissionTooltipHelper = (scopes: string[], name: string) => {
   const lang = getStoredLanguage();
   const template =
     scopes.length > 1
-      ? "You require additional permissions in order to {name}. Please ask your SILO administrator to grant you {scopes} permissions in order to {name}."
-      : "You require additional permissions in order to {name}. Please ask your SILO administrator to grant you {scopes} permission in order to {name}.";
+      ? i18nKey(
+          "You require additional permissions in order to {name}. Please ask your SILO administrator to grant you {scopes} permissions in order to {name}.",
+        )
+      : i18nKey(
+          "You require additional permissions in order to {name}. Please ask your SILO administrator to grant you {scopes} permission in order to {name}.",
+        );
 
   return translate(lang, template)
     .split("{name}")
@@ -576,4 +581,7 @@ export const deleteBucketPermissions = [
 export const browseBucketPermissions = [
   IAM_SCOPES.S3_LIST_BUCKET,
   IAM_SCOPES.S3_ALL_LIST_BUCKET,
+  // The object workspace also hosts uploads for write-only users. Its list
+  // and detail panels independently enforce read/list permissions.
+  IAM_SCOPES.S3_PUT_OBJECT,
 ];

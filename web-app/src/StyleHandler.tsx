@@ -14,9 +14,10 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { useT } from "i18n";
 import React, { Fragment, useLayoutEffect } from "react";
-import { GlobalStyles, ThemeHandler } from "mds";
-import { ThemeProvider } from "styled-components";
+import { GlobalStyles, ThemeHandler, ControlLabelsProvider } from "mds";
+import { createGlobalStyle, ThemeProvider } from "styled-components";
 import merge from "lodash/merge";
 import "react-virtualized/styles.css";
 
@@ -25,15 +26,27 @@ import {
   siloDarkThemeOverrides,
   siloLightThemeOverrides,
 } from "./common/siloTheme";
+import { darkTokens, lightTokens, tokenCssVariables } from "./common/ui/tokens";
+import { DensityProvider } from "./common/ui/Density";
 import "./index.css";
 import { useSelector } from "react-redux";
 import { AppState } from "./store";
+
+const tokenRules = (tokens: typeof lightTokens | typeof darkTokens) =>
+  Object.entries(tokenCssVariables(tokens))
+    .map(([name, value]) => `${name}: ${value};`)
+    .join("\n");
+const TokenStyles = createGlobalStyle`
+  :root, :root[data-theme="light"] { color-scheme: light; ${tokenRules(lightTokens)} }
+  :root[data-theme="dark"] { color-scheme: dark; ${tokenRules(darkTokens)} }
+`;
 
 interface IStyleHandler {
   children: React.ReactNode;
 }
 
 const StyleHandler = ({ children }: IStyleHandler) => {
+  const t = useT();
   const colorVariants = useSelector(
     (state: AppState) => state.system.overrideStyles,
   );
@@ -46,6 +59,11 @@ const StyleHandler = ({ children }: IStyleHandler) => {
   useLayoutEffect(() => {
     document.documentElement.lang = language === "zh" ? "zh-CN" : "en";
   }, [language]);
+
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+    root.dataset.theme = darkMode ? "dark" : "light";
+  }, [darkMode]);
 
   let thm = undefined;
 
@@ -64,14 +82,47 @@ const StyleHandler = ({ children }: IStyleHandler) => {
 
   return (
     <Fragment>
-      <GlobalStyles />
-      <ThemeHandler darkMode={darkMode} customTheme={thm}>
-        {colorVariants ? (
-          children
-        ) : (
-          <ThemeProvider theme={applySiloTheme}>{children}</ThemeProvider>
-        )}
-      </ThemeHandler>
+      <TokenStyles />
+      <ControlLabelsProvider
+        labels={{
+          close: t("Close"),
+          showPassword: t("Show password"),
+          hidePassword: t("Hide password"),
+          inputAction: t("Input action"),
+          chooseDate: t("Choose date"),
+          chooseDateTime: t("Choose date and time"),
+          calendarLocale: language === "zh" ? "zh-CN" : "en",
+          time: t("Time"),
+          hour: t("Hour"),
+          minute: t("Minute"),
+          second: t("Second"),
+          meridiem: t("AM/PM"),
+          am: t("AM"),
+          pm: t("PM"),
+          previousCalendarPeriod: t("Previous calendar period"),
+          nextCalendarPeriod: t("Next calendar period"),
+          progress: t("Progress"),
+          remove: t("Remove"),
+          on: t("On"),
+          off: t("Off"),
+        }}
+      >
+        <DensityProvider>
+          <ThemeHandler darkMode={darkMode} customTheme={thm}>
+            {colorVariants ? (
+              <>
+                <GlobalStyles />
+                {children}
+              </>
+            ) : (
+              <ThemeProvider theme={applySiloTheme}>
+                <GlobalStyles />
+                {children}
+              </ThemeProvider>
+            )}
+          </ThemeHandler>
+        </DensityProvider>
+      </ControlLabelsProvider>
     </Fragment>
   );
 };

@@ -40,7 +40,7 @@ test("normal sharing remains available in the list, details and versions", async
       .filter({ hasText: "hello.txt" });
     await expect(row).toBeVisible();
     const checkbox = page.locator('input[type="checkbox"][value="hello.txt"]');
-    await page.locator("label").filter({ has: checkbox }).click();
+    await checkbox.click();
     await expect(
       page.getByRole("button", { name: "Share", exact: true }),
     ).toBeVisible();

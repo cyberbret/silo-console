@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { createUserCommands } from "common/mcli/commands";
+import { FormCliEquivalent } from "common/mcli/FormCliEquivalent";
 import React, { Fragment, useEffect } from "react";
 import {
   BackLink,
@@ -39,7 +41,6 @@ import {
 } from "./AddUsersSlice";
 import AddUserHelpBox from "./AddUserHelpBox";
 import PageHeaderWrapper from "../Common/PageHeaderWrapper/PageHeaderWrapper";
-import HelpMenu from "../HelpMenu";
 import PolicySelectors from "../Policies/PolicySelectors";
 import UserSelector from "./UserSelector";
 import PasswordSelector from "./PasswordSelector";
@@ -49,6 +50,7 @@ import { useT } from "i18n";
 const AddUser = () => {
   const dispatch = useAppDispatch();
   const t = useT();
+  const userName = useSelector((state: AppState) => state.createUser.userName);
   const selectedPolicies = useSelector(
     (state: AppState) => state.createUser.selectedPolicies,
   );
@@ -97,13 +99,14 @@ const AddUser = () => {
     <Fragment>
       <Grid item xs={12}>
         <PageHeaderWrapper
+          titleElement="h1"
           label={
             <BackLink
               label={t("Users")}
               onClick={() => navigate(IAM_PAGES.USERS)}
             />
           }
-          actions={<HelpMenu />}
+          help
         />
         <PageLayout>
           <FormLayout
@@ -153,6 +156,18 @@ const AddUser = () => {
                   label={t("Save")}
                 />
               </Grid>
+              <FormCliEquivalent
+                commands={createUserCommands({
+                  accessKey: userName,
+                  policies: selectedPolicies,
+                  groups: selectedGroups,
+                })}
+                notes={[
+                  t(
+                    "Replace <SECRET> with your secret key. Secrets are never included in this preview.",
+                  ),
+                ]}
+              />
             </form>
           </FormLayout>
         </PageLayout>

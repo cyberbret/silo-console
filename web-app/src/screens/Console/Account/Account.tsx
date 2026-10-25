@@ -14,6 +14,11 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { useBoundedTable } from "common/ui/useBoundedTable";
+import { AccessKeyRowMenu } from "./AccessKeyRowMenu";
+import { SkeletonRows } from "common/ui";
+import { FilteredEmptyState } from "common/ui/FilteredEmptyState";
+import { ModalPresence } from "common/ui/ModalPresence";
 import React, { Fragment, useEffect, useState } from "react";
 import {
   AccountIcon,
@@ -44,9 +49,8 @@ import TooltipWrapper from "../Common/TooltipWrapper/TooltipWrapper";
 import PageHeaderWrapper from "../Common/PageHeaderWrapper/PageHeaderWrapper";
 import { api } from "api";
 import { errorToHandler } from "api/errors";
-import HelpMenu from "../HelpMenu";
 import { accountTableColumns } from "./AccountUtils";
-import { interpolate, useLocalizedLink, useT } from "i18n";
+import { useLocalizedLink, useT } from "i18n";
 import { useAppDispatch } from "store";
 import { ServiceAccounts } from "api/consoleApi";
 import {
@@ -75,7 +79,7 @@ const Account = () => {
   const features = useSelector(selFeatures);
 
   const [records, setRecords] = useState<ServiceAccounts>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [filter, setFilter] = useState<string>("");
   const [deleteOpen, setDeleteOpen] = useState<boolean>(false);
   const [selectedServiceAccount, setSelectedServiceAccount] = useState<
@@ -194,45 +198,61 @@ const Account = () => {
   ];
 
   const filteredRecords = records.filter((elementItem) =>
-    elementItem?.accessKey?.toLowerCase().includes(filter.toLowerCase()),
+    elementItem?.accessKey?.toLowerCase().includes(filter.trim().toLowerCase()),
   );
+
+  const boundedTable = useBoundedTable(filteredRecords.length, loading);
 
   return (
     <React.Fragment>
-      {deleteOpen && (
-        <DeleteServiceAccount
-          deleteOpen={deleteOpen}
-          selectedServiceAccount={selectedServiceAccount}
-          closeDeleteModalAndRefresh={(refresh: boolean) => {
-            closeDeleteModalAndRefresh(refresh);
-          }}
-        />
-      )}
-      {deleteMultipleOpen && (
-        <DeleteMultipleServiceAccounts
-          deleteOpen={deleteMultipleOpen}
-          selectedSAs={selectedSAs}
-          closeDeleteModalAndRefresh={closeDeleteMultipleModalAndRefresh}
-        />
-      )}
+      <ModalPresence open={Boolean(deleteOpen)}>
+        {deleteOpen && (
+          <DeleteServiceAccount
+            deleteOpen={deleteOpen}
+            selectedServiceAccount={selectedServiceAccount}
+            closeDeleteModalAndRefresh={(refresh: boolean) => {
+              closeDeleteModalAndRefresh(refresh);
+            }}
+          />
+        )}
+      </ModalPresence>
+      <ModalPresence open={Boolean(deleteMultipleOpen)}>
+        {deleteMultipleOpen && (
+          <DeleteMultipleServiceAccounts
+            deleteOpen={deleteMultipleOpen}
+            selectedSAs={selectedSAs}
+            closeDeleteModalAndRefresh={closeDeleteMultipleModalAndRefresh}
+          />
+        )}
+      </ModalPresence>
 
-      {isEditOpen && (
-        <EditServiceAccount
-          open={isEditOpen}
-          selectedAccessKey={selectedServiceAccount}
-          closeModalAndRefresh={closePolicyModal}
-          readOnly={serviceAccountReadOnly}
-        />
-      )}
+      <ModalPresence open={Boolean(isEditOpen)}>
+        {isEditOpen && (
+          <EditServiceAccount
+            open={isEditOpen}
+            selectedAccessKey={selectedServiceAccount}
+            closeModalAndRefresh={closePolicyModal}
+            readOnly={serviceAccountReadOnly}
+          />
+        )}
+      </ModalPresence>
       <ChangePasswordModal
         open={changePasswordModalOpen}
         closeModal={() => setChangePasswordModalOpen(false)}
       />
-      <PageHeaderWrapper label={t("Access Keys")} actions={<HelpMenu />} />
+      <PageHeaderWrapper label={t("Access Keys")} titleElement="h1" help />
 
       <PageLayout>
         <Grid container>
-          <Grid item xs={12} sx={{ ...actionsTray.actionsTray }}>
+          <Grid
+            item
+            xs={12}
+            sx={{
+              ...actionsTray.actionsTray,
+              gap: 12,
+              "& button": { marginLeft: 0 },
+            }}
+          >
             <SearchBox
               placeholder={t("Search Access Keys")}
               onChange={setFilter}
@@ -243,7 +263,7 @@ const Account = () => {
               sx={{
                 display: "flex",
                 flexWrap: "nowrap",
-                gap: 5,
+                gap: 8,
               }}
             >
               <TooltipWrapper tooltip={t("Delete Selected")}>
@@ -255,7 +275,7 @@ const Account = () => {
                   label={t("Delete Selected")}
                   icon={<DeleteIcon />}
                   disabled={selectedSAs.length === 0}
-                  variant={"secondary"}
+                  variant={"danger"}
                 />
               </TooltipWrapper>
               <SecureComponent
@@ -294,10 +314,49 @@ const Account = () => {
 
           <Grid item xs={12}>
             <DataTable
-              itemActions={tableActions}
+              {...boundedTable}
+              itemActions={tableActions.filter(
+                (action) => action.type === "view",
+              )}
               entityName={t("Access Keys")}
-              customEmptyMessage={t("There are no Access Keys yet.")}
-              columns={accountTableColumns(t)}
+              loadingState={<SkeletonRows rows={5} columns={4} />}
+              emptyState={
+                <FilteredEmptyState
+                  filtered={Boolean(filter.trim())}
+                  onClear={() => setFilter("")}
+                  icon={<AccountIcon />}
+                  title={t("No access keys yet")}
+                  description={t(
+                    "Access keys let applications connect with the permissions of your account.",
+                  )}
+                  action={
+                    hasPermission(CONSOLE_UI_RESOURCE, [
+                      IAM_SCOPES.ADMIN_CREATE_SERVICEACCOUNT,
+                    ]) && (
+                      <Button
+                        id="empty-list-action"
+                        variant="callAction"
+                        label={t("Create access key")}
+                        onClick={() => navigate(IAM_PAGES.ACCOUNT_ADD)}
+                      />
+                    )
+                  }
+                />
+              }
+              columns={[
+                ...accountTableColumns(t),
+                {
+                  label: t("Actions"),
+                  elementKey: "actions",
+                  priority: "high",
+                  width: 48,
+                  globalClass: "mds-row-actions",
+                  renderFullObject: true,
+                  renderFunction: (record: ServiceAccounts[number]) => (
+                    <AccessKeyRowMenu record={record} actions={tableActions} />
+                  ),
+                },
+              ]}
               onSelect={(e) => selectSAs(e, setSelectedSAs, selectedSAs)}
               onSelectAll={() => {
                 // Toggle the visible rows only; selections hidden by the
@@ -318,30 +377,24 @@ const Account = () => {
               idField="accessKey"
             />
           </Grid>
-          <Grid item xs={12} sx={{ marginTop: 15 }}>
+          <Grid item xs={12} sx={{ marginTop: 16 }}>
             <HelpBox
-              title={t("Learn more about ACCESS KEYS")}
+              title={t("Access keys")}
               iconComponent={<AccountIcon />}
               help={
                 <Fragment>
                   {t(
-                    "SILO access keys are child identities of an authenticated SILO user, including externally managed identities. Each access key inherits its privileges based on the policies attached to it’s parent user or those groups in which the parent user has membership. Access Keys also support an optional inline policy which further restricts access to a subset of actions and resources available to the parent user.",
-                  )}
-                  <br />
-                  <br />
-                  {interpolate(t("You can learn more at the {link}."), {
-                    link: (
-                      <a
-                        href={localize(
-                          "https://silo.pgsty.com/administration/identity-access-management/minio-user-management/#access-keys",
-                        )}
-                        target="_blank"
-                        rel="noopener"
-                      >
-                        {t("documentation")}
-                      </a>
-                    ),
-                  })}
+                    "Access keys inherit their parent user’s permissions. An inline policy can only restrict them further.",
+                  )}{" "}
+                  <a
+                    href={localize(
+                      "https://silo.pgsty.com/administration/identity-access-management/minio-user-management/#access-keys",
+                    )}
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    {t("Learn more")}
+                  </a>
                 </Fragment>
               }
             />

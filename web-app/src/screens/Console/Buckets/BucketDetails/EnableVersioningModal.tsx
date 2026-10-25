@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { bucketVersioningCommands } from "common/mcli/commands";
+import { FormCliEquivalent } from "common/mcli/FormCliEquivalent";
 import React, { Fragment, useState } from "react";
 import { Box, Button, FormLayout, ModalBox, Switch } from "mds";
 import { BucketVersioningResponse } from "api/consoleApi";
@@ -158,6 +160,14 @@ const EnableVersioningModal = ({
             label={t("Save")}
           />
         </Box>
+        <FormCliEquivalent
+          commands={bucketVersioningCommands({
+            bucket: selectedBucket,
+            enabled: versionState,
+            excludeFolders,
+            excludedPrefixes,
+          })}
+        />
       </FormLayout>
     </ModalBox>
   );

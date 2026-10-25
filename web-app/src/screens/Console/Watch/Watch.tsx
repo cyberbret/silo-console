@@ -33,10 +33,9 @@ import { watchURL } from "./watchURL";
 import { ErrorResponseHandler } from "../../../common/types";
 import { watchMessageReceived, watchResetMessages } from "./watchSlice";
 import { setHelpName } from "../../../systemSlice";
-import { useT } from "i18n";
+import { i18nKey, useT } from "i18n";
 import api from "../../../common/api";
 import PageHeaderWrapper from "../Common/PageHeaderWrapper/PageHeaderWrapper";
-import HelpMenu from "../HelpMenu";
 
 const Watch = () => {
   const dispatch = useAppDispatch();
@@ -132,21 +131,29 @@ const Watch = () => {
 
   return (
     <Fragment>
-      <PageHeaderWrapper label="Watch" actions={<HelpMenu />} />
+      <PageHeaderWrapper titleElement="h1" label={i18nKey("Watch")} help />
       <PageLayout>
         <Grid container>
           <Grid
             item
             xs={12}
             sx={{
-              display: "flex",
-              gap: 10,
-              marginBottom: 15,
-              alignItems: "center",
+              display: "grid",
+              gridTemplateColumns: "repeat(3, minmax(0, 1fr)) auto",
+              gap: 12,
+              marginBottom: 16,
+              alignItems: "end",
+              "& > *": { minWidth: 0 },
+              "@media (max-width: 767px)": {
+                gridTemplateColumns: "minmax(0, 1fr)",
+                "& button": { width: "100%" },
+              },
             }}
           >
             <Box sx={{ flexGrow: 1 }}>
-              <InputLabel>{t("Bucket")}</InputLabel>
+              <InputLabel htmlFor="bucket-name-select">
+                {t("Bucket")}
+              </InputLabel>
               <Select
                 id="bucket-name"
                 name="bucket-name"
@@ -160,7 +167,7 @@ const Watch = () => {
               />
             </Box>
             <Box sx={{ flexGrow: 1 }}>
-              <InputLabel>{t("Prefix")}</InputLabel>
+              <InputLabel htmlFor="prefix-resource">{t("Prefix")}</InputLabel>
               <InputBox
                 id="prefix-resource"
                 disabled={start}
@@ -170,7 +177,7 @@ const Watch = () => {
               />
             </Box>
             <Box sx={{ flexGrow: 1 }}>
-              <InputLabel>{t("Suffix")}</InputLabel>
+              <InputLabel htmlFor="suffix-resource">{t("Suffix")}</InputLabel>
               <InputBox
                 id="suffix-resource"
                 disabled={start}
@@ -179,7 +186,7 @@ const Watch = () => {
                 }}
               />
             </Box>
-            <Box sx={{ alignSelf: "flex-end", paddingBottom: 4 }}>
+            <Box>
               {start ? (
                 <Button
                   id={"stop-watch"}

@@ -80,6 +80,7 @@ const DeleteReplicationRule = ({
 
   return (
     <ConfirmDialog
+      destructive
       title={
         deleteSelectedRules
           ? t("Delete Selected Replication Rules")
@@ -118,6 +119,9 @@ const DeleteReplicationRule = ({
                     setConfirmationText(event.target.value);
                   }}
                   label=""
+                  aria-label={t(
+                    "To continue please type {phrase} in the box.",
+                  ).replace("{phrase}", () => confirmationPhrase)}
                   value={confirmationText}
                 />
               </Grid>

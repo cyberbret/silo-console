@@ -114,7 +114,7 @@ const LDAPEntitiesQuery = () => {
     <Box sx={{ marginTop: 15, paddingTop: 0 }}>
       <Grid container sx={{ marginTop: 5 }}>
         <Grid item sm={12} md={6} lg={5} sx={{ padding: 10, paddingTop: 0 }}>
-          <SectionTitle>{t("Query Filters")}</SectionTitle>
+          <SectionTitle headingLevel={2}>{t("Query Filters")}</SectionTitle>
 
           <Box
             sx={{
@@ -126,9 +126,9 @@ const LDAPEntitiesQuery = () => {
           >
             <Box sx={{ padding: "10px 26px" }} withBorders>
               <Box sx={{ display: "flex" }}>
-                <h4 style={{ margin: 0, marginBottom: 10, fontSize: 14 }}>
+                <h3 style={{ margin: 0, marginBottom: 10, fontSize: 14 }}>
                   {t("Users")}
-                </h4>
+                </h3>
               </Box>
               <Box
                 sx={{
@@ -167,9 +167,9 @@ const LDAPEntitiesQuery = () => {
               </Box>
             </Box>
             <Box sx={{ padding: "10px 26px" }} withBorders>
-              <h4 style={{ margin: 0, marginBottom: 10, fontSize: 14 }}>
+              <h3 style={{ margin: 0, marginBottom: 10, fontSize: 14 }}>
                 {t("Groups")}
-              </h4>
+              </h3>
               <Box
                 sx={{
                   overflowY: "auto",
@@ -207,9 +207,9 @@ const LDAPEntitiesQuery = () => {
               </Box>
             </Box>
             <Box sx={{ padding: "10px 26px" }} withBorders>
-              <h4 style={{ margin: 0, marginBottom: 10, fontSize: 14 }}>
+              <h3 style={{ margin: 0, marginBottom: 10, fontSize: 14 }}>
                 {t("Policies")}
-              </h4>
+              </h3>
               <Box
                 sx={{
                   minHeight: 265,
@@ -240,6 +240,7 @@ const LDAPEntitiesQuery = () => {
           ) : (
             <Fragment>
               <SectionTitle
+                headingLevel={2}
                 actions={
                   <Box
                     sx={{
@@ -256,7 +257,7 @@ const LDAPEntitiesQuery = () => {
                             width: 14,
                             height: 14,
                             marginRight: 5,
-                            fill: "#BEBFBF",
+                            color: "var(--muted-foreground)",
                           }}
                         />
                         {DateTime.fromISO(results.timestamp).toFormat(
@@ -274,7 +275,8 @@ const LDAPEntitiesQuery = () => {
               {results ? (
                 <Box
                   sx={{
-                    backgroundColor: "#FBFAFA",
+                    backgroundColor: "var(--surface-2)",
+                    borderRadius: "var(--radius-card)",
                     padding: "8px 22px",
                     flexGrow: 1,
                     overflowY: "auto",
@@ -282,7 +284,9 @@ const LDAPEntitiesQuery = () => {
                 >
                   {!results.groups && !results.users && !results.policies && (
                     <Box sx={{ textAlign: "center" }}>
-                      <h4>{t("No Results Available")}</h4>
+                      <h3 style={{ fontSize: "1em", margin: "1.33em 0" }}>
+                        {t("No Results Available")}
+                      </h3>
                     </Box>
                   )}
                   {!!results.groups && (

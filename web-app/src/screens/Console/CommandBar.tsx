@@ -14,159 +14,166 @@
 //  You should have received a copy of the GNU Affero General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import * as React from "react";
-import { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useRef } from "react";
 import {
   ActionId,
   ActionImpl,
-  KBarAnimator,
   KBarPortal,
   KBarPositioner,
   KBarResults,
   KBarSearch,
-  KBarState,
   useKBar,
   useMatches,
-  useRegisterActions,
+  VisualState,
 } from "kbar";
-import { Action } from "kbar/lib/types";
-import { AppState } from "../../store";
-import { routesAsKbarActions } from "./kbar-actions";
-import { hasCreateBucketPermission } from "../../common/SecureComponent/createBucketPermission";
 
-import { Box, MenuExpandedIcon } from "mds";
-import { useSelector } from "react-redux";
-import { selFeatures } from "./consoleSlice";
-import { Bucket } from "../../api/consoleApi";
-import { api } from "../../api";
-import { useLanguage, useT } from "i18n";
+import {
+  Elevated,
+  MenuExpandedIcon,
+  useFluidHover,
+  FluidHoverHighlight,
+  listPopupStyle,
+  useModalActive,
+} from "mds";
+import styled from "styled-components";
+import { typography } from "../../common/ui/typography";
+import { useT } from "i18n";
+import {
+  useOverlayIntent,
+  useOverlayPending,
+} from "../../common/ui/overlayIntent";
 
-const searchStyle = {
-  padding: "12px 16px",
-  width: "100%",
-  boxSizing: "border-box" as React.CSSProperties["boxSizing"],
-  outline: "none",
-  border: "none",
-  color: "#858585",
-  boxShadow: "0px 3px 5px #00000017",
-  borderRadius: "4px 4px 0px 0px",
-  fontSize: "14px",
-  backgroundImage: "url(/images/search-icn.svg)",
-  backgroundRepeat: "no-repeat",
-  backgroundPosition: "95%",
-};
+const Panel = styled(Elevated)`
+  ${listPopupStyle}
+  pointer-events: auto;
+  width: min(600px, calc(100vw - 32px));
+  overflow: hidden;
+  border-radius: var(--radius-popover, 12px);
+`;
+const Search = styled(KBarSearch)`
+  ${typography.body}
+  width: 100%;
+  height: calc(var(--control-height, 36px) + 16px);
+  padding: 8px 16px;
+  box-sizing: border-box;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  color: var(--foreground);
+  background: transparent;
+  &&:focus-visible {
+    outline: none;
+  }
+  @media (pointer: coarse) {
+    font-size: 16px;
+  }
+`;
+const Results = styled.div`
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 4px;
+  [data-fluid-highlight] {
+    z-index: -1;
+  }
+  .commandGroup {
+    ${typography.small} color: var(--muted-foreground);
+    padding: 8px 12px;
+  }
+`;
+const CommandRow = styled.div`
+  ${typography.body}
+  display: flex;
+  align-items: center;
+  gap: var(--gap, 8px);
+  min-height: var(--control-height, 36px);
+  padding: 0 var(--control-padding, 12px);
+  border-radius: var(--radius-control, 8px);
+  cursor: pointer;
+  color: var(--muted-foreground);
+  &[data-fluid-hover] {
+    color: var(--foreground);
+  }
+  .commandIcon {
+    display: flex;
+    width: var(--icon-size, 16px);
+    flex-shrink: 0;
+  }
+  svg {
+    width: var(--icon-size, 16px);
+    height: var(--icon-size, 16px);
+    fill: currentColor;
+  }
+  .commandName {
+    flex: 1;
+    min-width: 0;
+  }
+  .commandAncestors,
+  .commandSubtitle {
+    ${typography.small} color: var(--muted-foreground);
+  }
+  .commandChevron {
+    display: flex;
+    transform: rotate(90deg);
+  }
+  kbd {
+    ${typography.small} padding: 2px 4px;
+    background: var(--muted);
+    border-radius: 4px;
+  }
+`;
 
-const animatorStyle = {
-  maxWidth: "600px",
-  width: "100%",
-  background: "white",
-  color: "black",
-  borderRadius: "4px",
-  overflow: "hidden",
-  boxShadow: "0px 3px 20px #00000055",
-};
-
-const groupNameStyle = {
-  marginLeft: "30px",
-  padding: "19px 0px 14px 0px",
-  fontSize: "10px",
-  textTransform: "uppercase" as const,
-  color: "#858585",
-  borderBottom: "1px solid #eaeaea",
-};
-
-const KBarStateChangeMonitor = ({
-  onShow,
-  onHide,
-}: {
-  onShow?: () => void;
-  onHide?: () => void;
-}) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const { visualState } = useKBar((state: KBarState) => {
-    return {
-      visualState: state.visualState,
+function CommandPopup({ children }: { children: React.ReactNode }) {
+  const t = useT();
+  const panel = useRef<HTMLDivElement>(null);
+  const { visualState, query } = useKBar((state) => ({
+    visualState: state.visualState,
+  }));
+  useEffect(() => {
+    const outside = (event: PointerEvent) => {
+      if (
+        event.target instanceof Node &&
+        !panel.current?.contains(event.target)
+      )
+        query.setVisualState(VisualState.animatingOut);
     };
-  });
-
-  useEffect(() => {
-    if (visualState === "showing") {
-      setIsOpen(true);
-    } else {
-      setIsOpen(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visualState]);
-
-  useEffect(() => {
-    if (isOpen) {
-      onShow?.();
-    } else {
-      onHide?.();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen]);
-
-  //just to hook into the internal state of KBar. !
-  return null;
-};
+    document.addEventListener("pointerdown", outside);
+    return () => document.removeEventListener("pointerdown", outside);
+  }, [query]);
+  return (
+    <Panel
+      ref={panel}
+      offset={2}
+      shadowLevel={3}
+      role="dialog"
+      aria-label={t("Search")}
+      data-silo-popup="true"
+      data-closing={visualState === VisualState.animatingOut}
+    >
+      {children}
+    </Panel>
+  );
+}
 
 const CommandBar = () => {
-  const features = useSelector(selFeatures);
-  const navigate = useNavigate();
   const t = useT();
-  const language = useLanguage();
-
-  const [buckets, setBuckets] = useState<Bucket[]>([]);
-
-  const invokeListBucketsApi = () => {
-    api.buckets.listBuckets().then((res) => {
-      if (res.data !== undefined) {
-        setBuckets(res.data.buckets || []);
-      }
-    });
-  };
-
-  const fetchBuckets = useCallback(() => {
-    invokeListBucketsApi();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const canCreateBucket = useSelector((state: AppState) =>
-    hasCreateBucketPermission(state.console.session?.permissions),
-  );
-  const initialActions: Action[] = routesAsKbarActions(
-    buckets,
-    navigate,
-    features,
-    t,
-    canCreateBucket,
-  );
-
-  // language is a dependency so a toggle re-registers translated actions.
-  useRegisterActions(initialActions, [buckets, features, language]);
-
-  //fetch buckets everytime the kbar is shown so that new buckets created elsewhere , within first page is also shown
+  const modalActive = useModalActive();
+  const pendingModal = useOverlayPending("command");
+  const { query, visualState } = useKBar((state) => ({
+    visualState: state.visualState,
+  }));
+  useOverlayIntent(visualState !== VisualState.hidden, "command");
+  useEffect(() => {
+    query.disable(modalActive || pendingModal);
+    return () => query.disable(false);
+  }, [modalActive, pendingModal, query]);
 
   return (
     <KBarPortal>
-      <KBarStateChangeMonitor
-        onShow={fetchBuckets}
-        onHide={() => {
-          setBuckets([]);
-        }}
-      />
-      <KBarPositioner
-        style={{
-          zIndex: 9999,
-          boxShadow: "0px 3px 20px #00000055",
-          borderRadius: "4px",
-        }}
-      >
-        <KBarAnimator style={animatorStyle}>
-          <KBarSearch style={searchStyle} />
+      <KBarPositioner style={{ zIndex: 9999 }}>
+        <CommandPopup>
+          <Search placeholder={t("Search")} aria-label={t("Search")} />
           <RenderResults />
-        </KBarAnimator>
+        </CommandPopup>
       </KBarPositioner>
     </KBarPortal>
   );
@@ -174,22 +181,53 @@ const CommandBar = () => {
 
 function RenderResults() {
   const { results, rootActionId } = useMatches();
-
+  const list = useRef<HTMLDivElement>(null);
+  const { activeIndex, query } = useKBar((state) => ({
+    activeIndex: state.activeIndex,
+  }));
+  const hover = useFluidHover(list, {
+    gapClick: { maxDistance: 8 },
+    onActiveChange: (index) => {
+      const item =
+        index === null
+          ? undefined
+          : list.current?.querySelectorAll<HTMLElement>("[data-fluid-index]")[
+              index
+            ];
+      if (item && Number(item.dataset.fluidIndex) !== activeIndex)
+        query.setActiveIndex(Number(item.dataset.fluidIndex));
+    },
+  });
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      const items = Array.from(
+        list.current?.querySelectorAll<HTMLElement>("[data-fluid-index]") || [],
+      );
+      const index = items.findIndex(
+        (item) => Number(item.dataset.fluidIndex) === activeIndex,
+      );
+      hover.setActiveIndex(index >= 0 ? index : null);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [activeIndex, results, hover]);
   return (
-    <KBarResults
-      items={results}
-      onRender={({ item, active }) =>
-        typeof item === "string" ? (
-          <Box style={groupNameStyle}>{item}</Box>
-        ) : (
-          <ResultItem
-            action={item}
-            active={active}
-            currentRootActionId={`${rootActionId}`}
-          />
-        )
-      }
-    />
+    <Results ref={list}>
+      <FluidHoverHighlight hover={hover} />
+      <KBarResults
+        items={results}
+        onRender={({ item }) =>
+          typeof item === "string" ? (
+            <div className="commandGroup">{item}</div>
+          ) : (
+            <ResultItem
+              index={results.indexOf(item)}
+              action={item}
+              currentRootActionId={`${rootActionId}`}
+            />
+          )
+        }
+      />
+    </Results>
   );
 }
 
@@ -197,11 +235,11 @@ const ResultItem = React.forwardRef(
   (
     {
       action,
-      active,
+      index,
       currentRootActionId,
     }: {
       action: ActionImpl;
-      active: boolean;
+      index: number;
       currentRootActionId: ActionId;
     },
     ref: React.Ref<HTMLDivElement>,
@@ -219,107 +257,35 @@ const ResultItem = React.forwardRef(
     }, [action.ancestors, currentRootActionId]);
 
     return (
-      <div
+      <CommandRow
         ref={ref}
-        style={{
-          padding: "12px 12px 12px 36px",
-          marginTop: "2px",
-          background: active ? "#dddddd" : "transparent",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          cursor: "pointer",
-        }}
+        data-fluid-index={index}
+        data-fluid-key={action.id}
+        data-fluid-activator="true"
       >
-        <Box
-          sx={{
-            display: "flex",
-            gap: "8px",
-            alignItems: "center",
-            fontSize: 14,
-            flex: 1,
-            justifyContent: "space-between",
-            "& .min-icon": {
-              width: "17px",
-              height: "17px",
-            },
-          }}
-        >
-          <Box sx={{ height: "15px", width: "15px", marginRight: "36px" }}>
-            {action.icon && action.icon}
-          </Box>
-          <div style={{ display: "flex", flexDirection: "column", flex: 2 }}>
-            <Box>
-              {ancestors.length > 0 &&
-                ancestors.map((ancestor) => (
-                  <React.Fragment key={ancestor.id}>
-                    <span
-                      style={{
-                        opacity: 0.5,
-                        marginRight: 8,
-                      }}
-                    >
-                      {ancestor.name}
-                    </span>
-                    <span
-                      style={{
-                        marginRight: 8,
-                      }}
-                    >
-                      &rsaquo;
-                    </span>
-                  </React.Fragment>
-                ))}
-              <span>{action.name}</span>
-            </Box>
-            {action.subtitle && (
-              <span
-                style={{
-                  fontSize: 12,
-                }}
-              >
-                {action.subtitle}
-              </span>
-            )}
-          </div>
-          <Box
-            sx={{
-              "& .min-icon": {
-                width: "15px",
-                height: "15px",
-                fill: "#8f8b8b",
-                transform: "rotate(90deg)",
-
-                "& rect": {
-                  fill: "#ffffff",
-                },
-              },
-            }}
-          >
-            <MenuExpandedIcon />
-          </Box>
-        </Box>
-        {action.shortcut?.length ? (
-          <div
-            aria-hidden
-            style={{ display: "grid", gridAutoFlow: "column", gap: "4px" }}
-          >
-            {action.shortcut.map((sc) => (
-              <kbd
-                key={sc}
-                style={{
-                  padding: "4px 6px",
-                  background: "rgba(0 0 0 / .1)",
-                  borderRadius: "4px",
-                  fontSize: 14,
-                }}
-              >
-                {sc}
-              </kbd>
-            ))}
-          </div>
-        ) : null}
-      </div>
+        <span className="commandIcon" aria-hidden="true">
+          {action.icon}
+        </span>
+        <span className="commandName">
+          {ancestors.length > 0 && (
+            <span className="commandAncestors">
+              {ancestors.map((ancestor) => ancestor.name).join(" › ")} ›{" "}
+            </span>
+          )}
+          <span>{action.name}</span>
+          {action.subtitle && (
+            <span className="commandSubtitle"> {action.subtitle}</span>
+          )}
+        </span>
+        {action.shortcut?.map((shortcut) => (
+          <kbd key={shortcut} aria-hidden="true">
+            {shortcut}
+          </kbd>
+        ))}
+        <span className="commandChevron" aria-hidden="true">
+          <MenuExpandedIcon />
+        </span>
+      </CommandRow>
     );
   },
 );

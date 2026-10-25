@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { useBoundedTable } from "common/ui/useBoundedTable";
+import { ModalPresence } from "common/ui/ModalPresence";
 import React, { Fragment, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -26,9 +28,14 @@ import {
   UsersIcon,
   DataTable,
   Grid,
-  ProgressBar,
-  ActionLink,
+  Select,
 } from "mds";
+
+import { OverflowMenu, SkeletonRows, StatusBadge } from "common/ui";
+import { useMobile } from "common/ui/useMediaQuery";
+import { FilteredEmptyState } from "common/ui/FilteredEmptyState";
+import IdentityChips from "./IdentityChips";
+import { filterUsers, UserStatusFilter } from "./userList";
 
 import { User, UsersList } from "./types";
 import { usersSort } from "../../../utils/sortFunctions";
@@ -57,9 +64,8 @@ import { setErrorSnackMessage, setHelpName } from "../../../systemSlice";
 import { useAppDispatch } from "../../../store";
 import TooltipWrapper from "../Common/TooltipWrapper/TooltipWrapper";
 import PageHeaderWrapper from "../Common/PageHeaderWrapper/PageHeaderWrapper";
-import HelpMenu from "../HelpMenu";
 import DeleteUser from "./DeleteUser";
-import { interpolate, useLocalizedLink, useT } from "i18n";
+import { formatText, i18nKey, useLocalizedLink, useT } from "i18n";
 
 const AddToGroup = withSuspense(React.lazy(() => import("./BulkAddToGroup")));
 
@@ -68,12 +74,14 @@ const ListUsers = () => {
   const navigate = useNavigate();
   const t = useT();
   const localize = useLocalizedLink();
+  const mobile = useMobile();
 
   const [records, setRecords] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [deleteOpen, setDeleteOpen] = useState<boolean>(false);
   const [addGroupOpen, setAddGroupOpen] = useState<boolean>(false);
   const [filter, setFilter] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<UserStatusFilter>("all");
   const [checkedUsers, setCheckedUsers] = useState<string[]>([]);
 
   const displayListUsers = hasPermission(
@@ -126,8 +134,16 @@ const ListUsers = () => {
     }
   }, [loading, dispatch, displayListUsers]);
 
-  const filteredRecords = records.filter((elementItem) =>
-    elementItem.accessKey.includes(filter),
+  const filteredRecords = filterUsers(records, filter, statusFilter);
+  const canCreateUser = hasPermission(
+    CONSOLE_UI_RESOURCE,
+    [
+      IAM_SCOPES.ADMIN_CREATE_USER,
+      IAM_SCOPES.ADMIN_LIST_USER_POLICIES,
+      IAM_SCOPES.ADMIN_LIST_GROUPS,
+      IAM_SCOPES.ADMIN_ATTACH_USER_OR_GROUP_POLICY,
+    ],
+    true,
   );
 
   const selectionChanged = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -160,11 +176,6 @@ const ListUsers = () => {
       onClick: viewAction,
       isDisabled: () => !viewUser,
     },
-    {
-      type: "edit",
-      onClick: viewAction,
-      isDisabled: () => !viewUser,
-    },
   ];
 
   useEffect(() => {
@@ -172,18 +183,22 @@ const ListUsers = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const boundedTable = useBoundedTable(filteredRecords.length, loading);
+
   return (
     <Fragment>
-      {deleteOpen && (
-        <DeleteUser
-          deleteOpen={deleteOpen}
-          selectedUsers={checkedUsers}
-          closeDeleteModalAndRefresh={(refresh: boolean) => {
-            closeDeleteModalAndRefresh(refresh);
-          }}
-        />
-      )}
-      {addGroupOpen && (
+      <ModalPresence open={Boolean(deleteOpen)}>
+        {deleteOpen && (
+          <DeleteUser
+            deleteOpen={deleteOpen}
+            selectedUsers={checkedUsers}
+            closeDeleteModalAndRefresh={(refresh: boolean) => {
+              closeDeleteModalAndRefresh(refresh);
+            }}
+          />
+        )}
+      </ModalPresence>
+      <ModalPresence open={addGroupOpen}>
         <AddToGroup
           open={addGroupOpen}
           checkedUsers={checkedUsers}
@@ -191,301 +206,356 @@ const ListUsers = () => {
             closeAddGroupBulk(close);
           }}
         />
-      )}
-      <PageHeaderWrapper label={t("Users")} actions={<HelpMenu />} />
+      </ModalPresence>
+      <PageHeaderWrapper label={t("Users")} titleElement="h1" help />
 
       <PageLayout>
         <Grid container>
-          <Grid item xs={12} sx={actionsTray.actionsTray}>
+          <Grid
+            item
+            xs={12}
+            sx={{
+              ...actionsTray.actionsTray,
+              justifyContent: "flex-start",
+              gap: 12,
+              "& button": { marginLeft: 0 },
+            }}
+          >
             <SearchBox
               placeholder={t("Search Users")}
               onChange={setFilter}
               value={filter}
               sx={{
-                marginRight: "auto",
-                maxWidth: 380,
+                maxWidth: mobile ? "100%" : 320,
+                width: mobile ? "100%" : undefined,
               }}
             />
-            <SecureComponent
-              resource={CONSOLE_UI_RESOURCE}
-              scopes={[IAM_SCOPES.ADMIN_DELETE_USER]}
-              matchAll
-              errorProps={{ disabled: true }}
-            >
-              <TooltipWrapper
-                tooltip={
-                  hasPermission("console", [IAM_SCOPES.ADMIN_DELETE_USER])
-                    ? checkedUsers.length === 0
-                      ? t("Select Users to delete")
-                      : t("Delete Selected")
-                    : permissionTooltipHelper(
-                        [IAM_SCOPES.ADMIN_DELETE_USER],
-                        "delete users",
-                      )
-                }
-              >
-                <Button
-                  id={"delete-selected-users"}
-                  onClick={() => {
-                    setDeleteOpen(true);
-                  }}
-                  label={t("Delete Selected")}
-                  icon={<DeleteIcon />}
-                  disabled={checkedUsers.length === 0}
-                  variant={"secondary"}
-                  aria-label={t("Delete selected users")}
-                />
-              </TooltipWrapper>
-            </SecureComponent>
-            <SecureComponent
-              scopes={[IAM_SCOPES.ADMIN_ADD_USER_TO_GROUP]}
-              resource={CONSOLE_UI_RESOURCE}
-              errorProps={{ disabled: true }}
-            >
-              <TooltipWrapper
-                tooltip={
-                  hasPermission("console", [IAM_SCOPES.ADMIN_ADD_USER_TO_GROUP])
-                    ? checkedUsers.length === 0
-                      ? t("Select Users to group")
-                      : t("Add to Group")
-                    : permissionTooltipHelper(
-                        [IAM_SCOPES.ADMIN_ADD_USER_TO_GROUP],
-                        "add users to groups",
-                      )
-                }
-              >
-                <Button
-                  id={"add-to-group"}
-                  label={t("Add to Group")}
-                  icon={<GroupsIcon />}
-                  disabled={checkedUsers.length <= 0}
-                  onClick={() => {
-                    if (checkedUsers.length > 0) {
-                      setAddGroupOpen(true);
-                    }
-                  }}
-                  variant={"regular"}
-                />
-              </TooltipWrapper>
-            </SecureComponent>
-            <SecureComponent
-              scopes={[
-                IAM_SCOPES.ADMIN_CREATE_USER,
-                IAM_SCOPES.ADMIN_LIST_USER_POLICIES,
-                IAM_SCOPES.ADMIN_LIST_GROUPS,
+            <Select
+              id="user-status-filter"
+              name="user-status-filter"
+              label={t("Status")}
+              noLabelMinWidth
+              value={statusFilter}
+              onChange={(value) => setStatusFilter(value as UserStatusFilter)}
+              options={[
+                { label: t("All"), value: "all" },
+                { label: t("Enabled"), value: "enabled" },
+                { label: t("Disabled"), value: "disabled" },
               ]}
-              resource={S3_ALL_RESOURCES}
-              matchAll
-              errorProps={{ disabled: true }}
-            >
-              <TooltipWrapper
-                tooltip={
-                  hasPermission(
-                    "console-ui",
-                    [
-                      IAM_SCOPES.ADMIN_CREATE_USER,
-                      IAM_SCOPES.ADMIN_LIST_USER_POLICIES,
-                      IAM_SCOPES.ADMIN_LIST_GROUPS,
-                      IAM_SCOPES.ADMIN_ATTACH_USER_OR_GROUP_POLICY,
-                    ],
-                    true,
-                  )
-                    ? t("Create User")
-                    : permissionTooltipHelper(
-                        [
-                          IAM_SCOPES.ADMIN_CREATE_USER,
-                          IAM_SCOPES.ADMIN_LIST_USER_POLICIES,
-                          IAM_SCOPES.ADMIN_LIST_GROUPS,
-                          IAM_SCOPES.ADMIN_ATTACH_USER_OR_GROUP_POLICY,
-                        ],
-                        "create users",
-                      )
-                }
-              >
-                <Button
-                  id={"create-user"}
-                  label={t("Create User")}
-                  icon={<AddIcon />}
-                  onClick={() => {
-                    navigate(`${IAM_PAGES.USER_ADD}`);
-                  }}
-                  variant={"callAction"}
-                  disabled={
-                    !hasPermission(
-                      "console-ui",
-                      [
-                        IAM_SCOPES.ADMIN_CREATE_USER,
-                        IAM_SCOPES.ADMIN_LIST_USER_POLICIES,
-                        IAM_SCOPES.ADMIN_LIST_GROUPS,
-                        IAM_SCOPES.ADMIN_ATTACH_USER_OR_GROUP_POLICY,
-                      ],
-                      true,
-                    )
-                  }
-                />
-              </TooltipWrapper>
-            </SecureComponent>
+              sx={{
+                width: 200,
+                flexGrow: 0,
+                flexShrink: 0,
+                gap: 8,
+                marginLeft: mobile ? 0 : 12,
+                marginRight: "auto",
+              }}
+            />
+            {mobile ? (
+              <OverflowMenu
+                label={t("Actions")}
+                items={[
+                  {
+                    label: t("Delete Selected"),
+                    icon: <DeleteIcon />,
+                    danger: true,
+                    disabled: !deleteUser || checkedUsers.length === 0,
+                    disabledReason: !deleteUser
+                      ? permissionTooltipHelper(
+                          deleteUserPermissions,
+                          i18nKey("delete users"),
+                        )
+                      : t("Select Users to delete"),
+                    onClick: () => {
+                      if (deleteUser && checkedUsers.length)
+                        setDeleteOpen(true);
+                    },
+                  },
+                  {
+                    label: t("Add to Group"),
+                    icon: <GroupsIcon />,
+                    disabled: !addUserToGroup || checkedUsers.length === 0,
+                    disabledReason: !addUserToGroup
+                      ? permissionTooltipHelper(
+                          addUserToGroupPermissions,
+                          i18nKey("add users to groups"),
+                        )
+                      : t("Select Users to group"),
+                    onClick: () => {
+                      if (addUserToGroup && checkedUsers.length)
+                        setAddGroupOpen(true);
+                    },
+                  },
+                ]}
+              />
+            ) : (
+              <>
+                <SecureComponent
+                  resource={CONSOLE_UI_RESOURCE}
+                  scopes={[IAM_SCOPES.ADMIN_DELETE_USER]}
+                  matchAll
+                  errorProps={{ disabled: true }}
+                >
+                  <TooltipWrapper
+                    tooltip={
+                      hasPermission("console", [IAM_SCOPES.ADMIN_DELETE_USER])
+                        ? checkedUsers.length === 0
+                          ? t("Select Users to delete")
+                          : t("Delete Selected")
+                        : permissionTooltipHelper(
+                            [IAM_SCOPES.ADMIN_DELETE_USER],
+                            i18nKey("delete users"),
+                          )
+                    }
+                  >
+                    <Button
+                      id={"delete-selected-users"}
+                      onClick={() => {
+                        setDeleteOpen(true);
+                      }}
+                      label={t("Delete Selected")}
+                      icon={<DeleteIcon />}
+                      disabled={checkedUsers.length === 0}
+                      variant={"danger"}
+                      aria-label={t("Delete selected users")}
+                    />
+                  </TooltipWrapper>
+                </SecureComponent>
+                <SecureComponent
+                  scopes={[IAM_SCOPES.ADMIN_ADD_USER_TO_GROUP]}
+                  resource={CONSOLE_UI_RESOURCE}
+                  errorProps={{ disabled: true }}
+                >
+                  <TooltipWrapper
+                    tooltip={
+                      hasPermission("console", [
+                        IAM_SCOPES.ADMIN_ADD_USER_TO_GROUP,
+                      ])
+                        ? checkedUsers.length === 0
+                          ? t("Select Users to group")
+                          : t("Add to Group")
+                        : permissionTooltipHelper(
+                            [IAM_SCOPES.ADMIN_ADD_USER_TO_GROUP],
+                            i18nKey("add users to groups"),
+                          )
+                    }
+                  >
+                    <Button
+                      id={"add-to-group"}
+                      label={t("Add to Group")}
+                      icon={<GroupsIcon />}
+                      disabled={checkedUsers.length <= 0}
+                      onClick={() => {
+                        if (checkedUsers.length > 0) {
+                          setAddGroupOpen(true);
+                        }
+                      }}
+                      variant={"regular"}
+                    />
+                  </TooltipWrapper>
+                </SecureComponent>
+              </>
+            )}
+            <Button
+              id={"create-user"}
+              label={t("Create User")}
+              icon={<AddIcon />}
+              onClick={() => navigate(IAM_PAGES.USER_ADD)}
+              disabled={
+                !canCreateUser ||
+                !hasPermission(
+                  S3_ALL_RESOURCES,
+                  [
+                    IAM_SCOPES.ADMIN_CREATE_USER,
+                    IAM_SCOPES.ADMIN_LIST_USER_POLICIES,
+                    IAM_SCOPES.ADMIN_LIST_GROUPS,
+                  ],
+                  true,
+                )
+              }
+              disabledReason={permissionTooltipHelper(
+                [
+                  IAM_SCOPES.ADMIN_CREATE_USER,
+                  IAM_SCOPES.ADMIN_LIST_USER_POLICIES,
+                  IAM_SCOPES.ADMIN_LIST_GROUPS,
+                  IAM_SCOPES.ADMIN_ATTACH_USER_OR_GROUP_POLICY,
+                ],
+                i18nKey("create users"),
+              )}
+              variant="primary"
+              collapseOnSmall={false}
+            />
           </Grid>
 
-          {loading && <ProgressBar />}
-          {!loading && (
-            <Fragment>
-              {records.length > 0 && (
-                <Fragment>
-                  <Grid item xs={12} sx={{ marginBottom: 15 }}>
-                    <SecureComponent
-                      scopes={[IAM_SCOPES.ADMIN_LIST_USERS]}
-                      resource={CONSOLE_UI_RESOURCE}
-                      errorProps={{ disabled: true }}
-                    >
-                      <DataTable
-                        itemActions={tableActions}
-                        columns={[
-                          { label: t("Access Key"), elementKey: "accessKey" },
-                        ]}
-                        onSelect={
-                          addUserToGroup || deleteUser
-                            ? selectionChanged
-                            : undefined
-                        }
-                        onSelectAll={
-                          addUserToGroup || deleteUser
-                            ? () => {
-                                const visible = filteredRecords.map(
-                                  (r) => `${r.accessKey}`,
-                                );
-                                const allVisible =
-                                  visible.length > 0 &&
-                                  visible.every((v) =>
-                                    checkedUsers.includes(v),
-                                  );
-                                setCheckedUsers(
-                                  allVisible
-                                    ? checkedUsers.filter(
-                                        (v) => !visible.includes(v),
-                                      )
-                                    : Array.from(
-                                        new Set([...checkedUsers, ...visible]),
-                                      ),
-                                );
-                              }
-                            : undefined
-                        }
-                        selectedItems={checkedUsers}
-                        isLoading={loading}
-                        records={filteredRecords}
-                        entityName={t("Users")}
-                        customEmptyMessage={t("There are no Users yet.")}
-                        idField="accessKey"
-                      />
-                    </SecureComponent>
-                  </Grid>
-                  <HelpBox
-                    title={t("Users")}
-                    iconComponent={<UsersIcon />}
-                    help={
-                      <Fragment>
-                        {t(
-                          "A SILO user consists of a unique access key (username) and corresponding secret key (password). Clients must authenticate their identity by specifying both a valid access key (username) and the corresponding secret key (password) of an existing SILO user.",
-                        )}
-                        <br />
-                        {t(
-                          "Groups provide a simplified method for managing shared permissions among users with common access patterns and workloads.",
-                        )}
-                        <br />
-                        <br />
-                        {t(
-                          "Users inherit access permissions to data and resources through the groups they belong to.",
-                        )}
-                        <br />
-                        {t(
-                          "SILO uses Policy-Based Access Control (PBAC) to define the authorized actions and resources to which an authenticated user has access. Each policy describes one or more actions and conditions that outline the permissions of a user or group of users.",
-                        )}
-                        <br />
-                        <br />
-                        {t(
-                          "Each user can access only those resources and operations which are explicitly granted by the built-in role. SILO denies access to any other resource or action by default.",
-                        )}
-                        <br />
-                        <br />
-                        {interpolate(t("You can learn more at the {link}."), {
-                          link: (
-                            <a
-                              href={localize(
-                                "https://silo.pgsty.com/administration/identity-access-management/minio-user-management/",
-                              )}
-                              target="_blank"
-                              rel="noopener"
-                            >
-                              {t("documentation")}
-                            </a>
-                          ),
-                        })}
-                      </Fragment>
-                    }
-                  />
-                </Fragment>
-              )}
-              {records.length === 0 && (
-                <Grid container>
-                  <Grid item xs={8}>
-                    <HelpBox
-                      title={t("Users")}
-                      iconComponent={<UsersIcon />}
-                      help={
-                        <Fragment>
-                          {t(
-                            "A SILO user consists of a unique access key (username) and corresponding secret key (password). Clients must authenticate their identity by specifying both a valid access key (username) and the corresponding secret key (password) of an existing SILO user.",
-                          )}
-                          <br />
-                          {t(
-                            "Groups provide a simplified method for managing shared permissions among users with common access patterns and workloads.",
-                          )}
-                          <br />
-                          <br />
-                          {t(
-                            "Users inherit access permissions to data and resources through the groups they belong to.",
-                          )}
-                          <br />
-                          {t(
-                            "SILO uses Policy-Based Access Control (PBAC) to define the authorized actions and resources to which an authenticated user has access. Each policy describes one or more actions and conditions that outline the permissions of a user or group of users.",
-                          )}
-                          <br />
-                          <br />
-                          {t(
-                            "Each user can access only those resources and operations which are explicitly granted by the built-in role. SILO denies access to any other resource or action by default.",
-                          )}
-                          <SecureComponent
-                            scopes={[
-                              IAM_SCOPES.ADMIN_CREATE_USER,
-                              IAM_SCOPES.ADMIN_LIST_USER_POLICIES,
-                              IAM_SCOPES.ADMIN_LIST_GROUPS,
-                            ]}
-                            matchAll
-                            resource={CONSOLE_UI_RESOURCE}
-                          >
-                            <br />
-                            <br />
-                            {interpolate(t("To get started, {link}."), {
-                              link: (
-                                <ActionLink
-                                  onClick={() => {
-                                    navigate(`${IAM_PAGES.USER_ADD}`);
-                                  }}
-                                >
-                                  {t("Create a User")}
-                                </ActionLink>
-                              ),
+          <Fragment>
+            <Grid item xs={12} sx={{ marginBottom: 16 }}>
+              <SecureComponent
+                scopes={[IAM_SCOPES.ADMIN_LIST_USERS]}
+                resource={CONSOLE_UI_RESOURCE}
+                errorProps={{ disabled: true }}
+              >
+                <DataTable
+                  {...boundedTable}
+                  itemActions={tableActions}
+                  columns={[
+                    {
+                      label: t("Access Key"),
+                      elementKey: "accessKey",
+                      priority: "high",
+                    },
+                    {
+                      label: t("Status"),
+                      elementKey: "status",
+                      priority: "high",
+                      width: 120,
+                      renderFunction: (status: string) => (
+                        <StatusBadge
+                          tone={status === "enabled" ? "success" : "neutral"}
+                          label={
+                            status === "enabled"
+                              ? t("Enabled")
+                              : status === "disabled"
+                                ? t("Disabled")
+                                : t("Unknown")
+                          }
+                        />
+                      ),
+                    },
+                    {
+                      label: t("Policies"),
+                      elementKey: "policy",
+                      priority: "medium",
+                      renderFunction: (names: string[]) => (
+                        <IdentityChips names={names} />
+                      ),
+                    },
+                    {
+                      label: t("Groups"),
+                      elementKey: "memberOf",
+                      priority: "low",
+                      renderFunction: (names: string[]) => (
+                        <IdentityChips names={names} />
+                      ),
+                    },
+                    {
+                      label: t("Actions"),
+                      priority: "high",
+                      width: 48,
+                      globalClass: "mds-row-actions",
+                      renderFullObject: true,
+                      renderFunction: (user: User) => (
+                        <span onClick={(event) => event.stopPropagation()}>
+                          <OverflowMenu
+                            label={formatText(t("Actions for {name}"), {
+                              name: user.accessKey,
                             })}
-                          </SecureComponent>
-                        </Fragment>
+                            items={[
+                              {
+                                label: t("View"),
+                                disabled: !viewUser,
+                                disabledReason: permissionTooltipHelper(
+                                  viewUserPermissions,
+                                  i18nKey("view User details"),
+                                ),
+                                onClick: () => {
+                                  if (viewUser) viewAction(user);
+                                },
+                              },
+                              {
+                                label: t("Edit"),
+                                disabled: !viewUser,
+                                disabledReason: permissionTooltipHelper(
+                                  viewUserPermissions,
+                                  i18nKey("view User details"),
+                                ),
+                                onClick: () => {
+                                  if (viewUser) viewAction(user);
+                                },
+                              },
+                            ]}
+                          />
+                        </span>
+                      ),
+                    },
+                  ]}
+                  onSelect={
+                    addUserToGroup || deleteUser ? selectionChanged : undefined
+                  }
+                  onSelectAll={
+                    addUserToGroup || deleteUser
+                      ? () => {
+                          const visible = filteredRecords.map(
+                            (r) => `${r.accessKey}`,
+                          );
+                          const allVisible =
+                            visible.length > 0 &&
+                            visible.every((v) => checkedUsers.includes(v));
+                          setCheckedUsers(
+                            allVisible
+                              ? checkedUsers.filter((v) => !visible.includes(v))
+                              : Array.from(
+                                  new Set([...checkedUsers, ...visible]),
+                                ),
+                          );
+                        }
+                      : undefined
+                  }
+                  selectedItems={checkedUsers}
+                  isLoading={loading}
+                  records={filteredRecords}
+                  entityName={t("Users")}
+                  loadingState={<SkeletonRows rows={5} columns={4} />}
+                  emptyState={
+                    <FilteredEmptyState
+                      filtered={
+                        Boolean(filter.trim()) || statusFilter !== "all"
+                      }
+                      onClear={() => {
+                        setFilter("");
+                        setStatusFilter("all");
+                      }}
+                      icon={<UsersIcon />}
+                      title={t("No users yet")}
+                      description={t(
+                        "Users authenticate with an access key and secret key, and receive permissions through policies and groups.",
+                      )}
+                      action={
+                        canCreateUser && (
+                          <Button
+                            id="empty-create-user"
+                            variant="callAction"
+                            label={t("Create user")}
+                            onClick={() => navigate(IAM_PAGES.USER_ADD)}
+                          />
+                        )
                       }
                     />
-                  </Grid>
-                </Grid>
-              )}
-            </Fragment>
-          )}
+                  }
+                  idField="accessKey"
+                />
+              </SecureComponent>
+            </Grid>
+            <HelpBox
+              title={t("Users")}
+              iconComponent={<UsersIcon />}
+              help={
+                <Fragment>
+                  {t(
+                    "Users inherit policies from their groups. Access is denied unless explicitly granted.",
+                  )}{" "}
+                  <a
+                    href={localize(
+                      "https://silo.pgsty.com/administration/identity-access-management/minio-user-management/",
+                    )}
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    {t("Learn more")}
+                  </a>
+                </Fragment>
+              }
+            />
+          </Fragment>
         </Grid>
       </PageLayout>
     </Fragment>

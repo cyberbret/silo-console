@@ -23,6 +23,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/go-openapi/swag"
 	bucketApi "github.com/minio/console/api/operations/bucket"
 	policyApi "github.com/minio/console/api/operations/policy"
 	s3 "github.com/minio/minio-go/v7"
@@ -235,6 +236,7 @@ func listPoliciesWithBucket(ctx context.Context, bucket string, client MinioAdmi
 			policies = append(policies, policy)
 		}
 	}
+	setPolicyUsageCounts(ctx, client, policies)
 	return policies, nil
 }
 
@@ -275,6 +277,7 @@ func listPolicies(ctx context.Context, client MinioAdmin) ([]*models.Policy, err
 		}
 		policies = append(policies, policy)
 	}
+	setPolicyUsageCounts(ctx, client, policies)
 	return policies, nil
 }
 
@@ -685,8 +688,26 @@ func parsePolicy(name string, rawPolicy *iampolicy.Policy) (*models.Policy, erro
 		return nil, err
 	}
 	policy := &models.Policy{
-		Name:   name,
-		Policy: string(stringPolicy),
+		Name:     name,
+		Policy:   string(stringPolicy),
+		Builtin:  swag.Bool(false),
+		Modified: swag.Bool(false),
+	}
+	for _, builtin := range iampolicy.DefaultPolicies {
+		if builtin.Name != name {
+			continue
+		}
+		defaultJSON, err := json.Marshal(builtin.Definition)
+		if err != nil {
+			return nil, err
+		}
+		equal, err := semanticallyEqualPolicies(stringPolicy, defaultJSON)
+		if err != nil {
+			return nil, err
+		}
+		policy.Builtin = swag.Bool(true)
+		policy.Modified = swag.Bool(!equal)
+		break
 	}
 	return policy, nil
 }

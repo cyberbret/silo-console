@@ -61,6 +61,7 @@ const DeleteBucketLifecycleRule = ({
 
   return (
     <ConfirmDialog
+      destructive
       title={t("Delete Lifecycle Rule")}
       confirmText={t("Delete")}
       isOpen={deleteOpen}

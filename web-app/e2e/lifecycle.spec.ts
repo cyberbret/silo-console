@@ -65,7 +65,7 @@ test.describe("Add Lifecycle Rule Modal in bucket settings tests for object vers
       await page.locator(`#buckets`).click();
       await bucketListPage.clickOnBucketRow(versionedBucketName);
       bucketSummaryPage = bucketSummaryPage(versionedBucketName);
-      await bucketSummaryPage.clickOnTab("lifecycle"); //Tab Text is used.
+      await bucketSummaryPage.clickOnTab("Lifecycle");
     });
 
     await test.step("Check if object version option is available on a versioned bucket", async () => {
@@ -77,9 +77,10 @@ test.describe("Add Lifecycle Rule Modal in bucket settings tests for object vers
 
     await test.step("Clean up bucket and verify the clean up", async () => {
       await bucketSummaryPage.confirmDeleteBucket();
-      const existBukCount =
-        await bucketListPage.isBucketExist(versionedBucketName);
-      await expect(existBukCount).toEqual(0);
+      await expect(page).toHaveURL(/\/buckets(?:\?|$)/);
+      await expect(
+        bucketListPage.locateBucket(versionedBucketName),
+      ).toHaveCount(0);
     });
   });
 
@@ -93,8 +94,8 @@ test.describe("Add Lifecycle Rule Modal in bucket settings tests for object vers
       await createBucketPage.createBucket(nonVersionedBucketName);
       await page.locator(`#buckets`).click();
       await bucketListPage.clickOnBucketRow(nonVersionedBucketName);
-      bucketSummaryPage = bucketSummaryPage(versionedBucketName);
-      await bucketSummaryPage.clickOnTab("lifecycle");
+      bucketSummaryPage = bucketSummaryPage(nonVersionedBucketName);
+      await bucketSummaryPage.clickOnTab("Lifecycle");
     });
 
     await test.step("Check if object version option is NOT available on a non versioned bucket", async () => {
@@ -105,10 +106,10 @@ test.describe("Add Lifecycle Rule Modal in bucket settings tests for object vers
 
     await test.step("Clean up bucket and verify the clean up", async () => {
       await bucketSummaryPage.confirmDeleteBucket();
-      const existBukCount = await bucketListPage.isBucketExist(
-        nonVersionedBucketName,
-      );
-      await expect(existBukCount).toEqual(0);
+      await expect(page).toHaveURL(/\/buckets(?:\?|$)/);
+      await expect(
+        bucketListPage.locateBucket(nonVersionedBucketName),
+      ).toHaveCount(0);
     });
   });
 });

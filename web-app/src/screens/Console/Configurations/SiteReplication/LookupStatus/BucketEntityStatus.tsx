@@ -18,6 +18,7 @@ import React from "react";
 import { StatsResponseType } from "../SiteReplicationStatus";
 import LookupStatusTable from "./LookupStatusTable";
 import { EntityNotFound, isEntityNotFound, syncStatus } from "./Utils";
+import { i18nKey } from "i18n/lang";
 
 type BucketEntityStatusProps = Partial<StatsResponseType> & {
   lookupValue?: string;
@@ -28,12 +29,12 @@ const BucketEntityStatus = ({
   lookupValue = "",
 }: BucketEntityStatusProps) => {
   const rowsForStatus = [
-    "Tags",
-    "Policy",
-    "Quota",
-    "Retention",
-    "Encryption",
-    "Replication",
+    i18nKey("Tags"),
+    i18nKey("Policy"),
+    i18nKey("Quota"),
+    i18nKey("Retention"),
+    i18nKey("Encryption"),
+    i18nKey("Replication"),
   ];
 
   const bucketSites: Record<string, any> = bucketStats[lookupValue] || {};
@@ -45,7 +46,12 @@ const BucketEntityStatus = ({
   const notFound = isEntityNotFound(sites, bucketSites, "HasBucket");
   const resultMatrix: any = [];
   if (notFound) {
-    return <EntityNotFound entityType={"Bucket"} entityValue={lookupValue} />;
+    return (
+      <EntityNotFound
+        entityType={i18nKey("Bucket")}
+        entityValue={lookupValue}
+      />
+    );
   } else {
     const row = [];
     for (let sCol = 0; sCol < siteKeys.length; sCol++) {
@@ -121,7 +127,7 @@ const BucketEntityStatus = ({
     <LookupStatusTable
       matrixData={resultMatrix}
       entityName={lookupValue}
-      entityType={"Bucket"}
+      entityType={i18nKey("Bucket")}
     />
   );
 };

@@ -1,9 +1,6 @@
 #!/bin/sh
 # Post-build optimization for the go:embed payload.
 #
-#  - Drop legacy WOFF font fallbacks: mds declares WOFF2 first and every
-#    browser capable of running this app supports WOFF2, so the WOFF files
-#    are dead weight in the binary.
 #  - Drop the mds login background image: only referenced by the mds
 #    LoginWrapper component, which this app no longer renders.
 #  - Precompress text assets with a pinned, platform-independent gzip
@@ -16,7 +13,6 @@
 set -eu
 cd "$(dirname "$0")/build"
 
-find fonts -name '*.woff' -delete 2>/dev/null || true
 rm -rf background
 
 node ../gzip-embed.mjs

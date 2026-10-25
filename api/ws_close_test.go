@@ -14,6 +14,7 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net"
 	"net/http"
@@ -233,6 +234,10 @@ func TestWSDiagnosticCloseHandshake(t *testing.T) {
 					reader := <-backend.started
 					// Delay the peer reply independently of receiving the server Close.
 					s.client.SetCloseHandler(func(int, string) error { return nil })
+					// Reproduce #63's late open message after a fast report is
+					// ready, beyond the reported 139 ms client round trip.
+					assertWSClosePending(t, s)
+					time.Sleep(150 * time.Millisecond)
 					if err := s.client.WriteMessage(websocket.TextMessage, []byte("ok")); err != nil {
 						t.Fatal(err)
 					}
@@ -256,6 +261,11 @@ func TestWSDiagnosticCloseHandshake(t *testing.T) {
 						}
 					}
 					readWSClose(t, s.client, websocket.CloseNormalClosure, "")
+					// A heartbeat arriving after the server Close must still be
+					// consumed by the sole reader until the peer replies.
+					if err := s.client.WriteMessage(websocket.TextMessage, []byte("ping")); err != nil {
+						t.Fatal(err)
+					}
 					assertWSClosePending(t, s)
 					replyWSClose(t, s.client)
 					assertWSCloseFinished(t, s, reader)
@@ -274,6 +284,8 @@ func TestWSHealthCloseErrors(t *testing.T) {
 	}{
 		{"backend", errors.New("backend failed"), 1011, "backend failed"},
 		{"timeout", context.DeadlineExceeded, 1008, ""},
+		{"wrapped_timeout", fmt.Errorf("decode health report: %w", context.DeadlineExceeded), 1008, ""},
+		{"wrapped_network_timeout", fmt.Errorf("decode health report: %w", &net.OpError{Op: "read", Net: "tcp", Err: context.DeadlineExceeded}), 1008, ""},
 		{"canceled", context.Canceled, 1011, "context canceled"},
 		{"exact_limit", errors.New(strings.Repeat("x", 123)), 1011, strings.Repeat("x", 123)},
 		{"over_limit", errors.New(strings.Repeat("x", 124)), 1011, strings.Repeat("x", 123)},

@@ -28,8 +28,8 @@ const LabelWithIcon = ({ icon = null, label = null }: LabelWithIconProps) => {
       sx={{
         display: "flex",
         alignItems: "center",
-        gap: 5,
-        marginTop: 3,
+        gap: 8,
+        marginTop: 4,
       }}
     >
       <Box

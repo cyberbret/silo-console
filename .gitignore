@@ -38,7 +38,17 @@ dist/
 
 # Ignore node_modules
 
+/node_modules/
 web-app/node_modules/
+
+# Retired generated frontend assets
+/portal-ui/build/
+/portal-ui/bindata_assetfs.go
+/bindata_assetfs.go
+
+# Optimized release assets are required by Go embedders; omit debug source maps
+/web-app/build/**/*.map
+/web-app/build/**/*.map.gz
 
 # Ignore tls cert and key
 private.key

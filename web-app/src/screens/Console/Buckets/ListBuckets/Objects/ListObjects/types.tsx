@@ -67,8 +67,3 @@ interface ObjectResponse {
   delete_flag: boolean;
   is_latest: boolean;
 }
-
-export interface IRestoreLocalObjectList {
-  prefix: string;
-  objectInfo: BucketObject;
-}

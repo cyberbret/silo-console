@@ -16,7 +16,6 @@
 
 import React, { Fragment, useEffect, useState } from "react";
 import styled from "styled-components";
-import get from "lodash/get";
 import { useSelector } from "react-redux";
 import { Loader } from "mds";
 import api from "../../../../../common/api";
@@ -36,25 +35,24 @@ interface ISimpleWidget {
   renderFn?: undefined | null | ((arg: Record<string, any>) => any);
 }
 
-const SimpleWidgetMain = styled.span(({ theme }) => ({
+const SimpleWidgetMain = styled.span({
   display: "inline-flex",
-  color: get(theme, "signalColors.main", "#07193E"),
+  color: "var(--foreground)",
   alignItems: "center",
   "& .icon": {
-    color: get(theme, "signalColors.main", "#07193E"),
-    fill: get(theme, "signalColors.main", "#07193E"),
-    marginRight: 5,
+    color: "var(--muted-foreground)",
+    fill: "var(--muted-foreground)",
+    marginRight: 4,
     marginLeft: 12,
   },
   "& .widgetLabel": {
-    fontWeight: "bold",
-    textTransform: "uppercase",
-    marginRight: 10,
+    fontWeight: 550,
+    marginRight: 8,
   },
   "& .widgetValue": {
-    marginRight: 25,
+    marginRight: 24,
   },
-}));
+});
 
 const SimpleWidget = ({
   iconWidget,

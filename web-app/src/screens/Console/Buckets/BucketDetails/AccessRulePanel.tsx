@@ -14,6 +14,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { EmptyState, SkeletonRows } from "common/ui";
+import { IAMPoliciesIcon } from "mds";
+import { ModalPresence } from "common/ui/ModalPresence";
 import React, { Fragment, useEffect, useState } from "react";
 import { AddIcon, Button, DataTable, SectionTitle, HelpTip } from "mds";
 import { useSelector } from "react-redux";
@@ -144,31 +147,38 @@ const AccessRule = () => {
 
   return (
     <Fragment>
-      {addAccessRuleOpen && (
-        <AddAccessRuleModal
-          modalOpen={addAccessRuleOpen}
-          onClose={closeAddAccessRuleModal}
-          bucket={bucketName}
-        />
-      )}
-      {deleteAccessRuleOpen && (
-        <DeleteAccessRuleModal
-          modalOpen={deleteAccessRuleOpen}
-          onClose={closeDeleteAccessRuleModal}
-          bucket={bucketName}
-          toDelete={accessRuleToDelete}
-        />
-      )}
-      {editAccessRuleOpen && (
-        <EditAccessRuleModal
-          modalOpen={editAccessRuleOpen}
-          onClose={closeEditAccessRuleModal}
-          bucket={bucketName}
-          toEdit={accessRuleToEdit}
-          initial={initialAccess}
-        />
-      )}
+      <ModalPresence open={Boolean(addAccessRuleOpen)}>
+        {addAccessRuleOpen && (
+          <AddAccessRuleModal
+            modalOpen={addAccessRuleOpen}
+            onClose={closeAddAccessRuleModal}
+            bucket={bucketName}
+          />
+        )}
+      </ModalPresence>
+      <ModalPresence open={Boolean(deleteAccessRuleOpen)}>
+        {deleteAccessRuleOpen && (
+          <DeleteAccessRuleModal
+            modalOpen={deleteAccessRuleOpen}
+            onClose={closeDeleteAccessRuleModal}
+            bucket={bucketName}
+            toDelete={accessRuleToDelete}
+          />
+        )}
+      </ModalPresence>
+      <ModalPresence open={Boolean(editAccessRuleOpen)}>
+        {editAccessRuleOpen && (
+          <EditAccessRuleModal
+            modalOpen={editAccessRuleOpen}
+            onClose={closeEditAccessRuleModal}
+            bucket={bucketName}
+            toEdit={accessRuleToEdit}
+            initial={initialAccess}
+          />
+        )}
+      </ModalPresence>
       <SectionTitle
+        headingLevel={2}
         separator
         sx={{ marginBottom: 15 }}
         actions={
@@ -244,7 +254,35 @@ const AccessRule = () => {
           isLoading={loadingAccessRules}
           records={accessRules || []}
           entityName={t("Access Rules")}
-          customEmptyMessage={t("There are no Access Rules yet.")}
+          loadingState={<SkeletonRows rows={5} columns={2} />}
+          emptyState={
+            <EmptyState
+              icon={<IAMPoliciesIcon />}
+              title={t("No anonymous access rules")}
+              description={t(
+                "This bucket has no prefix rules for access without credentials.",
+              )}
+              action={
+                hasPermission(
+                  bucketName,
+                  [
+                    IAM_SCOPES.S3_GET_BUCKET_POLICY,
+                    IAM_SCOPES.S3_PUT_BUCKET_POLICY,
+                    IAM_SCOPES.S3_GET_ACTIONS,
+                    IAM_SCOPES.S3_PUT_ACTIONS,
+                  ],
+                  true,
+                ) && (
+                  <Button
+                    id="empty-list-action"
+                    variant="callAction"
+                    label={t("Add Access Rule")}
+                    onClick={() => setAddAccessRuleOpen(true)}
+                  />
+                )
+              }
+            />
+          }
           idField="prefix"
         />
       </SecureComponent>

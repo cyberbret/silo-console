@@ -48,8 +48,8 @@ const messageForConsoleMsg = (log: LogMessage) => {
         display: "table",
         tableLayout: "fixed",
         width: "100%",
-        paddingLeft: 10,
-        paddingRight: 10,
+        paddingLeft: 12,
+        paddingRight: 12,
       }}
     >
       <div
@@ -70,14 +70,18 @@ export const messageForError = (
   t: (text: string) => string,
 ) => {
   const dataStyle = {
-    color: "#C83B51",
+    color: "var(--foreground)",
     fontWeight: 400,
-    fontFamily: "monospace",
-    fontSize: "12px",
+    fontFamily: "var(--font-mono)",
+    fontSize: "var(--fs-caption)",
+    lineHeight: "var(--lh-caption)",
   };
   const labelStyle = {
-    fontFamily: "monospace",
-    fontSize: "12px",
+    color: "var(--muted-foreground)",
+    fontWeight: 550,
+    fontFamily: "var(--font-mono)",
+    fontSize: "var(--fs-caption)",
+    lineHeight: "var(--lh-caption)",
   };
 
   const getLogEntryKey = (keyPath: string) => {
@@ -119,7 +123,9 @@ export const messageForError = (
       </div>
       <div>
         <b style={labelStyle}>{t("Error:")} &nbsp;</b>
-        <span style={dataStyle}>{getLogEntryKey("error.message")}</span>
+        <span style={{ ...dataStyle, color: "var(--destructive-text)" }}>
+          {getLogEntryKey("error.message")}
+        </span>
       </div>
       <br />
       <div>
@@ -198,17 +204,27 @@ const LogLine = (props: { log: LogMessage }) => {
       >
         <TableCell
           onClick={() => setOpen(!open)}
-          sx={{ width: 280, color: "#989898", fontSize: 12 }}
+          sx={{
+            width: 280,
+            color: "var(--muted-foreground)",
+            fontSize: "var(--fs-caption)",
+            lineHeight: "var(--lh-caption)",
+            fontVariantNumeric: "tabular-nums",
+          }}
         >
           <Box
             sx={{
               display: "flex",
-              gap: 1,
+              gap: 8,
               alignItems: "center",
 
-              "& .min-icon": { width: 12, marginRight: 1 },
-              fontWeight: "bold",
-              lineHeight: 1,
+              "& .min-icon": {
+                width: 16,
+                height: 16,
+                color: "var(--muted-foreground)",
+              },
+              fontWeight: 550,
+              lineHeight: "var(--lh-caption)",
             }}
           >
             <WarnFilledIcon />
@@ -217,13 +233,22 @@ const LogLine = (props: { log: LogMessage }) => {
         </TableCell>
         <TableCell
           onClick={() => setOpen(!open)}
-          sx={{ width: 200, color: "#989898", fontSize: 12 }}
+          sx={{
+            width: 200,
+            color: "var(--muted-foreground)",
+            fontSize: "var(--fs-caption)",
+            lineHeight: "var(--lh-caption)",
+          }}
         >
           <Box
             sx={{
-              "& .min-icon": { width: 12, marginRight: 1 },
-              fontWeight: "bold",
-              lineHeight: 1,
+              "& .min-icon": {
+                width: 16,
+                height: 16,
+                color: "var(--muted-foreground)",
+              },
+              fontWeight: 550,
+              lineHeight: "var(--lh-caption)",
             }}
           >
             {log.errKind}
@@ -235,8 +260,8 @@ const LogLine = (props: { log: LogMessage }) => {
               display: "table",
               tableLayout: "fixed",
               width: "100%",
-              paddingLeft: 10,
-              paddingRight: 10,
+              paddingLeft: 12,
+              paddingRight: 12,
             }}
           >
             <Box
@@ -258,10 +283,12 @@ const LogLine = (props: { log: LogMessage }) => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                borderRadius: "2px",
+                width: 16,
+                height: 16,
+                color: "var(--muted-foreground)",
               },
               "&:hover .min-icon": {
-                fill: "#eaeaea",
+                color: "var(--foreground)",
               },
             }}
           >
@@ -276,24 +303,29 @@ const LogLine = (props: { log: LogMessage }) => {
               paddingBottom: 0,
               paddingTop: 0,
               width: 200,
-              textTransform: "uppercase",
               verticalAlign: "top",
               textAlign: "right",
-              color: "#8399AB",
-              fontWeight: "bold",
+              color: "var(--muted-foreground)",
+              fontWeight: 550,
             }}
           >
-            <Box sx={{ marginTop: 10 }}>{t("Log Details")}</Box>
+            <Box sx={{ marginTop: 12 }}>{t("Log Details")}</Box>
           </TableCell>
           <TableCell sx={{ paddingBottom: 0, paddingTop: 0 }} colSpan={2}>
             <Box
               sx={{
-                margin: 1,
-                padding: 4,
-                fontSize: 14,
+                margin: "8px 0 12px",
+                padding: 12,
+                fontSize: "var(--fs-caption)",
+                lineHeight: "var(--lh-caption)",
+                background: "var(--muted)",
+                borderRadius: "var(--radius-control)",
+                "& pre": {
+                  margin: 0,
+                  font: "inherit",
+                  fontFamily: "var(--font-mono)",
+                },
               }}
-              withBorders
-              useBackground
             >
               {fullMessage}
             </Box>

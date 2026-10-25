@@ -37,7 +37,7 @@ test.describe("safe text DOM rendering", () => {
     await viteServer.close();
   });
 
-  test("keeps active HTML, SVG, and XML payloads in one text node", async () => {
+  test("keeps active HTML, SVG, and XML payloads in inert text lines", async () => {
     const objectRequests: string[] = [];
     let dialogs = 0;
 
@@ -57,14 +57,19 @@ test.describe("safe text DOM rendering", () => {
 
     const result = await page.evaluate(() => {
       const pre = document.querySelector(
-        "pre[data-testid='text-preview-content']",
+        "[data-testid='text-preview-content']",
+      );
+      const lines = Array.from(
+        pre?.querySelectorAll("pre[data-text-line]") || [],
       );
       return {
-        actual: pre?.textContent,
+        actual: lines.map((line) => line.textContent).join(""),
         expected: (window as any).__textPreviewPayload,
         executed: (window as any).__textPreviewExecuted,
-        preChildNodes: pre?.childNodes.length,
-        preChildType: pre?.firstChild?.nodeType,
+        textNodesOnly: lines.every(
+          (line) =>
+            line.childNodes.length === 1 && line.firstChild?.nodeType === 3,
+        ),
         activeElements: pre?.querySelectorAll(
           "script, img, iframe, svg, object, embed",
         ).length,
@@ -76,8 +81,7 @@ test.describe("safe text DOM rendering", () => {
 
     expect(result.actual).toBe(result.expected);
     expect(result.executed).toBe(false);
-    expect(result.preChildNodes).toBe(1);
-    expect(result.preChildType).toBe(3);
+    expect(result.textNodesOnly).toBe(true);
     expect(result.activeElements).toBe(0);
     expect(result.documentActiveElements).toBe(0);
     expect(dialogs).toBe(0);

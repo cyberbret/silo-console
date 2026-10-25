@@ -26,6 +26,7 @@ import {
   units,
 } from "../../../../common/utils";
 import { DiagnosticsIcon, HealIcon, UptimeIcon } from "mds";
+import { i18nKey } from "i18n/lang";
 
 const colorsMain = [
   "#C4D4E9",
@@ -53,7 +54,7 @@ const rateNumber = (value: string) => {
 export const panelsConfiguration: IDashboardPanel[] = [
   {
     id: 1,
-    title: "Uptime",
+    title: i18nKey("Uptime"),
     data: "N/A",
     type: widgetType.simpleWidget,
     widgetIcon: <UptimeIcon />,
@@ -61,7 +62,7 @@ export const panelsConfiguration: IDashboardPanel[] = [
   },
   {
     id: 50,
-    title: "Capacity",
+    title: i18nKey("Capacity"),
     data: [],
     dataOuter: [{ name: "outer", value: 100 }],
     widgetConfiguration: {
@@ -86,7 +87,7 @@ export const panelsConfiguration: IDashboardPanel[] = [
   },
   {
     id: 68,
-    title: "Data Usage Growth",
+    title: i18nKey("Data Usage Growth"),
     data: [],
     widgetConfiguration: [
       {
@@ -102,16 +103,16 @@ export const panelsConfiguration: IDashboardPanel[] = [
   },
   {
     id: 52,
-    title: "Object size distribution",
+    title: i18nKey("Object size distribution"),
     data: [],
     widgetConfiguration: [
       {
         dataKey: "a",
         color: "#2781B0",
         background: {
-          fill: "#EEF1F4",
+          fill: "var(--surface-2)",
         },
-        greatestColor: "#081C42",
+        greatestColor: "var(--brand)",
       },
     ],
     customStructure: [
@@ -145,7 +146,7 @@ export const panelsConfiguration: IDashboardPanel[] = [
   },
   {
     id: 66,
-    title: "Buckets",
+    title: i18nKey("Buckets"),
     data: [],
     innerLabel: "N/A",
     type: widgetType.singleRep,
@@ -154,7 +155,7 @@ export const panelsConfiguration: IDashboardPanel[] = [
   },
   {
     id: 44,
-    title: "Objects",
+    title: i18nKey("Objects"),
     data: [],
     innerLabel: "N/A",
     type: widgetType.singleRep,
@@ -163,7 +164,7 @@ export const panelsConfiguration: IDashboardPanel[] = [
   },
   {
     id: 63,
-    title: "API Data Received Rate",
+    title: i18nKey("API Data Received Rate"),
     data: [],
     widgetConfiguration: [
       {
@@ -181,7 +182,7 @@ export const panelsConfiguration: IDashboardPanel[] = [
   },
   {
     id: 77,
-    title: "Node CPU Usage",
+    title: i18nKey("Node CPU Usage"),
     data: [],
     widgetConfiguration: [
       {
@@ -198,7 +199,7 @@ export const panelsConfiguration: IDashboardPanel[] = [
   },
   {
     id: 60,
-    title: "API Request Rate",
+    title: i18nKey("API Request Rate"),
     data: [],
     widgetConfiguration: [
       {
@@ -214,7 +215,7 @@ export const panelsConfiguration: IDashboardPanel[] = [
   },
   {
     id: 70,
-    title: "API Data Sent Rate",
+    title: i18nKey("API Data Sent Rate"),
     data: [],
     widgetConfiguration: [
       {
@@ -231,7 +232,7 @@ export const panelsConfiguration: IDashboardPanel[] = [
   },
   {
     id: 17,
-    title: "Internode Data Transfer",
+    title: i18nKey("Internode Data Transfer"),
     data: [],
     widgetConfiguration: [
       {
@@ -248,7 +249,7 @@ export const panelsConfiguration: IDashboardPanel[] = [
   },
   {
     id: 73,
-    title: "Node IO",
+    title: i18nKey("Node IO"),
     data: [],
     widgetConfiguration: [
       {
@@ -267,7 +268,7 @@ export const panelsConfiguration: IDashboardPanel[] = [
     // Raw 1/0/empty from the erasure-set health query; the renderer maps it
     // to Healthy / Unhealthy / Unknown, so no labelDisplayFunction here.
     id: 80,
-    title: "Erasure Health",
+    title: i18nKey("Erasure Health"),
     data: "N/A",
     type: widgetType.simpleWidget,
     widgetIcon: <HealIcon />,
@@ -276,14 +277,14 @@ export const panelsConfiguration: IDashboardPanel[] = [
     // Raw seconds from the usage staleness query; the renderer formats the
     // duration and applies freshness thresholds, so no labelDisplayFunction.
     id: 81,
-    title: "Usage Data Age",
+    title: i18nKey("Usage Data Age"),
     data: "N/A",
     type: widgetType.simpleWidget,
     widgetIcon: <DiagnosticsIcon />,
   },
   {
     id: 71,
-    title: "API Request Error Rate",
+    title: i18nKey("API Request Error Rate"),
     data: [],
     widgetConfiguration: [
       {
@@ -299,7 +300,7 @@ export const panelsConfiguration: IDashboardPanel[] = [
   },
   {
     id: 76,
-    title: "Node Memory Usage",
+    title: i18nKey("Node Memory Usage"),
     data: [],
     widgetConfiguration: [
       {
@@ -316,7 +317,7 @@ export const panelsConfiguration: IDashboardPanel[] = [
   },
   {
     id: 74,
-    title: "Drive Used Capacity",
+    title: i18nKey("Drive Used Capacity"),
     data: [],
     widgetConfiguration: [
       {
@@ -333,7 +334,7 @@ export const panelsConfiguration: IDashboardPanel[] = [
   },
   {
     id: 82,
-    title: "Drives Free Inodes",
+    title: i18nKey("Drives Free Inodes"),
     data: [],
     widgetConfiguration: [
       {
@@ -350,7 +351,7 @@ export const panelsConfiguration: IDashboardPanel[] = [
   },
   {
     id: 11,
-    title: "Node Syscalls",
+    title: i18nKey("Node Syscalls"),
     data: [],
     widgetConfiguration: [
       {
@@ -366,7 +367,7 @@ export const panelsConfiguration: IDashboardPanel[] = [
   },
   {
     id: 8,
-    title: "Node File Descriptors",
+    title: i18nKey("Node File Descriptors"),
     data: [],
     widgetConfiguration: [
       {
@@ -385,43 +386,43 @@ export const panelsConfiguration: IDashboardPanel[] = [
     mergedPanels: [
       {
         id: 53,
-        title: "Online",
+        title: i18nKey("Online"),
         data: "N/A",
         type: widgetType.singleValue,
       },
       {
         id: 69,
-        title: "Offline",
+        title: i18nKey("Offline"),
         data: "N/A",
         type: widgetType.singleValue,
       },
     ],
-    title: "Servers",
+    title: i18nKey("Servers"),
   },
   {
     id: 501,
     mergedPanels: [
       {
         id: 9,
-        title: "Online",
+        title: i18nKey("Online"),
         data: "N/A",
         type: widgetType.singleValue,
       },
       {
         id: 78,
-        title: "Offline",
+        title: i18nKey("Offline"),
         data: "N/A",
         type: widgetType.singleValue,
       },
     ],
-    title: "Drives",
+    title: i18nKey("Drives"),
   },
   {
     id: 502,
     mergedPanels: [
       {
         id: 65,
-        title: "Upload",
+        title: i18nKey("Upload"),
         data: "N/A",
         type: widgetType.singleValue,
 
@@ -429,14 +430,14 @@ export const panelsConfiguration: IDashboardPanel[] = [
       },
       {
         id: 64,
-        title: "Download",
+        title: i18nKey("Download"),
         data: "N/A",
         type: widgetType.singleValue,
 
         labelDisplayFunction: niceBytes,
       },
     ],
-    title: "Network",
+    title: i18nKey("Network"),
   },
 ];
 

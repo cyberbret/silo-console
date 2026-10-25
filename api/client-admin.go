@@ -20,9 +20,13 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"encoding/xml"
+	"errors"
+	"fmt"
 	"io"
 	"net"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/minio/console/pkg"
@@ -51,6 +55,7 @@ type MinioAdmin interface {
 	getGroupDescription(ctx context.Context, group string) (*madmin.GroupDesc, error)
 	setGroupStatus(ctx context.Context, group string, status madmin.GroupStatus) error
 	listPolicies(ctx context.Context) (map[string]*iampolicy.Policy, error)
+	GetPolicyEntities(ctx context.Context, query madmin.PolicyEntitiesQuery) (madmin.PolicyEntitiesResult, error)
 	getPolicy(ctx context.Context, name string) (*iampolicy.Policy, error)
 	removePolicy(ctx context.Context, name string) error
 	addPolicy(ctx context.Context, name string, policy *iampolicy.Policy) error
@@ -66,6 +71,7 @@ type MinioAdmin interface {
 	serviceTrace(ctx context.Context, threshold int64, s3, internal, storage, os, errTrace bool) <-chan madmin.ServiceTraceInfo
 	getLogs(ctx context.Context, node string, lineCnt int, logKind string) <-chan madmin.LogInfo
 	AccountInfo(ctx context.Context) (madmin.AccountInfo, error)
+	DataUsageInfo(ctx context.Context) (madmin.DataUsageInfo, error)
 	heal(ctx context.Context, bucket, prefix string, healOpts madmin.HealOpts, clientToken string,
 		forceStart, forceStop bool) (healStart madmin.HealStartSuccess, healTaskStatus madmin.HealTaskStatus, err error)
 	// Service Accounts
@@ -198,6 +204,10 @@ func (ac AdminClient) listPolicies(ctx context.Context) (map[string]*iampolicy.P
 	return policies, nil
 }
 
+func (ac AdminClient) GetPolicyEntities(ctx context.Context, query madmin.PolicyEntitiesQuery) (madmin.PolicyEntitiesResult, error) {
+	return ac.Client.GetPolicyEntities(ctx, query)
+}
+
 // implements madmin.ListCannedPolicies()
 func (ac AdminClient) getPolicy(ctx context.Context, name string) (*iampolicy.Policy, error) {
 	info, err := ac.Client.InfoCannedPolicyV2(ctx, name)
@@ -327,6 +337,10 @@ func (ac AdminClient) AccountInfo(ctx context.Context) (madmin.AccountInfo, erro
 	return ac.Client.AccountInfo(ctx, madmin.AccountOpts{})
 }
 
+func (ac AdminClient) DataUsageInfo(ctx context.Context) (madmin.DataUsageInfo, error) {
+	return ac.Client.DataUsageInfo(ctx)
+}
+
 func (ac AdminClient) heal(ctx context.Context, bucket, prefix string, healOpts madmin.HealOpts, clientToken string,
 	forceStart, forceStop bool,
 ) (healStart madmin.HealStartSuccess, healTaskStatus madmin.HealTaskStatus, err error) {
@@ -368,29 +382,82 @@ func (ac AdminClient) getBucketQuota(ctx context.Context, bucket string) (madmin
 	return ac.Client.GetBucketQuota(ctx, bucket)
 }
 
-// serverHealthInfo implements mc.ServerHealthInfo - Connect to a minio server and call Health Info Management API
+// serverHealthInfo returns the last complete report from the health stream.
 func (ac AdminClient) serverHealthInfo(ctx context.Context, deadline time.Duration) (interface{}, string, error) {
-	info := madmin.HealthInfo{}
-	var healthInfo interface{}
-	var version string
-	var resp *http.Response
-	var err error
-	resp, version, err = ac.Client.ServerHealthInfo(ctx, madmin.HealthDataTypesList, deadline, "")
-	if err != nil {
-		return nil, version, err
+	query := url.Values{}
+	query.Set("deadline", deadline.Truncate(time.Second).String())
+	query.Set("anonymize", "")
+	for _, typ := range madmin.HealthDataTypesList {
+		query.Set(string(typ), "true")
 	}
+
+	// madmin v3's ServerHealthInfo discards the version decoder's buffered
+	// report bytes. Keep one decoder for the whole stream until the v3 client
+	// adopts https://github.com/minio/madmin-go/commit/a6ab0bcca33f72cfe8448eaff9836fb1d54acc32.
+	// ExecuteMethod retains the client's signing, retry and transport settings.
+	resp, err := ac.Client.ExecuteMethod(ctx, http.MethodGet, madmin.RequestData{
+		RelPath:     "/v3/healthinfo",
+		QueryValues: query,
+	})
+	if resp != nil {
+		defer resp.Body.Close()
+	}
+	if err != nil {
+		return nil, "", err
+	}
+	if resp.StatusCode != http.StatusOK {
+		body, readErr := io.ReadAll(io.LimitReader(resp.Body, 100<<10))
+		if readErr != nil {
+			return nil, "", fmt.Errorf("read health report error response: %w", readErr)
+		}
+		var errResp madmin.ErrorResponse
+		if json.Unmarshal(body, &errResp) != nil {
+			_ = xml.Unmarshal(body, &errResp)
+		}
+		if errResp.Code == "" {
+			errResp.Code = resp.Status
+		}
+		if errResp.Message == "" {
+			errResp.Message = "health report request failed: " + resp.Status
+		}
+		return nil, "", errResp
+	}
+
 	decoder := json.NewDecoder(resp.Body)
+	var version madmin.HealthInfoVersionStruct
+	if err := decoder.Decode(&version); err != nil {
+		return nil, "", fmt.Errorf("decode health report version: %w", err)
+	}
+	if version.Error != "" {
+		return nil, "", errors.New(version.Error)
+	}
+	switch version.Version {
+	case "", madmin.HealthInfoVersion2, madmin.HealthInfoVersion:
+	default:
+		return nil, "", fmt.Errorf("unsupported health report version %q", version.Version)
+	}
+
+	var info madmin.HealthInfo
 	for {
-		if err = decoder.Decode(&info); err != nil {
+		var next madmin.HealthInfo
+		if err := decoder.Decode(&next); err != nil {
+			if err != io.EOF {
+				return nil, version.Version, fmt.Errorf("decode health report: %w", err)
+			}
 			break
 		}
+		if next.Error != "" {
+			return nil, version.Version, errors.New(next.Error)
+		}
+		info = next
+	}
+	if err := ctx.Err(); err != nil {
+		return nil, version.Version, err
 	}
 	if info.Version == "" {
 		return nil, "", ErrHealthReportFail
 	}
-	healthInfo = info
-
-	return healthInfo, version, nil
+	return info, version.Version, nil
 }
 
 // implements madmin.listTiers()

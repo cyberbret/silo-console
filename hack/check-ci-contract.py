@@ -3,9 +3,13 @@
 from pathlib import Path
 import re
 errors = []
-for path in Path('.github/workflows').glob('*.yaml'):
+paths = list(Path('.github/workflows').glob('*.yaml')) + list(Path('.github/actions').rglob('action.yaml'))
+for path in paths:
     source = path.read_text()
     for line in source.splitlines():
+        local = re.search(r'\buses:\s+(\./\.github/actions/[a-zA-Z0-9_-]+)\s*$', line)
+        if local and (Path(local[1]) / 'action.yaml').is_file():
+            continue  # Same-checkout actions are audited by this loop as well.
         if re.search(r'\buses:', line) and not re.search(r'@[a-f0-9]{40}\s+#\s+v\d', line):
             errors.append(f'{path}: Action must use a full SHA with version comment: {line.strip()}')
     for pattern in (r'\byarn add\b', r'\bnpm install\b', r'\bnpx testcafe\b', r'pip3? install semgrep', r'FIREFOX_VERSION:\s*latest'):

@@ -121,6 +121,11 @@ export interface BucketEncryptionInfo {
 }
 
 export interface ListBucketsResponse {
+  /**
+   * Time the server last finished computing data usage; absent when unknown
+   * @format date-time
+   */
+  usageUpdatedAt?: string | null;
   /** list of resulting buckets */
   buckets?: Bucket[];
   /**
@@ -225,6 +230,20 @@ export interface ListGroupsResponse {
 }
 
 export interface Policy {
+  /** Whether the policy name is one of the SILO built-in policies */
+  builtin?: boolean | null;
+  /** Whether this is a built-in policy whose stored document differs semantically from the SILO default */
+  modified?: boolean | null;
+  /**
+   * Number of distinct users directly assigned to this policy; absent when unknown
+   * @format int64
+   */
+  userCount?: number | null;
+  /**
+   * Number of distinct groups directly assigned to this policy; absent when unknown
+   * @format int64
+   */
+  groupCount?: number | null;
   name?: string;
   policy?: string;
 }
@@ -611,6 +630,11 @@ export interface WidgetDetails {
 }
 
 export interface AdminInfoResponse {
+  /**
+   * Time the server last finished computing data usage; absent when unknown
+   * @format date-time
+   */
+  usageUpdatedAt?: string | null;
   buckets?: number;
   objects?: number;
   usage?: number;

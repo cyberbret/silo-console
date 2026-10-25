@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { bucketTagsCommands } from "common/mcli/commands";
+import { FormCliEquivalent } from "common/mcli/FormCliEquivalent";
 import React, { useState } from "react";
 import { AddNewTagIcon, Box, Button, FormLayout, Grid, InputBox } from "mds";
 import { modalStyleUtils } from "../../Common/FormComponents/common/styleLibrary";
@@ -122,6 +124,16 @@ const AddBucketTagModal = ({
             label={t("Save")}
           />
         </Grid>
+        <FormCliEquivalent
+          commands={
+            newKey
+              ? bucketTagsCommands(bucketName, {
+                  ...currentTags,
+                  [newKey]: newLabel,
+                })
+              : []
+          }
+        />
       </FormLayout>
     </ModalWrapper>
   );

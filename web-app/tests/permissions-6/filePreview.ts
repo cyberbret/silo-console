@@ -49,9 +49,9 @@ test
       .useRole(roles.admin)
       .navigateTo(`http://localhost:9090/browser`)
       .click(bucketNameAction)
-      .click(file)
-      .click(Selector(".objectActions button").withText("Preview"))
-      .expect(Selector(".dialogContent > div > img").exists)
+      .click(Selector('button[aria-label="Object actions: internode.png"]'))
+      .click(Selector('[role="menuitem"]').withExactText("Preview"))
+      .expect(Selector('[role="dialog"] img').exists)
       .ok();
   })
   .after(async (t) => {
@@ -72,8 +72,8 @@ test
       .useRole(roles.admin)
       .navigateTo(`http://localhost:9090/browser`)
       .click(bucketNameAction)
-      .click(pdfFile)
-      .click(Selector(".objectActions button").withText("Preview"))
+      .click(Selector('button[aria-label="Object actions: file1.pdf"]'))
+      .click(Selector('[role="menuitem"]').withExactText("Preview"))
       .expect(Selector(".react-pdf__Page__canvas").exists)
       .ok("the PDF preview did not render", { timeout: 30000 });
   })
@@ -96,8 +96,8 @@ test
       .setNativeDialogHandler(() => false)
       .navigateTo(`http://localhost:9090/browser`)
       .click(bucketNameAction)
-      .click(fileScript)
-      .click(Selector(".objectActions button").withText("Preview"))
+      .click(Selector('button[aria-label="Object actions: filescript.pdf"]'))
+      .click(Selector('[role="menuitem"]').withExactText("Preview"))
       .expect(Selector(".react-pdf__Page__canvas").exists)
       .ok("the PDF preview did not render", { timeout: 30000 });
 

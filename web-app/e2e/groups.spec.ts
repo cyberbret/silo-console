@@ -28,11 +28,13 @@ test.beforeEach(async ({ page }) => {
 test("Add a new group", async ({ page }) => {
   await page.getByRole("button", { name: "Identity" }).click();
   await page.getByRole("button", { name: "Groups" }).click();
-  await page.getByRole("button", { name: "Create Group" }).click();
+  await page.locator("#create-group").click();
 
   const groupName = `new-group-${generateUUID()}`;
 
   await page.getByLabel("Group Name").fill(groupName);
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("gridcell", { name: groupName })).toBeTruthy();
+  await expect(
+    page.getByRole("row", { name: groupName, exact: true }),
+  ).toBeVisible();
 });

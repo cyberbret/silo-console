@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { ModalPresence } from "common/ui/ModalPresence";
 import React, { useState } from "react";
 import {
   Button,
@@ -93,66 +94,70 @@ const InspectObject = ({
 
   return (
     <React.Fragment>
-      {!decryptionKey && (
-        <ModalWrapper
-          modalOpen={inspectOpen}
-          titleIcon={<InspectMenuIcon />}
-          title={t("Inspect Object")}
-          onClose={onClose}
-        >
-          <form
-            noValidate
-            autoComplete="off"
-            onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
-              onSubmit(e);
-            }}
+      <ModalPresence open={Boolean(!decryptionKey)}>
+        {!decryptionKey && (
+          <ModalWrapper
+            modalOpen={inspectOpen}
+            titleIcon={<InspectMenuIcon />}
+            title={t("Inspect Object")}
+            onClose={onClose}
           >
-            {interpolate(t("Would you like to encrypt {object}?"), {
-              object: <b>{inspectPath}</b>,
-            })}{" "}
-            <br />
-            <Switch
-              label={t("Encrypt")}
-              indicatorLabels={[t("Yes"), t("No")]}
-              checked={isEncrypt}
-              value={"encrypt"}
-              id="encrypt"
-              name="encrypt"
-              onChange={(e) => {
-                setIsEncrypt(!isEncrypt);
+            <form
+              noValidate
+              autoComplete="off"
+              onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
+                onSubmit(e);
               }}
-              description=""
-            />
-            <Grid item xs={12} sx={modalStyleUtils.modalButtonBar}>
-              <Button
-                id={"inspect"}
-                type="submit"
-                variant="callAction"
-                color="primary"
-                onClick={performInspect}
-                label={t("Inspect")}
+            >
+              {interpolate(t("Would you like to encrypt {object}?"), {
+                object: <b>{inspectPath}</b>,
+              })}{" "}
+              <br />
+              <Switch
+                label={t("Encrypt")}
+                indicatorLabels={[t("Yes"), t("No")]}
+                checked={isEncrypt}
+                value={"encrypt"}
+                id="encrypt"
+                name="encrypt"
+                onChange={(e) => {
+                  setIsEncrypt(!isEncrypt);
+                }}
+                description=""
               />
-            </Grid>
-          </form>
-        </ModalWrapper>
-      )}
-      {decryptionKey ? (
-        <ModalWrapper
-          modalOpen={inspectOpen}
-          title={t("Inspect Decryption Key")}
-          onClose={onCloseDecKeyModal}
-          titleIcon={<PasswordKeyIcon />}
-        >
-          <Box>
-            {t("This will be displayed only once. It cannot be recovered.")}
-            <br />
-            {t("Use secure medium to share this key.")}
-          </Box>
-          <Box>
-            <KeyRevealer value={decryptionKey} />
-          </Box>
-        </ModalWrapper>
-      ) : null}
+              <Grid item xs={12} sx={modalStyleUtils.modalButtonBar}>
+                <Button
+                  id={"inspect"}
+                  type="submit"
+                  variant="callAction"
+                  color="primary"
+                  onClick={performInspect}
+                  label={t("Inspect")}
+                />
+              </Grid>
+            </form>
+          </ModalWrapper>
+        )}
+      </ModalPresence>
+      <ModalPresence open={Boolean(decryptionKey)}>
+        {decryptionKey ? (
+          <ModalWrapper
+            modalOpen={inspectOpen}
+            title={t("Inspect Decryption Key")}
+            onClose={onCloseDecKeyModal}
+            titleIcon={<PasswordKeyIcon />}
+          >
+            <Box>
+              {t("This will be displayed only once. It cannot be recovered.")}
+              <br />
+              {t("Use secure medium to share this key.")}
+            </Box>
+            <Box>
+              <KeyRevealer value={decryptionKey} />
+            </Box>
+          </ModalWrapper>
+        ) : null}
+      </ModalPresence>
     </React.Fragment>
   );
 };

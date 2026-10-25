@@ -86,7 +86,7 @@ const EntityStateStatItem = ({
     <Box
       sx={{
         width: "100%",
-        paddingTop: "5px",
+        paddingTop: 4,
         textAlign: "center",
         margin: "auto",
       }}

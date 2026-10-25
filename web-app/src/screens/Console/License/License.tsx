@@ -15,9 +15,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import React, { Fragment, useEffect, useState } from "react";
-import get from "lodash/get";
 import styled from "styled-components";
-import { PageLayout } from "mds";
+import { PageLayout, type } from "mds";
 import PageHeaderWrapper from "../Common/PageHeaderWrapper/PageHeaderWrapper";
 import { version } from "version";
 import { api } from "../../../api";
@@ -26,8 +25,14 @@ import {
   CONSOLE_UI_RESOURCE,
   IAM_SCOPES,
 } from "../../../common/SecureComponent/permissions";
-import { SILO_COLORS, SiloBrand } from "../../../common/SiloBrand";
-import { interpolate, useLocalizedLink, useT } from "i18n";
+import { SiloBrand } from "../../../common/SiloBrand";
+import {
+  i18nKey,
+  interpolate,
+  useLanguage,
+  useLocalizedLink,
+  useT,
+} from "i18n";
 import {
   LEGAL_DOCUMENT_PATHS,
   REPOSITORY_URL,
@@ -39,155 +44,137 @@ const SILO_SOURCE_URL = "https://github.com/pgsty/silo";
 const MINIO_SITE_URL = "https://min.io/";
 const MINIO_SOURCE_URL = "https://github.com/minio/minio";
 const AGPL_URL = "https://www.gnu.org/licenses/agpl-3.0.html";
-const PIGSTY_SITE_URL = "https://pigsty.io/";
 
-const LicenseSheet = styled.section(({ theme }) => ({
-  maxWidth: 760,
-  margin: "0 auto",
-  color: get(theme, "fontColor", "#0D1A24"),
-  fontSize: 15,
-  lineHeight: 1.65,
-  "& a": {
-    color: get(theme, "linkColor", "#1D588C"),
-    textDecoration: "none",
-    borderBottom: `1px solid ${get(theme, "borderColor", "#C8D0D7")}`,
-    overflowWrap: "anywhere",
-    transition: "border-color 0.15s ease, color 0.15s ease",
-  },
-  "& a:hover": {
-    borderBottomColor: get(theme, "linkColor", "#1D588C"),
-  },
-  '& a[target="_blank"]::after': {
-    content: '"↗"',
-    paddingLeft: 4,
-    fontSize: "0.8em",
-    opacity: 0.65,
-  },
-}));
+const LicenseSheet = styled.section`
+  ${type("body")}
+  max-width: 760px;
+  margin: 0 auto;
+  color: var(--foreground);
+  & a {
+    color: var(--foreground);
+    text-decoration: underline;
+    text-decoration-color: var(--border);
+    text-underline-offset: 4px;
+    overflow-wrap: anywhere;
+  }
+  & a:hover {
+    text-decoration-color: currentColor;
+  }
+  & a:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 4px;
+    border-radius: 4px;
+  }
+  & a[target="_blank"]::after {
+    content: "↗";
+    padding-left: 4px;
+    color: var(--muted-foreground);
+    font-size: var(--fs-micro);
+  }
+`;
 
-const BrandLockup = styled.a(({ theme }) => ({
-  width: 360,
-  maxWidth: "100%",
-  margin: "8px auto 0",
-  boxSizing: "border-box",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: 20,
-  borderBottom: "none !important",
-  transition: "opacity 0.15s ease",
-  "&:hover": {
-    borderBottom: "none",
-    opacity: 0.88,
-  },
-  "&::after": {
-    display: "none !important",
-  },
-  "& .licenseWordmark": {
-    filter:
-      get(theme, "bgColor", "#FFFFFF") === "#181F2A"
-        ? "brightness(1.5) saturate(0.85)"
-        : "none",
-  },
-}));
+const BrandLockup = styled.a`
+  width: 360px;
+  max-width: 100%;
+  margin: 8px auto 0;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  text-decoration: none !important;
+  &::after {
+    display: none !important;
+  }
+  :root[data-theme="dark"] & .licenseWordmark {
+    filter: brightness(1.5) saturate(0.85);
+  }
+`;
 
-const Tagline = styled.p(({ theme }) => ({
-  margin: "16px 0 0",
-  textAlign: "center",
-  fontFamily: '"Chakra Petch", "Inter", sans-serif',
-  fontWeight: 500,
-  fontSize: 12,
-  letterSpacing: "0.24em",
-  textTransform: "uppercase",
-  color: get(theme, "mutedText", "#71717A"),
-  "& .acr": {
-    color: SILO_COLORS.copper,
-  },
-}));
+const Tagline = styled.p`
+  ${type("caption")}
+  margin: 16px 0 0;
+  text-align: center;
+  color: var(--muted-foreground);
+  & .acr {
+    color: var(--foreground);
+    font-weight: 550;
+  }
+`;
 
-const Statement = styled.p({
-  margin: "36px 0 0",
-  fontSize: 17,
-  lineHeight: 1.7,
-  "& a::after": {
-    display: "none !important",
-  },
-  "& strong": {
-    fontWeight: 600,
-  },
-});
+const Statement = styled.p`
+  ${type("subtitle", { weight: "normal" })}
+  margin: 32px 0 0;
+  & a::after {
+    display: none !important;
+  }
+  & strong {
+    font-weight: 550;
+  }
+`;
 
-const LicenseRecord = styled.dl(({ theme }) => ({
-  margin: "36px 0 0",
-  paddingTop: 28,
-  borderTop: `1px solid ${get(theme, "borderColor", "#E3E7EA")}`,
-  display: "grid",
-  gridTemplateColumns: "112px minmax(0, 1fr)",
-  columnGap: 28,
-  rowGap: 28,
-  "& dt": {
-    paddingTop: 4,
-    fontFamily:
-      'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace',
-    fontSize: 11,
-    letterSpacing: "0.14em",
-    textTransform: "uppercase",
-    color: get(theme, "mutedText", "#687680"),
-  },
-  "& dd": {
-    margin: 0,
-    minWidth: 0,
-  },
-  "& dd > * + *": {
-    marginTop: 7,
-  },
-  "& .chip": {
-    display: "inline-block",
-    padding: "3px 10px",
-    border: `1px solid ${get(theme, "borderColor", "#C8D0D7")}`,
-    borderRadius: 6,
-    backgroundColor: get(theme, "boxBackground", "#FAFAFA"),
-    fontFamily:
-      'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace',
-    fontSize: 12,
-    fontWeight: 600,
-  },
-  "& .line": {
-    fontFamily:
-      'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace',
-    fontSize: 13,
-    lineHeight: 1.55,
-  },
-  "& .what": {
-    paddingLeft: 7,
-    fontFamily: "Inter, sans-serif",
-    fontSize: 12,
-    color: get(theme, "mutedText", "#687680"),
-  },
-  "& .prose": {
-    margin: 0,
-    fontSize: 13,
-    lineHeight: 1.7,
-    color: get(theme, "secondaryText", "#4D5B66"),
-  },
-  "& .note": {
-    marginBottom: 0,
-    fontSize: 12,
-    lineHeight: 1.65,
-    color: get(theme, "mutedText", "#687680"),
-  },
-  "@media (max-width: 640px)": {
-    gridTemplateColumns: "1fr",
-    rowGap: 8,
-    "& dt:not(:first-of-type)": {
-      marginTop: 20,
-    },
-  },
-}));
+const LicenseRecord = styled.dl`
+  margin: 32px 0 0;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  column-gap: 24px;
+  row-gap: 24px;
+  & dt {
+    ${type("body", { weight: "semibold" })}
+    padding-top: 4px;
+    color: var(--muted-foreground);
+  }
+  & dd {
+    margin: 0;
+    min-width: 0;
+  }
+  & dd > * + * {
+    margin-top: 8px;
+  }
+  & .chip {
+    ${type("caption", { weight: "semibold" })}
+    display: inline-block;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 4px 8px;
+    border-radius: var(--radius-control);
+    background: var(--muted);
+    font-family: var(--font-mono);
+    overflow-wrap: anywhere;
+  }
+  & .line {
+    ${type("body")}
+    font-family: var(--font-mono);
+  }
+  & .what {
+    ${type("caption")}
+    padding-left: 8px;
+    color: var(--muted-foreground);
+  }
+  & .prose {
+    ${type("body")}
+    margin: 0;
+  }
+  & .note {
+    ${type("caption")}
+    margin-bottom: 0;
+    color: var(--muted-foreground);
+  }
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+    row-gap: 8px;
+    & dt:not(:first-of-type) {
+      margin-top: 16px;
+    }
+  }
+`;
 
 const License = () => {
   const localize = useLocalizedLink();
   const t = useT();
+  const language = useLanguage();
   const consoleVersion = version.startsWith("v") ? version : `v${version}`;
   const source = sourceReference();
 
@@ -221,14 +208,8 @@ const License = () => {
 
   return (
     <Fragment>
-      <PageHeaderWrapper label={"License"} />
-      <PageLayout
-        sx={{
-          "@media (max-width: 640px)": {
-            padding: "24px 20px",
-          },
-        }}
-      >
+      <PageHeaderWrapper label={i18nKey("License")} titleElement="h1" />
+      <PageLayout>
         <LicenseSheet>
           <BrandLockup
             href={localize(SILO_SITE_URL)}
@@ -279,11 +260,15 @@ const License = () => {
                 ),
                 pigsty: (
                   <a
-                    href={localize(PIGSTY_SITE_URL)}
+                    href={
+                      language === "zh"
+                        ? "https://pgsty.com/zh"
+                        : "https://pgsty.com/"
+                    }
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    Pigsty
+                    PGSTY
                   </a>
                 ),
                 code: (

@@ -31,6 +31,7 @@ import dashboardReducer from "./screens/Console/Dashboard/dashboardSlice";
 import createUserReducer from "./screens/Console/Users/AddUsersSlice";
 import destinationSlice from "./screens/Console/EventDestinations/destinationsSlice";
 import { objectBrowserWSMiddleware } from "./websockets/objectBrowserWSMiddleware";
+import { taskMiddleware } from "./screens/Console/Common/ObjectManager/taskMiddleware";
 
 var objectsWS: WebSocket;
 
@@ -53,7 +54,10 @@ const rootReducer = combineReducers({
 export const store = configureStore({
   reducer: rootReducer,
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(objectBrowserWSMiddleware(objectsWS)),
+    getDefaultMiddleware().concat(
+      taskMiddleware,
+      objectBrowserWSMiddleware(objectsWS),
+    ),
 });
 
 if (process.env.NODE_ENV !== "production" && import.meta.hot) {

@@ -14,41 +14,73 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import React, { Fragment, useEffect, useRef, useState } from "react";
-import ReactMarkdown from "react-markdown";
+import React, {
+  Fragment,
+  Suspense,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import styled from "styled-components";
-import get from "lodash/get";
 import {
   AlertCloseIcon,
   Box,
-  breakPoints,
   Button,
+  breakPoints,
   DocumentationIcon,
+  Elevated,
   FileVideoIcon,
   HelpIcon,
-  HelpIconFilled,
   IconButton,
+  Loader,
   ReportIcon,
-  TabItemProps,
-  Tabs,
 } from "mds";
 import { useSelector } from "react-redux";
 import { AppState, useAppDispatch } from "../../store";
 import { setHelpTabName } from "../../systemSlice";
 import { DocItem } from "./HelpMenu.types";
+import { openShortcutHelp } from "common/ui/ShortcutHelp";
 import HelpItem from "./HelpItem";
 import MoreLink from "../../common/MoreLink";
-import helpTopicsJSON from "../Console/helpTopics.json";
-import { Lang, localizeUrl, useLanguage, useLocalizedLink, useT } from "i18n";
+import HeaderIconButton from "./Common/PageHeaderWrapper/HeaderIconButton";
+import {
+  i18nKey,
+  Lang,
+  localizeUrl,
+  useLanguage,
+  useLocalizedLink,
+  useT,
+} from "i18n";
+
+const ReactMarkdown = React.lazy(() => import("react-markdown"));
+
+type HelpTopics = Record<
+  string,
+  Partial<Record<"docs" | "video", { header: string | null; links: DocItem[] }>>
+>;
+
+let helpTopicsPromise: Promise<HelpTopics> | undefined;
+
+const loadHelpTopics = () =>
+  (helpTopicsPromise ??= import("./helpTopics.json").then(
+    (module) => module.default,
+    (error: unknown) => {
+      helpTopicsPromise = undefined;
+      throw error;
+    },
+  ));
 
 const SILO_BLOG_URL = "https://silo.pgsty.com/blog/";
 const SILO_BLOG_FEED_URL = "https://silo.pgsty.com/blog/index.xml";
 const SILO_BLOG_ITEM_LIMIT = 6;
 const SILO_BLOG_FALLBACK: DocItem[] = [
   {
-    title: "SILO Blog",
+    title: i18nKey("SILO Blog"),
     url: SILO_BLOG_URL,
-    body: "Read SILO release notes, security advisories, and project updates.",
+    body: i18nKey(
+      "Read SILO release notes, security advisories, and project updates.",
+    ),
   },
 ];
 
@@ -89,7 +121,7 @@ const parseSiloBlogFeed = (rss: string): DocItem[] => {
           url: url.toString(),
           body: description
             ? rssDescriptionToText(description)
-            : "Read this update on the SILO Blog.",
+            : i18nKey("Read this update on the SILO Blog."),
         };
       } catch {
         return null;
@@ -99,69 +131,143 @@ const parseSiloBlogFeed = (rss: string): DocItem[] => {
     .slice(0, SILO_BLOG_ITEM_LIMIT);
 };
 
-const HelpMenuContainer = styled.div<{ $sidebarOpen: boolean }>(
-  ({ theme, $sidebarOpen }) => ({
-    backgroundColor: get(theme, "bgColor", "#FFF"),
-    position: "absolute",
-    right: 0,
-    zIndex: "10",
-    border: `${get(theme, "borderColor", "#E2E2E2")} 1px solid`,
-    borderRadius: 4,
-    boxShadow: "rgba(0, 0, 0, 0.1) 0px 0px 10px",
-    width: 754,
-    maxWidth: `calc(100vw - ${$sidebarOpen ? 282 : 112}px)`,
-    boxSizing: "border-box",
-    [`@media (max-width: ${breakPoints.sm}px)`]: {
-      width: "calc(100vw - 24px)",
-      maxWidth: "calc(100vw - 24px)",
-    },
-    "& .tabsPanels": {
-      padding: "15px 0 0",
-    },
-    "& .helpContainer": {
-      maxHeight: 400,
-      overflowY: "auto",
-      "& .helpItemBlock": {
-        padding: 5,
-        "&:hover": {
-          backgroundColor: get(
-            theme,
-            "buttons.regular.hover.background",
-            "#E6EAEB",
-          ),
-        },
-      },
-    },
-  }),
+const HelpTabs = React.lazy(
+  () => import("../../../packages/mds/src/components/Tabs/Tabs"),
 );
 
-const VideoNotice = styled.div(({ theme }) => ({
-  margin: "12px 16px 0",
-  padding: "10px 12px",
-  border: `1px solid ${get(theme, "borderColor", "#D8E1E6")}`,
-  borderRadius: 4,
-  backgroundColor: get(theme, "boxBackground", "#F3F7F9"),
-  color: get(theme, "fontColor", "#0D1A24"),
-  fontSize: 12,
-  lineHeight: 1.45,
-}));
+const HelpMenuContainer = styled(Elevated).attrs({
+  offset: 2,
+  shadowLevel: 3,
+})({
+  position: "absolute",
+  top: "calc(100% + 8px)",
+  right: "var(--page-header-inline-padding, 12px)",
+  zIndex: "20",
+  border: 0,
+  borderRadius: "var(--radius-popover)",
+  overflow: "hidden",
+  width: 754,
+  maxWidth: "calc(100% - 24px)",
+  boxSizing: "border-box",
+  "& svg [fill]:not([fill='none']):not([fill='#fff']):not([fill='#FFFFFF'])": {
+    fill: "currentColor",
+  },
+  "& svg [fill='#fff'], & svg [fill='#FFFFFF']": {
+    fill: "var(--surface-3)",
+  },
+  [`@media (max-width: ${breakPoints.sm}px)`]: {
+    width: "calc(100vw - 24px)",
+    maxWidth: "calc(100% - 24px)",
+  },
+  "& .optionsContainer": {
+    padding: "12px 16px",
+    flexWrap: "wrap",
+    overflow: "visible",
+    borderBottom: "1px solid var(--border)",
+  },
+  "& .helpToolbarActions": {
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    marginLeft: "auto",
+  },
+  "& .tabsPanels": {
+    padding: "16px 0 0",
+  },
+  "& .helpContainer": {
+    maxHeight: "min(520px, calc(100dvh - 200px))",
+    color: "var(--foreground)",
+    fontSize: "var(--fs-body)",
+    lineHeight: "var(--lh-body)",
+    "& h2, & h3": {
+      fontSize: "var(--fs-subtitle)",
+      lineHeight: "var(--lh-subtitle)",
+      fontWeight: 550,
+    },
+    "& code": { fontFamily: "var(--font-mono)", overflowWrap: "anywhere" },
+    overflowY: "auto",
+    "& .helpItemBlock": { padding: "0 8px 4px" },
+  },
+});
 
-const HelpMenu = () => {
-  const helpTopics = helpTopicsJSON as Record<string, any>;
+const VideoNotice = styled.div({
+  margin: "0 16px 16px",
+  padding: "12px 16px",
+  borderRadius: "var(--radius-control)",
+  background: "var(--muted)",
+  color: "var(--foreground)",
+  fontSize: "var(--fs-caption)",
+  lineHeight: "var(--lh-caption)",
+});
 
-  const [helpItems, setHelpItems] = useState<DocItem[]>([]);
-  const [headerDocs, setHeaderDocs] = useState<string | null>(null);
-  const [helpItemsVideo, setHelpItemsVideo] = useState<DocItem[]>([]);
-  const [headerVideo, setHeaderVideo] = useState<string | null>(null);
+const HelpMenu = ({
+  renderTrigger,
+}: {
+  renderTrigger?: (
+    toggle: () => void,
+    open: boolean,
+    ref: React.RefObject<HTMLButtonElement>,
+    hover: Pick<
+      React.HTMLAttributes<HTMLButtonElement>,
+      "onPointerEnter" | "onPointerLeave"
+    >,
+  ) => React.ReactNode;
+}) => {
+  const [helpTopics, setHelpTopics] = useState<HelpTopics | null>(null);
+
   const [helpItemsBlog, setHelpItemsBlog] =
     useState<DocItem[]>(SILO_BLOG_FALLBACK);
   const [helpMenuOpen, setHelpMenuOpen] = useState<boolean>(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const hoverTimer = useRef<ReturnType<typeof setTimeout>>();
+  const interactive = useRef(false);
+  const clearHoverTimer = () => clearTimeout(hoverTimer.current);
+  const closeHelp = () => {
+    clearHoverTimer();
+    setHelpMenuOpen(false);
+    interactive.current = false;
+  };
+  const enterHelp = () => clearHoverTimer();
+  const leaveHelp = () => {
+    clearHoverTimer();
+    if (!interactive.current) {
+      hoverTimer.current = setTimeout(() => setHelpMenuOpen(false), 220);
+    }
+  };
+  const hoverTrigger = {
+    onPointerEnter: (event: React.PointerEvent<HTMLButtonElement>) => {
+      clearHoverTimer();
+      if (
+        event.pointerType === "mouse" &&
+        window.matchMedia("(hover: hover)").matches
+      ) {
+        hoverTimer.current = setTimeout(() => setHelpMenuOpen(true), 180);
+      }
+    },
+    onPointerLeave: leaveHelp,
+  };
+  useEffect(() => () => clearTimeout(hoverTimer.current), []);
   // Feed items per language; a miss (or failed fetch) keeps the fallback so
   // the next open retries.
   const blogCache = useRef<Partial<Record<Lang, DocItem[]>>>({});
   const t = useT();
   const localize = useLocalizedLink();
   const language = useLanguage();
+  const helpLoading = (
+    <Box
+      role="status"
+      aria-label={t("Loading")}
+      sx={{
+        height: 160,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <Loader aria-hidden="true" style={{ width: 28, height: 28 }} />
+    </Box>
+  );
 
   const systemHelpName = useSelector(
     (state: AppState) => state.system.helpName,
@@ -171,32 +277,73 @@ const HelpMenu = () => {
     (state: AppState) => state.system.helpTabName,
   );
 
-  const sidebarOpen = useSelector(
-    (state: AppState) => state.system.sidebarOpen,
-  );
-
   const toggleHelpMenu = () => {
-    setHelpMenuOpen(!helpMenuOpen);
+    clearHoverTimer();
+    if (helpMenuOpen && interactive.current) {
+      closeHelp();
+      triggerRef.current?.focus();
+    } else {
+      interactive.current = true;
+      setHelpMenuOpen(true);
+      wrapperRef.current?.querySelector<HTMLElement>("button")?.focus();
+    }
   };
   const dispatch = useAppDispatch();
 
-  function useOutsideAlerter(ref: any) {
-    useEffect(() => {
-      function handleClickOutside(event: any) {
-        if (ref.current && !ref.current.contains(event.target)) {
-          setHelpMenuOpen(false);
-        }
-      }
+  useEffect(() => {
+    if (!helpMenuOpen) return;
+    const outside = (event: PointerEvent) => {
+      if (
+        event.target instanceof Node &&
+        !wrapperRef.current?.contains(event.target) &&
+        !triggerRef.current?.contains(event.target)
+      )
+        closeHelp();
+    };
+    const escape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      event.stopPropagation();
+      const returnFocus =
+        interactive.current ||
+        wrapperRef.current?.contains(document.activeElement);
+      closeHelp();
+      if (returnFocus) triggerRef.current?.focus();
+    };
+    document.addEventListener("pointerdown", outside);
+    document.addEventListener("keydown", escape);
+    return () => {
+      document.removeEventListener("pointerdown", outside);
+      document.removeEventListener("keydown", escape);
+    };
+  }, [helpMenuOpen]);
 
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
-      };
-    }, [ref]);
-  }
+  // Hover previews never move focus. A click or keyboard activation enters
+  // the panel, including while the lazy toolbar is still loading.
+  const focusToolbar = useCallback((button: HTMLButtonElement | null) => {
+    if (interactive.current) button?.focus();
+  }, []);
+  useEffect(() => {
+    if (helpMenuOpen && interactive.current) {
+      const panel = wrapperRef.current;
+      (panel?.querySelector<HTMLElement>("button") ?? panel)?.focus();
+    }
+  }, [helpMenuOpen]);
 
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  useOutsideAlerter(wrapperRef);
+  useEffect(() => {
+    if (!helpMenuOpen || helpTopics) return;
+    let active = true;
+    void loadHelpTopics()
+      .then((topics) => {
+        if (active) setHelpTopics(topics);
+      })
+      .catch(() => {
+        // Keep the documentation link available; reopening retries the load.
+      });
+    return () => {
+      active = false;
+    };
+  }, [helpMenuOpen, helpTopics]);
 
   useEffect(() => {
     if (!helpMenuOpen || helpTabName !== "blog") {
@@ -247,78 +394,35 @@ const HelpMenu = () => {
     return () => abortController.abort();
   }, [helpMenuOpen, helpTabName, language]);
 
-  useEffect(() => {
-    let docsTotal = 0;
-    const blogTotal = helpItemsBlog.length;
-    let videoTotal = 0;
-    if (helpTopics[systemHelpName]) {
-      if (helpTopics[systemHelpName]["docs"]) {
-        setHeaderDocs(helpTopics[systemHelpName]["docs"]["header"]);
-        setHelpItems(helpTopics[systemHelpName]["docs"]["links"]);
-        docsTotal = helpTopics[systemHelpName]["docs"]["links"].length;
-      }
-
-      if (helpTopics[systemHelpName]["video"]) {
-        setHeaderVideo(helpTopics[systemHelpName]["video"]["header"]);
-        setHelpItemsVideo(helpTopics[systemHelpName]["video"]["links"]);
-        videoTotal = helpTopics[systemHelpName]["video"]["links"].length;
-      }
-
-      let autoSelect = "docs";
-      let hadToFlip = false;
-      // if no docs, eval video o blog
-      if (docsTotal === 0 && headerDocs === null && helpTabName === "docs") {
-        // if no blog, default video?
-        if (videoTotal !== 0 || headerVideo !== null) {
-          autoSelect = "video";
-        } else {
-          autoSelect = "blog";
-        }
-        hadToFlip = true;
-      }
-      if (videoTotal === 0 && headerVideo === null && helpTabName === "video") {
-        // if no blog, default video?
-        if (docsTotal !== 0 || headerDocs !== null) {
-          autoSelect = "docs";
-        } else {
-          autoSelect = "blog";
-        }
-        hadToFlip = true;
-      }
-      if (blogTotal === 0 && helpTabName === "blog") {
-        // if no blog, default video?
-        if (docsTotal !== 0 || headerDocs !== null) {
-          autoSelect = "docs";
-        } else {
-          autoSelect = "video";
-        }
-        hadToFlip = true;
-      }
-      if (hadToFlip) {
-        dispatch(setHelpTabName(autoSelect));
-      }
-    } else {
-      setHelpItems(helpTopics["help"]["docs"]["links"]);
-      setHelpItemsVideo([]);
-    }
-  }, [
-    systemHelpName,
-    helpTabName,
-    dispatch,
-    helpTopics,
-    headerDocs,
-    headerVideo,
-    helpItemsBlog.length,
-  ]);
+  const topic = helpTopics?.[systemHelpName];
+  const docs = topic?.docs ?? helpTopics?.help?.docs;
+  const headerDocs = docs?.header;
+  const helpItems = docs?.links ?? [];
+  const headerVideo = topic?.video?.header;
+  const helpItemsVideo = topic?.video?.links.length
+    ? topic.video.links
+    : [
+        {
+          title: i18nKey("Visit MinIO Videos (upstream)"),
+          url: "https://resources.min.io/l/library?contentType=video",
+          body: i18nKey(
+            "Explore upstream videos about object storage, replication, and administration.",
+          ),
+        },
+      ];
 
   const helpContent = (
     <Box className={"helpContainer"}>
       {headerDocs && (
         <div style={{ paddingLeft: 16, paddingRight: 16 }}>
           <div>
-            <ReactMarkdown>{t(headerDocs)}</ReactMarkdown>
+            <Suspense fallback={helpLoading}>
+              <ReactMarkdown components={{ h1: "h2" }}>
+                {t(headerDocs)}
+              </ReactMarkdown>
+            </Suspense>
           </div>
-          <div style={{ borderBottom: "1px solid #dedede" }} />
+          <div style={{ borderBottom: "1px solid var(--border)" }} />
         </div>
       )}
       {helpItems &&
@@ -335,7 +439,7 @@ const HelpMenu = () => {
           LeadingIcon={DocumentationIcon}
           text={t("Visit SILO Documentation")}
           link={localize("https://silo.pgsty.com/docs/")}
-          color={"#007FA8"}
+          color={"var(--foreground)"}
         />
       </div>
     </Box>
@@ -350,9 +454,13 @@ const HelpMenu = () => {
       {headerVideo && (
         <Fragment>
           <div style={{ paddingLeft: 16, paddingRight: 16 }}>
-            <ReactMarkdown>{t(headerVideo)}</ReactMarkdown>
+            <Suspense fallback={helpLoading}>
+              <ReactMarkdown components={{ h1: "h2" }}>
+                {t(headerVideo)}
+              </ReactMarkdown>
+            </Suspense>
           </div>
-          <div style={{ borderBottom: "1px solid #dedede" }} />
+          <div style={{ borderBottom: "1px solid var(--border)" }} />
         </Fragment>
       )}
       {helpItemsVideo &&
@@ -369,7 +477,7 @@ const HelpMenu = () => {
           LeadingIcon={FileVideoIcon}
           text={t("Visit MinIO Videos (upstream)")}
           link={"https://resources.min.io/l/library?contentType=video"}
-          color={"#007FA8"}
+          color={"var(--foreground)"}
         />
       </div>
     </Box>
@@ -390,80 +498,119 @@ const HelpMenu = () => {
           LeadingIcon={ReportIcon}
           text={t("Visit SILO Blog")}
           link={localize(SILO_BLOG_URL)}
-          color={"#007FA8"}
+          color={"var(--foreground)"}
+        />
+        <MoreLink
+          text={t("RSS feed")}
+          link={localize(SILO_BLOG_FEED_URL)}
+          color="var(--muted-foreground)"
         />
       </div>
     </Box>
   );
 
-  const constructHMTabs = () => {
-    const helpMenuElements: TabItemProps[] = [];
-
-    if (helpItems.length !== 0) {
-      helpMenuElements.push({
-        tabConfig: { label: t("Documentation"), id: "docs" },
-        content: helpContent,
-      });
-    }
-
-    if (helpItemsVideo.length !== 0) {
-      helpMenuElements.push({
-        tabConfig: { label: t("Video"), id: "video" },
-        content: helpContentVideo,
-      });
-    }
-
-    if (helpItemsBlog.length !== 0) {
-      helpMenuElements.push({
-        tabConfig: { label: t("Blog"), id: "blog" },
-        content: helpContentBlog,
-      });
-    }
-
-    return helpMenuElements;
-  };
-
   return (
     <Fragment>
       {helpMenuOpen && (
-        <HelpMenuContainer ref={wrapperRef} $sidebarOpen={sidebarOpen}>
-          <Tabs
-            options={constructHMTabs()}
-            currentTabOrPath={helpTabName}
-            onTabClick={(item) => dispatch(setHelpTabName(item))}
-            optionsInitialComponent={
-              <Box sx={{ margin: "10px 10px 10px 15px" }}>
-                <HelpIconFilled
-                  style={{ color: "#3874A6", width: 16, height: 16 }}
-                />
-              </Box>
-            }
-            optionsEndComponent={
-              <Box sx={{ marginRight: 15 }}>
-                <IconButton
-                  aria-label={t("Close help")}
-                  onClick={() => {
-                    setHelpMenuOpen(false);
-                  }}
-                  size="small"
-                >
-                  <AlertCloseIcon style={{ color: "#919191", width: 12 }} />
-                </IconButton>
-              </Box>
-            }
-            horizontalBarBackground
-            horizontal
-          />
+        <HelpMenuContainer
+          className="help-menu-panel"
+          ref={wrapperRef}
+          tabIndex={-1}
+          onPointerEnter={enterHelp}
+          onPointerLeave={leaveHelp}
+          onFocus={() => {
+            interactive.current = true;
+            clearHoverTimer();
+          }}
+          onBlur={(event) => {
+            if (
+              !event.currentTarget.contains(
+                event.relatedTarget as Node | null,
+              ) &&
+              !triggerRef.current?.contains(event.relatedTarget as Node | null)
+            )
+              closeHelp();
+          }}
+        >
+          <Suspense fallback={helpLoading}>
+            <HelpTabs
+              options={[
+                {
+                  tabConfig: {
+                    label: t("Documentation"),
+                    id: "docs",
+                    icon: <DocumentationIcon />,
+                  },
+                  content: helpContent,
+                },
+                {
+                  tabConfig: {
+                    label: t("Video"),
+                    id: "video",
+                    icon: <FileVideoIcon />,
+                  },
+                  content: helpContentVideo,
+                },
+                {
+                  tabConfig: {
+                    label: t("Blog"),
+                    id: "blog",
+                    icon: <ReportIcon />,
+                  },
+                  content: helpContentBlog,
+                },
+              ]}
+              currentTabOrPath={helpTabName}
+              onTabClick={(item) => dispatch(setHelpTabName(item))}
+              optionsEndComponent={
+                <div className="helpToolbarActions">
+                  <Button
+                    ref={focusToolbar}
+                    id="keyboard-shortcuts-help"
+                    variant="ghost"
+                    onClick={() => {
+                      closeHelp();
+                      triggerRef.current?.focus();
+                      openShortcutHelp();
+                    }}
+                  >
+                    {t("Keyboard shortcuts")}
+                  </Button>
+                  <IconButton
+                    aria-label={t("Close help")}
+                    onClick={() => {
+                      closeHelp();
+                      triggerRef.current?.focus();
+                    }}
+                    size="small"
+                  >
+                    <AlertCloseIcon
+                      style={{ color: "var(--muted-foreground)", width: 16 }}
+                    />
+                  </IconButton>
+                </div>
+              }
+              horizontalBarBackground
+              horizontal
+            />
+          </Suspense>
         </HelpMenuContainer>
       )}
-      <Button
-        aria-expanded={helpMenuOpen}
-        aria-label={t("Open help")}
-        id={systemHelpName ?? "help_button"}
-        icon={<HelpIcon />}
-        onClick={toggleHelpMenu}
-        type="button"
-      ></Button>
+      {renderTrigger ? (
+        renderTrigger(toggleHelpMenu, helpMenuOpen, triggerRef, hoverTrigger)
+      ) : (
+        <HeaderIconButton
+          ref={triggerRef}
+          {...hoverTrigger}
+          aria-expanded={helpMenuOpen}
+          aria-label={t("Open help")}
+          id={systemHelpName ?? "help_button"}
+          onClick={toggleHelpMenu}
+          type="button"
+        >
+          <HelpIcon />
+        </HeaderIconButton>
+      )}
     </Fragment>
   );
 };

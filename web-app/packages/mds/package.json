@@ -1,0 +1,38 @@
+{
+  "name": "mds",
+  "private": true,
+  "version": "1.1.5.9-silo.0",
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/georgmangold/mds.git"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "types": "./src/index.ts",
+  "dependencies": {
+    "@uiw/react-textarea-code-editor": "^3.1.1",
+    "lodash": "^4.18.1",
+    "luxon": "^3.7.2",
+    "react-calendar": "^6.0.1",
+    "react-is": "18.3.1",
+    "react-virtualized": "^9.22.6",
+    "styled-components": "5.3.11"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.17.24",
+    "@types/luxon": "^3.7.1",
+    "@types/react": "18.3.31",
+    "@types/react-dom": "18.3.7",
+    "@types/react-virtualized": "^9.22.3",
+    "@types/styled-components": "^5.1.36",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}

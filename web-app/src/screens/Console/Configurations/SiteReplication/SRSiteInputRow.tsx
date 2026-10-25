@@ -14,28 +14,38 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import React, { Fragment } from "react";
+import React, { useEffect, useState } from "react";
 import TooltipWrapper from "../../Common/TooltipWrapper/TooltipWrapper";
-import { AddIcon, Box, Button, Grid, InputBox, RemoveIcon } from "mds";
+import { AddIcon, Box, Button, InputBox, RemoveIcon, breakPoints } from "mds";
 import { SiteInputRow } from "./Types";
 import { useT } from "i18n";
+
+type SiteField = "name" | "endpoint" | "accessKey" | "secretKey";
 
 interface ISRSiteInputRowProps {
   rowData: SiteInputRow;
   rowId: number;
-  onFieldChange: (e: any, fieldName: string, index: number) => void;
+  kind: "current" | "peer";
+  onFieldChange: (
+    event: React.ChangeEvent<HTMLInputElement>,
+    fieldName: SiteField,
+    index: number,
+  ) => void;
   onAddClick?: (index: number) => void;
   onRemoveClick?: (index: number) => void;
   canAdd?: boolean;
   canRemove?: boolean;
   showRowActions?: boolean;
   disabledFields?: string[];
-  fieldErrors?: Record<string, string>;
+  fieldErrors?: Partial<Record<SiteField, string>>;
+  showValidation?: boolean;
+  validationKey?: number;
 }
 
 const SRSiteInputRow = ({
   rowData,
   rowId: index,
+  kind,
   onFieldChange,
   onAddClick,
   onRemoveClick,
@@ -44,132 +54,170 @@ const SRSiteInputRow = ({
   showRowActions = true,
   disabledFields = [],
   fieldErrors = {},
+  showValidation = false,
+  validationKey = 0,
 }: ISRSiteInputRowProps) => {
   const t = useT();
+  const [touched, setTouched] = useState<Partial<Record<SiteField, boolean>>>(
+    {},
+  );
+  useEffect(() => setTouched({}), [validationKey]);
+  const errorFor = (field: SiteField) =>
+    showValidation || touched[field] ? fieldErrors[field] : undefined;
+  const touch = (field: SiteField) =>
+    setTouched((previous) => ({ ...previous, [field]: true }));
   const { endpoint = "", accessKey = "", secretKey = "", name = "" } = rowData;
-  return (
-    <Fragment key={`${index}`}>
-      <Box>
-        <InputBox
-          id={`add-rep-peer-site-${index}`}
-          name={`add-rep-peer-site-${index}`}
-          placeholder={`site-name`}
-          label=""
-          readOnly={disabledFields.includes("name")}
-          value={name}
-          onChange={(e) => {
-            onFieldChange(e, "name", index);
-          }}
-          data-test-id={`add-site-rep-peer-site-${index}`}
-        />
-      </Box>
-      <Box>
-        <InputBox
-          id={`add-rep-peer-site-ep-${index}`}
-          name={`add-rep-peer-site-ep-${index}`}
-          placeholder={`https://dr.example.com:900${index}`}
-          label=""
-          readOnly={disabledFields.includes("endpoint")}
-          error={fieldErrors["endpoint"]}
-          value={endpoint}
-          onChange={(e) => {
-            onFieldChange(e, "endpoint", index);
-          }}
-          data-test-id={`add-site-rep-peer-ep-${index}`}
-        />
-      </Box>
+  const prefix = `add-rep-${kind}-site`;
 
-      <Box>
-        <InputBox
-          id={`add-rep-peer-site-ac-${index}`}
-          name={`add-rep-peer-site-ac-${index}`}
-          label=""
-          required={true}
-          disabled={disabledFields.includes("accessKey")}
-          value={accessKey}
-          error={fieldErrors["accessKey"]}
-          onChange={(e) => {
-            onFieldChange(e, "accessKey", index);
-          }}
-          data-test-id={`add-rep-peer-site-ac-${index}`}
-        />
-      </Box>
-      <Box>
-        <InputBox
-          id={`add-rep-peer-site-sk-${index}`}
-          name={`add-rep-peer-site-sk-${index}`}
-          label=""
-          required={true}
-          type={"password"}
-          value={secretKey}
-          error={fieldErrors["secretKey"]}
-          disabled={disabledFields.includes("secretKey")}
-          onChange={(e) => {
-            onFieldChange(e, "secretKey", index);
-          }}
-          data-test-id={`add-rep-peer-site-sk-${index}`}
-        />
-      </Box>
-      <Grid item xs={12} sx={{ alignItems: "center", display: "flex" }}>
+  return (
+    <Box
+      role="group"
+      aria-label={
+        kind === "current" ? t("This Site") : `${t("Peer Sites")} ${index + 1}`
+      }
+      className="site-input-row"
+      sx={{
+        display: "grid",
+        gridTemplateColumns:
+          "minmax(0, .8fr) minmax(0, 1.2fr) repeat(2, minmax(0, 1fr)) 88px",
+        gap: 16,
+        padding: 16,
+        minWidth: 0,
+        border: "1px solid var(--border)",
+        borderRadius: "var(--radius-control, 8px)",
+        "& .site-field": {
+          minWidth: 0,
+          margin: 0,
+          flexDirection: "column",
+          gap: 8,
+          "& > .inputLabel": {
+            margin: 0,
+            minHeight: 0,
+            whiteSpace: "normal",
+            fontWeight: 550,
+          },
+          "& .textBoxContainer": { minWidth: 0 },
+          "& .errorText": { overflowWrap: "anywhere" },
+        },
+        // Reserve one error line so blur validation cannot move the next
+        // label between pointer down and click, losing its focus action.
+        "& .site-field-validated .textBoxContainer": {
+          minHeight:
+            "calc(var(--field-height, var(--control-height, 36px)) + var(--lh-caption, 16px) + 3px)",
+        },
+        [`@media (max-width: ${breakPoints.xl - 0.02}px)`]: {
+          gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+        },
+        [`@media (max-width: ${breakPoints.md - 0.02}px)`]: {
+          gridTemplateColumns: "minmax(0, 1fr)",
+          padding: 12,
+        },
+      }}
+    >
+      <InputBox
+        className="site-field"
+        noLabelMinWidth
+        id={`${prefix}-${index}`}
+        name={`${prefix}-${index}`}
+        placeholder="site-name"
+        label={t("Site Name")}
+        readOnly={disabledFields.includes("name")}
+        value={name}
+        onChange={(event) => onFieldChange(event, "name", index)}
+        onBlur={() => touch("name")}
+        data-test-id={`add-site-rep-${kind}-site-${index}`}
+      />
+      <InputBox
+        className="site-field site-field-validated"
+        noLabelMinWidth
+        id={`${prefix}-ep-${index}`}
+        name={`${prefix}-ep-${index}`}
+        placeholder={`https://dr.example.com:900${index}`}
+        label={t("Endpoint")}
+        readOnly={disabledFields.includes("endpoint")}
+        error={errorFor("endpoint")}
+        value={endpoint}
+        onChange={(event) => onFieldChange(event, "endpoint", index)}
+        onBlur={() => touch("endpoint")}
+        required
+        data-test-id={`add-site-rep-${kind}-ep-${index}`}
+      />
+      <InputBox
+        className="site-field site-field-validated"
+        noLabelMinWidth
+        id={`${prefix}-ac-${index}`}
+        name={`${prefix}-ac-${index}`}
+        label={t("Access Key")}
+        required
+        disabled={disabledFields.includes("accessKey")}
+        value={accessKey}
+        error={errorFor("accessKey")}
+        onChange={(event) => onFieldChange(event, "accessKey", index)}
+        onBlur={() => touch("accessKey")}
+        data-test-id={`${prefix}-ac-${index}`}
+      />
+      <InputBox
+        className="site-field site-field-validated"
+        noLabelMinWidth
+        id={`${prefix}-sk-${index}`}
+        name={`${prefix}-sk-${index}`}
+        label={t("Secret Key")}
+        required
+        type="password"
+        value={secretKey}
+        error={errorFor("secretKey")}
+        disabled={disabledFields.includes("secretKey")}
+        onChange={(event) => onFieldChange(event, "secretKey", index)}
+        onBlur={() => touch("secretKey")}
+        data-test-id={`${prefix}-sk-${index}`}
+      />
+      {showRowActions && (
         <Box
           sx={{
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
-            alignSelf: "baseline",
-            marginTop: "4px",
-
+            alignSelf: "start",
+            justifyContent: "flex-end",
+            gap: 8,
+            paddingTop: "calc(var(--lh-body, 20px) + 8px)",
             "& button": {
-              borderColor: "#696969",
-              color: "#696969",
-              borderRadius: "50%",
+              width: "var(--control-height, 36px)",
+              padding: 0,
+            },
+            [`@media (max-width: ${breakPoints.xl - 0.02}px)`]: {
+              gridColumn: "1 / -1",
+              paddingTop: 0,
+            },
+            "@media (pointer: coarse)": {
+              "& button": { minWidth: 40, minHeight: 40 },
             },
           }}
         >
-          {showRowActions ? (
-            <React.Fragment>
-              <TooltipWrapper tooltip={t("Add a Row")}>
-                <Button
-                  aria-label={t("Add site")}
-                  id={`add-row-${index}`}
-                  variant="regular"
-                  disabled={!canAdd}
-                  icon={<AddIcon />}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    onAddClick?.(index);
-                  }}
-                  style={{
-                    width: 25,
-                    height: 25,
-                    padding: 0,
-                  }}
-                />
-              </TooltipWrapper>
-              <TooltipWrapper tooltip={t("Remove Row")}>
-                <Button
-                  aria-label={t("Remove site")}
-                  id={`remove-row-${index}`}
-                  variant="regular"
-                  disabled={!canRemove}
-                  icon={<RemoveIcon />}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    onRemoveClick?.(index);
-                  }}
-                  style={{
-                    width: 25,
-                    height: 25,
-                    padding: 0,
-                    marginLeft: 8,
-                  }}
-                />
-              </TooltipWrapper>
-            </React.Fragment>
-          ) : null}
+          <TooltipWrapper tooltip={t("Add a Row")}>
+            <Button
+              aria-label={t("Add site")}
+              id={`add-${kind}-row-${index}`}
+              type="button"
+              variant="regular"
+              disabled={!canAdd}
+              icon={<AddIcon />}
+              onClick={() => onAddClick?.(index)}
+            />
+          </TooltipWrapper>
+          <TooltipWrapper tooltip={t("Remove Row")}>
+            <Button
+              aria-label={t("Remove site")}
+              id={`remove-${kind}-row-${index}`}
+              type="button"
+              variant="regular"
+              disabled={!canRemove}
+              icon={<RemoveIcon />}
+              onClick={() => onRemoveClick?.(index)}
+            />
+          </TooltipWrapper>
         </Box>
-      </Grid>
-    </Fragment>
+      )}
+    </Box>
   );
 };
 

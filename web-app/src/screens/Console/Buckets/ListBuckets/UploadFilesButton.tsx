@@ -47,7 +47,6 @@ const UploadFilesButton = ({
 }: IUploadFilesButton) => {
   const t = useT();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [uploadOptionsOpen, uploadOptionsSetOpen] = useState<boolean>(false);
 
   const anonymousMode = useSelector(
     (state: AppState) => state.system.anonymousMode,
@@ -70,8 +69,8 @@ const UploadFilesButton = ({
 
   const openUploadMenu = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    uploadOptionsSetOpen(!uploadOptionsOpen);
-    setAnchorEl(event.currentTarget);
+    const target = event.currentTarget;
+    setAnchorEl((current) => (current ? null : target));
   };
   const handleCloseUpload = () => {
     setAnchorEl(null);
@@ -104,6 +103,7 @@ const UploadFilesButton = ({
   return (
     <Fragment>
       <TooltipWrapper
+        placement="top"
         tooltip={
           uploadEnabled
             ? t("Upload Files")
@@ -115,9 +115,9 @@ const UploadFilesButton = ({
       >
         <Button
           id={"upload-main"}
-          aria-controls={`upload-files-main-menu`}
-          aria-haspopup="true"
-          aria-expanded={openUploadMenu ? "true" : undefined}
+          aria-controls={openUploadMenu ? "upload-files-main-menu" : undefined}
+          aria-haspopup="menu"
+          aria-expanded={openUploadMenu}
           onClick={handleClick}
           label={t("Upload")}
           icon={<UploadIcon />}
@@ -128,6 +128,8 @@ const UploadFilesButton = ({
       </TooltipWrapper>
       <DropdownSelector
         id={"upload-files-main-menu"}
+        role="menu"
+        ariaLabel={t("Upload")}
         options={[
           {
             label: t("Upload File"),
@@ -144,10 +146,8 @@ const UploadFilesButton = ({
         ]}
         selectedOption={""}
         onSelect={(nValue) => uploadFolderAction(nValue)}
-        hideTriggerAction={() => {
-          uploadOptionsSetOpen(false);
-        }}
-        open={uploadOptionsOpen}
+        hideTriggerAction={handleCloseUpload}
+        open={openUploadMenu}
         anchorEl={anchorEl}
         anchorOrigin={"end"}
         useAnchorWidth

@@ -14,6 +14,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { EmptyState, SkeletonRows } from "common/ui";
+import { BucketReplicationIcon } from "mds";
+import { ModalPresence } from "common/ui/ModalPresence";
 import React, { Fragment, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
@@ -223,40 +226,47 @@ const BucketReplicationPanel = () => {
 
   return (
     <Fragment>
-      {openSetReplication && (
-        <AddReplicationModal
-          closeModalAndRefresh={closeAddReplication}
-          open={openSetReplication}
-          bucketName={bucketName}
-          setReplicationRules={replicationRules}
-        />
-      )}
+      <ModalPresence open={Boolean(openSetReplication)}>
+        {openSetReplication && (
+          <AddReplicationModal
+            closeModalAndRefresh={closeAddReplication}
+            open={openSetReplication}
+            bucketName={bucketName}
+            setReplicationRules={replicationRules}
+          />
+        )}
+      </ModalPresence>
 
-      {deleteReplicationModal && (
-        <DeleteReplicationRule
-          deleteOpen={deleteReplicationModal}
-          selectedBucket={bucketName}
-          closeDeleteModalAndRefresh={closeReplicationModalDelete}
-          ruleToDelete={selectedRRule}
-          rulesToDelete={selectedRepRules}
-          remainingRules={replicationRules.length}
-          allSelected={
-            replicationRules.length > 0 &&
-            selectedRepRules.length === replicationRules.length
-          }
-          deleteSelectedRules={deleteSelectedRules}
-        />
-      )}
+      <ModalPresence open={Boolean(deleteReplicationModal)}>
+        {deleteReplicationModal && (
+          <DeleteReplicationRule
+            deleteOpen={deleteReplicationModal}
+            selectedBucket={bucketName}
+            closeDeleteModalAndRefresh={closeReplicationModalDelete}
+            ruleToDelete={selectedRRule}
+            rulesToDelete={selectedRepRules}
+            remainingRules={replicationRules.length}
+            allSelected={
+              replicationRules.length > 0 &&
+              selectedRepRules.length === replicationRules.length
+            }
+            deleteSelectedRules={deleteSelectedRules}
+          />
+        )}
+      </ModalPresence>
 
-      {editReplicationModal && (
-        <EditReplicationModal
-          closeModalAndRefresh={closeEditReplication}
-          open={editReplicationModal}
-          bucketName={bucketName}
-          ruleID={selectedRRule}
-        />
-      )}
+      <ModalPresence open={Boolean(editReplicationModal)}>
+        {editReplicationModal && (
+          <EditReplicationModal
+            closeModalAndRefresh={closeEditReplication}
+            open={editReplicationModal}
+            bucketName={bucketName}
+            ruleID={selectedRRule}
+          />
+        )}
+      </ModalPresence>
       <SectionTitle
+        headingLevel={2}
         separator
         sx={{ marginBottom: 15 }}
         actions={
@@ -283,7 +293,7 @@ const BucketReplicationPanel = () => {
                     selectedRepRules.length === 0 ||
                     replicationRules.length === 0
                   }
-                  variant={"secondary"}
+                  variant={"danger"}
                 />
               </TooltipWrapper>
             </SecureComponent>
@@ -383,7 +393,44 @@ const BucketReplicationPanel = () => {
               isLoading={loadingReplication}
               records={replicationRules}
               entityName={t("Replication Rules")}
-              customEmptyMessage={t("There are no Replication Rules yet.")}
+              loadingState={<SkeletonRows rows={5} columns={4} />}
+              emptyState={
+                <EmptyState
+                  icon={
+                    <Box
+                      sx={{ '& [fill="#4ccb92"]': { fill: "currentColor" } }}
+                    >
+                      <BucketReplicationIcon />
+                    </Box>
+                  }
+                  title={t("No replication rules yet")}
+                  description={t(
+                    "Replicate objects from this bucket to a destination bucket.",
+                  )}
+                  action={
+                    hasPermission(
+                      bucketName,
+                      [
+                        IAM_SCOPES.S3_PUT_REPLICATION_CONFIGURATION,
+                        IAM_SCOPES.S3_PUT_ACTIONS,
+                      ],
+                      true,
+                    ) && (
+                      <Button
+                        id="empty-list-action"
+                        variant="callAction"
+                        label={t("Add Replication Rule")}
+                        onClick={() =>
+                          navigate(
+                            IAM_PAGES.BUCKETS_ADD_REPLICATION +
+                              `?bucketName=${encodeURIComponent(bucketName)}&nextPriority=${replicationRules.length + 1}`,
+                          )
+                        }
+                      />
+                    )
+                  }
+                />
+              }
               idField="id"
               customPaperHeight={"400px"}
               textSelectable

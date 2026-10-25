@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { bucketAnonymousCommands } from "common/mcli/commands";
+import { FormCliEquivalent } from "common/mcli/FormCliEquivalent";
 import React, { useEffect, useState, Fragment } from "react";
 import ModalWrapper from "../../Common/ModalWrapper/ModalWrapper";
 import {
@@ -144,6 +146,13 @@ const AddAccessRule = ({
             label={t("Save")}
           />
         </Grid>
+        <FormCliEquivalent
+          commands={bucketAnonymousCommands({
+            bucket,
+            access: selectedAccess,
+            prefix,
+          })}
+        />
       </FormLayout>
     </ModalWrapper>
   );

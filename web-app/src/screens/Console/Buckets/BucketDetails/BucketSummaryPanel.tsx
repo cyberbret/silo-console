@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { ModalPresence } from "common/ui/ModalPresence";
 import React, { Fragment, useEffect, useState } from "react";
 
 import get from "lodash/get";
@@ -27,14 +28,7 @@ import {
   GetBucketRetentionConfig,
 } from "api/consoleApi";
 import { errorToHandler } from "api/errors";
-import {
-  Box,
-  DisabledIcon,
-  EnabledIcon,
-  Grid,
-  SectionTitle,
-  ValuePair,
-} from "mds";
+import { Box, Grid, SectionTitle, ValuePair } from "mds";
 import { twoColCssGridLayoutConfig } from "../../Common/FormComponents/common/styleLibrary";
 import { IAM_SCOPES } from "../../../../common/SecureComponent/permissions";
 import {
@@ -54,10 +48,11 @@ import {
 import { useAppDispatch } from "../../../../store";
 import VersioningInfo from "../VersioningInfo";
 import withSuspense from "../../Common/Components/withSuspense";
-import LabelWithIcon from "./SummaryItems/LabelWithIcon";
+import { StatusValue, StatusBadge } from "common/ui";
+import { niceBytes } from "common/utils";
 import EditablePropertyItem from "./SummaryItems/EditablePropertyItem";
+import { reportedBucketSize } from "./bucketUsage";
 import ReportedUsage from "./SummaryItems/ReportedUsage";
-import BucketQuotaSize from "./SummaryItems/BucketQuotaSize";
 import { interpolate, useLocalizedLink, useT } from "i18n";
 
 const SetAccessPolicy = withSuspense(
@@ -89,13 +84,13 @@ const BucketSummary = () => {
 
   const [encryptionCfg, setEncryptionCfg] =
     useState<BucketEncryptionInfo | null>(null);
-  const [bucketSize, setBucketSize] = useState<number | "0">("0");
+  const [bucketSize, setBucketSize] = useState<number>();
   const [hasObjectLocking, setHasObjectLocking] = useState<boolean | undefined>(
-    false,
+    undefined,
   );
   const [accessPolicyScreenOpen, setAccessPolicyScreenOpen] =
     useState<boolean>(false);
-  const [replicationRules, setReplicationRules] = useState<boolean>(false);
+  const [replicationRules, setReplicationRules] = useState<boolean>();
   const [loadingObjectLocking, setLoadingLocking] = useState<boolean>(true);
   const [loadingSize, setLoadingSize] = useState<boolean>(true);
   const [bucketLoading, setBucketLoading] = useState<boolean>(true);
@@ -108,7 +103,7 @@ const BucketSummary = () => {
     useState<BucketVersioningResponse>();
   const [quotaEnabled, setQuotaEnabled] = useState<boolean>(false);
   const [quota, setQuota] = useState<BucketQuota | null>(null);
-  const [encryptionEnabled, setEncryptionEnabled] = useState<boolean>(false);
+  const [encryptionEnabled, setEncryptionEnabled] = useState<boolean>();
   const [retentionEnabled, setRetentionEnabled] = useState<boolean>(false);
   const [retentionConfig, setRetentionConfig] =
     useState<GetBucketRetentionConfig | null>(null);
@@ -163,10 +158,8 @@ const BucketSummary = () => {
         api.buckets
           .getBucketEncryptionInfo(bucketName)
           .then((res) => {
-            if (res.data.algorithm) {
-              setEncryptionEnabled(true);
-              setEncryptionCfg(res.data);
-            }
+            setEncryptionEnabled(Boolean(res.data.algorithm));
+            setEncryptionCfg(res.data.algorithm ? res.data : null);
             setLoadingEncryption(false);
           })
           .catch((err) => {
@@ -177,6 +170,8 @@ const BucketSummary = () => {
             ) {
               setEncryptionEnabled(false);
               setEncryptionCfg(null);
+            } else {
+              setEncryptionEnabled(undefined);
             }
             setLoadingEncryption(false);
           });
@@ -198,6 +193,7 @@ const BucketSummary = () => {
         })
         .catch((err) => {
           dispatch(setErrorSnackMessage(errorToHandler(err.error)));
+          setVersioningInfo(undefined);
           setLoadingVersioning(false);
         });
     }
@@ -220,10 +216,12 @@ const BucketSummary = () => {
           .catch((err) => {
             dispatch(setErrorSnackMessage(errorToHandler(err.error)));
             setQuotaEnabled(false);
+            setQuota(null);
             setLoadingQuota(false);
           });
       } else {
         setQuotaEnabled(false);
+        setQuota(null);
         setLoadingQuota(false);
       }
     }
@@ -242,11 +240,12 @@ const BucketSummary = () => {
         api.buckets
           .getBucketObjectLockingStatus(bucketName)
           .then((res) => {
-            setHasObjectLocking(res.data.object_locking_enabled);
+            setHasObjectLocking(res.data.object_locking_enabled === true);
             setLoadingLocking(false);
           })
           .catch((err) => {
             dispatch(setErrorSnackMessage(errorToHandler(err.error)));
+            setHasObjectLocking(undefined);
             setLoadingLocking(false);
           });
       } else {
@@ -273,13 +272,14 @@ const BucketSummary = () => {
             (bucket) => bucket.name === bucketName,
           );
 
-          const size = get(bucketInfo, "size", "0");
+          const size = reportedBucketSize(bucketInfo, res.data.usageUpdatedAt);
 
           setLoadingSize(false);
           setBucketSize(size);
         })
         .catch((err) => {
           setLoadingSize(false);
+          setBucketSize(undefined);
           dispatch(setErrorSnackMessage(errorToHandler(err.error)));
         });
     }
@@ -296,6 +296,7 @@ const BucketSummary = () => {
         })
         .catch((err) => {
           dispatch(setErrorSnackMessage(errorToHandler(err.error)));
+          setReplicationRules(undefined);
           setLoadingReplication(false);
         });
     }
@@ -361,25 +362,25 @@ const BucketSummary = () => {
   };
 
   let versioningStatus = versioningInfo?.status;
-  let versioningText = t("Unversioned (Default)");
+  let versioningText = t("Disabled");
   if (versioningStatus === "Enabled") {
-    versioningText = t("Versioned");
+    versioningText = t("Enabled");
   } else if (versioningStatus === "Suspended") {
     versioningText = t("Suspended");
   }
 
   return (
     <Fragment>
-      {enableEncryptionScreenOpen && (
+      <ModalPresence open={enableEncryptionScreenOpen}>
         <EnableBucketEncryption
           open={enableEncryptionScreenOpen}
           selectedBucket={bucketName}
-          encryptionEnabled={encryptionEnabled}
+          encryptionEnabled={!!encryptionEnabled}
           encryptionCfg={encryptionCfg}
           closeModalAndRefresh={closeEnableBucketEncryption}
         />
-      )}
-      {enableQuotaScreenOpen && (
+      </ModalPresence>
+      <ModalPresence open={enableQuotaScreenOpen}>
         <EnableQuota
           open={enableQuotaScreenOpen}
           selectedBucket={bucketName}
@@ -387,8 +388,8 @@ const BucketSummary = () => {
           cfg={quota}
           closeModalAndRefresh={closeEnableBucketQuota}
         />
-      )}
-      {accessPolicyScreenOpen && (
+      </ModalPresence>
+      <ModalPresence open={accessPolicyScreenOpen}>
         <SetAccessPolicy
           bucketName={bucketName}
           open={accessPolicyScreenOpen}
@@ -396,15 +397,15 @@ const BucketSummary = () => {
           actualDefinition={policyDefinition}
           closeModalAndRefresh={closeSetAccessPolicy}
         />
-      )}
-      {retentionConfigOpen && (
+      </ModalPresence>
+      <ModalPresence open={retentionConfigOpen}>
         <SetRetentionConfig
           bucketName={bucketName}
           open={retentionConfigOpen}
           closeModalAndRefresh={closeRetentionConfig}
         />
-      )}
-      {enableVersioningOpen && (
+      </ModalPresence>
+      <ModalPresence open={enableVersioningOpen}>
         <EnableVersioningModal
           closeVersioningModalAndRefresh={closeEnableVersioning}
           modalOpen={enableVersioningOpen}
@@ -412,9 +413,9 @@ const BucketSummary = () => {
           versioningInfo={versioningInfo}
           objectLockingEnabled={!!hasObjectLocking}
         />
-      )}
+      </ModalPresence>
 
-      <SectionTitle separator sx={{ marginBottom: 15 }}>
+      <SectionTitle headingLevel={2} separator sx={{ marginBottom: 16 }}>
         {t("Summary")}
       </SectionTitle>
       <Grid container>
@@ -439,7 +440,13 @@ const BucketSummary = () => {
                     ]}
                     resourceName={bucketName}
                     property={t("Access Policy:")}
-                    value={t(accessPolicy.toLowerCase())}
+                    value={
+                      <StatusBadge
+                        tone="neutral"
+                        dot={false}
+                        label={t(accessPolicy.toLowerCase())}
+                      />
+                    }
                     onEdit={() => {
                       setAccessPolicyScreenOpen(true);
                     }}
@@ -499,7 +506,18 @@ const BucketSummary = () => {
                     ]}
                     resourceName={bucketName}
                     property={t("Encryption:")}
-                    value={encryptionEnabled ? t("Enabled") : t("Disabled")}
+                    value={
+                      <StatusBadge
+                        tone={encryptionEnabled ? "success" : "neutral"}
+                        label={
+                          encryptionEnabled === undefined
+                            ? t("Unknown")
+                            : encryptionEnabled
+                              ? t("Enabled")
+                              : t("Disabled")
+                        }
+                      />
+                    }
                     onEdit={() => {
                       setEnableEncryptionScreenOpen(true);
                     }}
@@ -545,19 +563,23 @@ const BucketSummary = () => {
                   ]}
                   resource={bucketName}
                 >
-                  <ValuePair
+                  <StatusValue
                     label={t("Replication:")}
                     value={
-                      <LabelWithIcon
-                        icon={
-                          replicationRules ? <EnabledIcon /> : <DisabledIcon />
-                        }
-                        label={
-                          <label className={"muted"}>
-                            {replicationRules ? t("Enabled") : t("Disabled")}
-                          </label>
-                        }
-                      />
+                      loadingReplication && distributedSetup ? (
+                        t("Loading…")
+                      ) : (
+                        <StatusBadge
+                          tone={replicationRules ? "success" : "neutral"}
+                          label={
+                            replicationRules === undefined
+                              ? t("Unknown")
+                              : replicationRules
+                                ? t("Enabled")
+                                : t("Disabled")
+                          }
+                        />
+                      )
                     }
                   />
                 </SecureComponent>
@@ -569,35 +591,49 @@ const BucketSummary = () => {
                   ]}
                   resource={bucketName}
                 >
-                  <ValuePair
+                  <StatusValue
                     label={t("Object Locking:")}
                     value={
-                      <LabelWithIcon
-                        icon={
-                          hasObjectLocking ? <EnabledIcon /> : <DisabledIcon />
-                        }
-                        label={
-                          <label className={"muted"}>
-                            {hasObjectLocking ? t("Enabled") : t("Disabled")}
-                          </label>
-                        }
-                      />
+                      loadingObjectLocking && distributedSetup ? (
+                        t("Loading…")
+                      ) : (
+                        <StatusBadge
+                          tone={hasObjectLocking ? "success" : "neutral"}
+                          label={
+                            hasObjectLocking === undefined
+                              ? t("Unknown")
+                              : hasObjectLocking
+                                ? t("Enabled")
+                                : t("Disabled")
+                          }
+                        />
+                      )
                     }
                   />
                 </SecureComponent>
-                <Box>
-                  <ValuePair
-                    label={t("Tags:")}
-                    value={<BucketTags bucketName={bucketName} />}
-                  />
-                </Box>
+                <StatusValue
+                  label={t("Tags:")}
+                  value={<BucketTags bucketName={bucketName} />}
+                />
                 <EditablePropertyItem
                   iamScopes={[IAM_SCOPES.ADMIN_SET_BUCKET_QUOTA]}
                   resourceName={bucketName}
                   property={t("Quota:")}
-                  value={quotaEnabled ? t("Enabled") : t("Disabled")}
+                  value={
+                    <StatusBadge
+                      tone="neutral"
+                      dot={false}
+                      label={
+                        quotaEnabled && quota?.quota
+                          ? niceBytes(String(quota.quota))
+                          : quota
+                            ? t("Disabled")
+                            : t("Unknown")
+                      }
+                    />
+                  }
                   onEdit={setBucketQuota}
-                  isLoading={loadingQuota}
+                  isLoading={loadingQuota && distributedSetup}
                   helpTip={
                     <Fragment>
                       {interpolate(
@@ -628,10 +664,11 @@ const BucketSummary = () => {
                   alignItems: "flex-start",
                 }}
               >
-                <ReportedUsage bucketSize={`${bucketSize}`} />
-                {quotaEnabled && quota ? (
-                  <BucketQuotaSize quota={quota} />
-                ) : null}
+                <ReportedUsage
+                  bucketSize={bucketSize}
+                  loading={loadingSize}
+                  quota={quotaEnabled ? quota?.quota : undefined}
+                />
               </Box>
             </Box>
           </Grid>
@@ -646,7 +683,11 @@ const BucketSummary = () => {
             resource={bucketName}
           >
             <Grid item xs={12} sx={{ marginTop: 5 }}>
-              <SectionTitle separator sx={{ marginBottom: 15 }}>
+              <SectionTitle
+                headingLevel={2}
+                separator
+                sx={{ marginBottom: 16 }}
+              >
                 {t("Versioning")}
               </SectionTitle>
 
@@ -660,18 +701,16 @@ const BucketSummary = () => {
                     resourceName={bucketName}
                     property={t("Current Status:")}
                     value={
-                      <Box
-                        sx={{
-                          display: "flex",
-                          flexDirection: "column",
-                          textDecorationStyle: "initial",
-                          placeItems: "flex-start",
-                          justifyItems: "flex-start",
-                          gap: 3,
-                        }}
-                      >
-                        <div> {versioningText}</div>
-                      </Box>
+                      <StatusBadge
+                        tone={
+                          versioningStatus === "Enabled"
+                            ? "success"
+                            : versioningStatus === "Suspended"
+                              ? "warning"
+                              : "neutral"
+                        }
+                        label={versioningInfo ? versioningText : t("Unknown")}
+                      />
                     }
                     onEdit={setBucketVersioning}
                     isLoading={loadingVersioning}
@@ -696,7 +735,11 @@ const BucketSummary = () => {
             resource={bucketName}
           >
             <Grid item xs={12} sx={{ marginTop: 5 }}>
-              <SectionTitle separator sx={{ marginBottom: 15 }}>
+              <SectionTitle
+                headingLevel={2}
+                separator
+                sx={{ marginBottom: 16 }}
+              >
                 {t("Retention")}
               </SectionTitle>
 
@@ -706,7 +749,12 @@ const BucketSummary = () => {
                     iamScopes={[IAM_SCOPES.ADMIN_SET_BUCKET_QUOTA]}
                     resourceName={bucketName}
                     property={t("Retention:")}
-                    value={retentionEnabled ? t("Enabled") : t("Disabled")}
+                    value={
+                      <StatusBadge
+                        tone={retentionEnabled ? "success" : "neutral"}
+                        label={retentionEnabled ? t("Enabled") : t("Disabled")}
+                      />
+                    }
                     onEdit={() => {
                       setRetentionConfigOpen(true);
                     }}

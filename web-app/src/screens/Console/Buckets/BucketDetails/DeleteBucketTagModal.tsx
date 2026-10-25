@@ -64,6 +64,7 @@ const DeleteBucketTagModal = ({
 
   return (
     <ConfirmDialog
+      destructive
       title={t("Delete Tag")}
       confirmText={t("Delete")}
       isOpen={deleteOpen}

@@ -132,6 +132,9 @@ export const downloadSelected = createAsyncThunk(
           percentage: 0,
           prefix: object.name,
           type: "download",
+          kind: object.name.endsWith("/") ? "zip" : "download",
+          browserManaged:
+            object.name.endsWith("/") || (object.size || 0) > 5368709120,
           waitingForFile: true,
           failed: false,
           cancelled: false,

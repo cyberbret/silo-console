@@ -74,6 +74,8 @@ export const groupsElement = identityChildren
 
 export const iamPoliciesElement = getMenuElement("policies");
 
+export const settingsElement = getMenuElement("settings");
+
 export const configurationsElement = getMenuElement("configurations");
 
 export const notificationEndpointsElement = getMenuElement("lambda");

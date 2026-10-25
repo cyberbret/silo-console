@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useRef, useState } from "react";
 import { ErrorResponseHandler } from "../../../../../../common/types";
 import ConfirmDialog from "../../../../Common/ModalWrapper/ConfirmDialog";
 import useApi from "../../../../Common/Hooks/useApi";
@@ -26,6 +26,7 @@ import { IAM_SCOPES } from "../../../../../../common/SecureComponent/permissions
 import { isVersionedMode } from "../../../../../../utils/validationFunctions";
 import { BucketVersioningResponse } from "api/consoleApi";
 import { useT } from "i18n";
+import { captureTaskSession } from "../../../../ObjectBrowser/transferManager";
 
 interface IDeleteObjectProps {
   closeDeleteModalAndRefresh: (refresh: boolean) => void;
@@ -47,8 +48,12 @@ const DeleteObject = ({
 }: IDeleteObjectProps) => {
   const dispatch = useAppDispatch();
   const t = useT();
-  const onDelSuccess = () => closeDeleteModalAndRefresh(true);
+  const currentSession = useRef(captureTaskSession());
+  const onDelSuccess = () => {
+    if (currentSession.current()) closeDeleteModalAndRefresh(true);
+  };
   const onDelError = (err: ErrorResponseHandler) => {
+    if (!currentSession.current()) return;
     dispatch(setErrorSnackMessage(err));
 
     // We close the modal box on access denied.
@@ -89,6 +94,7 @@ const DeleteObject = ({
 
   return (
     <ConfirmDialog
+      destructive
       title={t("Delete Object")}
       confirmText={t("Delete")}
       isOpen={deleteOpen}
@@ -157,11 +163,11 @@ const DeleteObject = ({
               <div
                 style={{
                   marginTop: 10,
-                  border: "#c83b51 1px solid",
-                  borderRadius: 3,
-                  padding: 5,
-                  backgroundColor: "#c83b5120",
-                  color: "#c83b51",
+                  border: "1px solid var(--destructive)",
+                  borderRadius: "var(--radius-control, 4px)",
+                  padding: "6px 10px",
+                  backgroundColor: "var(--destructive-bg)",
+                  color: "var(--destructive-text)",
                 }}
               >
                 {t(

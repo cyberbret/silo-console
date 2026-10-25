@@ -5,446 +5,332 @@
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 
-import { SILO_COLORS } from "./SiloBrand";
+import type { ThemeDefinitionProps } from "../../packages/mds/src/global/global.types";
 
-// SILO console theme: token overrides deep-merged over the mds base themes
-// (see StyleHandler). Palette direction: neutral zinc greys for chrome and
-// text, SILO steel/sky for primary actions and selection, emblem teal for
-// secondary actions. The sidebar uses one constant "night" family in both
-// modes, echoing the login brand panel.
-
-const steel = SILO_COLORS.steel; // #1D588C
-const sky = SILO_COLORS.sky; // #7FB8E8
-const teal = "#007FA8"; // silo.svg emblem mid stop
-
-// Sidebar (constant across light/dark)
-const night = {
-  background: "#0C1626",
-  text: "#A9B6C9",
-  sectionLabel: "#8093AC",
-  divider: "#1C2C44",
-  iconBG: "#14243C",
-  iconBorder: "#1B2E4A",
-  selectedBG: "rgba(29, 88, 140, 0.32)",
-  dropArrowBG: "#0A121F",
-  collapse: "#93A5BD",
+// Both themes resolve the same semantic keys; :root[data-theme] selects values.
+// Explicit complete subtrees prevent inherited MDS colors from leaking through.
+const fg = "var(--foreground)";
+const muted = "var(--muted-foreground)";
+const floor = "var(--surface-1)";
+const card = "var(--surface-3)";
+const border = "var(--border)";
+const hover = "var(--hover)";
+const active = "var(--active)";
+const danger = "var(--destructive)";
+const dangerText = "var(--destructive-text)";
+const brand = "var(--brand)";
+const disabled = {
+  border,
+  text: muted,
+  background: "var(--muted)",
+  iconColor: muted,
+};
+const neutral = (background: string) => ({
+  border: "transparent",
+  text: fg,
+  background,
+  iconColor: fg,
+});
+const primary = {
+  border: "transparent",
+  text: floor,
+  background: fg,
+  iconColor: floor,
+};
+const regular = {
+  enabled: { ...neutral("transparent"), border },
+  disabled,
+  hover: { ...neutral(hover), border },
+  pressed: { ...neutral(active), border },
+};
+const badge = (color: string) => ({
+  backgroundColor: `color-mix(in srgb, ${color} 15%, var(--background))`,
+  textColor: fg,
+});
+const tag = (color: string) => ({
+  background: badge(color).backgroundColor,
+  label: fg,
+  deleteColor: muted,
+});
+const notice = (color: string) => ({
+  backgroundColor: `color-mix(in oklab, ${color} 12%, transparent)`,
+  labelColor: fg,
+});
+const message = (color: string) => ({
+  backgroundColor: notice(color).backgroundColor,
+  borderColor: "transparent",
+  textColor: fg,
+});
+const tabButtons = {
+  labelColor: muted,
+  backgroundColor: "transparent",
+  hoverBackground: hover,
+  hoverLabelColor: fg,
+  selectedBackground: card,
+  selectedLabelColor: fg,
+  disabledBackgroundColor: "transparent",
+  disabledColor: muted,
+};
+const menu = {
+  textColor: muted,
+  iconBorderColor: "transparent",
+  iconBGColor: "transparent",
+  hoverSelectedIconBorder: "transparent",
+  hoverSelectedBackground: active,
+  hoverSelectedColor: fg,
+  sectionDividerColor: border,
+  notificationColor: "var(--info)",
+  dropArrowBackground: "transparent",
+  dropArrowColor: muted,
+};
+const wizardStep = {
+  stepLabelColor: muted,
+  selectedStepBG: active,
+  selectedStepLabelColor: fg,
+  disabledLabelColor: muted,
 };
 
-const menuOverrides = {
-  vertical: {
-    background: night.background,
-    textColor: night.text,
-    hoverSelectedIconBorder: "#FFFFFF",
-    iconBorderColor: night.iconBorder,
-    iconBGColor: night.iconBG,
-    dropArrowColor: night.sectionLabel,
-    dropArrowBackground: night.dropArrowBG,
-    hoverSelectedBackground: night.selectedBG,
-    hoverSelectedColor: "#FFFFFF",
-    sectionDividerColor: night.divider,
-    sectionLabelColor: night.sectionLabel,
-    menuCollapseColor: night.collapse,
-  },
-};
-
-export const siloLightThemeOverrides = {
-  fontColor: "#18181B",
-  borderColor: "#E4E4E7",
-  bulletColor: steel,
-  loaderColor: steel,
-  linkColor: steel,
-  boxBackground: "#FAFAFA",
-  mutedText: "#71717A",
-  secondaryText: "#52525B",
+const siloTheme = {
+  bgColor: floor,
+  fontColor: fg,
+  borderColor: border,
+  bulletColor: fg,
+  logoColor: brand,
+  logoLabelColor: fg,
+  logoLabelInverse: floor,
+  logoContrast: fg,
+  logoContrastInverse: floor,
+  loaderColor: fg,
+  linkColor: fg,
+  boxBackground: card,
+  mutedText: muted,
+  secondaryText: muted,
   signalColors: {
-    main: steel,
-    danger: "#BE123C",
-    good: "#10B981",
-    info: steel,
-    warning: "#F59E0B",
+    main: fg,
+    danger,
+    good: "var(--success)",
+    info: "var(--info)",
+    warning: "var(--warning)",
+    disabled: muted,
+    dark: fg,
+    clear: floor,
   },
   buttons: {
-    regular: {
-      enabled: {
-        border: "#D4D4D8",
-        text: "#3F3F46",
-        iconColor: "#52525B",
-      },
-      hover: {
-        border: "#A1A1AA",
-        text: "#18181B",
-        background: "#F4F4F5",
-        iconColor: "#18181B",
-      },
-      pressed: {
-        border: "#A1A1AA",
-        text: "#18181B",
-        background: "#E4E4E7",
-        iconColor: "#18181B",
-      },
-    },
+    regular,
     callAction: {
-      enabled: { border: steel, background: steel },
-      hover: { border: "#174A75", background: "#174A75" },
-      pressed: { border: "#123C61", background: "#123C61" },
+      enabled: primary,
+      disabled,
+      hover: primary,
+      pressed: primary,
     },
     secondary: {
       enabled: {
-        border: "rgba(190, 18, 60, 0.4)",
-        text: "#BE123C",
-        iconColor: "#BE123C",
+        ...neutral("var(--tint)"),
+        text: dangerText,
+        iconColor: danger,
       },
+      disabled,
       hover: {
-        border: "#BE123C",
-        text: "#BE123C",
-        background: "#FDF2F4",
-        iconColor: "#BE123C",
+        ...neutral("var(--tint-hover)"),
+        text: dangerText,
+        iconColor: danger,
       },
-      pressed: {
-        border: "#BE123C",
-        text: "#FFFFFF",
-        background: "#BE123C",
-        iconColor: "#FFFFFF",
-      },
+      pressed: { ...neutral(active), text: dangerText, iconColor: danger },
     },
     text: {
-      enabled: { text: "#3F3F46", iconColor: "#3F3F46" },
-      hover: { background: "#F4F4F5", text: "#18181B", iconColor: "#18181B" },
-      pressed: { background: "#E4E4E7", text: "#18181B", iconColor: "#18181B" },
+      enabled: neutral("transparent"),
+      disabled: { ...disabled, background: "transparent" },
+      hover: neutral(hover),
+      pressed: neutral(active),
     },
     subAction: {
-      enabled: { border: teal, background: teal },
-      hover: { border: "#1893BD", background: "#1893BD" },
-      pressed: { border: "#026B8D", background: "#026B8D" },
+      enabled: neutral("var(--tint)"),
+      disabled,
+      hover: neutral("var(--tint-hover)"),
+      pressed: neutral(active),
     },
   },
-  pageHeader: {
-    border: "#E4E4E7",
-    color: "#18181B",
+  login: {
+    formBG: floor,
+    bgFilter: "transparent",
+    promoBG: "var(--surface-2)",
+    promoHeader: fg,
+    promoText: muted,
+    footerElements: muted,
+    footerDivider: border,
   },
-  tooltip: {
-    background: "#18181B",
-    color: "#FAFAFA",
-  },
-  commonInput: {
-    labelColor: "#3F3F46",
-  },
+  pageHeader: { background: floor, border, color: fg },
+  tooltip: { background: fg, color: floor },
+  commonInput: { labelColor: fg },
   checkbox: {
-    checkBoxBorder: "#D4D4D8",
-    checkBoxColor: steel,
+    checkBoxBorder: "var(--input)",
+    checkBoxColor: fg,
+    disabledBorder: border,
+    disabledColor: muted,
   },
   iconButton: {
-    buttonBG: "#FAFAFA",
-    hoverBG: "#F4F4F5",
-    activeBG: "#E4E4E7",
-    color: "#52525B",
+    buttonBG: "transparent",
+    hoverBG: hover,
+    activeBG: active,
+    disabledBG: "transparent",
+    color: muted,
   },
   dataTable: {
-    border: "#E4E4E7",
-    selected: steel,
-    hoverColor: "#F4F4F5",
+    border,
+    disabledBorder: border,
+    disabledBG: "var(--muted)",
+    selected: fg,
+    deletedDisabled: muted,
+    hoverColor: hover,
   },
-  backLink: {
-    color: "#52525B",
-    arrow: steel,
-    hover: "#F4F4F5",
-  },
+  backLink: { color: muted, arrow: muted, hover },
   inputBox: {
-    border: "#E4E4E7",
-    hoverBorder: steel,
-    color: "#18181B",
-    placeholderColor: "#A1A1AA",
-    error: "#BE123C",
+    border: "var(--input)",
+    hoverBorder: border,
+    color: fg,
+    backgroundColor: card,
+    placeholderColor: muted,
+    error: dangerText,
+    disabledBorder: border,
+    disabledBackground: "var(--muted)",
+    disabledText: muted,
+    disabledPlaceholder: muted,
   },
   breadcrumbs: {
-    border: "#E4E4E7",
-    linksColor: "#71717A",
-    textColor: "#71717A",
-    backgroundColor: "#FAFAFA",
-    backButton: {
-      border: "#E4E4E7",
-    },
+    border,
+    backgroundColor: floor,
+    linksColor: muted,
+    textColor: fg,
+    backButton: { border: "transparent", backgroundColor: "transparent" },
   },
   actionsList: {
-    containerBorderColor: "#E4E4E7",
-    backgroundColor: "#FAFAFA",
-    optionsBorder: "#E4E4E7",
-    optionsHoverTextColor: "#18181B",
-    optionsTextColor: "#3F3F46",
-    titleColor: "#18181B",
+    titleColor: fg,
+    containerBorderColor: border,
+    backgroundColor: card,
+    optionsTextColor: muted,
+    optionsBorder: border,
+    optionsHoverTextColor: fg,
+    disabledOptionsTextColor: muted,
   },
-  screenTitle: {
-    border: "#E4E4E7",
-    subtitleColor: "#71717A",
-    iconColor: steel,
-  },
+  screenTitle: { border, subtitleColor: muted, iconColor: muted },
   modalBox: {
-    closeColor: "#71717A",
-    closeHoverBG: "#F4F4F5",
-    titleColor: "#18181B",
-    iconColor: {
-      default: steel,
-    },
+    overlayColor: "rgb(0 0 0 / .32)",
+    containerColor: "var(--surface-5)",
+    closeColor: muted,
+    closeHoverColor: fg,
+    closeHoverBG: hover,
+    titleColor: fg,
+    iconColor: { default: muted, accept: "var(--success)", delete: danger },
   },
   switchButton: {
-    onLabelColor: "#18181B",
-    onBackgroundColor: "#10B981",
+    onLabelColor: fg,
+    offLabelColor: muted,
+    switchBackground: "var(--accent)",
+    onBackgroundColor: brand,
+    bulletBorderColor: "transparent",
+    bulletBGColor: card,
+    disabledBackground: "var(--muted)",
+    disabledBulletBorderColor: border,
+    disabledBulletBGColor: muted,
+    disabledOnBackground: "var(--accent)",
   },
   dropdownSelector: {
-    hoverBG: "#F4F4F5",
-    selectedBGColor: "#E4E4E7",
+    backgroundColor: card,
+    optionTextColor: fg,
+    selectedTextColor: fg,
+    selectedBGColor: active,
+    hoverText: fg,
+    hoverBG: hover,
+    disabledText: muted,
   },
   readBox: {
-    borderColor: "#E4E4E7",
-    backgroundColor: "#FAFAFA",
-    textColor: "#52525B",
+    borderColor: border,
+    backgroundColor: "var(--muted)",
+    textColor: fg,
   },
-  menu: menuOverrides,
+  menu: {
+    vertical: {
+      ...menu,
+      background: "var(--surface-2)",
+      sectionLabelColor: muted,
+      menuCollapseColor: muted,
+      activeIndicatorColor: "transparent",
+    },
+    horizontal: {
+      ...menu,
+      menuHeaderBackground: "var(--surface-2)",
+      barBackground: "var(--surface-2)",
+      dropBackground: card,
+      dropHoverSelectedColor: fg,
+      noOptionsBar: border,
+    },
+  },
   tabs: {
     vertical: {
-      buttons: {
-        backgroundColor: "transparent",
-        hoverBackground: "#F4F4F5",
-        hoverLabelColor: "#18181B",
-        labelColor: "#52525B",
-        selectedBackground: "rgba(29, 88, 140, 0.09)",
-        selectedLabelColor: steel,
-      },
       backgroundColor: "transparent",
+      buttons: tabButtons,
       borders: "transparent",
     },
     horizontal: {
-      buttons: {
-        hoverLabelColor: steel,
-        labelColor: "#52525B",
-        selectedLabelColor: steel,
-      },
-      selectedIndicatorColor: steel,
+      backgroundColor: "var(--muted)",
+      selectedIndicatorColor: fg,
+      buttons: tabButtons,
     },
   },
+  codeEditor: {
+    backgroundColor: "var(--muted)",
+    textColor: fg,
+    helpToolsBarBG: card,
+    comment: muted,
+    entityTag: fg,
+    entity: fg,
+    sublimelinterGutterMark: muted,
+    constant: fg,
+    string: fg,
+    keyword: fg,
+    markupBold: fg,
+    codeEditorRegexp: fg,
+  },
   tag: {
-    default: { background: steel },
-    secondary: { background: teal },
+    default: tag(fg),
+    secondary: tag(fg),
+    warn: tag("var(--warning)"),
+    alert: tag(danger),
+    ok: tag("var(--success)"),
+    grey: tag(fg),
   },
   badge: {
-    default: { backgroundColor: steel },
-    secondary: { backgroundColor: teal },
+    default: badge(fg),
+    secondary: badge(fg),
+    warn: badge("var(--warning)"),
+    alert: badge(danger),
+    ok: badge("var(--success)"),
+    grey: badge(fg),
   },
   snackbar: {
-    default: { backgroundColor: steel },
+    default: notice("var(--info)"),
+    success: notice("var(--success)"),
+    warning: notice("var(--warning)"),
+    error: notice(danger),
   },
   informativeMessage: {
-    default: { backgroundColor: steel, borderColor: steel },
+    default: message("var(--info)"),
+    success: message("var(--success)"),
+    warning: message("var(--warning)"),
+    error: message(danger),
+  },
+  wizard: {
+    stepsBackground: "var(--surface-2)",
+    vertical: wizardStep,
+    modal: wizardStep,
   },
   slider: {
-    bulletBG: steel,
-    railBG: "#E4E4E7",
+    railBG: "var(--accent)",
+    bulletBG: brand,
+    disabledRail: "var(--muted)",
+    disabledBullet: muted,
   },
-};
+} satisfies ThemeDefinitionProps;
 
-export const siloDarkThemeOverrides = {
-  fontColor: "#DCE3EC",
-  borderColor: "#333F52",
-  bulletColor: sky,
-  loaderColor: sky,
-  linkColor: sky,
-  boxBackground: "#222B39",
-  mutedText: "#7E8A9C",
-  secondaryText: "#A8B4C4",
-  signalColors: {
-    main: "#6FA3D8",
-    danger: "#EF5A72",
-    good: "#2FBE8F",
-    info: sky,
-    warning: "#F5B455",
-  },
-  buttons: {
-    regular: {
-      enabled: {
-        border: "#46536A",
-        text: "#C6D1E0",
-        iconColor: "#C6D1E0",
-      },
-      hover: {
-        border: "#5A6A85",
-        text: "#ECF1F7",
-        background: "#2D3A4C",
-        iconColor: "#ECF1F7",
-      },
-      pressed: {
-        border: "#5A6A85",
-        text: "#ECF1F7",
-        background: "#26303F",
-        iconColor: "#ECF1F7",
-      },
-    },
-    callAction: {
-      enabled: { border: "#2F6DA9", background: "#2F6DA9", text: "#FFFFFF" },
-      hover: { border: "#3B7DBD", background: "#3B7DBD", text: "#FFFFFF" },
-      pressed: { border: "#285D92", background: "#285D92", text: "#FFFFFF" },
-    },
-    secondary: {
-      enabled: {
-        border: "rgba(239, 90, 114, 0.45)",
-        text: "#EF5A72",
-        iconColor: "#EF5A72",
-      },
-      hover: {
-        border: "#EF5A72",
-        text: "#FF8296",
-        background: "#3A2530",
-        iconColor: "#FF8296",
-      },
-      pressed: {
-        border: "#EF5A72",
-        text: "#FFFFFF",
-        background: "#B23048",
-        iconColor: "#FFFFFF",
-      },
-    },
-    text: {
-      enabled: { text: "#C6D1E0", iconColor: "#C6D1E0" },
-      hover: { background: "#2D3A4C", text: "#ECF1F7", iconColor: "#ECF1F7" },
-      pressed: { background: "#26303F", text: "#ECF1F7", iconColor: "#ECF1F7" },
-    },
-    subAction: {
-      enabled: { border: "#1E8FB8", background: "#1E8FB8", text: "#FFFFFF" },
-      hover: { border: "#2AA3CE", background: "#2AA3CE", text: "#FFFFFF" },
-      pressed: { border: "#177EA4", background: "#177EA4", text: "#FFFFFF" },
-    },
-  },
-  pageHeader: {
-    background: "#1B2431",
-    border: "#2A3444",
-    color: "#E8EDF4",
-  },
-  tooltip: {
-    background: "#E9EEF6",
-    color: "#131A26",
-  },
-  commonInput: {
-    labelColor: "#C2CCDA",
-  },
-  checkbox: {
-    checkBoxBorder: "#46536A",
-    checkBoxColor: "#4F8CC9",
-  },
-  iconButton: {
-    buttonBG: "#2A3444",
-    hoverBG: "#364152",
-    activeBG: "#40506A",
-    disabledBG: "#232C3A",
-    color: "#C6D1E0",
-  },
-  dataTable: {
-    border: "#303B4D",
-    selected: "#9CC4EC",
-    hoverColor: "#26303F",
-  },
-  backLink: {
-    color: "#A8B4C4",
-    arrow: sky,
-    hover: "#2A3444",
-  },
-  inputBox: {
-    border: "#364152",
-    hoverBorder: sky,
-    color: "#DCE3EC",
-    backgroundColor: "#1C2431",
-    placeholderColor: "#6B7890",
-    error: "#EF5A72",
-  },
-  breadcrumbs: {
-    border: "#2A3444",
-    linksColor: "#9FB3CC",
-    textColor: "#7E8A9C",
-    backgroundColor: "#1D2634",
-    backButton: {
-      border: "#2F3A4C",
-      backgroundColor: "#232C3A",
-    },
-  },
-  actionsList: {
-    containerBorderColor: "#303B4D",
-    backgroundColor: "#222B39",
-    optionsBorder: "#303B4D",
-    optionsHoverTextColor: "#ECF1F7",
-    optionsTextColor: "#C6D1E0",
-    titleColor: "#E8EDF4",
-  },
-  screenTitle: {
-    border: "#303B4D",
-    subtitleColor: "#7E8A9C",
-    iconColor: sky,
-  },
-  modalBox: {
-    closeColor: "#7E8A9C",
-    closeHoverBG: "#2D3A4C",
-    closeHoverColor: "#ECF1F7",
-    containerColor: "#212B39",
-    titleColor: "#E8EDF4",
-    iconColor: {
-      default: sky,
-    },
-  },
-  switchButton: {
-    onLabelColor: "#DCE3EC",
-    onBackgroundColor: "#2FBE8F",
-    switchBackground: "#2A3444",
-    disabledBackground: "#26303F",
-  },
-  dropdownSelector: {
-    backgroundColor: "#232E3E",
-    hoverBG: "#2D3A4C",
-    selectedBGColor: "#364152",
-    optionTextColor: "#DCE3EC",
-    hoverText: "#ECF1F7",
-    selectedTextColor: "#ECF1F7",
-  },
-  readBox: {
-    borderColor: "#303B4D",
-    backgroundColor: "#1F2836",
-    textColor: "#A8B4C4",
-  },
-  menu: menuOverrides,
-  tabs: {
-    vertical: {
-      buttons: {
-        backgroundColor: "transparent",
-        hoverBackground: "#2D3A4C",
-        hoverLabelColor: "#ECF1F7",
-        labelColor: "#A8B4C4",
-        selectedBackground: "rgba(127, 184, 232, 0.13)",
-        selectedLabelColor: sky,
-      },
-      backgroundColor: "transparent",
-      borders: "transparent",
-    },
-    horizontal: {
-      buttons: {
-        hoverLabelColor: sky,
-        labelColor: "#A8B4C4",
-        selectedLabelColor: sky,
-      },
-      selectedIndicatorColor: sky,
-    },
-  },
-  tag: {
-    default: { background: "#2F6DA9" },
-    secondary: { background: "#1E8FB8" },
-  },
-  badge: {
-    default: { backgroundColor: "#2F6DA9" },
-    secondary: { backgroundColor: "#1E8FB8" },
-  },
-  snackbar: {
-    default: { backgroundColor: "#2F6DA9" },
-  },
-  informativeMessage: {
-    default: { backgroundColor: "#2F6DA9", borderColor: "#2F6DA9" },
-  },
-  slider: {
-    bulletBG: sky,
-    railBG: "#303B4D",
-  },
-};
+export const siloLightThemeOverrides = siloTheme;
+export const siloDarkThemeOverrides = siloTheme;

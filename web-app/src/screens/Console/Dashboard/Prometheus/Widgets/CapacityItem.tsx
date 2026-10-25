@@ -33,11 +33,11 @@ import { setErrorSnackMessage } from "../../../../../systemSlice";
 import { AppState, useAppDispatch } from "../../../../../store";
 import { useT } from "i18n";
 
-const CapacityItemMain = styled.div(({ theme }) => ({
+const CapacityItemMain = styled.div({
   display: "flex",
   flexDirection: "column",
   justifyContent: "space-between",
-  gap: 6,
+  gap: 8,
   height: "100%",
   width: "100%",
   cursor: "default",
@@ -47,17 +47,16 @@ const CapacityItemMain = styled.div(({ theme }) => ({
     justifyContent: "space-between",
     gap: 8,
     "& .cardLabel": {
-      fontSize: 13,
-      fontWeight: 500,
-      letterSpacing: "0.02em",
-      color: get(theme, "mutedText", "#71717A"),
+      fontSize: "var(--fs-body)",
+      fontWeight: 550,
+      color: "var(--muted-foreground)",
     },
     "& .min-icon": {
-      width: 18,
-      height: 18,
+      width: 20,
+      height: 20,
       flexShrink: 0,
-      color: get(theme, "secondaryText", "#52525B"),
-      fill: get(theme, "secondaryText", "#52525B"),
+      color: "var(--muted-foreground)",
+      fill: "var(--muted-foreground)",
     },
   },
   "& .capacityRow": {
@@ -68,36 +67,37 @@ const CapacityItemMain = styled.div(({ theme }) => ({
     minWidth: 0,
   },
   "& .usedLabel": {
-    color: get(theme, "mutedText", "#87888d"),
-    fontWeight: 500,
-    fontSize: 12,
+    color: "var(--muted-foreground)",
+    fontWeight: 550,
+    fontSize: "var(--fs-caption)",
   },
   "& .totalUsed": {
     display: "flex",
     alignItems: "baseline",
     marginTop: 4,
     "& .value": {
-      fontSize: 40,
-      fontWeight: 600,
-      lineHeight: 1,
-      color: get(theme, "fontColor", "#18181B"),
+      fontSize: "var(--fs-display)",
+      fontWeight: 700,
+      lineHeight: "var(--lh-display)",
+      color: "var(--foreground)",
       fontVariantNumeric: "tabular-nums",
       [`@media (max-width: ${breakPoints.sm}px)`]: {
-        fontSize: 28,
+        fontSize: "var(--fs-display-compact)",
+        lineHeight: "var(--lh-display-compact)",
       },
     },
     "& .unit": {
-      color: get(theme, "mutedText", "#87888d"),
-      fontWeight: 500,
-      fontSize: 14,
-      marginLeft: 6,
+      color: "var(--muted-foreground)",
+      fontWeight: 550,
+      fontSize: "var(--fs-subtitle)",
+      marginLeft: 4,
     },
   },
   "& .ofUsed": {
     marginTop: 4,
     "& .value": {
-      color: get(theme, "mutedText", "#87888d"),
-      fontSize: 12,
+      color: "var(--muted-foreground)",
+      fontSize: "var(--fs-caption)",
     },
   },
   "& .donutCenter": {
@@ -107,18 +107,19 @@ const CapacityItemMain = styled.div(({ theme }) => ({
     transform: "translate(-50%, -50%)",
     textAlign: "center",
     "& .pct": {
-      fontSize: 12,
-      fontWeight: 600,
-      lineHeight: 1.1,
-      color: get(theme, "fontColor", "#18181B"),
+      fontSize: "var(--fs-caption)",
+      fontWeight: 550,
+      lineHeight: "var(--lh-caption)",
+      color: "var(--foreground)",
       fontVariantNumeric: "tabular-nums",
     },
     "& .pctLabel": {
-      fontSize: 9,
-      color: get(theme, "mutedText", "#87888d"),
+      fontSize: "var(--fs-micro)",
+      lineHeight: "var(--lh-micro)",
+      color: "var(--muted-foreground)",
     },
   },
-}));
+});
 
 const CapacityItem = ({
   value,

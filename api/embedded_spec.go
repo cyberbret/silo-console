@@ -5145,6 +5145,12 @@ func init() {
         "usage": {
           "type": "integer"
         },
+        "usageUpdatedAt": {
+          "description": "Time the server last finished computing data usage; absent when unknown",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "widgets": {
           "type": "array",
           "items": {
@@ -6206,6 +6212,12 @@ func init() {
           "type": "integer",
           "format": "int64",
           "title": "number of buckets accessible to the user"
+        },
+        "usageUpdatedAt": {
+          "description": "Time the server last finished computing data usage; absent when unknown",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
         }
       }
     },
@@ -6912,11 +6924,33 @@ func init() {
     "policy": {
       "type": "object",
       "properties": {
+        "builtin": {
+          "description": "Whether the policy name is one of the SILO built-in policies",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "groupCount": {
+          "description": "Number of distinct groups directly assigned to this policy; absent when unknown",
+          "type": "integer",
+          "format": "int64",
+          "x-nullable": true
+        },
+        "modified": {
+          "description": "Whether this is a built-in policy whose stored document differs semantically from the SILO default",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "name": {
           "type": "string"
         },
         "policy": {
           "type": "string"
+        },
+        "userCount": {
+          "description": "Number of distinct users directly assigned to this policy; absent when unknown",
+          "type": "integer",
+          "format": "int64",
+          "x-nullable": true
         }
       }
     },
@@ -13773,6 +13807,12 @@ func init() {
         "usage": {
           "type": "integer"
         },
+        "usageUpdatedAt": {
+          "description": "Time the server last finished computing data usage; absent when unknown",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "widgets": {
           "type": "array",
           "items": {
@@ -14829,6 +14869,12 @@ func init() {
           "type": "integer",
           "format": "int64",
           "title": "number of buckets accessible to the user"
+        },
+        "usageUpdatedAt": {
+          "description": "Time the server last finished computing data usage; absent when unknown",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
         }
       }
     },
@@ -15535,11 +15581,33 @@ func init() {
     "policy": {
       "type": "object",
       "properties": {
+        "builtin": {
+          "description": "Whether the policy name is one of the SILO built-in policies",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "groupCount": {
+          "description": "Number of distinct groups directly assigned to this policy; absent when unknown",
+          "type": "integer",
+          "format": "int64",
+          "x-nullable": true
+        },
+        "modified": {
+          "description": "Whether this is a built-in policy whose stored document differs semantically from the SILO default",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "name": {
           "type": "string"
         },
         "policy": {
           "type": "string"
+        },
+        "userCount": {
+          "description": "Number of distinct users directly assigned to this policy; absent when unknown",
+          "type": "integer",
+          "format": "int64",
+          "x-nullable": true
         }
       }
     },

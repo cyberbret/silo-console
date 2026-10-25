@@ -32,8 +32,8 @@ const RowShell = ({ children }: { children: any }) => (
   <Box
     sx={{
       display: "flex",
-      height: 47,
-      borderRadius: 2,
+      minHeight: 40,
+      borderRadius: "var(--radius-control)",
 
       "& .dashboard-time-stat-item": {
         height: "100%",

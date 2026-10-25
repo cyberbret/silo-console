@@ -39,10 +39,11 @@ test
       .useRole(roles.bucketWrite)
       .navigateTo("http://localhost:9090/buckets")
       .expect(
-        Selector(`#access-${constants.TEST_BUCKET_NAME}-bucketwritew`)
-          .innerText,
+        functions.namedBucketAccessFor(
+          `${constants.TEST_BUCKET_NAME}-bucketwritew`,
+        ).innerText,
       )
-      .eql("Access: W");
+      .eql("Write only");
   })
   .after(async (t) => {
     // Cleanup created bucket and corresponding uploads

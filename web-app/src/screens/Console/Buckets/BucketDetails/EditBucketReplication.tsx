@@ -33,7 +33,6 @@ import { IAM_PAGES } from "../../../../common/SecureComponent/permissions";
 import { setErrorSnackMessage, setHelpName } from "../../../../systemSlice";
 import { useAppDispatch } from "../../../../store";
 import PageHeaderWrapper from "../../Common/PageHeaderWrapper/PageHeaderWrapper";
-import HelpMenu from "../../HelpMenu";
 import { api } from "api";
 import { errorToHandler } from "api/errors";
 import QueryMultiSelector from "screens/Console/Common/FormComponents/QueryMultiSelector/QueryMultiSelector";
@@ -144,13 +143,14 @@ const EditBucketReplication = () => {
   return (
     <Fragment>
       <PageHeaderWrapper
+        titleElement="h1"
         label={
           <BackLink
             label={t("Edit Bucket Replication")}
             onClick={() => navigate(backLink)}
           />
         }
-        actions={<HelpMenu />}
+        help
       />
       <PageLayout>
         <form

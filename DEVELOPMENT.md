@@ -1,43 +1,70 @@
 # Developing Console
 
-SILO Console requires a SILO or
-[MinIO-compatible server](https://github.com/minio/minio). For development,
-run both the Console web app and the Console server.
-> [!IMPORTANT]
-> **MINIO** is a registered trademark of the MinIO Corporation. Consequently, this project is not affiliated with or endorsed by the MinIO Corporation.
-## Console Architecture Overview
+SILO Console is maintained and release-tested with the coordinated `pgsty/silo`,
+`pgsty/silo-console`, `pgsty/mc` and `pgsty/silo-pkg` stack. Use a SILO server for
+local integration testing. Compatibility with unmodified upstream MinIO is best
+effort and advisory; it must not force a downgrade of a maintained component.
+The verified upstream `github.com/minio/minio-go/v7` SDK remains the explicit
+external dependency exception.
+
+For local development, run the Go Console API and its frontend together:
+
 ```mermaid
 graph TD;
     A(User Browser) -- HTTPS/HTTP --> B["Console<br>Frontend Application<br>(React/TypeScript)"];
     B -- REST API Calls --> D["Console<br>Backend Server<br>(Go)"];
-    D -- "HTTPS/HTTP<br>Admin Operations" --> E["SILO / MinIO-compatible Server<br>Object Storage"];
+    D -- "HTTPS/HTTP<br>Admin Operations" --> E["SILO Server<br>Object Storage"];
     E@{ shape: cyl}
 ```
 
-## Running Console server
+> [!IMPORTANT]
+> MinIO is a registered trademark of MinIO, Inc. SILO Console is independent
+> and is not affiliated with or endorsed by MinIO, Inc.
 
-Build the server in the main folder by running:
+## Running the Console server
 
-```
-make
-```
-> [!NOTE]
-> If it's the first time running the server, you might need to run `go mod tidy` to ensure you have all modules
-> required.
+Use the Go version declared in `go.mod`. From the repository root:
 
-To start the server run:
-
-```
-CONSOLE_ACCESS_KEY=<your-access-key>
-CONSOLE_SECRET_KEY=<your-secret-key>
-CONSOLE_MINIO_SERVER=<compatible-server-endpoint>
-CONSOLE_DEV_MODE=on
-./console server
+```sh
+make console
 ```
 
-## Running Console web app
+Start the server against your SILO endpoint, substituting your own values:
 
-Refer to `/web-app` [instructions](/web-app/README.md) to run the web app locally.
+```sh
+export CONSOLE_MINIO_SERVER='<silo-endpoint>'
+export CONSOLE_DEV_MODE=on
+./console server --host 127.0.0.1 --port 9090
+```
+
+Sign in using an account on that SILO deployment. Development mode is for local
+frontend work; use the ordinary server configuration for standalone acceptance.
+See [docs/Environment.md](docs/Environment.md) for endpoint, region and TLS
+settings.
+
+## Running the Console frontend
+
+Use the Node.js version in [`.nvmrc`](.nvmrc) and Yarn selected by
+[`web-app/package.json`](web-app/package.json):
+
+```sh
+cd web-app
+yarn install --immutable
+yarn start
+```
+
+Vite serves <http://localhost:5005> and proxies API calls to the local Console.
+MDS is a private source workspace at `web-app/packages/mds`, compiled with the
+application. Edit its source directly, preserve upstream notices and document
+local modifications in `UPSTREAM.md`; there is no separate MDS package build.
+The [frontend guide](web-app/README.md) covers shared UI primitives, navigation,
+translations, bundle budgets, checks and the opt-in GUI regression runner.
+
+For a standalone embedded preview, run `make assets` at the repository root and
+then `make console`. Generated assets belong in a separate reviewed commit after
+source, tests and documentation are final. A local build does not publish or
+deploy a release. See [docs/Embedding.md](docs/Embedding.md) for the maintained
+module graph and downstream replacement requirements.
 
 # Best-effort compatibility testing inside upstream MinIO
 

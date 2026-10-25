@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { setPoliciesCommands } from "common/mcli/commands";
+import { FormCliEquivalent } from "common/mcli/FormCliEquivalent";
 import React, { Fragment, useEffect, useState } from "react";
 import get from "lodash/get";
 import { useSelector } from "react-redux";
@@ -37,6 +39,12 @@ interface ISetPolicyProps {
   open: boolean;
 }
 
+type GroupPolicyBaseline = {
+  group: string;
+  status: "loading" | "ready" | "error";
+  policies: string[];
+};
+
 const SetPolicy = ({
   closeModalAndRefresh,
   selectedUser,
@@ -49,10 +57,23 @@ const SetPolicy = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [actualPolicy, setActualPolicy] = useState<string[]>([]);
   const [selectedPolicy, setSelectedPolicy] = useState<string[]>([]);
+  const [groupBaseline, setGroupBaseline] =
+    useState<GroupPolicyBaseline | null>(null);
+  const singleGroup = selectedGroups?.length === 1 ? selectedGroups[0] : null;
+  const groupReady =
+    singleGroup === null ||
+    (open &&
+      groupBaseline?.group === singleGroup &&
+      groupBaseline.status === "ready");
+  const groupStatusMessage =
+    groupBaseline?.group === singleGroup && groupBaseline?.status === "error"
+      ? t("Could not load current group policies. Reopen the dialog to retry.")
+      : t("Loading current group policies…");
   const currentPolicies = useSelector(
     (state: AppState) => state.createUser.selectedPolicies,
   );
   const setPolicyAction = () => {
+    if (!groupReady) return;
     let users = null;
     let groups = null;
     if (selectedGroups !== null) {
@@ -83,42 +104,49 @@ const SetPolicy = ({
       });
   };
 
-  const fetchGroupInformation = () => {
-    if (selectedGroups?.length === 1) {
-      api
-        .invoke("GET", `/api/v1/group/${encodeURIComponent(selectedGroups[0])}`)
-        .then((res: any) => {
-          const groupPolicy: String = get(res, "policy", "");
-          setActualPolicy(groupPolicy.split(","));
-          setSelectedPolicy(groupPolicy.split(","));
-          dispatch(setSelectedPolicies(groupPolicy.split(",")));
-        })
-        .catch((err: ErrorResponseHandler) => {
-          dispatch(setModalErrorSnackMessage(err));
-          setLoading(false);
-        });
-    }
-  };
-
   const resetSelection = () => {
     setSelectedPolicy(actualPolicy);
     dispatch(setSelectedPolicies(actualPolicy));
   };
 
   useEffect(() => {
-    if (open) {
-      if (selectedGroups?.length === 1) {
-        fetchGroupInformation();
-        return;
-      }
-
-      const userPolicy: string[] = get(selectedUser, "policy", []);
-      setActualPolicy(userPolicy);
-      setSelectedPolicy(userPolicy);
-      dispatch(setSelectedPolicies(userPolicy));
+    let active = true;
+    setGroupBaseline(null);
+    if (!open) return;
+    if (singleGroup !== null) {
+      setGroupBaseline({ group: singleGroup, status: "loading", policies: [] });
+      setActualPolicy([]);
+      setSelectedPolicy([]);
+      dispatch(setSelectedPolicies([]));
+      api
+        .invoke("GET", `/api/v1/group/${encodeURIComponent(singleGroup)}`)
+        .then((res: { policy?: string }) => {
+          if (!active) return;
+          const policies = (res.policy || "").split(",").filter(Boolean);
+          setGroupBaseline({ group: singleGroup, status: "ready", policies });
+          setActualPolicy(policies);
+          setSelectedPolicy(policies);
+          dispatch(setSelectedPolicies(policies));
+        })
+        .catch((err: ErrorResponseHandler) => {
+          if (!active) return;
+          setGroupBaseline({
+            group: singleGroup,
+            status: "error",
+            policies: [],
+          });
+          dispatch(setModalErrorSnackMessage(err));
+        });
+    } else {
+      const policies: string[] = get(selectedUser, "policy", []);
+      setActualPolicy(policies);
+      setSelectedPolicy(policies);
+      dispatch(setSelectedPolicies(policies));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, selectedGroups?.length, selectedUser]);
+    return () => {
+      active = false;
+    };
+  }, [open, singleGroup, selectedUser, dispatch]);
 
   const userName = get(selectedUser, "accessKey", "");
 
@@ -144,7 +172,7 @@ const SetPolicy = ({
               {selectedGroups !== null ? selectedGroups[0] : userName}
             </ReadBox>
             <ReadBox label={t("Current Policy")} sx={{ width: "100%" }}>
-              {actualPolicy.join(", ")}
+              {groupReady ? actualPolicy.join(", ") : groupStatusMessage}
             </ReadBox>
           </Fragment>
         )}
@@ -163,6 +191,7 @@ const SetPolicy = ({
           type="button"
           variant="regular"
           onClick={resetSelection}
+          disabled={!groupReady}
           label={t("Reset")}
         />
         <Button
@@ -170,11 +199,34 @@ const SetPolicy = ({
           type="button"
           variant="callAction"
           color="primary"
-          disabled={loading}
+          disabled={loading || !groupReady}
           onClick={setPolicyAction}
           label={t("Save")}
         />
       </Grid>
+      <FormCliEquivalent
+        commands={
+          !groupReady
+            ? []
+            : selectedGroups !== null
+              ? selectedGroups.flatMap((name) =>
+                  setPoliciesCommands({
+                    entity: "group",
+                    name,
+                    policies: currentPolicies,
+                    currentPolicies:
+                      singleGroup !== null ? groupBaseline!.policies : [],
+                  }),
+                )
+              : setPoliciesCommands({
+                  entity: "user",
+                  name: userName,
+                  policies: currentPolicies,
+                  currentPolicies: actualPolicy,
+                })
+        }
+        emptyMessage={groupReady ? t("No policy changes.") : groupStatusMessage}
+      />
       {loading && (
         <Grid item xs={12}>
           <ProgressBar />

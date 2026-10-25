@@ -14,94 +14,64 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import React, { Fragment, useEffect, useState } from "react";
+import React from "react";
 import styled from "styled-components";
-import get from "lodash/get";
-import { Button, CircleIcon, ObjectManagerIcon } from "mds";
+import { ObjectManagerIcon, type } from "mds";
 import { useSelector } from "react-redux";
 import { toggleList } from "../../ObjectBrowser/objectBrowserSlice";
 import { AppState, useAppDispatch } from "../../../../store";
-import { useT } from "i18n";
+import { useT, formatText } from "i18n";
+import HeaderIconButton from "../PageHeaderWrapper/HeaderIconButton";
+import { activeTask } from "./taskModel";
 
-const IndicatorContainer = styled.div(({ theme }) => ({
-  position: "absolute",
-  display: "block",
-  width: 15,
-  height: 15,
-  top: 0,
-  right: 4,
-  marginTop: 4,
-  transitionDuration: "0.2s",
-  color: get(theme, "signalColors.good", "#32C787"),
-  "& svg": {
-    width: 10,
-    height: 10,
-    top: "50%",
-    left: "50%",
-    transitionDuration: "0.2s",
-  },
-  "&.newItem": {
-    color: get(theme, "signalColors.info", "#2781B0"),
-    "& svg": {
-      width: 15,
-      height: 15,
-    },
-  },
-}));
-
+const Badge = styled.span`
+  position: absolute;
+  right: -1px;
+  top: -1px;
+  border-radius: 10px;
+  padding: 0 4px;
+  min-width: 16px;
+  height: 16px;
+  background: var(--foreground);
+  color: var(--background);
+  ${type("micro")}
+  display: grid;
+  place-items: center;
+  font-weight: 550;
+  font-variant-numeric: tabular-nums;
+  box-shadow: var(--shadow-1);
+`;
 const ObjectManagerButton = () => {
   const dispatch = useAppDispatch();
   const t = useT();
-  const managerObjects = useSelector(
-    (state: AppState) => state.objectBrowser.objectManager.objectsToManage,
+  const manager = useSelector(
+    (state: AppState) => state.objectBrowser.objectManager,
   );
-  const newItems = useSelector(
-    (state: AppState) => state.objectBrowser.objectManager.newItems,
-  );
-  const managerOpen = useSelector(
-    (state: AppState) => state.objectBrowser.objectManager.managerOpen,
-  );
-
-  const [newObject, setNewObject] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (managerObjects.length > 0 && !managerOpen) {
-      setNewObject(true);
-      setTimeout(() => {
-        setNewObject(false);
-      }, 300);
-    }
-  }, [managerObjects.length, managerOpen]);
-
+  const running = manager.objectsToManage.filter(activeTask).length;
+  if (!manager.objectsToManage.length) return null;
   return (
-    <Fragment>
-      {managerObjects && managerObjects.length > 0 && (
-        <Button
-          aria-label={t("Refresh List")}
-          onClick={() => {
-            dispatch(toggleList());
-          }}
-          icon={
-            <Fragment>
-              <IndicatorContainer
-                className={newObject ? "newItem" : ""}
-                style={{
-                  opacity: managerObjects.length > 0 && newItems ? 1 : 0,
-                }}
-              >
-                <CircleIcon />
-              </IndicatorContainer>
-              <ObjectManagerIcon
-                style={{ width: 20, height: 20, marginTop: -2 }}
-              />
-            </Fragment>
-          }
-          id="object-manager-toggle"
-          style={{ position: "relative", padding: "0 10px" }}
-        />
+    <HeaderIconButton
+      id="object-manager-toggle"
+      aria-label={
+        running
+          ? formatText(t("Tasks: {count} running"), { count: running })
+          : t("Tasks")
+      }
+      title={
+        running
+          ? formatText(t("Tasks: {count} running"), { count: running })
+          : t("Tasks")
+      }
+      aria-haspopup="dialog"
+      aria-expanded={manager.managerOpen}
+      onClick={() => dispatch(toggleList())}
+      style={{ position: "relative" }}
+    >
+      <ObjectManagerIcon />
+      {running > 0 && (
+        <Badge aria-hidden="true">{running > 99 ? "99+" : running}</Badge>
       )}
-    </Fragment>
+    </HeaderIconButton>
   );
 };
-
 export default ObjectManagerButton;

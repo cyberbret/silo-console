@@ -18,7 +18,6 @@ import React, { Fragment, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Box, Loader } from "mds";
 import styled from "styled-components";
-import get from "lodash/get";
 import { widgetCommon } from "../../../Common/FormComponents/common/styleLibrary";
 import { splitSizeMetric, widgetDetailsToPanel } from "../utils";
 import { IDashboardPanel } from "../types";
@@ -42,8 +41,8 @@ const SingleValueWidgetMain = styled.div(({ theme }) => ({
   flexDirection: "column",
   justifyContent: "center",
   "& .unitText": {
-    color: get(theme, "mutedText", "#87888d"),
-    fontSize: 12,
+    color: "var(--muted-foreground)",
+    fontSize: "var(--fs-caption)",
   },
   "& .loadingAlign": {
     width: "100%",
@@ -51,15 +50,16 @@ const SingleValueWidgetMain = styled.div(({ theme }) => ({
     margin: "auto",
   },
   "& .metric": {
-    fontSize: 60,
-    lineHeight: 1,
-    color: get(theme, "signalColors.main", "#07193E"),
+    fontSize: "var(--fs-display)",
+    lineHeight: "var(--lh-display)",
+    color: "var(--foreground)",
     fontWeight: 700,
   },
   "& .titleElement": {
-    fontSize: 10,
-    color: get(theme, "mutedText", "#87888d"),
-    fontWeight: 700,
+    fontSize: "var(--fs-caption)",
+    lineHeight: "var(--lh-caption)",
+    color: "var(--muted-foreground)",
+    fontWeight: 550,
   },
   ...widgetCommon(theme),
 }));

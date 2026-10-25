@@ -33,7 +33,7 @@ import { setErrorSnackMessage, setModalErrorSnackMessage } from "systemSlice";
 import ModalWrapper from "../Common/ModalWrapper/ModalWrapper";
 import { modalStyleUtils } from "../Common/FormComponents/common/styleLibrary";
 import { DateTime } from "luxon";
-import { formatText, useLocalizedLink, useT } from "i18n";
+import { i18nKey, formatText, useLocalizedLink, useT } from "i18n";
 
 interface IServiceAccountPolicyProps {
   open: boolean;
@@ -113,7 +113,9 @@ const EditServiceAccount = ({
     <ModalWrapper
       title={formatText(
         t(
-          readOnly ? "Access Key details - {name}" : "Edit details of - {name}",
+          readOnly
+            ? i18nKey("Access Key details - {name}")
+            : i18nKey("Edit details of - {name}"),
         ),
         {
           name: selectedAccessKey || "",
@@ -162,11 +164,9 @@ const EditServiceAccount = ({
               marginTop: "15px",
               display: "flex",
               width: "100%",
-              "& label": { width: "195px" },
             }}
           >
             <DateTimeInput
-              noLabelMinWidth
               value={expiry}
               onChange={(e) => {
                 setExpiry(e);
@@ -262,7 +262,7 @@ const EditServiceAccount = ({
                 closeModalAndRefresh();
               }}
               disabled={loading}
-              label={t(readOnly ? "Close" : "Cancel")}
+              label={t(readOnly ? i18nKey("Close") : i18nKey("Cancel"))}
             />
             {!readOnly && (
               <Button

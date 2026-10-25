@@ -23,8 +23,9 @@ fixture("Delete Objects With Prefix Only policy").page(
   "http://localhost:9090/",
 );
 
-export const sideBar = Selector("#details-panel");
-export const sideBarDeleteButton = sideBar.find("button").withText("Delete");
+const deleteAction = Selector('[role="menuitem"]').withExactText("Delete");
+const objectActions = (name: string) =>
+  Selector("button").withAttribute("aria-label", `Object actions: ${name}`);
 const bucket1 = "test-1";
 const test1BucketBrowseButton = testBucketBrowseButtonFor(bucket1);
 const bucket2 = "test-2";
@@ -45,10 +46,10 @@ test
       .useRole(roles.deleteObjectWithPrefixOnly)
       .navigateTo(`http://localhost:9090/browser`)
       .click(test1BucketBrowseButton)
-      .click(
-        Selector(".ReactVirtualized__Table__rowColumn").withText("test.txt"),
-      )
-      .expect(sideBarDeleteButton.hasAttribute("disabled"))
+      .click(objectActions("test.txt"))
+      .expect(deleteAction.getAttribute("aria-disabled"))
+      .eql("true")
+      .expect(deleteAction.exists)
       .ok();
   })
   .after(async (t) => {
@@ -76,12 +77,10 @@ test
             "digitalinsights",
           ),
         )
-        .click(
-          Selector(".ReactVirtualized__Table__rowColumn").withText(
-            "xref_cust_guid_actd-v1.txt",
-          ),
-        )
-        .expect(sideBarDeleteButton.hasAttribute("disabled"))
+        .click(objectActions("digitalinsights/xref_cust_guid_actd-v1.txt"))
+        .expect(deleteAction.exists)
+        .ok()
+        .expect(deleteAction.getAttribute("aria-disabled"))
         .notOk();
     },
   )
@@ -110,10 +109,10 @@ test
             "digitalinsights",
           ),
         )
-        .click(
-          Selector(".ReactVirtualized__Table__rowColumn").withText("test.txt"),
-        )
-        .expect(sideBarDeleteButton.hasAttribute("disabled"))
+        .click(objectActions("digitalinsights/test.txt"))
+        .expect(deleteAction.getAttribute("aria-disabled"))
+        .eql("true")
+        .expect(deleteAction.exists)
         .ok();
     },
   )

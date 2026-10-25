@@ -55,10 +55,8 @@ export const inspectEl = Selector(".MuiPaper-root")
 export const inspect_volume_input = Selector("#inspect_volume");
 export const inspect_path_input = Selector("#inspect_path");
 
-export const inspect_volume_input_err =
-  Selector("#inspect_volume").sibling("div.errorText");
-export const inspect_path_input_err =
-  Selector("#inspect_path").sibling("div.errorText");
+export const inspect_volume_input_err = Selector("#inspect_volume-error");
+export const inspect_path_input_err = Selector("#inspect_path-error");
 
 export const inspect_encrypt_input = Selector("#inspect_encrypt");
 export const inspect_form_clear_btn = Selector(
@@ -111,6 +109,11 @@ test("Form Input states verification", async (t) => {
   await t.expect(inspect_path_input.value).eql("");
   await t.expect(inspect_form_submit_btn.hasAttribute("disabled")).ok();
   await t.expect(inspect_encrypt_input.hasAttribute("checked")).ok();
+  // Required-field errors appear after the field is touched, not on entry.
+  await t.expect(inspect_volume_input_err.exists).notOk();
+  await t.expect(inspect_path_input_err.exists).notOk();
+  await t.click(inspect_volume_input).click(inspect_path_input);
+  await t.pressKey("tab");
   await t
     .expect(inspect_volume_input_err.innerText)
     .eql("This field is required");

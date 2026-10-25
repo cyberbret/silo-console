@@ -15,10 +15,18 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import React from "react";
+import styled from "styled-components";
 import { PageLayout, Box } from "mds";
 import Copyright from "../common/Copyright";
 import { useT } from "../i18n";
 import { Link } from "react-router-dom";
+
+const Message = styled.h1`
+  margin: 0;
+  font-style: normal;
+  font-size: clamp(2rem, calc(2rem + 1.2vw), 3rem);
+  font-weight: 700;
+`;
 
 const NotFound: React.FC = () => {
   const t = useT();
@@ -39,20 +47,12 @@ const NotFound: React.FC = () => {
           sx={{
             fontSize: "110%",
             margin: "0 0 0.25rem",
-            color: "#909090",
+            color: "var(--muted-foreground)",
           }}
         >
           {t("404 Error")}
         </Box>
-        <Box
-          sx={{
-            fontStyle: "normal",
-            fontSize: "clamp(2rem,calc(2rem + 1.2vw),3rem)",
-            fontWeight: 700,
-          }}
-        >
-          {t("Sorry, the page could not be found.")}
-        </Box>
+        <Message>{t("Sorry, the page could not be found.")}</Message>
         <Box sx={{ marginTop: 20 }}>
           <Link to="/">{t("Return home")}</Link>
         </Box>

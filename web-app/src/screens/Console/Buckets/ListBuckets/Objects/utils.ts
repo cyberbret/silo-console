@@ -16,6 +16,7 @@
 
 import {
   makeid,
+  captureTaskSession,
   removeTrace,
   storeCallForObjectWithID,
 } from "../../../ObjectBrowser/transferManager";
@@ -34,7 +35,7 @@ import { expireSession } from "../../../../../api/session";
 import { setSnackBarMessage } from "../../../../../systemSlice";
 import { translate } from "i18n";
 import { attachDownloadRequestHandlers } from "./downloadRequest";
-export { isPreviewAvailable, previewObjectType } from "./Preview/previewType";
+export { previewObjectType } from "./Preview/previewType";
 export type { AllowedPreviews } from "./Preview/previewType";
 
 // This module is not a component, so it reads the active language off the
@@ -63,6 +64,7 @@ export const downloadSelectedAsZip = (
   selectedSize: number | null = null,
 ) => {
   if (objectList.length === 0) return;
+  const current = captureTaskSession();
   const needsSizeAdvice = selectedSize === null || selectedSize > 5 * 1024 ** 3;
   const state = store.getState();
   const selectionKey = JSON.stringify([
@@ -106,7 +108,7 @@ export const downloadSelectedAsZip = (
   let settled = false;
   let frame: HTMLIFrameElement | null = null;
   const fail = (error: any) => {
-    if (settled && !frame) return;
+    if (!current() || (settled && !frame)) return;
     settled = true;
     removeTrace(ID);
     if (frame) store.dispatch(setSnackBarMessage(""));
@@ -165,6 +167,7 @@ export const downloadSelectedAsZip = (
               writable,
               controller.signal,
               (bytes, total) => {
+                if (!current()) return;
                 store.dispatch(
                   updateDownloadProgress({ instanceID, bytes, total }),
                 );
@@ -174,6 +177,7 @@ export const downloadSelectedAsZip = (
             await writable.abort().catch(() => {});
             throw error;
           }
+          if (!current()) return;
           settled = true;
           removeTrace(ID);
           store.dispatch(completeObject(instanceID));
@@ -254,6 +258,8 @@ export const downloadSelectedAsZip = (
       instanceID,
       bucketName,
       prefix: resultFileName,
+      kind: "zip",
+      openPrefix: objectList[0].slice(0, objectList[0].lastIndexOf("/") + 1),
       selectionKey,
       browserManaged: !picker,
       type: "download",
@@ -298,6 +304,29 @@ export const download = (
   abortCallback: () => void,
   toastCallback: () => void,
 ) => {
+  const current = captureTaskSession();
+  const callbacks = {
+    progressCallback,
+    completeCallback,
+    errorCallback,
+    abortCallback,
+    toastCallback,
+  };
+  progressCallback = (value) => {
+    if (current()) callbacks.progressCallback(value);
+  };
+  completeCallback = () => {
+    if (current()) callbacks.completeCallback();
+  };
+  errorCallback = (message) => {
+    if (current()) callbacks.errorCallback(message);
+  };
+  abortCallback = () => {
+    if (current()) callbacks.abortCallback();
+  };
+  toastCallback = () => {
+    if (current()) callbacks.toastCallback();
+  };
   let basename = document.baseURI.replace(window.location.origin, "");
   const state = store.getState();
   const anonymousMode = state.system.anonymousMode;
@@ -310,7 +339,7 @@ export const download = (
       : ""
   }`;
   if (versionID) {
-    path = path.concat(`&version_id=${versionID}`);
+    path = path.concat(`&version_id=${encodeURIComponent(versionID)}`);
   }
 
   // Prefix ZIPs have no usable total and can be arbitrarily large. Let the
@@ -361,7 +390,7 @@ export const download = (
     req.setRequestHeader("X-Anonymous", "1");
   }
   req.responseType = "blob";
-  attachDownloadRequestHandlers(req, {
+  const lifecycle = attachDownloadRequestHandlers(req, {
     expectedSize: fileSize,
     fallbackError: t("Unexpected response, download incomplete."),
     networkError: t("A network error occurred."),
@@ -371,11 +400,26 @@ export const download = (
       complete: completeCallback,
       fail: errorCallback,
       progress: progressCallback,
-      save: downloadBlob,
+      save: (blob, name) => {
+        if (current()) downloadBlob(blob, name);
+      },
     },
   });
 
-  return req;
+  return {
+    send: () => {
+      if (lifecycle.isSettled()) return;
+      try {
+        req.send();
+      } catch {
+        lifecycle.finalize("error");
+      }
+    },
+    abort: () => {
+      req.abort();
+      lifecycle.finalize("abort");
+    },
+  };
 };
 
 class BrowserDownload {

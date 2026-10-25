@@ -23,6 +23,8 @@ export interface User {
   accessKey: string;
   secretKey: string;
   policy?: string[];
+  status?: string;
+  memberOf?: string[];
 }
 
 export interface UsersList {

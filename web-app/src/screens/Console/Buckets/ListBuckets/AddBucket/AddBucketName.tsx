@@ -31,10 +31,11 @@ const AddBucketName = ({ hasErrors }: { hasErrors: boolean }) => {
       id="bucket-name"
       name="bucket-name"
       error={hasErrors ? t("Invalid bucket name") : ""}
-      onFocus={() => {
+      onBlur={() => {
         dispatch(setIsDirty(true));
       }}
       onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+        dispatch(setIsDirty(true));
         dispatch(setName(event.target.value));
       }}
       label={t("Bucket Name")}

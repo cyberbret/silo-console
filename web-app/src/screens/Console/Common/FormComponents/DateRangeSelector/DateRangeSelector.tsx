@@ -25,7 +25,7 @@ import {
   DateTimeInput,
 } from "mds";
 import { DateTime } from "luxon";
-import { useT } from "i18n";
+import { i18nKey, useT } from "i18n";
 
 interface IDateRangeSelector {
   timeStart: DateTime | null;
@@ -44,9 +44,9 @@ const DateRangeSelector = ({
   timeEnd,
   setTimeEnd,
   triggerSync,
-  label = "Filter:",
-  startLabel = "Start Time:",
-  endLabel = "End Time:",
+  label = i18nKey("Filter:"),
+  startLabel = i18nKey("Start Time:"),
+  endLabel = i18nKey("End Time:"),
 }: IDateRangeSelector) => {
   const t = useT();
 
@@ -55,15 +55,21 @@ const DateRangeSelector = ({
       item
       xs={12}
       sx={{
+        "& .dateTimeInputContainer .startComponent": {
+          color: "var(--muted-foreground)",
+          fontWeight: 550,
+          lineHeight: "var(--lh-caption)",
+          "& svg": { fill: "currentColor" },
+        },
         "& .filter-date-input-label, .end-time-input-label": {
           display: "none",
         },
         "& .MuiInputBase-adornedEnd.filter-date-date-time-input": {
           width: "100%",
-          border: "1px solid #eaeaea",
+          border: "1px solid var(--border)",
           paddingLeft: "8px",
           paddingRight: "8px",
-          borderRadius: "1px",
+          borderRadius: "var(--radius-control, 4px)",
         },
 
         "& .MuiInputAdornment-root button": {
@@ -80,8 +86,8 @@ const DateRangeSelector = ({
             width: "90%",
 
             "& input.Mui-disabled": {
-              color: "#000000",
-              WebkitTextFillColor: "#101010",
+              color: "var(--foreground)",
+              WebkitTextFillColor: "var(--foreground)",
             },
           },
         },
@@ -130,6 +136,7 @@ const DateRangeSelector = ({
             value={timeStart}
             onChange={setTimeStart}
             id="stTime"
+            aria-label={t(startLabel)}
             secondsSelector={false}
             pickerStartComponent={
               <Fragment>
@@ -142,6 +149,7 @@ const DateRangeSelector = ({
             value={timeEnd}
             onChange={setTimeEnd}
             id="endTime"
+            aria-label={t(endLabel)}
             secondsSelector={false}
             pickerStartComponent={
               <Fragment>

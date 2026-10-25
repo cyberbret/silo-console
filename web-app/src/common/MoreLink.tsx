@@ -32,7 +32,7 @@ const MoreLink = ({
     <a
       style={{
         color: color,
-        font: "normal normal bold 12px/55px Inter",
+        font: "var(--fw-semibold) var(--fs-caption)/var(--lh-caption) var(--font-sans)",
         display: "block",
         textDecoration: "none",
       }}

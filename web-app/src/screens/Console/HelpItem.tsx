@@ -15,39 +15,41 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import React from "react";
-import get from "lodash/get";
 import styled from "styled-components";
 import { DocItem } from "./HelpMenu.types";
-import MoreLink from "../../common/MoreLink";
 import { useLocalizedLink, useT } from "i18n";
 
 interface IHelpItemProps {
   item: DocItem;
 }
 
-const HelpItemContainer = styled.div({
-  padding: "4px 16px 10px",
+const HelpItemContainer = styled.a({
+  display: "block",
+  padding: "12px 16px",
+  borderRadius: "var(--radius-control)",
+  color: "var(--foreground)",
+  textDecoration: "none",
+  overflowWrap: "anywhere",
+  transition: "background var(--dur-fast) var(--ease-fast)",
+  "&:hover, &:focus-visible": {
+    background: "var(--hover)",
+  },
+  "&:focus-visible": {
+    outline: "2px solid var(--focus-ring)",
+    outlineOffset: -2,
+  },
 });
 
-const HelpTitle = styled.a(({ theme }) => ({
-  display: "inline-block",
-  maxWidth: "100%",
-  color: get(theme, "linkColor", "#2781B0"),
-  font: "normal normal bold 16px/28px Inter",
-  textDecoration: "none",
-  whiteSpace: "pre-wrap",
-  "&:hover": {
-    textDecoration: "underline",
-  },
-}));
+const HelpTitle = styled.span({
+  display: "block",
+  font: "var(--fw-semibold) var(--fs-subtitle)/var(--lh-subtitle) var(--font-sans)",
+  marginBottom: 4,
+});
 
-const HelpDescription = styled.div({
-  width: "100%",
-  whiteSpace: "pre-line",
-  lineHeight: "1.5em",
-  height: "3em",
-  overflow: "hidden",
-  textOverflow: "ellipsis",
+const HelpDescription = styled.span({
+  display: "block",
+  color: "var(--muted-foreground)",
+  font: "var(--fw-normal) var(--fs-body)/var(--lh-body) var(--font-sans)",
 });
 
 const HelpItem = ({ item }: IHelpItemProps) => {
@@ -58,20 +60,13 @@ const HelpItem = ({ item }: IHelpItemProps) => {
   const localize = useLocalizedLink();
 
   return (
-    <HelpItemContainer>
-      <HelpTitle
-        href={localize(item.url)}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        {t(item.title)}
-      </HelpTitle>
+    <HelpItemContainer
+      href={localize(item.url)}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <HelpTitle>{t(item.title)}</HelpTitle>
       <HelpDescription>{t(item.body)}</HelpDescription>
-      <MoreLink
-        text={t("Learn more")}
-        link={localize(item.url)}
-        color={"#3874A6"}
-      />
     </HelpItemContainer>
   );
 };

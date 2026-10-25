@@ -54,7 +54,14 @@ const hasPermission = (
     );
 
     const getMatchingWildcards = (path: string) =>
-      wildcards.filter((element) => grantMatchesResource(element, path));
+      wildcards.filter(
+        (element) =>
+          grantMatchesResource(element, path) ||
+          // Bucket requests use a trailing slash on the S3 wire. Match that
+          // root too, as the exact bucket/* lookup below already does. Do not
+          // turn an object path or a restricted prefix into a bucket grant.
+          (!path.includes("/") && grantMatchesResource(element, `${path}/`)),
+      );
 
     resources.forEach((rsItem) => {
       // Validation against inner paths & wildcards

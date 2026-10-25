@@ -29,14 +29,14 @@ const NARule = ({ ruleText }: INARule) => {
           <CircleIcon
             width={"12px"}
             height={"12px"}
-            style={{ color: "#8f949c" }}
+            style={{ color: "var(--muted-foreground)" }}
           />
         </Grid>
         <Grid
           item
           xs={9}
           sx={{
-            color: "#8f949c",
+            color: "var(--muted-foreground)",
             display: "flex",
             justifyContent: "flex-start",
           }}

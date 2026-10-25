@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { ModalPresence } from "common/ui/ModalPresence";
 import React, { useEffect, useState } from "react";
 import get from "lodash/get";
 import { AddIcon, Box, Loader, Tag } from "mds";
@@ -107,7 +108,6 @@ const BucketTags = ({ bucketName }: BucketTagProps) => {
           sx={{
             display: "flex",
             flexFlow: "column",
-            marginTop: 5,
           }}
         >
           <Box sx={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -157,7 +157,7 @@ const BucketTags = ({ bucketName }: BucketTagProps) => {
                 onClick={() => {
                   setTagModalOpen(true);
                 }}
-                sx={{ cursor: "pointer", maxWidth: 90 }}
+                sx={{ cursor: "pointer" }}
               />
             </SecureComponent>
           </Box>
@@ -166,15 +166,15 @@ const BucketTags = ({ bucketName }: BucketTagProps) => {
 
       {/** Modals **/}
 
-      {tagModalOpen && (
+      <ModalPresence open={tagModalOpen}>
         <AddBucketTagModal
           modalOpen={tagModalOpen}
           currentTags={tags}
           bucketName={bucketName}
           onCloseAndUpdate={closeAddTagModal}
         />
-      )}
-      {deleteTagModalOpen && (
+      </ModalPresence>
+      <ModalPresence open={deleteTagModalOpen}>
         <DeleteBucketTagModal
           deleteOpen={deleteTagModalOpen}
           currentTags={tags}
@@ -182,7 +182,7 @@ const BucketTags = ({ bucketName }: BucketTagProps) => {
           onCloseAndUpdate={closeDeleteTagModal}
           selectedTag={selectedTag}
         />
-      )}
+      </ModalPresence>
     </Box>
   );
 };

@@ -63,27 +63,29 @@ const DriveInfoItem = ({ drive }: ICardProps) => {
 
   return (
     <Box
-      withBorders
+      className="drive-info-item"
       sx={{
         display: "flex",
         flexFlow: "row",
-        padding: 16,
+        padding: "12px 0",
         gap: 24,
-        borderRadius: 10,
         alignItems: "center",
+        "&.drive-info-item + .drive-info-item": {
+          borderTop: "1px solid var(--border)",
+        },
         [`@media (max-width: ${breakPoints.xs}px)`]: {
           flexFlow: "column",
           alignItems: "start",
         },
         "& .info-label": {
-          color: get(theme, "mutedText", "#87888d"),
-          fontSize: 12,
+          color: "var(--muted-foreground)",
+          fontSize: "var(--fs-caption)",
         },
         "& .info-value": {
-          fontSize: 18,
-          color: get(theme, "fontColor", "#18181B"),
+          fontSize: "var(--fs-title)",
+          color: "var(--foreground)",
           display: "flex",
-          fontWeight: 600,
+          fontWeight: 550,
           fontVariantNumeric: "tabular-nums",
           overflow: "hidden",
           textOverflow: "ellipsis",
@@ -94,19 +96,19 @@ const DriveInfoItem = ({ drive }: ICardProps) => {
           textOverflow: "ellipsis",
           whiteSpace: "normal",
           wordBreak: "break-all",
-          fontWeight: 600,
-          fontSize: 16,
+          fontWeight: 550,
+          fontSize: "var(--fs-body)",
           [`@media (max-width: ${breakPoints.sm}px)`]: {
-            fontSize: 10,
+            fontSize: "var(--fs-body)",
           },
         },
         "& .percentage-row": {
           display: "flex",
           gap: 4,
           alignItems: "center",
-          fontSize: 12,
+          fontSize: "var(--fs-caption)",
           "& .percentage-value": {
-            fontWeight: 700,
+            fontWeight: 550,
           },
         },
       }}
@@ -162,14 +164,16 @@ const DriveInfoItem = ({ drive }: ICardProps) => {
                 display: "flex",
                 flexFlow: "row",
                 alignItems: "center",
-                fontSize: 12,
-                fontWeight: 600,
+                fontSize: "var(--fs-caption)",
+                fontWeight: 550,
                 gap: 4,
-                color: driveStatusColor,
+                color: "var(--foreground)",
                 "& .min-icon": {
                   height: 8,
                   width: 8,
                   flexShrink: 0,
+                  color: driveStatusColor,
+                  fill: driveStatusColor,
                 },
               }}
             >

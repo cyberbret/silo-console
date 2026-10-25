@@ -12,8 +12,324 @@
 // then reconciled for glossary consistency; keep keys byte-identical to code.
 
 export const zhScreens: Record<string, string> = {
+  "Users inherit policies from their groups. Access is denied unless explicitly granted.":
+    "用户继承所属组的策略；未被明确授予的访问默认被拒绝。",
+  "Policies define allowed actions and resources for users and groups.":
+    "策略定义用户和组可以执行的操作及访问的资源。",
+  "IAM policies": "IAM 策略",
+  "Access keys inherit their parent user’s permissions. An inline policy can only restrict them further.":
+    "访问密钥继承父用户的权限；内联策略只能进一步限制这些权限。",
+  "Access keys": "访问密钥",
+  "Configure a destination, then add bucket notification rules to send S3 events to it.":
+    "配置事件目标后，添加存储桶通知规则以向其发送 S3 事件。",
+  "Event destinations": "事件目标",
+
+  "SILO version": "SILO 版本",
+  "Raw JSON": "原始 JSON",
+  "Recursive inspections can be expensive. Limit the bucket and path before starting.":
+    "递归检查可能开销很大。开始前请缩小存储桶和路径范围。",
+  "Open Help for examples, or read the": "在帮助中查看示例，或阅读",
+
+  // Task center.
+  Tasks: "任务",
+  "Tasks: {count} running": "任务：{count} 个正在运行",
+  "Close Tasks": "关闭任务",
+  "Object operations": "对象操作",
+  Running: "运行中",
+  Finished: "已结束",
+  Queued: "排队中",
+  Completed: "已完成",
+  "No running tasks": "没有正在运行的任务",
+  "No finished tasks": "没有已结束的任务",
+  "Clear finished": "清除已结束的任务",
+  "ZIP download": "ZIP 下载",
+  "Browser handoff": "已交给浏览器",
+  "Task progress": "任务进度",
+  "Waiting for data": "等待数据",
+  "Remove task": "移除任务",
+  "Cancel task": "取消任务",
+  "Retry failed": "重试失败项",
+  "Open bucket/prefix": "打开存储桶/前缀",
+  "{done}/{total} completed · {failed} failed · {cancelled} cancelled":
+    "已完成 {done}/{total} · 失败 {failed} · 已取消 {cancelled}",
+  "{bytes} bytes received": "已接收 {bytes} 字节",
+  "Handoff is complete; final download progress is unavailable here.":
+    "交接已完成，此处无法获取最终下载进度。",
+  "Counts represent selected targets. Progress within a folder or version cleanup is unavailable.":
+    "计数表示已选择的目标，无法获取文件夹或版本清理内部的进度。",
+  "Completed changes remain in place. In-flight requests may have reached the server; inspect before repeating them.":
+    "已完成的变更仍然有效。执行中的请求可能已到达服务器，请检查后再重复操作。",
+  "Review {count} results": "查看 {count} 个结果",
+  "Server outcome is unconfirmed. Inspect this object before another operation.":
+    "服务器执行结果尚未确认，请检查此对象后再操作。",
+  "Task failed: {name}": "任务失败：{name}",
+  "Task completed: {name}": "任务已完成：{name}",
+  "Open Tasks to inspect the results.": "打开任务中心查看结果。",
+  "The request failed. Inspect the object before trying again.":
+    "请求失败，请检查对象后再重试。",
+  "Tasks are still running": "任务仍在运行",
+  "Stay here": "留在此页",
+  "Cancel tasks and leave": "取消任务并离开",
+  "Leave page": "离开页面",
+  "Leaving this session cancels queued and running tasks. Changes already completed on the server remain in place.":
+    "离开此会话将取消排队和运行中的任务，服务器上已完成的变更仍然有效。",
+  "Tasks will continue in this session. You can check their progress in Tasks on another page.":
+    "任务将在此会话中继续运行，您可以在其他页面的任务中心查看进度。",
+  "Delete Versions": "删除版本",
+
+  // Deployment overview.
+  "Cluster health": "集群健康",
+  "servers online": "服务器在线",
+  "{count} drives online": "{count} 磁盘在线",
+  "{count} server(s) offline": "{count} 台服务器离线",
+  "{count} drive(s) offline": "{count} 块磁盘离线",
+  "{count} drive(s) healing": "{count} 块磁盘修复中",
+  "Drive {drive} is at least 95% full. The server may reject writes.":
+    "磁盘 {drive} 使用率已达 95%。服务器可能拒绝写入。",
+  "Drive {drive} is at least 85% full.": "磁盘 {drive} 使用率已达 85%。",
+  "Configuration changes are waiting for a server restart.":
+    "配置变更等待服务器重启后生效。",
+  "Some server or drive health information is unavailable.":
+    "部分服务器或磁盘的健康信息不可用。",
+  "Capacity is incomplete. Only reported drive measurements are shown.":
+    "容量信息不完整，仅显示已报告的磁盘测量值。",
+  "Generate health report": "生成健康报告",
+  "No servers reported": "尚无服务器信息",
+  Server: "服务器",
+  "Just started": "刚刚启动",
+  "Hide drives for {server}": "收起 {server} 的磁盘",
+  "Show drives for {server}": "展开 {server} 的磁盘",
+  "No drive information available": "没有可用的磁盘信息",
+  "Drives on {server}": "{server} 上的磁盘",
+  "{used} / {total} used": "已用 {used} / {total}",
+  "Drive usage: {drive}": "磁盘用量：{drive}",
+  "Refresh failed. The last received data is still shown.":
+    "刷新失败，仍显示上次收到的数据。",
+  "Could not load deployment information. Try refreshing.":
+    "无法加载部署信息，请尝试刷新。",
+  "Deployment statistics": "部署统计",
+  "of {total} raw capacity": "原始总容量 {total}",
+  "{available} available": "可用 {available}",
+  Data: "数据",
+  objects: "个对象",
+  Alerts: "告警",
+  "Health information unavailable": "健康信息不可用",
+  "All systems normal": "一切正常",
+  "Quick actions": "快捷操作",
+  "No quick actions available for your permissions.":
+    "当前权限下没有可用的快捷操作。",
+  "Read & write": "读写",
+  "Delete bucket": "删除存储桶",
+  "Actions for {bucket}": "{bucket} 的操作",
+  "Select {bucket}": "选择 {bucket}",
+  "Object lock": "对象锁定",
+  Created: "创建时间",
+  "Select all visible buckets": "选择所有显示的存储桶",
+  "Bucket rows": "存储桶列表行",
+  "The bucket list could not be loaded.": "无法加载存储桶列表。",
+  "Select one or more buckets first.": "请先选择一个或多个存储桶。",
+  "configure the selected buckets": "配置选中的存储桶",
+  "Search buckets": "搜索存储桶",
+  "Bucket view": "存储桶视图",
+  Cards: "卡片",
+  "{count} buckets selected": "已选择 {count} 个存储桶",
+  "1 bucket selected": "已选择 1 个存储桶",
+  "No buckets match “{q}”": "没有匹配“{q}”的存储桶",
+  "Clear filter": "清除筛选",
+  "Built-in · Modified": "内置 · 已修改",
+  "Actions for {name}": "{name} 的操作",
+  "Reset to default": "重置为默认值",
+  "Could not load policies": "无法加载策略",
+  "Refresh to try again.": "请刷新后重试。",
+  "Create a policy to define permissions for users and groups.":
+    "创建策略，为用户和组定义权限。",
+  "Could not update policy": "无法更新策略",
+  "Reset policy {name} to its default definition?":
+    "要将策略 {name} 重置为默认定义吗？",
+  "The built-in policy will be restored to the SILO default definition.":
+    "此内置策略将恢复为 SILO 默认定义。",
+  "Loading attachment information…": "正在加载关联信息…",
+  "This policy has changed or is no longer available. Refresh the list.":
+    "此策略已变更或不再可用，请刷新列表。",
+  "Attachment information is unavailable.": "关联信息不可用。",
+  "This policy is attached to {users} users and {groups} groups.":
+    "此策略关联了 {users} 个用户和 {groups} 个组。",
+  "Their permissions will follow the default definition.":
+    "它们的权限将遵循默认定义。",
+  "They will lose the permissions it grants.": "它们将失去此策略授予的权限。",
+  "Could not load policy. Refresh to try again.":
+    "无法加载策略，请刷新后重试。",
+  "Could not load policy": "无法加载策略",
+  "Could not load users for this policy": "无法加载此策略关联的用户",
+  "Could not load groups for this policy": "无法加载此策略关联的组",
+  "Built-in policies can be overridden by saving a modified version; you can reset it later.":
+    "保存修改后的版本可覆盖内置策略，之后可随时重置。",
+  "Override policy": "覆盖策略",
+  "Cancel editing": "取消编辑",
+  "Direct policies": "直接分配的策略",
+  "Policies inherited through groups": "通过组继承的策略",
+  "Access-key count is unavailable.": "访问密钥数量不可用。",
+  "Group policy information is unavailable.": "组策略信息不可用。",
+  "Also assigned directly": "同时直接分配",
+  "From groups:": "来源组：",
+  "Group policies could not be loaded.": "无法加载组策略。",
+  "Group is disabled; its policies are not inherited.":
+    "组已禁用，不会继承其策略。",
+  "Group status is unavailable; inherited permissions are unknown.":
+    "组状态不可用，继承权限未知。",
+  "No inherited group policies": "没有继承的组策略",
+  "Some group policies are unavailable. Refresh to try again.":
+    "部分组策略不可用，请刷新后重试。",
+  "Could not load user": "无法加载用户",
+  "Could not update user status": "无法更新用户状态",
+  "Edit replication": "编辑复制",
+  "Page not found": "找不到此页面",
+  "Go to Buckets": "前往存储桶",
+  "Go back": "返回上一页",
+  "Read the documentation": "阅读文档",
+  "You do not have permission to view this page": "你没有查看此页面的权限",
+  "Ask your administrator for access. This page checks the following IAM actions:":
+    "请向管理员申请访问权限。此页面检查以下 IAM 操作：",
+  "Required IAM actions": "所需 IAM 操作",
+  "Encryption is not configured": "尚未配置加密",
+  "Configure KES or KMS on the SILO server to manage encryption keys in Console.":
+    "请在 SILO 服务器上配置 KES 或 KMS，以便在控制台中管理加密密钥。",
+  "Local identity management is unavailable": "本地身份管理不可用",
+  "LDAP is enabled. Manage users and groups in your LDAP directory; connection settings are available on the LDAP configuration page.":
+    "LDAP 已启用。请在 LDAP 目录中管理用户和组；连接设置位于 LDAP 配置页面。",
+  "Tier creation is unavailable": "无法创建存储层",
+  "This Console requires a distributed server setup to add a remote storage tier.":
+    "此控制台仅支持在分布式服务器部署中添加远程存储层。",
+  "This page is unavailable in object browser mode":
+    "对象浏览模式下无法使用此页面",
+  "This Console is configured for object browsing only. Ask your administrator to enable the full Console to use this page.":
+    "此控制台仅启用了对象浏览。请联系管理员启用完整控制台，以使用此页面。",
+  "Prometheus is configured but unreachable": "Prometheus 已配置但无法连接",
+  "Check the Prometheus address, network access and authentication, then retry.":
+    "请检查 Prometheus 地址、网络连接和身份验证，然后重试。",
+  "Advanced metrics need Prometheus": "高级指标需要 Prometheus",
+  "Configure Prometheus to collect SILO metrics, then set the URL for your deployment and restart the corresponding service.":
+    "请配置 Prometheus 采集 SILO 指标，然后根据部署方式设置 URL 并重启相应服务。",
+  "Standalone Console": "独立部署的控制台",
+  "Console embedded in SILO": "SILO 内嵌控制台",
+  "Optional standalone settings": "独立部署的可选设置",
+  "Bearer token: ": "Bearer 令牌：",
+  "Or basic authentication: ": "或使用基本身份验证：",
+  "Embedded settings: ": "内嵌部署的可选设置：",
+  Icons: "图标",
+  "Create bucket": "创建存储桶",
+  // Shared SILO primitives and their development showcase.
+  "Edit {label}": "编辑 {label}",
+  "Calculating…": "统计中…",
+  "The server has not finished computing usage yet.": "服务端尚未完成用量统计",
+  "Calculated {time}": "统计于 {time}",
+  "Updated {time}": "更新于 {time}",
+  "Permission required": "需要权限",
+  "Ask your administrator to grant the following IAM actions.":
+    "请联系管理员授予以下 IAM 操作权限。",
+  "More actions": "更多操作",
+  "Equivalent mcli command": "等价的 mcli 命令",
+  Copied: "已复制",
+  "Copy failed. Select and copy the command.": "复制失败，请选中并复制命令。",
+  "Copy commands": "复制命令",
+  "Replace ALIAS with your configured mcli alias (for example, {alias}).":
+    "请将 ALIAS 替换为已配置的 mcli 别名（例如 {alias}）。",
+  "Replace ALIAS with your configured mcli alias.":
+    "请将 ALIAS 替换为已配置的 mcli 别名。",
+  "Loading…": "加载中…",
+  "SILO primitives": "SILO 基础组件",
+  "Shared building blocks for storage, identity and monitoring.":
+    "存储、身份和监控页面共用的基础组件。",
+  "Healthy capacity": "容量充足",
+  "Capacity warning": "容量警告",
+  "Above the 85% warning threshold": "已超过 85% 的警告阈值",
+  "Capacity critical": "容量告急",
+  "Above the 95% critical threshold": "已超过 95% 的严重阈值",
+  "Usage is calculated by the server.": "用量由服务端统计。",
+  "View buckets": "查看存储桶",
+  "Status and values": "状态与数值",
+  "Built-in": "内置",
+  "Freshness and actions": "更新时间与操作",
+  "Select an object to inspect its details.": "请选择一个对象以查看详情。",
+  "Object details": "对象详情",
+  "Demo action completed.": "演示操作已完成。",
+  "Select an object to download.": "请选择要下载的对象。",
+  "Empty and unavailable states": "空状态与不可用状态",
+  "No buckets yet": "暂无存储桶",
+  "Create a bucket to start storing objects.": "创建存储桶以开始存储对象。",
+  "No matching objects": "没有匹配的对象",
+  "Try a different name or clear the search filter.":
+    "请尝试其他名称或清除搜索条件。",
+  "Metrics are unavailable": "指标暂不可用",
+  "Connect a Prometheus endpoint to view monitoring metrics.":
+    "请连接 Prometheus 端点以查看监控指标。",
+  "Loading rows": "加载占位行",
+  "Command preview": "命令预览",
+
+  "Showing the first 1 MiB. Download the object to see the full file.":
+    "仅显示前 1 MiB，下载对象查看完整内容。",
+  "Showing first 500 rows": "仅显示前 500 行",
+  "Showing the first 100 columns. View Source or download the object to see all columns.":
+    "仅显示前 100 列，切换到源码或下载对象查看全部列。",
+  Rendered: "渲染",
+  "Wrap lines": "自动换行",
+  Row: "行",
+  "CSV preview content": "CSV 预览内容",
+  "Markdown preview content": "Markdown 预览内容",
+  "Markdown rendering is unavailable for this content. Showing the source instead.":
+    "此内容无法渲染为 Markdown，已改为显示源码。",
+  "Image: {alt}": "图片：{alt}",
+  Image: "图片",
+  Actions: "操作",
+  "Select version": "选择版本",
+  "This version is a delete marker.": "此版本是删除标记。",
+  "You need s3:GetObject permission.": "需要 s3:GetObject 权限。",
+  "You need s3:GetObjectVersion permission.": "需要 s3:GetObjectVersion 权限。",
+  "Preview is not available for this file type.": "此文件类型不支持预览。",
+  "Object Lock is not enabled on this bucket.": "此存储桶未启用对象锁。",
+  "You need s3:PutObjectLegalHold permission.":
+    "需要 s3:PutObjectLegalHold 权限。",
+  "You need s3:PutObjectRetention permission.":
+    "需要 s3:PutObjectRetention 权限。",
+  "Tags can only be changed on the current version.":
+    "只能修改当前版本的标签。",
+  "Versioning is not enabled on this bucket.": "此存储桶未启用版本控制。",
+  "Select one or more objects first.": "请先选择一个或多个对象。",
+  "Select a single object first.": "请先选择单个对象。",
+  "Select a file instead of a folder.": "请选择文件，而非文件夹。",
+  "Select a folder to change anonymous access.":
+    "请选择要修改匿名访问权限的文件夹。",
+  "Open the current object to use this action.": "请打开当前对象以使用此操作。",
+  "This action requires a distributed server.": "此操作需要分布式服务器。",
+  "You need s3:PutObjectTagging permission.": "需要 s3:PutObjectTagging 权限。",
+  "You need admin:InspectData permission.": "需要 admin:InspectData 权限。",
+  "You need permission to view object versions.": "需要查看对象版本的权限。",
+  "You need s3:DeleteObject permission.": "需要 s3:DeleteObject 权限。",
+  "You need permission to change the bucket policy.":
+    "需要修改存储桶策略的权限。",
+  "You need permission to read objects and bucket versioning.":
+    "需要读取对象和存储桶版本控制的权限。",
+  "You need s3:ListBucket permission.": "需要 s3:ListBucket 权限。",
+  "You need permission to restore this version.": "需要恢复此版本的权限。",
+  "You need permission to select this version.": "需要选择此版本的权限。",
+  "You need permission to delete object versions.": "需要删除对象版本的权限。",
+  "Exit rewind mode to refresh the object list.":
+    "请退出回溯模式以刷新对象列表。",
+  "There are no non-current versions to delete.": "没有可删除的历史版本。",
+  "Invalid Endpoint": "无效的端点",
+  Broker: "消息代理",
+  QOS: "服务质量",
+  "Client ID": "客户端 ID",
+  "Client Secret": "客户端密钥",
+  "Redirect URI": "重定向 URI",
+  "Lookup Bind DN": "查询绑定 DN",
+  "Lookup Bind Password": "查询绑定密码",
+  "User DN Search Base": "用户 DN 搜索基准",
+  "User DN Search Filter": "用户 DN 搜索过滤器",
+  "Group Search Base DN": "组搜索基准 DN",
+  "Group Search Filter": "组搜索过滤器",
+
   "Sign Out": "登出",
-  "Manage bucket": "管理存储桶",
   "Remove transfer": "移除传输记录",
   "Cancel transfer": "取消传输",
   "This download has already started. Dismiss its transfer entry to start it again.":
@@ -23,15 +339,6 @@ export const zhScreens: Record<string, string> = {
   "For selections above 5 GiB or of unknown size, MCLI is recommended. This ZIP will stream without buffering in memory.":
     "超过 5 GiB 或大小未知的下载建议使用 MCLI。此 ZIP 将以流式传输，不会整包缓存在内存中。",
 
-  "Unable to display this page.": "无法显示此页面。",
-  "Reload the page or return home. Your preferences will be kept.":
-    "请重新加载页面或返回首页。你的偏好设置将保留。",
-  "Reload page": "重新加载页面",
-  "Return home": "返回首页",
-  "404 Error": "404 错误",
-  "Sorry, the page could not be found.": "抱歉，找不到此页面。",
-  "Select multiple buckets": "选择多个存储桶",
-  "Select all buckets": "选择所有存储桶",
   "Set lifecycle": "设置生命周期",
   "Set replication": "设置复制",
   "Refresh buckets": "刷新存储桶",
@@ -68,8 +375,6 @@ export const zhScreens: Record<string, string> = {
   "{count} days": "{count} 天",
   "{count} Entities Found": "找到 {count} 个实体",
   "{count} Entity Found": "找到 {count} 个实体",
-  "{count} Object": "{count} 个对象",
-  "{count} Objects": "{count} 个对象",
   "{count} Version": "{count} 个版本",
   "{count} version, {size}": "{count} 个版本，{size}",
   "{count} versions": "{count} 个版本",
@@ -87,7 +392,6 @@ export const zhScreens: Record<string, string> = {
   "{label} copied to clipboard": "{label}已复制到剪贴板",
   "{minio} is a registered trademark of MinIO, Inc. {silo} is not a MinIO, Inc. product, and is not affiliated with, sponsored by, or endorsed by MinIO, Inc.":
     "{minio} 是 MinIO, Inc. 的注册商标。{silo} 并非 MinIO, Inc. 的产品，与 MinIO, Inc. 无隶属、赞助或背书关系。",
-  "{nodes} nodes, {drives} drives": "{nodes} 个节点，{drives} 块磁盘",
   "{object} Versions": "{object} 的版本",
   "{objectLocking} prevents objects from being deleted. Required to support retention and legal hold. Can only be enabled at bucket creation.":
     "{objectLocking}可以防止对象被删除，是启用保留与依法保留的前提，且只能在创建存储桶时开启。",
@@ -105,7 +409,6 @@ export const zhScreens: Record<string, string> = {
     "{silo} 是 {minio} 对象存储项目的独立延续，由 {pigsty} 社区自 2026 年起接续维护。其{code}{incorporates}{upstream}，整体作品仍依 {agpl} 授权发布。",
   "{target} Event Destination": "{target} 事件目标",
   "{time} ago": "{time}前",
-  "{type} Quota": "{type}配额",
   "{type}: {name} not found.": "未找到 {type}：{name}。",
   "{versioning} allows to keep multiple versions of the same object under the same key.":
     "{versioning}允许在同一个键下保留同一对象的多个版本。",
@@ -145,8 +448,6 @@ export const zhScreens: Record<string, string> = {
   "Access Policy:": "访问策略：",
   "Access Rule added successfully": "访问规则添加成功",
   "Access Rules": "访问规则",
-  "Access:": "访问权限：",
-  "Access: ": "访问权限：",
   "AccessKey is required": "访问密钥 ID 不能为空",
   "Account Key": "账户密钥",
   "Account Name": "账户名称",
@@ -155,10 +456,8 @@ export const zhScreens: Record<string, string> = {
   "Active for": "有效期",
   'AD/LDAP server address e.g. "myldapserver.com:636"':
     'AD/LDAP 服务器地址，例如 "myldapserver.com:636"',
-  "Add a Replication Site": "添加一个复制站点",
   "Add a Row": "添加一行",
   "Add Access Rule": "添加访问规则",
-  "Add an Event Destination": "添加一个事件目标",
   "Add Anonymous Access Rule": "添加匿名访问规则",
   "Add Bucket Replication Rule - {bucket}": "添加存储桶复制规则 - {bucket}",
   "Add Event Destination": "添加事件目标",
@@ -204,12 +503,10 @@ export const zhScreens: Record<string, string> = {
     "发生未知错误。请查看控制台日志以获取更多信息。",
   Anonymous: "匿名",
   "Anonymous Access": "匿名访问",
-  "Anonymous Access unavailable": "无法设置匿名访问",
   "API Name": "API 名称",
   "API Requests": "API 请求",
   Application: "应用",
   "apply policies to Groups": "为用户组应用策略",
-  "apply rewind in this bucket": "在此存储桶中执行回溯",
   April: "四月",
   "Are you sure you want to continue?": "确定要继续吗？",
   "Are you sure you want to delete Access Key {name}?":
@@ -290,7 +587,6 @@ export const zhScreens: Record<string, string> = {
   "Bitrot Scan": "位腐扫描",
   Brokers: "Broker 地址",
   "Browse Bucket": "浏览存储桶",
-  "browsing this bucket": "浏览此存储桶",
   Bucket: "存储桶",
   "Bucket Assignments": "存储桶对应关系",
   "Bucket Encryption configuration": "存储桶加密配置",
@@ -317,7 +613,6 @@ export const zhScreens: Record<string, string> = {
   "Bucket Replication Configuration": "存储桶复制配置",
   "Bucket Tags": "存储桶标签",
   "bucket-default": "存储桶默认",
-  "Bucket: ": "存储桶：",
   "Buckets Results": "各存储桶结果",
   "Buckets:": "存储桶数：",
   "Bypass Governance Mode": "绕过治理模式",
@@ -330,12 +625,10 @@ export const zhScreens: Record<string, string> = {
   "Cert Authority": "CA 证书",
   "Change Access Policy": "变更访问策略",
   "Change Legal Hold rules for this File": "修改此文件的依法保留规则",
-  "change legal hold settings for this object": "修改此对象的依法保留设置",
   "Change Password": "修改密码",
   "Change Password for {user}": "修改 {user} 的密码",
   "Change password for: {user}": "为以下用户修改密码：{user}",
   "Change Retention rules for this File": "修改此文件的保留规则",
-  "change Retention Rules for this object": "修改此对象的保留规则",
   "Change Tags for this File": "修改此文件的标签",
   "Change User Password": "修改用户密码",
   "Changes to Bucket features such as": "存储桶特性的变更，例如",
@@ -345,9 +638,7 @@ export const zhScreens: Record<string, string> = {
   "Claim Name": "Claim 名称",
   "Claim Prefix": "Claim 前缀",
   "Claim User Info": "Claim 用户信息",
-  "Clean Completed Objects": "清除已完成项",
   Clear: "清除",
-  "Clear Completed List": "清除已完成列表",
   "Click on a user to view the full listing of associated Access Keys. All Access Keys associated with a user will be deleted along with the user.":
     "点击某个用户可查看其关联访问密钥的完整列表。删除用户时，与之关联的所有访问密钥都会一并删除。",
   client: "客户端",
@@ -360,11 +651,11 @@ export const zhScreens: Record<string, string> = {
   "Client cert key for mTLS authentication": "用于 mTLS 认证的客户端证书密钥",
   "Client cert key for NATS mTLS authorization":
     "用于 NATS mTLS 授权的客户端证书密钥",
-  "Client ID is required": "Client ID 为必填项",
+  "Client ID is required": "客户端 ID 为必填项",
   "Client Key": "客户端密钥",
   "Client ping commands interval in s,m,h,d. Disabled by default":
     "客户端 ping 命令的间隔，单位可用 s、m、h、d。默认禁用",
-  "Client Secret is required": "Client Secret 为必填项",
+  "Client Secret is required": "客户端密钥为必填项",
   "Client Secret must be re-entered to change OpenID configurations":
     "修改 OpenID 配置时必须重新输入 Client Secret",
   "client TLS cert": "客户端 TLS 证书",
@@ -398,7 +689,6 @@ export const zhScreens: Record<string, string> = {
   "Configure a {remoteTier} to receive transitioned Objects":
     "配置一个{remoteTier}以接收沉降的对象",
   "Configure Bucket": "配置存储桶",
-  "configure lifecycle for the selected buckets": "为所选存储桶配置生命周期",
   "Configuring an external IDP enables Single-Sign On workflows, where applications authenticate against the external IDP before accessing SILO.":
     "配置外部 IDP 后即可启用单点登录流程：应用在访问 SILO 之前先向外部 IDP 完成认证。",
   "Confirm Dialogs": "确认对话框",
@@ -413,18 +703,14 @@ export const zhScreens: Record<string, string> = {
   Copyright: "版权",
   "Coredns Path": "CoreDNS 路径",
   "Cors Allow Origin": "CORS 允许来源",
-  "Could not delete object.": "无法删除对象。",
   "Could not process drag and drop.": "无法处理拖放操作。",
   "CPU Info": "CPU 信息",
   "Create {idpType} configuration": "创建 {idpType} 配置",
   "create a bucket": "创建存储桶",
-  "Create a Bucket.": "创建存储桶。",
-  "Create a Group": "创建用户组",
   "Create a new cryptographic key in the Key Management Service server connected to SILO.":
     "在与 SILO 相连的密钥管理服务（KMS）服务器中创建一个新的加密密钥。",
   "create a new path": "创建新路径",
   "create a Policy": "创建策略",
-  "Create a User": "创建用户",
   "Create access key": "创建访问密钥",
   "Create Access Key": "创建访问密钥",
   "Create Access Key for {user}": "为 {user} 创建访问密钥",
@@ -444,8 +730,6 @@ export const zhScreens: Record<string, string> = {
   "Create Users": "创建用户",
   "Created At": "创建时间",
   "Created By": "创建者",
-  "Created on:": "创建于：",
-  "Created:": "创建时间：",
   "Creation and deletion of all IAM users, groups, policies and their mappings to users or groups":
     "所有 IAM 用户、用户组、策略，以及它们与用户或用户组绑定关系的创建和删除",
   "Creation and deletion of buckets and objects": "存储桶与对象的创建和删除",
@@ -499,11 +783,9 @@ export const zhScreens: Record<string, string> = {
   "Delete Groups": "删除用户组",
   "Delete Lifecycle Rule": "删除生命周期规则",
   "Delete Marker": "删除标记",
-  "Delete Non Current Versions": "删除非当前版本",
   "Delete Non-Current versions": "删除非当前版本",
   "Delete Object": "删除对象",
   "Delete Objects": "删除对象",
-  "delete objects in this bucket": "删除此存储桶中的对象",
   "delete Policies": "删除策略",
   "Delete Policy": "删除策略",
   "Delete Replication Rule": "删除复制规则",
@@ -514,7 +796,6 @@ export const zhScreens: Record<string, string> = {
   "Delete Selected Versions": "删除所选版本",
   "Delete Site": "删除站点",
   "Delete Tag": "删除标签",
-  "delete this object": "删除此对象",
   "Delete Tier": "删除存储层",
   "delete user": "删除用户",
   "Delete User": "删除用户",
@@ -534,7 +815,6 @@ export const zhScreens: Record<string, string> = {
   "Disable SSL certificate verification ": "禁用 SSL 证书校验",
   "disable users": "禁用用户",
   Disabled: "已禁用",
-  "display all versions of this object": "显示此对象的所有版本",
   "Display Name": "显示名称",
   "Display Object Versions": "显示对象版本",
   "Display only Errors": "仅显示错误",
@@ -555,13 +835,11 @@ export const zhScreens: Record<string, string> = {
   "Download File": "下载文件",
   "Download for import": "下载以供导入",
   "Download JSON": "下载 JSON",
-  "download objects from this bucket": "从此存储桶下载对象",
   "Download of multiple files failed.": "多个文件下载失败。",
   "Download Results": "下载结果",
   "Download Selected": "下载所选",
   "Download selected objects as Zip. Any Deleted objects in the selection would be skipped from download.":
     "将所选对象打包为 Zip 下载。所选内容中已删除的对象将被跳过。",
-  "download this object": "下载此对象",
   "Download this Object": "下载此对象",
   "Download this version": "下载此版本",
   "Download widget data": "下载图表数据",
@@ -578,7 +856,6 @@ export const zhScreens: Record<string, string> = {
   "e.g. Method 2056": "例如：Method 2056",
   "e.g. my-bucket/my-prefix/*": "例如：my-bucket/my-prefix/*",
   "e.g. us-west-rack-2": "例如：us-west-rack-2",
-  "e.g. website.io.3249.114.12": "例如：website.io.3249.114.12",
   "Each user can access only those resources and operations which are explicitly granted by the built-in role. SILO denies access to any other resource or action by default.":
     "每个用户只能访问内置角色明确授予的资源与操作。SILO 默认拒绝对其他任何资源或操作的访问。",
   Edit: "编辑",
@@ -725,7 +1002,6 @@ export const zhScreens: Record<string, string> = {
   "ETAG:": "ETAG：",
   Event: "事件",
   "Event Notifications": "事件通知",
-  "Examples:": "示例：",
   Exchange: "交换机",
   "Exchange Type": "交换机类型",
   "Exclude Folders": "排除文件夹",
@@ -766,8 +1042,6 @@ export const zhScreens: Record<string, string> = {
   "Filename should be less than 200 characters long.":
     "文件名长度应小于 200 个字符。",
   Filter: "过滤",
-  "Filter Bucket": "筛选存储桶",
-  "Filter Buckets": "筛选存储桶",
   "Filter Users": "筛选用户",
   "Filter:": "筛选：",
   Filters: "过滤条件",
@@ -796,8 +1070,6 @@ export const zhScreens: Record<string, string> = {
   "Group Mappings": "用户组映射",
   "Group Name": "用户组名称",
   "Group Status:": "用户组状态：",
-  "Groups provide a simplified method for managing shared permissions among users with common access patterns and workloads.":
-    "对于访问模式与工作负载相近的用户，用户组提供了一种更简便的共享权限管理方式。",
   "Groups provide a simplified method for managing shared permissions among users with common access patterns and workloads. Client’s cannot authenticate to a SILO deployment using a group as an identity.":
     "对于访问模式与工作负载相近的用户，用户组提供了一种更简便的共享权限管理方式。客户端不能以用户组作为身份来认证 SILO 部署。",
   "Groups with this Policy associated": "关联此策略的用户组",
@@ -839,7 +1111,6 @@ export const zhScreens: Record<string, string> = {
     "初始时，参与复制的站点中只能有一个站点带有数据。站点复制配置成功后，这些数据会被复制到其他（初始为空的）站点。此后，对象可以写入任意站点，并会被复制到所有其他站点。",
   "Inspect Decryption Key": "检查解密密钥",
   "Inspect Object": "检查对象",
-  "inspect this file": "检查此文件",
   "Inspect this file": "检查此文件",
   Internal: "内部",
   "Invalid bucket name": "存储桶名称无效",
@@ -867,15 +1138,11 @@ export const zhScreens: Record<string, string> = {
   "LDAP Enabled": "LDAP 是否启用",
   "Learn more about {link}.": "了解更多关于{link}的内容。",
   "Learn more about Access Keys": "了解访问密钥",
-  "Learn more about ACCESS KEYS": "了解访问密钥",
-  "Learn more about Configurations": "了解更多关于配置的内容",
   "Learn more about Groups": "了解用户组",
-  "Learn more about IAM POLICIES": "了解 IAM 策略",
   "Learn more about LDAP Configurations": "了解更多关于 LDAP 配置的信息",
   "Learn more about OpenID Connect Configurations":
     "了解更多关于 OpenID Connect 配置的信息",
   "Learn more about Policies": "了解策略",
-  "Learn more about the Inspect feature": "了解更多关于检查功能的信息",
   "Learn more about the Users feature": "了解用户功能",
   "Learn more about TIERS": "了解更多关于存储层的内容",
   "Legal Hold": "依法保留",
@@ -899,8 +1166,8 @@ export const zhScreens: Record<string, string> = {
   Locking: "对象锁定",
   "Log Details": "日志详情",
   "Logger Webhook": "日志 Webhook",
-  "Lookup Bind DN is required": "Lookup Bind DN 为必填项",
-  "Lookup Bind Password is required": "Lookup Bind Password 为必填项",
+  "Lookup Bind DN is required": "查询绑定 DN 为必填项",
+  "Lookup Bind Password is required": "查询绑定密码为必填项",
   "Lookup Bind Password must be re-entered to change LDAP configurations":
     "修改 LDAP 配置时必须重新输入 Lookup Bind Password",
   "Manage Groups": "管理用户组",
@@ -972,17 +1239,13 @@ export const zhScreens: Record<string, string> = {
   "New Tag Label": "新标签值",
   Next: "下一步",
   No: "否",
-  "No buckets match the filtering condition": "没有匹配筛选条件的存储桶",
   "No changes applied": "未应用任何变更",
   "No Changes at this time": "当前没有变更",
   "No data available": "暂无数据",
   "No Groups Available": "暂无可用用户组",
-  "No logs to display": "暂无日志可显示",
   "No Policies Available": "暂无可用策略",
   "No query results yet": "尚无查询结果",
-  "No Results": "无结果",
   "No Results Available": "暂无结果",
-  "No Traced elements received yet": "尚未接收到跟踪数据",
   "No Users to display": "暂无用户可显示",
   "No Wait": "不等待",
   "no-expiry": "永不过期",
@@ -999,8 +1262,6 @@ export const zhScreens: Record<string, string> = {
   "Note:": "注意：",
   "Note: AccessKey and SecretKey values for every site is required while adding or editing peer sites":
     "注意：添加或编辑对等站点时，每个站点的访问密钥 ID 与私有访问密钥都是必填项",
-  "NOTE: This can be an expensive operation use it with caution.":
-    "注意：该操作开销较大，请谨慎使用。",
   November: "十一月",
   "NSQ server address e.g. '127.0.0.1:4150'":
     "NSQ 服务端地址，例如 '127.0.0.1:4150'",
@@ -1021,10 +1282,6 @@ export const zhScreens: Record<string, string> = {
   "Object Date": "对象日期",
   "Object Filters": "对象过滤条件",
   "Object Info": "对象信息",
-  "Object Locking must be enabled on this bucket in order to set Legal Hold":
-    "必须先为此存储桶启用对象锁定，才能设置依法保留",
-  "Object Locking must be enabled on this bucket in order to set Retention Rules":
-    "必须先为此存储桶启用对象锁定，才能设置保留规则",
   "Object Locking:": "对象锁定：",
   "Object Size": "对象大小",
   "Object Version": "对象版本",
@@ -1037,10 +1294,6 @@ export const zhScreens: Record<string, string> = {
   "Objs/S": "对象/秒",
   October: "十月",
   of: "/",
-  Off: "关闭",
-  OFFLINE: "离线",
-  On: "开启",
-  ONLINE: "在线",
   "Only empty tiers can be deleted. If the tier has had objects transitioned into it, it cannot be removed.":
     "只有空的存储层才能删除。如果已有对象转储到该存储层，则无法删除。",
   "Opaque string or JWT authorization token": "不透明字符串或 JWT 授权令牌",
@@ -1054,7 +1307,6 @@ export const zhScreens: Record<string, string> = {
     "用于 SASL/PLAIN 或 SASL/SCRAM 认证的密码",
   "Passwords must be at least 8 characters long": "密码长度至少为 8 个字符",
   Path: "路径",
-  "Path : ": "路径：",
   "Path cannot start with /": "路径不能以 / 开头",
   "Path copied to clipboard": "路径已复制到剪贴板",
   "Path Prefix": "路径前缀",
@@ -1072,8 +1324,6 @@ export const zhScreens: Record<string, string> = {
   "Ping Interval": "Ping 间隔",
   "Please avoid the use of root credentials for this feature":
     "请勿在此功能中使用 root 凭证",
-  "Please check retention mode and if object is WORM protected.":
-    "请检查保留模式，以及该对象是否受 WORM 保护。",
   "Please configure {entity} first to use this feature.":
     "请先配置 {entity} 后再使用此功能。",
   "Please deploy a server in {distributedMode} to use these features.":
@@ -1090,10 +1340,6 @@ export const zhScreens: Record<string, string> = {
   "Please select / type the desired remote bucket were you want the local data to be replicated.":
     "请选择或输入希望将本地数据复制到的远程存储桶。",
   "Please select a valid duration.": "请选择有效的时长。",
-  "Please select at least one bucket on which to configure Lifecycle":
-    "请至少选择一个要配置生命周期的存储桶",
-  "Please select at least one bucket on which to configure Replication":
-    "请至少选择一个要配置复制的存储桶",
   "Please select Groups on which you want to apply Policies":
     "请先选择要应用策略的用户组",
   "Please verify that string is uppercase only and contains valid characters (numbers, dashes & underscores).":
@@ -1115,7 +1361,6 @@ export const zhScreens: Record<string, string> = {
   "Preview - {object}": "预览 - {object}",
   "Preview Selected File": "预览所选文件",
   "Preview this File": "预览此文件",
-  "preview this object": "预览此对象",
   "Preview unavailable": "无法预览",
   Priority: "优先级",
   private: "私有",
@@ -1137,7 +1382,6 @@ export const zhScreens: Record<string, string> = {
   "Quota:": "配额：",
   "Randomized access credentials are recommended, and provided by default. You may use your own custom Access Key and Secret Key by replacing the default values. After creation of any Access Key, you will be given the opportunity to view and download the account credentials.":
     "推荐使用随机生成的访问凭证，系统默认已提供。你也可以替换默认值，使用自定义的访问密钥与私有密钥。任何访问密钥创建完成后，都会提供一次查看并下载账号凭证的机会。",
-  "RAW JSON": "原始 JSON",
   "Raw Policy": "策略原文",
   readonly: "只读",
   readwrite: "读写",
@@ -1153,7 +1397,6 @@ export const zhScreens: Record<string, string> = {
   Refresh: "刷新",
   "Refresh List": "刷新列表",
   Region: "区域",
-  "Reload List": "重新加载列表",
   "Remote Bucket Assignments": "远程存储桶对应关系",
   "Remote Configuration": "远程配置",
   "Remote Endpoint Configuration": "远程端点配置",
@@ -1237,7 +1480,6 @@ export const zhScreens: Record<string, string> = {
   Scopes: "授权范围",
   Search: "搜索",
   "Search Access Keys": "搜索访问密钥",
-  "Search Buckets": "搜索存储桶",
   "Search Groups": "搜索用户组",
   "Search Keys with pattern": "按模式搜索密钥",
   "Search members": "搜索成员",
@@ -1250,12 +1492,10 @@ export const zhScreens: Record<string, string> = {
   "SecretKey is required": "私有访问密钥不能为空",
   "Select {expiry} to delete Objects per this rule. Select {transition} to move Objects to a remote storage {tier} per this rule.":
     "选择{expiry}按此规则删除对象；选择{transition}按此规则将对象移动到远程存储{tier}。",
-  "Select All Buckets": "全选存储桶",
   "Select Bucket": "选择存储桶",
   "Select from the list of displayed users to assign users to the new group at creation. These users inherit the policies assigned to the group.":
     "创建时可从下方用户列表中选择成员加入新用户组。这些用户会继承分配给该用户组的策略。",
   "Select Groups to delete": "请选择要删除的用户组",
-  "Select Multiple Buckets": "多选存储桶",
   "Select Multiple Versions": "多选版本",
   "Select Policy": "选择策略",
   "Select the desired level of access available to unauthenticated Users":
@@ -1293,16 +1533,13 @@ export const zhScreens: Record<string, string> = {
   "Set Bucket Replication": "设置存储桶复制",
   "Set Groups": "设置用户组",
   "Set Legal Hold": "设置依法保留",
-  "Set Lifecycle": "设置生命周期",
   "Set Lifecycle to multiple buckets": "为多个存储桶设置生命周期",
   "Set Multiple Bucket Replication": "为多个存储桶设置复制",
   "Set Non-current Version Transition Storage Class":
     "设置非当前版本的转换存储类",
   "Set Policies": "设置策略",
-  "Set Replication": "设置复制",
   "Set Retention Configuration": "设置保留配置",
   "Set Retention Policy": "设置保留策略",
-  "set Tags on this object": "为此对象设置标签",
   "Set the quality of service priority, defaults to '0'":
     "设置服务质量（QoS）优先级，默认为 '0'",
   "Set to '1' for non-persistent or '2' for persistent queue":
@@ -1322,12 +1559,10 @@ export const zhScreens: Record<string, string> = {
   "Share File": "分享文件",
   "Share Selected File": "分享所选文件",
   "Share this File": "分享此文件",
-  "share this object": "分享此对象",
   "Share this version": "分享此版本",
   "Share URL Copied to clipboard": "分享 URL 已复制到剪贴板",
   'Shared bucket DNS records, default is "/skydns"':
     '共享存储桶 DNS 记录，默认为 "/skydns"',
-  "Sharing unavailable": "无法分享",
   "Show advanced Filters": "显示高级过滤条件",
   "Show Current Data": "显示当前数据",
   "Show deleted objects": "显示已删除对象",
@@ -1339,11 +1574,8 @@ export const zhScreens: Record<string, string> = {
     "SILO {objectLocking} 强制实施一次写入多次读取（WORM）的不可变性，保护已启用版本控制的对象不被删除。",
   "SILO {serverSideReplication} is an automatic bucket-level configuration that synchronizes objects between a source and destination bucket.":
     "SILO {serverSideReplication} 是一项自动的存储桶级配置，用于在源存储桶与目标存储桶之间同步对象。",
-  "SILO access keys are child identities of an authenticated SILO user, including externally managed identities. Each access key inherits its privileges based on the policies attached to it’s parent user or those groups in which the parent user has membership. Access Keys also support an optional inline policy which further restricts access to a subset of actions and resources available to the parent user.":
-    "SILO 访问密钥是已认证 SILO 用户（含外部托管身份）的子身份。每个访问密钥依据其父用户上附加的策略、以及父用户所属用户组的策略来继承权限。访问密钥还支持一条可选的内联策略，用于将权限进一步限制为父用户可用操作与资源的子集。",
   "SILO bucket notifications allow administrators to send notifications to supported external services on certain object or bucket events. SILO supports bucket and object-level S3 events similar to the Amazon S3 Event Notifications.":
     "SILO 的存储桶通知允许管理员在发生特定对象或存储桶事件时，向受支持的外部服务发送通知。SILO 支持存储桶级和对象级的 S3 事件，与 Amazon S3 事件通知类似。",
-  "SILO Configuration:": "SILO 配置：",
   "SILO derives its behavior and syntax from {s3Lifecycle} for compatibility in migrating workloads and lifecycle rules from S3 to SILO.":
     "SILO 的行为与语法沿袭自 {s3Lifecycle}，以便在把工作负载与生命周期规则从 S3 迁移到 SILO 时保持兼容。",
   "SILO does not enable existing object replication by default. Objects created before replication was configured or while replication is disabled are not synchronized to the target deployment unless replication of existing objects is enabled.":
@@ -1354,16 +1586,12 @@ export const zhScreens: Record<string, string> = {
   "SILO or other S3-compatible storage": "SILO 或其他 S3 兼容存储",
   "SILO PBAC is built for compatibility with AWS IAM policy syntax, structure, and behavior.":
     "SILO 的 PBAC 在语法、结构与行为上均兼容 AWS IAM 策略。",
-  "SILO PBAC is built for compatibility with AWS IAM policy syntax, structure, and behavior. The SILO documentation makes a best-effort to cover IAM-specific behavior and functionality. Consider deferring to the IAM documentation for more complete documentation on AWS IAM-specific topics.":
-    "SILO 的 PBAC 在语法、结构与行为上均兼容 AWS IAM 策略。SILO 文档会尽力覆盖 IAM 特有的行为与功能；若需了解 AWS IAM 的专有主题，建议参阅 IAM 官方文档。",
   "SILO queries the configured Active Directory / LDAP server to verify the credentials specified by the application and optionally return a list of groups in which the user has membership. SILO supports two modes (Lookup-Bind Mode and Username-Bind Mode) for performing these queries":
     "SILO 会查询已配置的 Active Directory / LDAP 服务器，校验应用提供的凭证，并可选地返回该用户所属的用户组列表。SILO 支持两种查询模式：Lookup-Bind 模式与 Username-Bind 模式",
   "SILO recommends using Lookup-Bind mode as the preferred method for verifying AD/LDAP credentials. Username-Bind mode is a legacy method retained for backwards compatibility only.":
     "SILO 推荐优先使用 Lookup-Bind 模式校验 AD/LDAP 凭证；Username-Bind 模式属于遗留方式，仅为向后兼容而保留。",
   "SILO requires versioning to support replication.":
     "SILO 需要版本控制才能支持复制。",
-  "SILO supports a variety of configurations ranging from encryption, compression, region, notifications, etc.":
-    "SILO 支持多种配置，涵盖加密、压缩、区域、通知等方面。",
   "SILO supports automatically replicating existing objects in a bucket; this setting is enabled by default. Please note that objects created before replication was configured or while replication is disabled are not synchronized to the target deployment in case this setting is not enabled.":
     "SILO 支持自动复制存储桶中的存量对象，该设置默认开启。请注意，若未启用该设置，在配置复制之前创建的对象、以及复制被禁用期间创建的对象，都不会同步到目标部署。",
   "SILO supports creating object transition lifecycle management rules, where SILO can automatically move an object to a remote storage “tier”.":
@@ -1396,7 +1624,6 @@ export const zhScreens: Record<string, string> = {
   "something went wrong": "出现了一些问题",
   "Something went wrong.": "出现了一些问题。",
   "Sort by": "排序方式",
-  Source: "源代码",
   "Specify the version of the Kafka cluster": "指定 Kafka 集群的版本",
   "Specify the version of the Kafka cluster e.g '2.2.0'":
     "指定 Kafka 集群的版本，例如 '2.2.0'",
@@ -1421,7 +1648,6 @@ export const zhScreens: Record<string, string> = {
   Stop: "停止",
   "Stop Logs": "停止接收日志",
   "Stop Profiling": "停止性能剖析",
-  "Stop Trace": "停止跟踪",
   Storage: "存储",
   "Storage Class": "存储类",
   Streaming: "流式模式",
@@ -1480,22 +1706,13 @@ export const zhScreens: Record<string, string> = {
   "The server is restarting.": "服务器正在重启。",
   "The URL expires automatically at the earlier of your configured time ({time}) or the expiration of your current web session.":
     "该 URL 会在你配置的时长（{time}）与当前 Web 会话过期时间中较早的一个时刻自动失效。",
-  "There are no Access Keys yet.": "暂无访问密钥。",
-  "There are no Access Rules yet.": "暂无访问规则。",
-  "There are no Buckets yet.": "暂无存储桶。",
   "There are no Configurations yet.": "暂无配置。",
   "There are no endpoints yet.": "暂无端点。",
-  "There are no Event Destinations yet.": "暂无事件目标。",
-  "There are no Events yet.": "暂无事件。",
   "There are no Groups with this Policy associated yet.":
     "暂无关联此策略的用户组。",
   "There are no Groups yet.": "暂无用户组。",
-  "There are no Keys yet.": "暂无密钥。",
-  "There are no Lifecycle rules yet": "暂无生命周期规则",
   "There are no Policies yet.": "暂无策略。",
-  "There are no Replication Rules yet.": "暂无复制规则。",
   "There are no tags for this object": "此对象没有标签",
-  "There are no Tiers yet.": "暂无存储层。",
   "There are no User Access Keys yet.": "暂无关联的访问密钥。",
   "There are no Users with this Policy associated yet.":
     "暂无关联此策略的用户。",
@@ -1510,7 +1727,6 @@ export const zhScreens: Record<string, string> = {
   "There was an error updating the Policy ": "更新策略时出错",
   "There was an error updating the Policy: {details}. Please check Policy syntax.":
     "更新策略时出错：{details}。请检查策略语法。",
-  "There were some errors during file upload": "文件上传过程中出现了一些错误",
   "These features are unavailable in a single-disk setup.":
     "单盘部署下无法使用这些特性。",
   "This action is irreversible.": "该操作不可撤销。",
@@ -1519,8 +1735,6 @@ export const zhScreens: Record<string, string> = {
   "This configuration cannot be deleted using this module as this was set using OpenID environment variables.":
     "该配置由 OpenID 环境变量设置，无法在此模块中删除。",
   "this Console": "当前控制台",
-  "This feature allows multiple independent SILO sites (or clusters) that are using the same external IDentity Provider (IDP) to be configured as replicas.":
-    "该功能可以把多个使用同一外部身份提供方（IDP）的独立 SILO 站点（或集群）配置为互为副本。",
   "This feature allows multiple independent SILO sites (or clusters) that are using the same external IDentity Provider (IDP) to be configured as replicas. In this situation the set of replica sites are referred to as peer sites or just sites.":
     "该功能可以把多个使用同一外部身份提供方（IDP）的独立 SILO 站点（或集群）配置为互为副本。此时，这组副本站点被称为对等站点，或简称站点。",
   "This feature is not available for a single-disk setup.":
@@ -1553,7 +1767,6 @@ export const zhScreens: Record<string, string> = {
   "Tier Types": "存储层类型",
   "Tiers are used by the SILO Object Lifecycle Management which allows creating rules for time or date based automatic transition or expiry of objects. For object transition, SILO automatically moves the object to a configured remote storage tier.":
     "存储层由 SILO 对象生命周期管理使用，可以创建基于时间或日期的规则，自动转储或过期对象。对于对象转储，SILO 会自动把对象迁移到已配置的远程存储层。",
-  Time: "时间",
   "Time duration between scanner cycles, defaults to '1m'":
     "扫描器两轮扫描之间的时间间隔，默认为 '1m'",
   "Time to Response NS": "响应耗时（纳秒）",
@@ -1565,16 +1778,8 @@ export const zhScreens: Record<string, string> = {
     "若要允许无需凭证访问存储桶，请使用{anonymous}设置",
   "To continue please type {phrase} in the box.":
     "如需继续，请在输入框中输入 {phrase}。",
-  "To Download 'xl.meta' for a specific object from all the drives in a zip file:":
-    "将某个对象在所有磁盘上的 'xl.meta' 打包为 zip 下载：",
-  "To Download all constituent parts for a specific object, and optionally encrypt the downloaded zip:":
-    "下载某个对象的全部分片，并可选择对下载的 zip 加密：",
-  "To Download recursively all objects at a prefix.":
-    "递归下载某个前缀下的所有对象。",
   "To enable this feature you need to enable versioning on the bucket before creation":
     "要启用此功能，需要在创建存储桶前开启版本控制",
-  "To get started, {createBucket}": "要开始使用，请{createBucket}",
-  "To get started, {link}.": "要开始使用，请{link}。",
   "To Tier": "沉降至存储层",
   "Today, {time}": "今天 {time}",
   "Toggle Share URL between Console and object server URL. Change default with CONSOLE_SHARE_MINIO_URL environment variable":
@@ -1583,7 +1788,6 @@ export const zhScreens: Record<string, string> = {
   "Toogle JSON": "切换 JSON 视图",
   "Toogle Share URL": "切换分享 URL",
   Topic: "主题",
-  "Trace is not started yet": "跟踪尚未启动",
   "Trace Results": "跟踪结果",
   "trademark notice": "商标声明",
   Transition: "转换",
@@ -1608,9 +1812,6 @@ export const zhScreens: Record<string, string> = {
   "Unique descriptive string for this destination":
     "用于描述该目标的唯一字符串",
   "Unique ID for NATS streaming cluster": "NATS Streaming 集群的唯一 ID",
-  "Unselect All Buckets": "取消全选",
-  "Unselect Buckets": "取消多选",
-  "Unversioned (Default)": "未启用版本控制（默认）",
   "Update Credentials - {type} / {name}": "更新凭证 - {type} / {name}",
   "Upload File": "上传文件",
   "Upload Files": "上传文件",
@@ -1619,7 +1820,6 @@ export const zhScreens: Record<string, string> = {
   "Upload is restricted.": "上传受限。",
   "Upload not allowed": "不允许上传",
   "upload objects to this location": "向此位置上传对象",
-  "Uploaded files {done}/{total}": "已上传文件 {done}/{total}",
   "Upstream copyright, authorship and license notices are retained in the repository's {credits} and {notice}. See the {attribution}.":
     "上游的版权、署名与许可声明完整保留在代码仓库的 {credits} 与 {notice} 文件中。另见{attribution}。",
   "upstream MinIO code": "上游 MinIO 代码",
@@ -1628,20 +1828,15 @@ export const zhScreens: Record<string, string> = {
   "Use Original Name": "使用原始名称",
   "Use SASL": "使用 SASL",
   "Use secure medium to share this key.": "请通过安全渠道分享此密钥。",
-  "Use the Select Multiple Buckets button to choose buckets on which to configure Lifecycle":
-    "请先点击「多选存储桶」按钮，选择要配置生命周期的存储桶",
-  "Use the Select Multiple Buckets button to choose buckets on which to configure Replication":
-    "请先点击「多选存储桶」按钮，选择要配置复制的存储桶",
   "Use TLS": "使用 TLS",
   "Used to confirm a non-idempotent action.": "用于确认非幂等操作。",
   "User Access Keys": "用户访问密钥",
   "User Agent": "用户代理",
   "User Details - {user}": "用户详情 - {user}",
-  "User DN Search Base DN is required": "User DN Search Base DN 为必填项",
-  "User DN Search Filter is required": "User DN Search Filter 为必填项",
+  "User DN Search Base DN is required": "用户 DN 搜索基准为必填项",
+  "User DN Search Filter is required": "用户 DN 搜索过滤器为必填项",
   "User Mappings": "用户映射",
   "User Name": "用户名",
-  "User Status:": "用户状态：",
   "Username for SASL/PLAIN or SASL/SCRAM authentication":
     "用于 SASL/PLAIN 或 SASL/SCRAM 认证的用户名",
   "Users inherit access permissions to data and resources through the groups they belong to.":
@@ -1651,7 +1846,6 @@ export const zhScreens: Record<string, string> = {
   "Validity:": "有效期：",
   Version: "版本",
   "Version ID:": "版本 ID：",
-  Versioned: "已启用版本控制",
   "Versioning is required to enable {objectLocking} and {retention}.":
     "启用{objectLocking}与{retention}前必须先开启版本控制。",
   "Versioning on Bucket": "存储桶版本控制",
@@ -1668,11 +1862,9 @@ export const zhScreens: Record<string, string> = {
   "view Objects in this bucket": "查看此存储桶中的对象",
   "view Policy details": "查看策略详情",
   "View Replication Status for a:": "查看以下对象的复制状态：",
-  "view the buckets on this server": "查看此服务器上的存储桶",
   "view User details": "查看用户详情",
   "Visit the SILO website": "访问 SILO 官网",
   "Volume or Bucket Name": "卷或存储桶名称",
-  "Volume/bucket Name :": "卷 / 存储桶名称：",
   "Volume/Bucket name cannot start with /": "卷 / 存储桶名称不能以 / 开头",
   Warning: "警告",
   "Warning: One or more users selected has associated Access Keys.":
@@ -1722,8 +1914,6 @@ export const zhScreens: Record<string, string> = {
     "无法启用或禁用当前登录的用户",
   "You cannot modify the optional Access Key IAM policy after saving.":
     "访问密钥的可选 IAM 策略在保存后无法修改。",
-  "You do not have the required permissions to configure this bucket. Please contact your SILO administrator to request {role} permisions.":
-    "你没有配置此存储桶所需的权限。请联系 SILO 管理员申请 {role} 权限。",
   "You may only have write access on a limited set of subpaths within this path. Please carefully review your User permissions to understand the paths to which you may write.":
     "你可能仅对此路径下的部分子路径拥有写入权限。请仔细核对你的用户权限，确认哪些路径可以写入。",
   "You must apply a valid name to the bucket": "必须为存储桶指定合法的名称",
@@ -1742,27 +1932,19 @@ export const zhScreens: Record<string, string> = {
   "File is empty": "文件为空",
   "Invalid UTF-8 or binary content": "UTF-8 无效或包含二进制内容",
   "Loading text preview…": "正在加载文本预览……",
-  "Object is too large to preview": "对象过大，无法预览",
   "Object not found or changed": "对象不存在或已发生变化",
   "Text preview content": "文本预览内容",
   "Text preview failed": "文本预览失败",
   "Text preview forbidden": "无权预览文本",
-  "Text previews are limited to 1 MiB (1,048,576 bytes). This object is {size} ({bytes} bytes).":
-    "文本预览上限为 1 MiB（1,048,576 bytes），此对象大小为 {size}（{bytes} bytes）。",
   "The object could not be found or changed while the preview was loading.":
     "加载预览时未找到该对象，或对象已发生变化。",
-  "The object is larger than the 1 MiB text preview limit.":
-    "该对象超过 1 MiB 文本预览上限。",
   "The text preview could not be loaded because of a network or server error.":
     "由于网络或服务端错误，无法加载文本预览。",
   "This object is not valid UTF-8 text or contains binary data. Download it to inspect the original bytes.":
     "该对象不是有效的 UTF-8 文本，或包含二进制内容。请下载后检查原始字节。",
   "You do not have permission to preview this object.":
     "你没有预览此对象的权限。",
-  "No buckets yet.": "暂无存储桶。",
-  "No buckets match this filter.": "没有符合筛选条件的存储桶。",
   Trademark: "商标",
-  Notice: "声明",
   License: "许可证",
   "Corresponding source for this build": "本次构建对应的源码",
   "The exact corresponding source is not available for this build: {reason}. See the NOTICE for how to obtain it.":
@@ -1782,4 +1964,117 @@ export const zhScreens: Record<string, string> = {
   "Showing the first {count} entries; the listing stopped at the row or time limit.":
     "仅显示前 {count} 项，列举已在行数或时间上限处停止。",
   "Start typing to filter objects on this page": "输入以筛选本页对象",
+  "Lists and tabs": "列表与选项卡",
+  "Move through rows with the pointer or keyboard. Arrow keys focus tabs; Enter or Space opens them.":
+    "使用指针或键盘浏览列表。方向键移动选项卡焦点，回车或空格键打开选项卡。",
+  "Browse and select stored objects.": "浏览并选择已存储的对象。",
+  "Review stored object versions.": "查看已存储的对象版本。",
+  "Manage bucket settings.": "管理存储桶设置。",
+  "Compact section tabs": "紧凑的分区选项卡",
+  "Storage and object usage": "存储与对象用量",
+  "Recent storage activity": "近期存储活动",
+  "Example buckets": "示例存储桶",
+  "Select all objects": "选择所有对象",
+  Select: "选择",
+  Settings: "设置",
+  Overview: "概览",
+  Activity: "活动",
+  // T11: list recovery, summary and diagnostics.
+  "No matching results": "没有匹配项",
+  "Try a different search or clear the filters to see all items.":
+    "请更换搜索词，或清除筛选条件以查看所有项目。",
+  "Clear filters": "清除筛选",
+  "No users yet": "暂无用户",
+  "Users authenticate with an access key and secret key, and receive permissions through policies and groups.":
+    "用户使用访问密钥和私密密钥进行身份验证，并通过策略和组获得权限。",
+  "Create user": "创建用户",
+  "No access keys yet": "暂无访问密钥",
+  "Access keys let applications connect with the permissions of your account.":
+    "访问密钥让应用程序使用你的账户权限连接服务。",
+  "Access keys let applications connect with the permissions assigned to this user.":
+    "访问密钥让应用程序使用分配给此用户的权限连接服务。",
+  "No groups assigned": "尚未加入任何组",
+  "Add this user to a group to share its access policies.":
+    "将此用户加入组，以共享组的访问策略。",
+  "No policies assigned": "尚未分配策略",
+  "Policies define which actions and resources this user can access.":
+    "策略定义此用户可以执行的操作和访问的资源。",
+  "No members yet": "暂无成员",
+  "Add users to this group so they inherit its policies.":
+    "将用户加入此组，使其继承组的策略。",
+  "Policies attached to this group apply to all its members.":
+    "附加到此组的策略适用于所有组成员。",
+  "No encryption keys yet": "暂无加密密钥",
+  "Create a key to encrypt objects with the configured key management service.":
+    "创建密钥，使用已配置的密钥管理服务加密对象。",
+  "No groups yet": "暂无组",
+  "Groups let users share the same access policies.":
+    "组让用户共享相同的访问策略。",
+  "No event destinations yet": "暂无事件目标",
+  "Connect an external service to receive bucket and object notifications.":
+    "连接外部服务，以接收存储桶和对象的事件通知。",
+  "No storage tiers yet": "暂无存储层",
+  "Connect remote storage to transition objects using lifecycle rules.":
+    "连接远程存储，通过生命周期规则迁移对象。",
+  "No event subscriptions yet": "暂无事件订阅",
+  "Subscribe this bucket to send object events to an event destination.":
+    "为此存储桶创建订阅，将对象事件发送到事件目标。",
+  "No replication rules yet": "暂无复制规则",
+  "Replicate objects from this bucket to a destination bucket.":
+    "将此存储桶中的对象复制到目标存储桶。",
+  "No lifecycle rules yet": "暂无生命周期规则",
+  "Create rules to expire objects or transition them to remote storage.":
+    "创建规则，使对象到期删除或迁移到远程存储。",
+  "No anonymous access rules": "暂无匿名访问规则",
+  "This bucket has no prefix rules for access without credentials.":
+    "此存储桶尚未设置允许免凭据访问的前缀规则。",
+  "No policies grant access": "暂无授予访问权限的策略",
+  "No listed policy currently grants access to this bucket.":
+    "当前列出的策略中，没有授予此存储桶访问权限的策略。",
+  "No users have access": "暂无具有访问权限的用户",
+  "No listed user currently has a policy granting access to this bucket.":
+    "当前列出的用户中，没有通过策略获得此存储桶访问权限的用户。",
+  "View Policies": "查看策略",
+  "View Users": "查看用户",
+  "Unable to load replication sites": "无法加载复制站点",
+  "No replication sites yet": "暂无复制站点",
+  "Refresh to try loading the configured sites again.":
+    "请刷新以重新加载已配置的站点。",
+  "Connect independent SILO sites to replicate their data and identity configuration.":
+    "连接独立的 SILO 站点，复制其数据和身份配置。",
+  "Waiting for logs": "等待日志",
+  "Logs are not running": "尚未开始收集日志",
+  "New log entries will appear here as the server emits them.":
+    "服务器产生的新日志将显示在此处。",
+  "Choose the nodes and log types, then start logs to see server activity.":
+    "选择节点和日志类型，然后开始收集日志以查看服务器活动。",
+  "Waiting for trace events": "等待跟踪事件",
+  "Trace is not running": "尚未开始跟踪",
+  "Requests matching the selected calls and filters will appear here.":
+    "符合所选调用类型和筛选条件的请求将显示在此处。",
+  "Choose the calls and filters, then start tracing to inspect live requests.":
+    "选择调用类型和筛选条件，然后开始跟踪以查看实时请求。",
+  "{count} node": "{count} 个节点",
+  "{count} nodes": "{count} 个节点",
+  "{count} drive": "{count} 块磁盘",
+  "{count} drives": "{count} 块磁盘",
+  "Quota: {quota}": "配额：{quota}",
+  "Open bucket {name}": "打开存储桶 {name}",
+  "Recent buckets": "最近访问的存储桶",
+  "Read and write": "读写",
+  "Read only": "只读",
+  "Write only": "只写",
+  "Created {date}": "创建于 {date}",
+  "{count} objects": "{count} 个对象",
+  "Bucket actions": "存储桶操作",
+  "Open menu": "打开菜单",
+  "Page actions": "页面操作",
+  "Selected actions": "已选操作",
+  "Parent paths": "上级路径",
+  "create Groups": "创建组",
+  "view Group details": "查看组详情",
+  "configure event destinations": "配置事件目标",
+  "update Tier credentials": "更新分层凭证",
+  "delete Tiers": "删除分层",
+  "manage Access Keys": "管理访问密钥",
 };

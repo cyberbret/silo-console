@@ -56,6 +56,7 @@ const STResultsContainer = styled.div(({ theme }) => ({
     alignItems: "center",
     "& svg": {
       fill: get(theme, `screenTitle.iconColor`, "#07193E"),
+      color: get(theme, `screenTitle.iconColor`, "#07193E"),
     },
   },
   "& .detailedItem": {

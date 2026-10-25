@@ -14,6 +14,12 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { SkeletonRows } from "common/ui";
+import { FilteredEmptyState } from "common/ui/FilteredEmptyState";
+import { UsersIcon } from "mds";
+import { EmptyState } from "common/ui/EmptyState";
+import { nonEmptyNames } from "../Users/userList";
+import { ModalPresence } from "common/ui/ModalPresence";
 import React, { Fragment, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -31,6 +37,7 @@ import {
   Switch,
   Tabs,
   TrashIcon,
+  useAvailableWidth,
 } from "mds";
 import { api } from "api";
 import { errorToHandler } from "api/errors";
@@ -61,14 +68,8 @@ import AddGroupMember from "./AddGroupMember";
 import DeleteGroup from "./DeleteGroup";
 import SearchBox from "../Common/SearchBox";
 import TooltipWrapper from "../Common/TooltipWrapper/TooltipWrapper";
-import HelpMenu from "../HelpMenu";
 import PageHeaderWrapper from "../Common/PageHeaderWrapper/PageHeaderWrapper";
-import { useT } from "i18n";
-
-const formatPolicy = (policy: string = ""): string[] => {
-  if (policy.length <= 0) return [];
-  return policy.split(",");
-};
+import { i18nKey, useT } from "i18n";
 
 const GroupsDetails = () => {
   const dispatch = useAppDispatch();
@@ -76,17 +77,29 @@ const GroupsDetails = () => {
   const params = useParams();
   const t = useT();
 
+  const [loading, setLoading] = useState(true);
   const [groupDetails, setGroupDetails] = useState<Group>({});
   const [policyOpen, setPolicyOpen] = useState<boolean>(false);
   const [usersOpen, setUsersOpen] = useState<boolean>(false);
   const [deleteOpen, setDeleteOpen] = useState<boolean>(false);
   const [memberFilter, setMemberFilter] = useState<string>("");
   const [currentTab, setCurrentTab] = useState<string>("members");
+  const { elementRef: tabsRef, width: availableWidth } = useAvailableWidth();
+  const horizontalTabs = availableWidth < 760;
+  const sectionTitleSx = {
+    marginBottom: 16,
+    ...(horizontalTabs && {
+      flexDirection: "column" as const,
+      alignItems: "stretch",
+      "& > div": { flex: "0 0 auto", width: "100%", minWidth: 0 },
+      "& > div:last-child": { paddingBottom: 16 },
+    }),
+  };
 
   const { members = [], policy = "", status: groupEnabled } = groupDetails;
 
   const filteredMembers = members.filter((elementItem) =>
-    elementItem.includes(memberFilter),
+    elementItem.includes(memberFilter.trim()),
   );
 
   const viewUser = hasPermission(
@@ -107,7 +120,7 @@ const GroupsDetails = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.groupName]);
 
-  const groupPolicies = formatPolicy(policy);
+  const groupPolicies = nonEmptyNames(policy.split(","));
   const isGroupEnabled = groupEnabled === "enabled";
   const memberActionText =
     members.length > 0 ? t("Edit Members") : t("Add Members");
@@ -137,15 +150,20 @@ const GroupsDetails = () => {
 
   function fetchGroupInfo() {
     if (getGroupDetails) {
+      setLoading(true);
       api.group
         .groupInfo(params.groupName || "")
         .then((res) => {
           setGroupDetails(res.data);
+          setLoading(false);
         })
         .catch((err) => {
           dispatch(setModalErrorSnackMessage(errorToHandler(err.error)));
           setGroupDetails({});
+          setLoading(false);
         });
+    } else {
+      setLoading(false);
     }
   }
 
@@ -170,13 +188,16 @@ const GroupsDetails = () => {
       }}
     >
       <SectionTitle
+        headingLevel={2}
         separator
-        sx={{ marginBottom: 15 }}
+        sx={sectionTitleSx}
         actions={
           <Box
             sx={{
               display: "flex",
-              gap: 10,
+              gap: 8,
+              minWidth: 0,
+              width: "100%",
             }}
           >
             <SearchBox
@@ -186,7 +207,9 @@ const GroupsDetails = () => {
               }}
               value={memberFilter}
               sx={{
-                maxWidth: 280,
+                flex: "1 1 auto",
+                minWidth: 0,
+                maxWidth: horizontalTabs ? "none" : 280,
               }}
             />
             <SecureComponent
@@ -200,7 +223,7 @@ const GroupsDetails = () => {
                     ? memberActionText
                     : permissionTooltipHelper(
                         createGroupPermissions,
-                        "edit Group membership",
+                        i18nKey("edit Group membership"),
                       )
                 }
               >
@@ -233,7 +256,7 @@ const GroupsDetails = () => {
                 ? ""
                 : permissionTooltipHelper(
                     viewUserPermissions,
-                    "view User details",
+                    i18nKey("view User details"),
                   )
             }
           >
@@ -251,10 +274,35 @@ const GroupsDetails = () => {
               ]}
               columns={[{ label: t("Access Key") }]}
               selectedItems={[]}
-              isLoading={false}
+              isLoading={loading}
               records={filteredMembers}
               entityName={t("Users")}
-              customEmptyMessage={t("There are no Users yet.")}
+              loadingState={<SkeletonRows rows={5} columns={1} />}
+              emptyState={
+                <FilteredEmptyState
+                  filtered={Boolean(memberFilter.trim())}
+                  onClear={() => setMemberFilter("")}
+                  icon={<UsersIcon />}
+                  title={t("No members yet")}
+                  description={t(
+                    "Add users to this group so they inherit its policies.",
+                  )}
+                  action={
+                    canEditGroupMembers &&
+                    hasPermission(
+                      CONSOLE_UI_RESOURCE,
+                      addUserToGroupPermissions,
+                    ) && (
+                      <Button
+                        id="empty-list-action"
+                        variant="callAction"
+                        label={t("Add Members")}
+                        onClick={() => setUsersOpen(true)}
+                      />
+                    )
+                  }
+                />
+              }
             />
           </TooltipWrapper>
         </SecureComponent>
@@ -270,8 +318,9 @@ const GroupsDetails = () => {
         }}
       >
         <SectionTitle
+          headingLevel={2}
           separator
-          sx={{ marginBottom: 15 }}
+          sx={sectionTitleSx}
           actions={
             <TooltipWrapper
               tooltip={
@@ -279,7 +328,7 @@ const GroupsDetails = () => {
                   ? t("Set Policies")
                   : permissionTooltipHelper(
                       setGroupPoliciesPermissions,
-                      "assign Policies",
+                      i18nKey("assign Policies"),
                     )
               }
             >
@@ -306,7 +355,7 @@ const GroupsDetails = () => {
               ? ""
               : permissionTooltipHelper(
                   viewPolicyPermissions,
-                  "view Policy details",
+                  i18nKey("view Policy details"),
                 )
           }
         >
@@ -323,10 +372,29 @@ const GroupsDetails = () => {
               },
             ]}
             columns={[{ label: t("Policy") }]}
-            isLoading={false}
+            isLoading={loading}
             records={groupPolicies}
             entityName={t("Policies")}
-            customEmptyMessage={t("There are no Policies yet.")}
+            loadingState={<SkeletonRows rows={5} columns={1} />}
+            emptyState={
+              <EmptyState
+                icon={<IAMPoliciesIcon />}
+                title={t("No policies assigned")}
+                description={t(
+                  "Policies attached to this group apply to all its members.",
+                )}
+                action={
+                  canSetPolicies && (
+                    <Button
+                      id="empty-list-action"
+                      variant="callAction"
+                      label={t("Set Policies")}
+                      onClick={() => setPolicyOpen(true)}
+                    />
+                  )
+                }
+              />
+            }
           />
         </TooltipWrapper>
       </Grid>
@@ -335,46 +403,52 @@ const GroupsDetails = () => {
 
   return (
     <Fragment>
-      {policyOpen ? (
-        <SetPolicy
-          open={policyOpen}
-          selectedGroups={[params.groupName || ""]}
-          selectedUser={null}
-          closeModalAndRefresh={() => {
-            setPolicyOpen(false);
-            fetchGroupInfo();
-            dispatch(setSelectedPolicies([]));
-          }}
-        />
-      ) : null}
+      <ModalPresence open={Boolean(policyOpen)}>
+        {policyOpen ? (
+          <SetPolicy
+            open={policyOpen}
+            selectedGroups={[params.groupName || ""]}
+            selectedUser={null}
+            closeModalAndRefresh={() => {
+              setPolicyOpen(false);
+              fetchGroupInfo();
+              dispatch(setSelectedPolicies([]));
+            }}
+          />
+        ) : null}
+      </ModalPresence>
 
-      {usersOpen ? (
-        <AddGroupMember
-          selectedGroup={params.groupName}
-          onSaveClick={() => {}}
-          title={memberActionText}
-          groupStatus={groupEnabled}
-          preSelectedUsers={members}
-          open={usersOpen}
-          onClose={() => {
-            setUsersOpen(false);
-            fetchGroupInfo();
-          }}
-        />
-      ) : null}
+      <ModalPresence open={Boolean(usersOpen)}>
+        {usersOpen ? (
+          <AddGroupMember
+            selectedGroup={params.groupName}
+            onSaveClick={() => {}}
+            title={memberActionText}
+            groupStatus={groupEnabled}
+            preSelectedUsers={members}
+            open={usersOpen}
+            onClose={() => {
+              setUsersOpen(false);
+              fetchGroupInfo();
+            }}
+          />
+        ) : null}
+      </ModalPresence>
 
-      {deleteOpen && (
-        <DeleteGroup
-          deleteOpen={deleteOpen}
-          selectedGroups={[params.groupName || ""]}
-          closeDeleteModalAndRefresh={(isDelSuccess: boolean) => {
-            setDeleteOpen(false);
-            if (isDelSuccess) {
-              navigate(IAM_PAGES.GROUPS);
-            }
-          }}
-        />
-      )}
+      <ModalPresence open={Boolean(deleteOpen)}>
+        {deleteOpen && (
+          <DeleteGroup
+            deleteOpen={deleteOpen}
+            selectedGroups={[params.groupName || ""]}
+            closeDeleteModalAndRefresh={(isDelSuccess: boolean) => {
+              setDeleteOpen(false);
+              if (isDelSuccess) {
+                navigate(IAM_PAGES.GROUPS);
+              }
+            }}
+          />
+        )}
+      </ModalPresence>
       <PageHeaderWrapper
         label={
           <Fragment>
@@ -384,7 +458,7 @@ const GroupsDetails = () => {
             />
           </Fragment>
         }
-        actions={<HelpMenu />}
+        help
       />
       <PageLayout>
         <Grid item xs={12}>
@@ -420,7 +494,7 @@ const GroupsDetails = () => {
                       ? ""
                       : permissionTooltipHelper(
                           enableDisableGroupPermissions,
-                          "enable or disable Groups",
+                          i18nKey("enable or disable Groups"),
                         )
                   }
                 >
@@ -431,6 +505,7 @@ const GroupsDetails = () => {
                     matchAll
                   >
                     <Switch
+                      aria-label={t("Status")}
                       indicatorLabels={[t("Enabled"), t("Disabled")]}
                       checked={isGroupEnabled}
                       value={"group_enabled"}
@@ -448,7 +523,7 @@ const GroupsDetails = () => {
                   <Button
                     aria-label={t("Delete group")}
                     id={"delete-user-group"}
-                    variant="secondary"
+                    variant="danger"
                     icon={<TrashIcon />}
                     onClick={() => {
                       setDeleteOpen(true);
@@ -461,8 +536,9 @@ const GroupsDetails = () => {
           />
         </Grid>
 
-        <Grid item xs={12}>
+        <Box elementRef={tabsRef} sx={{ minWidth: 0 }}>
           <Tabs
+            horizontal={horizontalTabs}
             options={[
               {
                 tabConfig: { id: "members", label: t("Members") },
@@ -476,7 +552,7 @@ const GroupsDetails = () => {
             currentTabOrPath={currentTab}
             onTabClick={setCurrentTab}
           />
-        </Grid>
+        </Box>
       </PageLayout>
     </Fragment>
   );

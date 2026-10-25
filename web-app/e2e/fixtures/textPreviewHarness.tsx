@@ -32,5 +32,9 @@ if (!root) {
 }
 
 createRoot(root).render(
-  <SafeTextPreviewContent content={payload} label="Text preview content" />,
+  <SafeTextPreviewContent
+    content={payload}
+    label="Text preview content"
+    wrapLabel="Wrap lines"
+  />,
 );

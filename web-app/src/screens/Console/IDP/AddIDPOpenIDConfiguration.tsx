@@ -20,6 +20,7 @@ import { LockIcon } from "mds";
 import AddIDPConfiguration from "./AddIDPConfiguration";
 import { openIDFormFields, openIDHelpBoxContents } from "./utils";
 import AddIDPConfigurationHelpBox from "./AddIDPConfigurationHelpbox";
+import { i18nKey } from "i18n/lang";
 
 const AddIDPOpenIDConfiguration = () => {
   return (
@@ -27,17 +28,17 @@ const AddIDPOpenIDConfiguration = () => {
       icon={<LockIcon />}
       helpBox={
         <AddIDPConfigurationHelpBox
-          helpText={"Learn more about OpenID Connect Configurations"}
+          helpText={i18nKey("Learn more about OpenID Connect Configurations")}
           contents={openIDHelpBoxContents}
           docLink={
             "https://silo.pgsty.com/operations/external-iam/#openid-connect-oidc"
           }
-          docText={"Learn more about OpenID Connect Configurations"}
+          docText={i18nKey("Learn more about OpenID Connect Configurations")}
         />
       }
-      header={"OpenID Configurations"}
+      header={i18nKey("OpenID Configurations")}
       backLink={IAM_PAGES.IDP_OPENID_CONFIGURATIONS}
-      title={"Create OpenID Configuration"}
+      title={i18nKey("Create OpenID Configuration")}
       formFields={openIDFormFields}
     />
   );

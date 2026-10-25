@@ -25,6 +25,7 @@ const technical = new Set([
   "Google Cloud Storage",
   "Microsoft Azure Blob Storage",
   "SILO",
+  "PGSTY",
   "MinIO",
   "Pigsty",
   "PIGSTY",

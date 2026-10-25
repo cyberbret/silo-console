@@ -246,7 +246,7 @@ const DaysSelector = ({
               flexFlow: "column",
             },
             "& > .min-icon": {
-              color: "#5E5E5E",
+              color: "var(--muted-foreground)",
               width: 15,
               height: 15,
               marginRight: 10,
@@ -259,7 +259,7 @@ const DaysSelector = ({
           "& .invalidDurationText": {
             marginTop: 15,
             display: "flex",
-            color: "red",
+            color: "var(--destructive-text)",
             fontSize: 11,
           },
         }}

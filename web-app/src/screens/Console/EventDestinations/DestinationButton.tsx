@@ -15,9 +15,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import React from "react";
-import get from "lodash/get";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { type } from "mds";
 import { IAM_PAGES } from "../../../common/SecureComponent/permissions";
 
 interface IDestinationButton {
@@ -26,12 +26,14 @@ interface IDestinationButton {
   title: string;
 }
 
-const DestinationButtonBase = styled.button(({ theme }) => ({
-  background: get(theme, "boxBackground", "#FFF"),
-  border: `${get(theme, "borderColor", "#E2E2E2")} 1px solid`,
-  borderRadius: 5,
+const DestinationButtonBase = styled.button({
+  background: "var(--card)",
+  border: "1px solid var(--border)",
+  borderRadius: "var(--radius-card,12px)",
   width: 250,
+  maxWidth: "100%",
   height: 80,
+  padding: 0,
   display: "flex",
   alignItems: "center",
   justifyContent: "start",
@@ -40,24 +42,36 @@ const DestinationButtonBase = styled.button(({ theme }) => ({
   cursor: "pointer",
   overflow: "hidden",
   "&:hover": {
-    backgroundColor: get(theme, "buttons.regular.hover.background", "#ebebeb"),
+    backgroundColor: "var(--hover)",
+  },
+  "&:focus-visible": {
+    outline: "2px solid var(--focus-ring)",
+    outlineOffset: 2,
   },
   "& .imageContainer": {
     width: 80,
+    height: 80,
+    flexShrink: 0,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    // The original logos retain their fixed colors on a neutral paper inset.
+    backgroundColor: "#fafafa",
     "& .logoButton": {
       maxWidth: 46,
       maxHeight: 46,
-      filter: "drop-shadow(1px 1px 8px #fff)",
     },
   },
-  "& .lambdaNotifTitle": {
-    color: get(theme, "buttons.callAction.enabled.background", "#07193E"),
-    fontSize: 16,
-    fontFamily: "Inter,sans-serif",
-    paddingLeft: 18,
-    fontWeight: "bold",
-  },
-}));
+});
+
+const DestinationLabel = styled.span`
+  ${type("title")}
+  color: var(--foreground);
+  padding: 0 16px;
+  text-align: left;
+  min-width: 0;
+  overflow-wrap: anywhere;
+`;
 
 const DestinationButton = ({
   destinationType,
@@ -68,6 +82,7 @@ const DestinationButton = ({
 
   return (
     <DestinationButtonBase
+      type="button"
       onClick={() => {
         navigate(`${IAM_PAGES.EVENT_DESTINATIONS_ADD}/${destinationType}`);
       }}
@@ -75,7 +90,7 @@ const DestinationButton = ({
       <span className={"imageContainer"}>
         <img src={srcImage} className={"logoButton"} alt={title} />
       </span>
-      <span className={"lambdaNotifTitle"}>{title}</span>
+      <DestinationLabel>{title}</DestinationLabel>
     </DestinationButtonBase>
   );
 };

@@ -10,8 +10,6 @@ export class BucketsListPage {
   refreshBucketsBtn: Locator | undefined;
   setReplicationBtn: Locator | undefined;
 
-  bucketListItemPrefix = "#manageBucket-";
-
   constructor(page: Page) {
     this.page = page;
     this.initLocators();
@@ -29,9 +27,10 @@ export class BucketsListPage {
   }
 
   locateBucket(bucketName: string): Locator {
-    const bucketRow = this.getLocator(
-      `${this.bucketListItemPrefix}${bucketName}`,
-    );
+    const bucketRow = this.page.getByRole("row", {
+      name: bucketName,
+      exact: true,
+    });
     return bucketRow;
   }
 

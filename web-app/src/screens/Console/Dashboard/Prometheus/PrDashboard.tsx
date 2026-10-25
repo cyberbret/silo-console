@@ -14,18 +14,15 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { ModalPresence } from "common/ui/ModalPresence";
 import React, { Fragment, useState } from "react";
 import styled from "styled-components";
-import get from "lodash/get";
 import {
   Box,
   breakPoints,
   Button,
-  Grid,
-  HelpBox,
   PageLayout,
   ProgressBar,
-  PrometheusErrorIcon,
   SyncIcon,
   TabItemProps,
   Tabs,
@@ -52,21 +49,20 @@ import DateRangeSelector from "../../Common/FormComponents/DateRangeSelector/Dat
 import MergedWidgetsRenderer from "./Widgets/MergedWidgetsRenderer";
 import BasicDashboard from "../BasicDashboard/BasicDashboard";
 import { useT } from "i18n";
+import PrometheusGuidance from "./PrometheusGuidance";
 
 interface IPrDashboard {
   apiPrefix?: string;
   usage: AdminInfoResponse | null;
 }
 
-const SectionHeader = styled.h2(({ theme }) => ({
+const SectionHeader = styled.h2({
   margin: 0,
-  marginTop: 12,
-  paddingBottom: 10,
-  fontSize: 18,
-  fontWeight: 700,
-  color: get(theme, "fontColor", "#000"),
-  borderBottom: `1px solid ${get(theme, "borderColor", "#E2E2E2")}`,
-}));
+  fontSize: "var(--fs-title)",
+  lineHeight: "var(--lh-title)",
+  fontWeight: 550,
+  color: "var(--foreground)",
+});
 
 const PrDashboard = ({ apiPrefix = "admin", usage }: IPrDashboard) => {
   const dispatch = useAppDispatch();
@@ -167,42 +163,31 @@ const PrDashboard = ({ apiPrefix = "admin", usage }: IPrDashboard) => {
     return renderPanelItems(resourcesPanelsLayoutAdvanced);
   };
 
-  const prometheusOptionsDisabled =
-    usage?.advancedMetricsStatus === "not configured";
-
   const searchBox = (
-    <Box sx={{ marginBottom: 20 }}>
+    <Box sx={{ marginBottom: 16 }}>
       {curTab === "info" ? (
-        <Grid container>
-          <Grid item>
-            <Box
-              sx={{
-                fontSize: 18,
-                lineHeight: 2,
-                fontWeight: 700,
-              }}
-            >
-              {t("Server Information")}
-            </Box>
-          </Grid>
-          <Grid item xs>
-            <Grid container direction="row-reverse">
-              <Grid item>
-                <Button
-                  id={"sync"}
-                  type="button"
-                  variant="callAction"
-                  onClick={() => {
-                    dispatch(getUsageAsync());
-                  }}
-                  disabled={status === "loading"}
-                  icon={<SyncIcon />}
-                  label={t("Sync")}
-                />
-              </Grid>
-            </Grid>
-          </Grid>
-        </Grid>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: 12,
+          }}
+        >
+          <SectionHeader>{t("Server Information")}</SectionHeader>
+          <Button
+            id={"sync"}
+            type="button"
+            variant="regular"
+            onClick={() => {
+              dispatch(getUsageAsync());
+            }}
+            disabled={status === "loading"}
+            icon={<SyncIcon />}
+            label={t("Sync")}
+          />
+        </Box>
       ) : (
         <DateRangeSelector
           timeStart={timeStart}
@@ -230,103 +215,42 @@ const PrDashboard = ({ apiPrefix = "admin", usage }: IPrDashboard) => {
     ),
   };
 
+  const renderMetrics = (content: React.ReactNode) => {
+    if (!usage || status === "loading") return <ProgressBar />;
+    const metricsStatus = usage.advancedMetricsStatus;
+    if (metricsStatus === "not configured" || metricsStatus === "unavailable") {
+      return (
+        <PrometheusGuidance
+          status={metricsStatus}
+          onRetry={() => dispatch(getUsageAsync())}
+        />
+      );
+    }
+    return (
+      <Fragment>
+        {searchBox}
+        <RowPanelLayout>{content}</RowPanelLayout>
+      </Fragment>
+    );
+  };
+
   const prometheusTabs: TabItemProps[] = [
     {
-      tabConfig: {
-        label: t("Usage"),
-        id: "usage",
-        disabled: prometheusOptionsDisabled,
-      },
-      content: (
-        <Fragment>
-          {searchBox}
-          <RowPanelLayout>
-            {usage?.advancedMetricsStatus === "unavailable" && (
-              <HelpBox
-                iconComponent={<PrometheusErrorIcon />}
-                title={t("We can’t retrieve advanced metrics at this time.")}
-                help={
-                  <Box
-                    sx={{
-                      fontSize: "14px",
-                    }}
-                  >
-                    {t(
-                      "It looks like Prometheus is not available or reachable at the moment.",
-                    )}
-                  </Box>
-                }
-              />
-            )}
-            {panelInformation.length ? renderSummaryPanels() : null}
-          </RowPanelLayout>
-        </Fragment>
-      ),
+      tabConfig: { label: t("Usage"), id: "usage" },
+      content: renderMetrics(renderSummaryPanels()),
     },
     {
-      tabConfig: {
-        label: t("Traffic"),
-        id: "traffic",
-        disabled: prometheusOptionsDisabled,
-      },
-      content: (
-        <Fragment>
-          {searchBox}
-          <RowPanelLayout>
-            {usage?.advancedMetricsStatus === "unavailable" && (
-              <HelpBox
-                iconComponent={<PrometheusErrorIcon />}
-                title={t("We can’t retrieve advanced metrics at this time.")}
-                help={
-                  <Box
-                    sx={{
-                      fontSize: "14px",
-                    }}
-                  >
-                    {t(
-                      "It looks like Prometheus is not available or reachable at the moment.",
-                    )}
-                  </Box>
-                }
-              />
-            )}
-            {panelInformation.length ? renderTrafficPanels() : null}
-          </RowPanelLayout>
-        </Fragment>
-      ),
+      tabConfig: { label: t("Traffic"), id: "traffic" },
+      content: renderMetrics(renderTrafficPanels()),
     },
     {
-      tabConfig: {
-        label: t("Resources"),
-        id: "resources",
-        disabled: prometheusOptionsDisabled,
-      },
-      content: (
+      tabConfig: { label: t("Resources"), id: "resources" },
+      content: renderMetrics(
         <Fragment>
-          {searchBox}
-          <RowPanelLayout>
-            {usage?.advancedMetricsStatus === "unavailable" && (
-              <HelpBox
-                iconComponent={<PrometheusErrorIcon />}
-                title={t("We can’t retrieve advanced metrics at this time.")}
-                help={
-                  <Box
-                    sx={{
-                      fontSize: "14px",
-                    }}
-                  >
-                    {t(
-                      "It looks like Prometheus is not available or reachable at the moment.",
-                    )}
-                  </Box>
-                }
-              />
-            )}
-            {panelInformation.length ? renderResourcesPanels() : null}
-            <SectionHeader>{t("Advanced")}</SectionHeader>
-            {panelInformation.length ? renderAdvancedResourcesPanels() : null}
-          </RowPanelLayout>
-        </Fragment>
+          {renderResourcesPanels()}
+          <SectionHeader>{t("Advanced")}</SectionHeader>
+          {renderAdvancedResourcesPanels()}
+        </Fragment>,
       ),
     },
   ];
@@ -334,27 +258,33 @@ const PrDashboard = ({ apiPrefix = "admin", usage }: IPrDashboard) => {
   let tabsOptions: TabItemProps[] = [infoTab, ...prometheusTabs];
 
   return (
-    <PageLayout
-      sx={{
-        padding: hideMenu ? 0 : "2rem",
-      }}
-    >
-      {zoomOpen && (
-        <ZoomWidget
-          modalOpen={zoomOpen}
-          timeStart={timeStart}
-          timeEnd={timeEnd}
-          widgetRender={0}
-          value={zoomWidget}
-          apiPrefix={apiPrefix}
-        />
+    <PageLayout sx={hideMenu ? { padding: 0 } : undefined}>
+      {hideMenu && (
+        <SectionHeader as="h1" style={{ marginBottom: 16 }}>
+          {t("Metrics")}
+        </SectionHeader>
       )}
+      <ModalPresence open={Boolean(zoomOpen)}>
+        {zoomOpen && (
+          <ZoomWidget
+            modalOpen={zoomOpen}
+            timeStart={timeStart}
+            timeEnd={timeEnd}
+            widgetRender={0}
+            value={zoomWidget}
+            apiPrefix={apiPrefix}
+          />
+        )}
+      </ModalPresence>
 
       <Tabs
         horizontal
         options={tabsOptions}
         currentTabOrPath={curTab}
         sx={{
+          "& > .tabsPanels": {
+            padding: "16px 0 0",
+          },
           [`@media (max-width: ${breakPoints.sm}px)`]: {
             minWidth: 0,
             "& > .optionsContainer": {

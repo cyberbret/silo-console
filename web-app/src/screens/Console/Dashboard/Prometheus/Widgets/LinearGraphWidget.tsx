@@ -41,6 +41,7 @@ import LineChartTooltip from "./tooltips/LineChartTooltip";
 import ExpandGraphLink from "./ExpandGraphLink";
 import DownloadWidgetDataButton from "../../DownloadWidgetDataButton";
 import { useT } from "i18n";
+import { formatAxisTick } from "./formatAxisTick";
 
 interface ILinearGraphWidget {
   title: string;
@@ -68,18 +69,18 @@ const LinearGraphMain = styled.div(({ theme }) => ({
     flexDirection: "column",
     flex: "0 0 auto",
     maxWidth: "44%",
-    // 8 whole 22px rows + 7 row gaps; keeps the overflow cutoff on a row boundary
-    maxHeight: 8 * 22 + 7 * 2,
+    // Caption line + 8px vertical padding; keep the cutoff on a whole row.
+    maxHeight: 7 * 24 + 6 * 4,
     margin: 0,
     overflowY: "auto",
     scrollbarWidth: "thin",
     position: "relative",
     justifyContent: "flex-start",
-    gap: 2,
+    gap: 4,
     paddingLeft: 12,
     color: get(theme, "mutedText", "#87888d"),
     fontWeight: 400,
-    fontSize: 12,
+    fontSize: "var(--fs-caption)",
     [`@media (max-width: ${breakPoints.md}px)`]: {
       display: "none",
     },
@@ -100,7 +101,7 @@ const LinearGraphWidget = ({
   apiPrefix,
   hideYAxis = false,
   areaWidget = false,
-  yAxisFormatter = (item: string) => item,
+  yAxisFormatter,
   xAxisFormatter = (item: string, var1: boolean, var2: boolean) => item,
   zoomActivated = false,
 }: ILinearGraphWidget) => {
@@ -209,7 +210,7 @@ const LinearGraphWidget = ({
     if (index % 3 !== 0) {
       return null;
     }
-    return <circle cx={cx} cy={cy} r={3} strokeWidth={0} fill="#07264A" />;
+    return <circle cx={cx} cy={cy} r={3} strokeWidth={0} fill="var(--brand)" />;
   };
 
   let dspLongDate = false;
@@ -316,7 +317,7 @@ const LinearGraphWidget = ({
                         }
                         interval={intervalCount}
                         tick={{
-                          fontSize: 11,
+                          fontSize: "var(--fs-micro)",
                           fill: get(theme, "mutedText", "#87888d"),
                         }}
                         tickLine={false}
@@ -327,9 +328,11 @@ const LinearGraphWidget = ({
                         type={"number"}
                         domain={[0, dataMax * 1.1]}
                         hide={hideYAxis}
-                        tickFormatter={(value: any) => yAxisFormatter(value)}
+                        tickFormatter={(value) =>
+                          (yAxisFormatter ?? formatAxisTick)(value)
+                        }
                         tick={{
-                          fontSize: 11,
+                          fontSize: "var(--fs-micro)",
                           fill: get(theme, "mutedText", "#87888d"),
                         }}
                         tickLine={false}
@@ -357,7 +360,9 @@ const LinearGraphWidget = ({
                         content={
                           <LineChartTooltip
                             linearConfiguration={linearConfiguration}
-                            yAxisFormatter={yAxisFormatter}
+                            yAxisFormatter={
+                              yAxisFormatter ?? ((item: string) => item)
+                            }
                           />
                         }
                         wrapperStyle={{

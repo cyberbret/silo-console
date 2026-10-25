@@ -5,7 +5,11 @@
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 
-import { legacyPreviewObjectType, previewObjectType } from "./previewType";
+import {
+  isTextPreview,
+  legacyPreviewObjectType,
+  previewObjectType,
+} from "./previewType";
 
 interface AnonymousPreviewObject {
   content_type?: string;
@@ -46,7 +50,7 @@ export const resolveAnonymousOpen = async ({
     }
   }
 
-  return previewObjectType(metadata, objectName) === "text"
+  return isTextPreview(previewObjectType(metadata, objectName))
     ? "preview"
     : "download";
 };

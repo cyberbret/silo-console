@@ -22,7 +22,7 @@ import { selFeatures } from "../consoleSlice";
 import { setHelpName } from "../../../systemSlice";
 import PrDashboard from "./Prometheus/PrDashboard";
 import PageHeaderWrapper from "../Common/PageHeaderWrapper/PageHeaderWrapper";
-import HelpMenu from "../HelpMenu";
+import { i18nKey } from "i18n/lang";
 
 const Dashboard = () => {
   const dispatch = useAppDispatch();
@@ -52,7 +52,7 @@ const Dashboard = () => {
   return (
     <Fragment>
       {!hideMenu && (
-        <PageHeaderWrapper label="Metrics" actions={<HelpMenu />} />
+        <PageHeaderWrapper label={i18nKey("Metrics")} titleElement="h1" help />
       )}
       <PrDashboard usage={usage} />
     </Fragment>

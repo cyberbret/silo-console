@@ -74,6 +74,7 @@ const DeleteWebhookEndpoint = ({
 
   return (
     <ConfirmDialog
+      destructive
       title={defaultWH ? t("Reset Default Webhook") : t("Delete Webhook")}
       confirmText={defaultWH ? t("Reset") : t("Delete")}
       isOpen={modalOpen}

@@ -80,6 +80,7 @@ const DeleteEvent = ({
 
   return (
     <ConfirmDialog
+      destructive
       title={t("Delete Event")}
       confirmText={t("Delete")}
       isOpen={deleteOpen}

@@ -15,12 +15,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import React from "react";
-import get from "lodash/get";
 import styled from "styled-components";
 import { Box, breakPoints } from "mds";
 import { Tooltip } from "common/Tooltip";
 
-const CounterCardMain = styled.div(({ theme }) => ({
+const CounterCardMain = styled.div({
   display: "flex",
   flexDirection: "column",
   justifyContent: "space-between",
@@ -33,17 +32,16 @@ const CounterCardMain = styled.div(({ theme }) => ({
     justifyContent: "space-between",
     gap: 8,
     "& .cardLabel": {
-      fontSize: 13,
-      fontWeight: 500,
-      letterSpacing: "0.02em",
-      color: get(theme, "mutedText", "#71717A"),
+      fontSize: "var(--fs-body)",
+      fontWeight: 550,
+      color: "var(--muted-foreground)",
     },
     "& .min-icon": {
-      width: 18,
-      height: 18,
+      width: 20,
+      height: 20,
       flexShrink: 0,
-      color: get(theme, "secondaryText", "#52525B"),
-      fill: get(theme, "secondaryText", "#52525B"),
+      color: "var(--muted-foreground)",
+      fill: "var(--muted-foreground)",
     },
   },
   "& .cardBottom": {
@@ -54,19 +52,20 @@ const CounterCardMain = styled.div(({ theme }) => ({
     minWidth: 0,
   },
   "& .cardValue": {
-    fontSize: 40,
-    fontWeight: 600,
-    lineHeight: 1,
-    color: get(theme, "fontColor", "#18181B"),
+    fontSize: "var(--fs-display)",
+    fontWeight: 700,
+    lineHeight: "var(--lh-display)",
+    color: "var(--foreground)",
     fontVariantNumeric: "tabular-nums",
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
     [`@media (max-width: ${breakPoints.sm}px)`]: {
-      fontSize: 28,
+      fontSize: "var(--fs-display-compact)",
+      lineHeight: "var(--lh-display-compact)",
     },
   },
-}));
+});
 
 const CounterCard = ({
   counterValue,

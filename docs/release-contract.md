@@ -46,7 +46,8 @@ All Actions use full commit SHAs with version comments. Browser tools (including
 TestCafe and the MinIO test client) come from `web-app/yarn.lock`, installed with
 `yarn install --immutable`. CI never adds dependencies at runtime. Semgrep and its
 transitive Python dependencies are hash-locked in `.github/requirements/semgrep.txt`
-for Python 3.12 on Linux x86_64. Regenerate that file from `semgrep.in` with the
+for Linux x86_64. CI uses the runner-provided Python without pinning its version.
+Regenerate that file from `semgrep.in` with the
 command recorded in its header and review the complete change. Go tools use
 explicit module versions verified through the Go module checksum database.
 TestCafe uses Firefox **155.0.1** from Mozilla's release archive, verified against

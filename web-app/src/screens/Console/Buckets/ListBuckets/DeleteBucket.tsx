@@ -17,10 +17,7 @@
 import React, { Fragment } from "react";
 import { ConfirmDeleteIcon } from "mds";
 import { ErrorResponseHandler } from "../../../../common/types";
-import {
-  setBucketLoadListing,
-  setErrorSnackMessage,
-} from "../../../../systemSlice";
+import { setErrorSnackMessage } from "../../../../systemSlice";
 import { useAppDispatch } from "../../../../store";
 import useApi from "../../Common/Hooks/useApi";
 import ConfirmDialog from "../../Common/ModalWrapper/ConfirmDialog";
@@ -41,8 +38,6 @@ const DeleteBucket = ({
   const t = useT();
   const onDelSuccess = () => {
     closeDeleteModalAndRefresh(true);
-    // Update BucketListing in Menu
-    dispatch(setBucketLoadListing(true));
   };
   const onDelError = (err: ErrorResponseHandler) =>
     dispatch(setErrorSnackMessage(err));
@@ -62,6 +57,7 @@ const DeleteBucket = ({
 
   return (
     <ConfirmDialog
+      destructive
       title={t("Delete Bucket")}
       confirmText={t("Delete")}
       isOpen={deleteOpen}

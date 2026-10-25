@@ -68,6 +68,7 @@ const DeleteGroup = ({
 
   return (
     <ConfirmDialog
+      destructive
       title={selectedGroups.length > 1 ? t("Delete Groups") : t("Delete Group")}
       confirmText={t("Delete")}
       isOpen={deleteOpen}

@@ -30,11 +30,23 @@ import (
 // swagger:model policy
 type Policy struct {
 
+	// Whether the policy name is one of the SILO built-in policies
+	Builtin *bool `json:"builtin,omitempty"`
+
+	// Number of distinct groups directly assigned to this policy; absent when unknown
+	GroupCount *int64 `json:"groupCount,omitempty"`
+
+	// Whether this is a built-in policy whose stored document differs semantically from the SILO default
+	Modified *bool `json:"modified,omitempty"`
+
 	// name
 	Name string `json:"name,omitempty"`
 
 	// policy
 	Policy string `json:"policy,omitempty"`
+
+	// Number of distinct users directly assigned to this policy; absent when unknown
+	UserCount *int64 `json:"userCount,omitempty"`
 }
 
 // Validate validates this policy

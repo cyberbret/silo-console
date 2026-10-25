@@ -16,10 +16,10 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "noFallthroughCasesInSwitch": true,
-    "rootDir": "./src",
+    "rootDir": ".",
     "paths": {
       "*": ["./src/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "packages/mds/src"]
 }

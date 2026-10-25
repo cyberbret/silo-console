@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { createBucketCommands } from "common/mcli/commands";
+import { FormCliEquivalent } from "common/mcli/FormCliEquivalent";
 import React, { Fragment, useEffect, useState } from "react";
 import styled from "styled-components";
 import get from "lodash/get";
@@ -64,6 +66,7 @@ import {
 } from "./addBucketsSlice";
 import { addBucketAsync } from "./addBucketThunks";
 import AddBucketName from "./AddBucketName";
+import { validateBucketName } from "./bucketNameValidation";
 import {
   IAM_SCOPES,
   permissionTooltipHelper,
@@ -75,7 +78,6 @@ import PageHeaderWrapper from "../../../Common/PageHeaderWrapper/PageHeaderWrapp
 import { api } from "../../../../../api";
 import { ObjectRetentionMode } from "../../../../../api/consoleApi";
 import { errorToHandler } from "../../../../../api/errors";
-import HelpMenu from "../../../HelpMenu";
 import CSVMultiSelector from "../../../Common/FormComponents/CSVMultiSelector/CSVMultiSelector";
 import { interpolate, useLocalizedLink, useT } from "i18n";
 
@@ -95,16 +97,11 @@ const AddBucket = () => {
   const t = useT();
   const localize = useLocalizedLink();
 
-  const validBucketCharacters = new RegExp(
-    `^[a-z0-9][a-z0-9\\.\\-]{1,61}[a-z0-9]$`,
-  );
-  const ipAddressFormat = new RegExp(`^(\\d+\\.){3}\\d+$`);
   const bucketName = useSelector((state: AppState) => state.addBucket.name);
   const isDirty = useSelector((state: AppState) => state.addBucket.isDirty);
-  const [validationResult, setValidationResult] = useState<boolean[]>([]);
-  const errorList = validationResult.filter((v) => !v);
-  const hasErrors = errorList.length > 0;
   const [records, setRecords] = useState<string[]>([]);
+  const validationResult = validateBucketName(bucketName, records);
+  const hasErrors = validationResult.some((valid) => !valid);
   const versioningEnabled = useSelector(
     (state: AppState) => state.addBucket.versioningEnabled,
   );
@@ -170,24 +167,6 @@ const AddBucket = () => {
   }, [addError, dispatch]);
 
   useEffect(() => {
-    const bucketNameErrors = [
-      !(isDirty && (bucketName.length < 3 || bucketName.length > 63)),
-      validBucketCharacters.test(bucketName),
-      !(
-        bucketName.includes(".-") ||
-        bucketName.includes("-.") ||
-        bucketName.includes("..")
-      ),
-      !ipAddressFormat.test(bucketName),
-      !bucketName.startsWith("xn--"),
-      !bucketName.endsWith("-s3alias"),
-      !records.includes(bucketName),
-    ];
-    setValidationResult(bucketNameErrors);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bucketName, isDirty]);
-
-  useEffect(() => {
     dispatch(setName(""));
     dispatch(setIsDirty(false));
     const fetchRecords = () => {
@@ -233,10 +212,11 @@ const AddBucket = () => {
   return (
     <Fragment>
       <PageHeaderWrapper
+        titleElement="h1"
         label={
           <BackLink label={t("Buckets")} onClick={() => navigate("/buckets")} />
         }
-        actions={<HelpMenu />}
+        help
       />
       <PageLayout>
         <FormLayout
@@ -297,11 +277,19 @@ const AddBucket = () => {
             autoComplete="off"
             onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
               e.preventDefault();
-              dispatch(addBucketAsync());
+              dispatch(setIsDirty(true));
+              if (
+                canCreateBucket &&
+                !addLoading &&
+                !hasErrors &&
+                invalidFields.length === 0
+              ) {
+                dispatch(addBucketAsync());
+              }
             }}
           >
             <Box>
-              <AddBucketName hasErrors={hasErrors} />
+              <AddBucketName hasErrors={isDirty && hasErrors} />
               <Box sx={{ margin: "10px 0" }}>
                 <BucketNamingRules errorList={validationResult} />
               </Box>
@@ -829,6 +817,30 @@ const AddBucket = () => {
                 <ProgressBar />
               </Grid>
             )}
+            <FormCliEquivalent
+              commands={createBucketCommands({
+                name: bucketName,
+                objectLock: distributedSetup && lockingEnabled,
+                versioning:
+                  distributedSetup &&
+                  !siteReplicationInfo.enabled &&
+                  versioningEnabled,
+                excludeFolders: excludeFolders,
+                excludedPrefixes: excludedPrefixes,
+                quota:
+                  distributedSetup && quotaEnabled && quotaSize
+                    ? `${quotaSize}${quotaUnit}`
+                    : undefined,
+                retention:
+                  distributedSetup && retentionEnabled
+                    ? {
+                        mode: retentionMode,
+                        validity: retentionValidity,
+                        unit: retentionUnit,
+                      }
+                    : undefined,
+              })}
+            />
           </form>
         </FormLayout>
       </PageLayout>

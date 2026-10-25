@@ -14,7 +14,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import React from "react";
 import { DateTime } from "luxon";
+import type { IColumns } from "mds";
 import { BucketObjectItem } from "./types";
 import { niceBytes } from "../../../../../../common/utils";
 import { displayFileIconName } from "./utils";
@@ -61,16 +63,18 @@ const displayDeleteFlag = (t: Translator) => (state: boolean) => {
 
 // Table Props
 
-export const listModeColumns = (t: Translator) => [
+export const listModeColumns = (t: Translator): IColumns[] => [
   {
     label: t("Name"),
     elementKey: "name",
+    priority: "high",
     renderFunction: displayFileIconName,
     enableSort: true,
   },
   {
     label: t("Last Modified"),
     elementKey: "last_modified",
+    priority: "medium",
     renderFunction: displayParsedDate(t),
     renderFullObject: true,
     enableSort: true,
@@ -78,6 +82,9 @@ export const listModeColumns = (t: Translator) => [
   {
     label: t("Size"),
     elementKey: "size",
+    priority: "high",
+    headerTextAlign: "right",
+    contentTextAlign: "right",
     renderFunction: displayNiceBytes,
     renderFullObject: true,
     width: 100,
@@ -85,16 +92,28 @@ export const listModeColumns = (t: Translator) => [
   },
 ];
 
-export const rewindModeColumns = (t: Translator) => [
+export const rewindModeColumns = (t: Translator): IColumns[] => [
   {
     label: t("Name"),
     elementKey: "name",
-    renderFunction: displayFileIconName,
+    priority: "high",
+    renderFullObject: true,
+    renderFunction: (object: BucketObjectItem) => (
+      <span
+        style={{ display: "flex", alignItems: "center", gap: 4, minWidth: 0 }}
+      >
+        <span style={{ minWidth: 0, overflow: "hidden" }}>
+          {displayFileIconName(object.name)}
+        </span>
+        {object.delete_flag && <span>{t("Deleted")}</span>}
+      </span>
+    ),
     enableSort: true,
   },
   {
     label: t("Object Date"),
     elementKey: "last_modified",
+    priority: "medium",
     renderFunction: displayParsedDate(t),
     renderFullObject: true,
     enableSort: true,
@@ -102,6 +121,9 @@ export const rewindModeColumns = (t: Translator) => [
   {
     label: t("Size"),
     elementKey: "size",
+    priority: "high",
+    headerTextAlign: "right",
+    contentTextAlign: "right",
     renderFunction: displayNiceBytes,
     renderFullObject: true,
     width: 100,
@@ -110,6 +132,7 @@ export const rewindModeColumns = (t: Translator) => [
   {
     label: t("Deleted"),
     elementKey: "delete_flag",
+    priority: "medium",
     renderFunction: displayDeleteFlag(t),
     width: 60,
   },

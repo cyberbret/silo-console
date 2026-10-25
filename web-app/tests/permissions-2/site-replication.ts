@@ -17,7 +17,7 @@
 import * as roles from "../utils/roles";
 import { IAM_PAGES } from "../../src/common/SecureComponent/permissions";
 import { Selector } from "testcafe";
-import { getMenuElement } from "../utils/elements-menu";
+import { getMenuElement, settingsElement } from "../utils/elements-menu";
 
 let testDomainUrl = "http://localhost:9090";
 const screenUrl = `${testDomainUrl}${IAM_PAGES.SITE_REPLICATION}`;
@@ -36,7 +36,7 @@ fixture("Site Replication Status for user with Admin permissions")
   });
 
 test("Site replication sidebar item exists", async (t) => {
-  await t.expect(siteReplicationEl.exists).ok();
+  await t.click(settingsElement).expect(siteReplicationEl.exists).ok();
 });
 
 test("Add Sites button exists", async (t) => {

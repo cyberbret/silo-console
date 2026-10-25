@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { ModalPresence } from "common/ui/ModalPresence";
 import React, { Fragment, useCallback, useEffect, useState } from "react";
 import get from "lodash/get";
 import { useSelector } from "react-redux";
@@ -41,14 +42,13 @@ import { setErrorSnackMessage, setHelpName } from "../../../../systemSlice";
 import { selFeatures } from "../../consoleSlice";
 import { useAppDispatch } from "../../../../store";
 import { SecureComponent } from "../../../../common/SecureComponent";
-import { useLocalizedLink, useT } from "i18n";
+import { i18nKey, useLocalizedLink, useT } from "i18n";
 import api from "../../../../common/api";
 import FilterInputWrapper from "../../Common/FormComponents/FilterInputWrapper/FilterInputWrapper";
 import LogSearchFullModal from "./LogSearchFullModal";
 import DateRangeSelector from "../../Common/FormComponents/DateRangeSelector/DateRangeSelector";
 import MissingIntegration from "../../Common/MissingIntegration/MissingIntegration";
 import PageHeaderWrapper from "../../Common/PageHeaderWrapper/PageHeaderWrapper";
-import HelpMenu from "../../HelpMenu";
 
 const filtersContainer: CSSObject = {
   display: "flex",
@@ -224,20 +224,24 @@ const LogsSearchMain = () => {
 
   return (
     <Fragment>
-      {logSearchExtrasOpen && selectedItem !== null && (
-        <LogSearchFullModal
-          logSearchElement={selectedItem}
-          modalOpen={logSearchExtrasOpen}
-          onClose={closeViewExtraInformation}
-        />
-      )}
+      <ModalPresence
+        open={Boolean(logSearchExtrasOpen && selectedItem !== null)}
+      >
+        {logSearchExtrasOpen && selectedItem !== null && (
+          <LogSearchFullModal
+            logSearchElement={selectedItem}
+            modalOpen={logSearchExtrasOpen}
+            onClose={closeViewExtraInformation}
+          />
+        )}
+      </ModalPresence>
 
-      <PageHeaderWrapper label="Audit Logs" actions={<HelpMenu />} />
+      <PageHeaderWrapper titleElement="h1" label={i18nKey("Audit Logs")} help />
 
       <PageLayout>
         {!logSearchEnabled ? (
           <MissingIntegration
-            entity={"Audit Logs"}
+            entity={i18nKey("Audit Logs")}
             iconComponent={<SearchIcon />}
             documentationLink={localize(
               "https://silo.pgsty.com/operations/monitoring/minio-logging/",
@@ -294,7 +298,7 @@ const LogsSearchMain = () => {
                     marginLeft: 15,
                     marginBottom: 15,
                     fontSize: 12,
-                    color: "#9C9C9C",
+                    color: "var(--muted-foreground)",
                   }}
                 >
                   {t("Enable your preferred options to get filtered records.")}

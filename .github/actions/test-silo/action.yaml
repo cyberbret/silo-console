@@ -1,0 +1,16 @@
+name: Prepare the coordinated SILO test server
+description: Build a local test image from the Server binary compiled in this workflow.
+runs:
+  using: composite
+  steps:
+    - uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+      with:
+        path: ${{ runner.temp }}/silo-fixture/silo
+        key: ${{ runner.os }}-silo-fixture-${{ github.run_id }}
+        fail-on-cache-miss: true
+    - name: Build the local fixture image
+      shell: bash
+      run: |
+        chmod +x "$RUNNER_TEMP/silo-fixture/silo"
+        docker build --tag "$MINIO_VERSION" \
+          --file "$GITHUB_ACTION_PATH/Dockerfile" "$RUNNER_TEMP/silo-fixture"

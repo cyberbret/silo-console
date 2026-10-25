@@ -21,7 +21,7 @@ import * as functions from "../utils/functions";
 import { bucketsElement, logoutItem } from "../utils/elements-menu";
 import { Selector } from "testcafe";
 import * as constants from "../utils/constants";
-import { manageButtonFor } from "../utils/functions";
+import { bucketActionsFor, bucketSettingsItem } from "../utils/functions";
 
 fixture("For user with Bucket Assign Policy permissions")
   .page("http://localhost:9090")
@@ -45,7 +45,8 @@ test
       // using the specific role we use in this module
       .useRole(roles.bucketAssignPolicy)
       .navigateTo("http://localhost:9090/buckets")
-      .click(manageButtonFor("bucketassign1"))
+      .click(bucketActionsFor("bucketassign1"))
+      .click(bucketSettingsItem)
       .click(elements.bucketAccessRulesTab)
       .click(elements.addAccessRuleButton)
       .typeText(elements.bucketsPrefixInput, "readonlytest")
@@ -68,7 +69,8 @@ test
       // using the specific role we use in this module
       .useRole(roles.bucketAssignPolicy)
       .navigateTo("http://localhost:9090/buckets")
-      .click(manageButtonFor("bucketassign3"))
+      .click(bucketActionsFor("bucketassign3"))
+      .click(bucketSettingsItem)
       .click(elements.bucketAccessRulesTab)
       .click(elements.addAccessRuleButton)
       .typeText(elements.bucketsPrefixInput, "writeonlytest")
@@ -91,7 +93,8 @@ test
       // using the specific role we use in this module
       .useRole(roles.bucketAssignPolicy)
       .navigateTo("http://localhost:9090/buckets")
-      .click(manageButtonFor("bucketassign4"))
+      .click(bucketActionsFor("bucketassign4"))
+      .click(bucketSettingsItem)
       .click(elements.bucketAccessRulesTab)
       .click(elements.addAccessRuleButton)
       .typeText(elements.bucketsPrefixInput, "readwritetest")
@@ -113,7 +116,8 @@ test
 //     await t
 //       .useRole(roles.bucketAssignPolicy)
 //       .navigateTo("http://localhost:9090/buckets")
-//       .click(manageButtonFor("bucketassign5"))
+//       .click(bucketActionsFor("bucketassign5"))
+//       .click(bucketSettingsItem)
 //       .click(elements.bucketAccessRulesTab)
 //       .click(elements.deleteIconButtonAlt)
 //       .click(elements.deleteButton)

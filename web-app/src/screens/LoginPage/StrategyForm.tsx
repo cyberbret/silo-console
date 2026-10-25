@@ -125,7 +125,7 @@ const StrategyForm = ({ redirectRules }: { redirectRules: RedirectRule[] }) => {
     <React.Fragment>
       {redirectRules.length > 0 && (
         <Fragment>
-          <Box sx={{ marginBottom: 40 }}>
+          <Box sx={{ marginBottom: 24 }}>
             <Button
               id={"SSOSelector"}
               variant={"subAction"}
@@ -139,7 +139,6 @@ const StrategyForm = ({ redirectRules }: { redirectRules: RedirectRule[] }) => {
                   : t("Login with SSO")
               }
               fullWidth
-              sx={{ height: 50 }}
               onClick={(e) => {
                 if (redirectRules.length > 1) {
                   ssoOptionsSetOpen(!ssoOptionsOpen);
@@ -174,7 +173,7 @@ const StrategyForm = ({ redirectRules }: { redirectRules: RedirectRule[] }) => {
             <Grid
               container
               sx={{
-                marginTop: redirectRules.length > 0 ? 55 : 0,
+                marginTop: redirectRules.length > 0 ? 24 : 0,
               }}
             >
               {ldap_enabled && (
@@ -185,11 +184,11 @@ const StrategyForm = ({ redirectRules }: { redirectRules: RedirectRule[] }) => {
                   label={t("LDAP Authentication")}
                   variant="outlined"
                   sx={{
-                    marginBottom: 14,
+                    marginBottom: 16,
                   }}
                 ></Tag>
               )}
-              <Grid item xs={12} sx={{ marginBottom: 14 }}>
+              <Grid item xs={12} sx={{ marginBottom: 16 }}>
                 <InputBox
                   fullWidth
                   id="accessKey"
@@ -204,7 +203,7 @@ const StrategyForm = ({ redirectRules }: { redirectRules: RedirectRule[] }) => {
                   startIcon={<UserFilledIcon />}
                 />
               </Grid>
-              <Grid item xs={12} sx={{ marginBottom: useSTS ? 14 : 0 }}>
+              <Grid item xs={12} sx={{ marginBottom: useSTS ? 16 : 0 }}>
                 <InputBox
                   fullWidth
                   value={secretKey}
@@ -231,7 +230,7 @@ const StrategyForm = ({ redirectRules }: { redirectRules: RedirectRule[] }) => {
                     }
                     placeholder={t("STS Token")}
                     name="STS"
-                    autoComplete="sts"
+                    autoComplete="off"
                     disabled={loginSending}
                     startIcon={<PasswordKeyIcon />}
                   />
@@ -244,7 +243,7 @@ const StrategyForm = ({ redirectRules }: { redirectRules: RedirectRule[] }) => {
               xs={12}
               sx={{
                 textAlign: "right",
-                marginTop: 30,
+                marginTop: 24,
               }}
             >
               <Button
@@ -259,13 +258,6 @@ const StrategyForm = ({ redirectRules }: { redirectRules: RedirectRule[] }) => {
                   loginSending
                 }
                 label={t("Login")}
-                sx={{
-                  margin: "30px 0px 8px",
-                  height: 40,
-                  width: "100%",
-                  boxShadow: "none",
-                  padding: "16px 30px",
-                }}
                 fullWidth
               />
             </Grid>
@@ -273,14 +265,15 @@ const StrategyForm = ({ redirectRules }: { redirectRules: RedirectRule[] }) => {
               item
               xs={12}
               sx={{
-                height: 10,
+                height: 8,
+                marginTop: 8,
               }}
             >
               {loginSending && <ProgressBar />}
             </Grid>
           </Fragment>
         )}
-        <Grid item xs={12} sx={{ marginTop: 45 }}>
+        <Grid item xs={12} sx={{ marginTop: 24 }}>
           <Select
             id="alternativeMethods"
             name="alternativeMethods"

@@ -14,6 +14,11 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { createPolicyCommands } from "common/mcli/commands";
+import {
+  FormCliEquivalent,
+  PolicyFileNote,
+} from "common/mcli/FormCliEquivalent";
 import React, { Fragment, useEffect, useState } from "react";
 import {
   AddAccessRuleIcon,
@@ -28,7 +33,6 @@ import {
 import AddPolicyHelpBox from "./AddPolicyHelpBox";
 import CodeMirrorWrapper from "../Common/FormComponents/CodeMirrorWrapper/CodeMirrorWrapper";
 import PageHeaderWrapper from "../Common/PageHeaderWrapper/PageHeaderWrapper";
-import HelpMenu from "../HelpMenu";
 import { IAM_PAGES } from "../../../common/SecureComponent/permissions";
 import { setErrorSnackMessage, setHelpName } from "../../../systemSlice";
 import { useNavigate } from "react-router-dom";
@@ -96,13 +100,14 @@ const AddPolicyScreen = () => {
     <Fragment>
       <Grid item xs={12}>
         <PageHeaderWrapper
+          titleElement="h1"
           label={
             <BackLink
               label={t("Policies")}
               onClick={() => navigate(IAM_PAGES.POLICIES)}
             />
           }
-          actions={<HelpMenu />}
+          help
         />
         <PageLayout>
           <FormLayout
@@ -132,6 +137,7 @@ const AddPolicyScreen = () => {
                   />
                 </Grid>
                 <Grid item xs={12}>
+                  <PolicyFileNote />
                   <CodeMirrorWrapper
                     label={t("Write Policy")}
                     value={policyDefinition}
@@ -182,6 +188,7 @@ const AddPolicyScreen = () => {
                   </Box>
                 </Grid>
               </Grid>
+              <FormCliEquivalent commands={createPolicyCommands(policyName)} />
             </form>
           </FormLayout>
         </PageLayout>

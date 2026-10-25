@@ -32,7 +32,7 @@ import { ApiError, HttpResponse } from "api/consoleApi";
 import { setErrorSnackMessage } from "systemSlice";
 import { errorToHandler } from "api/errors";
 import { IAM_PAGES } from "common/SecureComponent/permissions";
-import { useT } from "i18n";
+import { i18nKey, useT } from "i18n";
 
 const AddKeyForm = () => {
   const dispatch = useAppDispatch();
@@ -76,9 +76,11 @@ const AddKeyForm = () => {
         icon={<AddAccessRuleIcon />}
         helpBox={
           <KMSHelpBox
-            helpText={"Encryption Key"}
+            helpText={i18nKey("Encryption Key")}
             contents={[
-              "Create a new cryptographic key in the Key Management Service server connected to SILO.",
+              i18nKey(
+                "Create a new cryptographic key in the Key Management Service server connected to SILO.",
+              ),
             ]}
           />
         }
