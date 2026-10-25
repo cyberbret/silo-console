@@ -38,6 +38,7 @@ const KeyRevealer = ({ value }: { value: string }) => {
         name="inspect-dec-key"
         placeholder=""
         label=""
+        aria-label={t("Inspect Decryption Key")}
         type={shown ? "text" : "password"}
         onChange={() => {}}
         value={value}

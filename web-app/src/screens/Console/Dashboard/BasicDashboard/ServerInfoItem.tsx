@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import React from "react";
-import styled, { useTheme } from "styled-components";
+import styled from "styled-components";
 import get from "lodash/get";
 import { Box, breakPoints, CircleIcon } from "mds";
 import { niceDays } from "../../../../common/utils";
@@ -33,23 +33,23 @@ interface ICardProps {
 
 const ServerStatItemMain = styled.div(({ theme }) => ({
   alignItems: "baseline",
-  padding: "5px",
+  padding: 4,
   display: "flex",
-  gap: "5px",
+  gap: 4,
   "& .StatBox": {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     flexFlow: "column",
     "& .stat-text": {
-      color: get(theme, "mutedText", "#87888d"),
-      fontSize: "12px",
+      color: "var(--muted-foreground)",
+      fontSize: "var(--fs-caption)",
     },
     "& .stat-value": {
-      fontSize: "18px",
-      color: get(theme, "fontColor", "#18181B"),
+      fontSize: "var(--fs-title)",
+      color: "var(--foreground)",
       display: "flex",
-      fontWeight: 600,
+      fontWeight: 550,
       fontVariantNumeric: "tabular-nums",
       overflow: "hidden",
       textOverflow: "ellipsis",
@@ -59,10 +59,10 @@ const ServerStatItemMain = styled.div(({ theme }) => ({
         alignItems: "center",
         justifyContent: "center",
         flexFlow: "column",
-        marginLeft: "5px",
+        marginLeft: 4,
         maxWidth: "40px",
         "&:first-of-type(svg)": {
-          fill: get(theme, "mutedText", "#87888d"),
+          fill: "var(--muted-foreground)",
         },
         "& .stat-indicator": {
           marginRight: "0px",
@@ -156,7 +156,6 @@ const ServerStatItem = ({
 };
 
 const ServerInfoItem = ({ server }: ICardProps) => {
-  const theme = useTheme();
   const t = useT();
   const networkKeys = Object.keys(get(server, "network", {}));
   const networkTotal = networkKeys.length;
@@ -177,11 +176,11 @@ const ServerInfoItem = ({ server }: ICardProps) => {
         sx={{
           display: "flex",
           alignItems: "center",
-          padding: "3px",
-          gap: "15px",
+          padding: 4,
+          gap: 16,
           justifyContent: "space-between",
           width: "100%",
-          paddingLeft: "20px",
+          paddingLeft: 16,
           flexFlow: "row",
           [`@media (max-width: ${breakPoints.md}px)`]: {
             flexFlow: "column",
@@ -196,7 +195,7 @@ const ServerInfoItem = ({ server }: ICardProps) => {
         >
           <Box
             sx={{
-              fontWeight: 600,
+              fontWeight: 550,
               textTransform: "none",
             }}
           >
@@ -242,17 +241,16 @@ const ServerInfoItem = ({ server }: ICardProps) => {
           value={
             <Box
               sx={{
-                background: get(theme, "boxBackground", "#FAFAFA"),
-                border: `1px solid ${get(theme, "borderColor", "#E4E4E7")}`,
-                color: get(theme, "secondaryText", "#52525B"),
-                padding: "3px 10px",
-                borderRadius: "6px",
-                fontSize: "12px",
+                background: "var(--muted)",
+                color: "var(--foreground)",
+                padding: "4px 8px",
+                borderRadius: "var(--radius-control)",
+                fontSize: "var(--fs-caption)",
                 fontWeight: 400,
 
                 "& .label": {
-                  fontWeight: 600,
-                  marginRight: "3px",
+                  fontWeight: 550,
+                  marginRight: 4,
                 },
               }}
             >

@@ -15,11 +15,26 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import React from "react";
-import { Accordion, Box, breakPoints } from "mds";
+import { Accordion, Box, breakPoints, type } from "mds";
+import styled from "styled-components";
 import ServerInfoItem from "./ServerInfoItem";
 import DriveInfoItem from "./DriveInfoItem";
 import { ServerProperties } from "api/consoleApi";
 import { useT } from "i18n";
+
+const ServersHeading = styled.h2`
+  ${type("title")}
+  margin: 0 0 16px;
+  color: var(--foreground);
+`;
+
+const DrivesHeading = styled.h3`
+  ${type("body", { weight: "semibold" })}
+  margin: 0;
+  padding: 8px 16px;
+  color: var(--foreground);
+  background: var(--muted);
+`;
 
 const ServersList = ({ data }: { data: ServerProperties[] }) => {
   const t = useT();
@@ -33,15 +48,9 @@ const ServersList = ({ data }: { data: ServerProperties[] }) => {
 
   return (
     <Box>
-      <Box
-        sx={{
-          fontSize: 18,
-          lineHeight: 2,
-          fontWeight: 700,
-        }}
-      >
+      <ServersHeading>
         {t("Servers")} ({data.length})
-      </Box>
+      </ServersHeading>
       <Box>
         {data.map((serverInfo, index) => {
           const key = `${serverInfo.endpoint}-${index}`;
@@ -59,23 +68,20 @@ const ServersList = ({ data }: { data: ServerProperties[] }) => {
               }}
               id={"key"}
               title={<ServerInfoItem server={serverInfo} index={index} />}
-              sx={{ marginBottom: 15 }}
+              sx={{ marginBottom: 16 }}
             >
-              <Box
-                useBackground
-                sx={{ padding: "10px 30px", fontWeight: "bold" }}
-              >
+              <DrivesHeading>
                 {t("Drives")} ({serverInfo.drives?.length})
-              </Box>
+              </DrivesHeading>
               <Box
                 sx={{
                   flex: 1,
                   display: "flex",
                   flexDirection: "column",
-                  padding: "15px 30px",
-                  gap: 15,
+                  padding: 16,
+                  gap: 16,
                   [`@media (max-width: ${breakPoints.sm}px)`]: {
-                    padding: "10px 10px",
+                    padding: 12,
                   },
                 }}
               >

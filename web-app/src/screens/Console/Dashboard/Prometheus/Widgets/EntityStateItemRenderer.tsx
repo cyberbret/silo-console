@@ -26,8 +26,8 @@ import { useT } from "i18n";
 const StateIndicator = styled.div(({ theme }) => ({
   display: "flex",
   alignItems: "center",
-  marginTop: 7,
-  gap: 6,
+  marginTop: 8,
+  gap: 8,
   "& .min-icon": {
     margin: 0,
     width: 8,
@@ -45,8 +45,8 @@ const StateIndicator = styled.div(({ theme }) => ({
     },
   },
   "& .indicatorText": {
-    color: get(theme, "mutedText", "#87888d"),
-    fontSize: 12,
+    color: "var(--muted-foreground)",
+    fontSize: "var(--fs-caption)",
   },
 }));
 

@@ -60,6 +60,7 @@ const ResetConfigurationModal = ({
 
   return (
     <ConfirmDialog
+      destructive
       title={t("Restore Defaults")}
       confirmText={t("Yes, Reset Configuration")}
       isOpen={resetOpen}

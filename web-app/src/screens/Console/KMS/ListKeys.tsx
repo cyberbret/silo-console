@@ -14,10 +14,21 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { SkeletonRows } from "common/ui";
+import { FilteredEmptyState } from "common/ui/FilteredEmptyState";
+import { LockIcon } from "mds";
 import React, { useEffect, useState } from "react";
-import { AddIcon, Button, DataTable, Grid, PageLayout, RefreshIcon } from "mds";
+import {
+  AddIcon,
+  Button,
+  IconButton,
+  DataTable,
+  Grid,
+  PageLayout,
+  RefreshIcon,
+} from "mds";
 import { useNavigate } from "react-router-dom";
-import { useT } from "i18n";
+import { i18nKey, useT } from "i18n";
 import api from "../../../common/api";
 import {
   hasPermission,
@@ -34,7 +45,6 @@ import { setErrorSnackMessage, setHelpName } from "../../../systemSlice";
 import SearchBox from "../Common/SearchBox";
 import TooltipWrapper from "../Common/TooltipWrapper/TooltipWrapper";
 import PageHeaderWrapper from "../Common/PageHeaderWrapper/PageHeaderWrapper";
-import HelpMenu from "../HelpMenu";
 
 const ListKeys = () => {
   const dispatch = useAppDispatch();
@@ -42,7 +52,7 @@ const ListKeys = () => {
   const t = useT();
 
   const [filter, setFilter] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [records, setRecords] = useState<[]>([]);
 
   const createKey = hasPermission(CONSOLE_UI_RESOURCE, [
@@ -69,7 +79,7 @@ const ListKeys = () => {
           .invoke("GET", `/api/v1/kms/keys?pattern=${pattern}`)
           .then((res) => {
             setLoading(false);
-            setRecords(res.results);
+            setRecords(res.results ?? []);
           })
           .catch((err: ErrorResponseHandler) => {
             setLoading(false);
@@ -92,8 +102,9 @@ const ListKeys = () => {
   return (
     <React.Fragment>
       <PageHeaderWrapper
-        label="Key Management Service Keys"
-        actions={<HelpMenu />}
+        titleElement="h1"
+        label={i18nKey("Key Management Service Keys")}
+        help
       />
 
       <PageLayout>
@@ -127,15 +138,13 @@ const ListKeys = () => {
               resource={CONSOLE_UI_RESOURCE}
               errorProps={{ disabled: true }}
             >
-              <TooltipWrapper tooltip={t("Refresh")}>
-                <Button
-                  aria-label={t("Refresh list")}
-                  id={"refresh-keys"}
-                  variant="regular"
-                  icon={<RefreshIcon />}
-                  onClick={() => setLoading(true)}
-                />
-              </TooltipWrapper>
+              <IconButton
+                aria-label={t("Refresh list")}
+                id={"refresh-keys"}
+                onClick={() => setLoading(true)}
+              >
+                <RefreshIcon />
+              </IconButton>
             </SecureComponent>
             {createKey ? (
               <SecureComponent
@@ -170,7 +179,29 @@ const ListKeys = () => {
                 isLoading={loading}
                 records={records}
                 entityName="Keys"
-                customEmptyMessage={t("There are no Keys yet.")}
+                loadingState={<SkeletonRows rows={5} columns={3} />}
+                emptyState={
+                  <FilteredEmptyState
+                    headingLevel={2}
+                    filtered={Boolean(filter.trim())}
+                    onClear={() => setFilter("")}
+                    icon={<LockIcon />}
+                    title={t("No encryption keys yet")}
+                    description={t(
+                      "Create a key to encrypt objects with the configured key management service.",
+                    )}
+                    action={
+                      createKey && (
+                        <Button
+                          id="empty-list-action"
+                          variant="callAction"
+                          label={t("Create Key")}
+                          onClick={() => navigate(IAM_PAGES.KMS_KEYS_ADD)}
+                        />
+                      )
+                    }
+                  />
+                }
                 idField="name"
               />
             </SecureComponent>

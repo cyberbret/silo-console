@@ -23,11 +23,13 @@ const DashboardItemBox = ({ children }: { children: any }) => {
       withBorders
       sx={{
         borderRadius: 12,
-        padding: "16px 20px",
-        height: 136,
+        padding: 16,
+        boxSizing: "border-box",
+        height: "100%",
+        minHeight: 136,
         maxWidth: "100%",
         [`@media (max-width: ${breakPoints.sm}px)`]: {
-          padding: 10,
+          padding: 12,
           height: "auto",
         },
         [`@media (max-width: ${breakPoints.md}px)`]: {

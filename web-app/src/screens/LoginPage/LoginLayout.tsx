@@ -5,7 +5,7 @@
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import get from "lodash/get";
 import { SILO_COLORS, SiloBrand } from "../../common/SiloBrand";
@@ -13,13 +13,14 @@ import WaveMeshCanvas from "./WaveMeshCanvas";
 import HelpMenu from "../Console/HelpMenu";
 import DarkModeActivator from "../Console/Common/DarkModeActivator/DarkModeActivator";
 import LanguageActivator from "../Console/Common/LanguageActivator/LanguageActivator";
-import { interpolate, useLocalizedLink, useT } from "i18n";
+import { interpolate, useLanguage, useLocalizedLink, useT } from "i18n";
+import { useMobile } from "common/ui/useMediaQuery";
 
 // Chakra Petch (the wordmark typeface) is registered app-wide in index.css.
 const displayFont =
   '"Chakra Petch", "Inter", -apple-system, "Segoe UI", sans-serif';
 
-const LoginShell = styled.div({
+const LoginShell = styled.main({
   display: "flex",
   alignItems: "stretch",
   minHeight: "100vh",
@@ -45,7 +46,7 @@ const BrandPanel = styled.aside({
     zIndex: 1,
     background: "linear-gradient(to top, rgba(4, 10, 22, 0.85), transparent)",
   },
-  "@media (max-width: 991px)": {
+  "@media (max-width: 767.98px)": {
     display: "none",
   },
 });
@@ -58,9 +59,13 @@ const BrandContent = styled.div({
   width: "100%",
   padding: "clamp(40px, 6vw, 88px)",
   paddingBottom: 36,
+  "@media (min-width: 768px) and (max-width: 991px)": {
+    padding: "40px 24px 24px",
+    "& h1": { fontSize: 26 },
+  },
   "& .eyebrow": {
     fontFamily: displayFont,
-    fontWeight: 500,
+    fontWeight: 550,
     fontSize: 12,
     letterSpacing: "0.22em",
     textTransform: "uppercase",
@@ -75,6 +80,10 @@ const BrandContent = styled.div({
     letterSpacing: "0.01em",
     color: SILO_COLORS.text,
     whiteSpace: "nowrap",
+  },
+  "& .heroLine": { display: "block", width: "max-content" },
+  "& .heroLine + .heroLine": {
+    fontSize: "calc(1em * var(--hero-line-scale, 1))",
   },
   "& h1 .accentSky": {
     color: SILO_COLORS.sky,
@@ -104,7 +113,13 @@ const BrandContent = styled.div({
     lineHeight: 1.7,
     color: SILO_COLORS.muted,
     opacity: 0.85,
-    maxWidth: "64ch",
+    maxWidth: "100%",
+    textWrap: "pretty",
+    "& .introSentence + .introSentence::before": { content: '" "' },
+    "@media (min-width: 1280px)": {
+      "& .introSentence": { display: "block", textWrap: "balance" },
+      "& .introSentence + .introSentence::before": { content: "none" },
+    },
   },
   "& .spacer": {
     flexGrow: 1,
@@ -113,10 +128,13 @@ const BrandContent = styled.div({
     margin: 0,
     fontSize: 11,
     lineHeight: 1.7,
-    color: SILO_COLORS.faint,
-    maxWidth: "70ch",
-    "& span": {
-      display: "block",
+    color: SILO_COLORS.muted,
+    maxWidth: "100%",
+    width: "fit-content",
+    textWrap: "pretty",
+    "& .legalLine": { display: "block" },
+    "@media (min-width: 1340px)": {
+      "& .legalLine": { textAlign: "justify", textAlignLast: "justify" },
     },
     "& a": {
       color: "inherit",
@@ -137,8 +155,14 @@ const FormPanel = styled.section(({ theme }) => ({
   maxWidth: 520,
   minHeight: "100vh",
   backgroundColor: get(theme, "login.formBG", "#fff"),
-  "@media (max-width: 991px)": {
+  "@media (min-width: 768px) and (max-width: 991px)": {
+    width: "50%",
+    flexShrink: 0,
+  },
+  "@media (max-width: 767.98px)": {
     maxWidth: "100%",
+    "& .formArea": { padding: "32px 12px 0" },
+    "& .formBox": { maxWidth: 400, width: "100%" },
   },
   "& .headerActions": {
     position: "absolute",
@@ -147,38 +171,10 @@ const FormPanel = styled.section(({ theme }) => ({
     zIndex: 10,
     display: "flex",
     alignItems: "center",
-    gap: 2,
-    // Quiet ghost icon buttons: no chrome, low contrast until hovered.
-    // Direct children only — the help panel (a nested div) has its own buttons.
-    "& > button": {
-      border: "none",
-      background: "transparent",
-      boxShadow: "none",
-      padding: 0,
-      height: 28,
-      width: 28,
-      display: "inline-flex",
-      alignItems: "center",
-      justifyContent: "center",
-      color: get(theme, "mutedText", "#9CA3AF"),
-      opacity: 0.6,
-      transition: "opacity 0.15s ease, color 0.15s ease",
-      "& svg": {
-        width: 15,
-        height: 15,
-        fill: "currentcolor",
-        color: "currentcolor",
-      },
-      "&:hover": {
-        border: "none",
-        background: "transparent",
-        color: get(theme, "fontColor", "#3F3F46"),
-        opacity: 1,
-      },
-    },
+    gap: 4,
     // The help panel is absolutely positioned; anchor it below the buttons
     // and keep it inside the viewport (there is no sidebar on this page).
-    "& > div": {
+    "& > .help-menu-panel": {
       top: "calc(100% + 8px)",
       maxWidth: "min(754px, calc(100vw - 36px))",
     },
@@ -190,14 +186,13 @@ const FormPanel = styled.section(({ theme }) => ({
     alignItems: "center",
     justifyContent: "center",
     gap: 16,
-    height: 215,
+    height: 216,
     flexShrink: 0,
-    boxShadow: "0 3px 10px 2px #00000010",
   },
   "& .logoLockup": {
     display: "flex",
     alignItems: "center",
-    gap: 18,
+    gap: 16,
     textDecoration: "none",
     transition: "opacity 0.15s ease",
     "&:hover": {
@@ -216,13 +211,13 @@ const FormPanel = styled.section(({ theme }) => ({
   },
   "& .logoBand .consoleTag": {
     fontFamily: displayFont,
-    fontWeight: 500,
+    fontWeight: 550,
     fontSize: 11,
     letterSpacing: "0.42em",
     paddingLeft: "0.42em",
     textTransform: "uppercase",
-    color: get(theme, "fontColor", "#000"),
-    opacity: 0.55,
+    color: "var(--muted-foreground)",
+    margin: 0,
   },
   "& .formArea": {
     display: "flex",
@@ -245,16 +240,16 @@ const FormPanel = styled.section(({ theme }) => ({
     alignItems: "center",
     flexWrap: "wrap",
     borderTop: `1px solid ${get(theme, "login.footerDivider", "#F2F2F2")}`,
-    padding: "35px 0",
+    padding: "32px 0",
     fontSize: 11,
-    color: get(theme, "login.footerElements", "#2781B0"),
+    color: "var(--muted-foreground)",
     "& a": {
       fontFamily: displayFont,
-      fontWeight: 500,
+      fontWeight: 550,
       fontSize: 11,
       letterSpacing: "0.24em",
       textTransform: "uppercase",
-      color: get(theme, "login.footerElements", "#2781B0"),
+      color: "var(--muted-foreground)",
       textDecoration: "none",
       paddingBottom: 1,
       borderBottom:
@@ -265,7 +260,7 @@ const FormPanel = styled.section(({ theme }) => ({
       },
     },
     "& .separator": {
-      opacity: 0.4,
+      color: "var(--muted-foreground)",
     },
   },
 }));
@@ -277,7 +272,46 @@ interface LoginLayoutProps {
 
 const LoginLayout = ({ children, footer }: LoginLayoutProps) => {
   const t = useT();
+  const language = useLanguage();
+  const pgstyURL =
+    language === "zh" ? "https://pgsty.com/zh" : "https://pgsty.com/";
+  const firstLine = useRef<HTMLSpanElement>(null);
+  const secondLine = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    const first = firstLine.current;
+    const second = secondLine.current;
+    if (!first || !second) return;
+    let active = true;
+    const align = () => {
+      if (!active) return;
+      if (language !== "en") {
+        second.style.removeProperty("--hero-line-scale");
+        return;
+      }
+      const firstWidth = first.getBoundingClientRect().width;
+      const secondWidth = second.getBoundingClientRect().width;
+      if (!firstWidth || !secondWidth) return;
+      const currentScale =
+        parseFloat(getComputedStyle(second).fontSize) /
+        parseFloat(getComputedStyle(first).fontSize);
+      second.style.setProperty(
+        "--hero-line-scale",
+        String((firstWidth / secondWidth) * currentScale),
+      );
+    };
+    const observer = new ResizeObserver(align);
+    observer.observe(first);
+    void document.fonts.ready.then(align);
+    align();
+    return () => {
+      active = false;
+      observer.disconnect();
+    };
+  }, [language]);
   const localize = useLocalizedLink();
+  const mobile = useMobile();
+  const ConsoleTag = mobile ? "h1" : "span";
+  const HeroHeading = mobile ? "div" : "h1";
 
   return (
     <LoginShell>
@@ -287,18 +321,23 @@ const LoginLayout = ({ children, footer }: LoginLayoutProps) => {
           <div className="eyebrow">
             {t("Open-Source S3/MinIO-Compatible Object Storage")}
           </div>
-          <h1>
-            {interpolate(t("Keep the {s3}"), {
-              s3: <span className="accentSky">{t("S3 Interface")}</span>,
-            })}
-            <br />
-            {interpolate(t("Own the {store}"), {
-              store: <span className="accentCopper">{t("Object Store")}</span>,
-            })}
-          </h1>
+          <HeroHeading>
+            <span className="heroLine" ref={firstLine}>
+              {interpolate(t("Keep the {s3}"), {
+                s3: <span className="accentSky">{t("S3 Interface")}</span>,
+              })}
+            </span>
+            <span className="heroLine" ref={secondLine}>
+              {interpolate(t("Own the {store}"), {
+                store: (
+                  <span className="accentCopper">{t("Object Store")}</span>
+                ),
+              })}
+            </span>
+          </HeroHeading>
           <p className="descriptor">
             {interpolate(
-              t("Community maintained {minio}, forked by {pigsty} · {agpl}"),
+              t("{minio} fork maintained by {pgsty}, {agpl} License"),
               {
                 minio: (
                   <a
@@ -309,13 +348,9 @@ const LoginLayout = ({ children, footer }: LoginLayoutProps) => {
                     MinIO
                   </a>
                 ),
-                pigsty: (
-                  <a
-                    href={localize("https://pigsty.io")}
-                    target="_blank"
-                    rel="noopener"
-                  >
-                    Pigsty
+                pgsty: (
+                  <a href={pgstyURL} target="_blank" rel="noopener">
+                    PGSTY
                   </a>
                 ),
                 agpl: (
@@ -331,13 +366,20 @@ const LoginLayout = ({ children, footer }: LoginLayoutProps) => {
             )}
           </p>
           <p className="intro">
-            {t(
-              "A high-performance object store that runs on any infrastructure — public cloud, private cloud, or bare metal. It powers data lakes, AI/ML, and fast backup & recovery, with erasure coding, encryption, and replication built in.",
-            )}
+            <span className="introSentence">
+              {t(
+                "A high-performance object store that runs on any infrastructure — public cloud, private cloud, or bare metal.",
+              )}
+            </span>
+            <span className="introSentence">
+              {t(
+                "Erasure coding, encryption, and replication power data lakes, AI/ML, and fast backup & recovery.",
+              )}
+            </span>
           </p>
           <div className="spacer" />
           <p className="legal">
-            <span>
+            <span className="legalLine">
               {interpolate(
                 t(
                   "MinIO® is a registered trademark of {minioInc}; SILO incorporates {minioSource}.",
@@ -360,19 +402,15 @@ const LoginLayout = ({ children, footer }: LoginLayoutProps) => {
                 },
               )}
             </span>
-            <span>
+            <span className="legalLine">
               {interpolate(
                 t(
-                  "SILO is maintained by {pigsty}, without MinIO affiliation, endorsement, or sponsorship.",
+                  "SILO is maintained by {pgsty}, without MinIO affiliation, endorsement, or sponsorship.",
                 ),
                 {
-                  pigsty: (
-                    <a
-                      href={localize("https://pigsty.io")}
-                      target="_blank"
-                      rel="noopener"
-                    >
-                      PIGSTY
+                  pgsty: (
+                    <a href={pgstyURL} target="_blank" rel="noopener">
+                      PGSTY
                     </a>
                   ),
                 },
@@ -398,7 +436,9 @@ const LoginLayout = ({ children, footer }: LoginLayoutProps) => {
             <SiloBrand variant="emblem" className="emblem" />
             <SiloBrand variant="wordmark" className="wordmark" />
           </a>
-          <span className="consoleTag">{t("Object Storage Console")}</span>
+          <ConsoleTag className="consoleTag">
+            {t("Object Storage Console")}
+          </ConsoleTag>
         </div>
         <div className="formArea">
           <div className="formBox">{children}</div>

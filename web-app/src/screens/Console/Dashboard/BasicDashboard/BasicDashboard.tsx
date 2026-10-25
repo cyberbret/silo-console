@@ -65,12 +65,14 @@ const BoxItem = ({ children }: { children: any }) => {
     <Box
       withBorders
       sx={{
-        padding: "16px 20px",
+        padding: 16,
         borderRadius: 12,
-        height: "136px",
+        boxSizing: "border-box",
+        height: "100%",
+        minHeight: 136,
         maxWidth: "100%",
         [`@media (max-width: ${breakPoints.sm}px)`]: {
-          padding: 10,
+          padding: 12,
           maxWidth: "initial",
         },
       }}
@@ -163,24 +165,24 @@ const BasicDashboard = ({ usage }: IDashboardProps) => {
           display: "grid",
           gridTemplateRows: "1fr",
           gridTemplateColumns: "1fr",
-          gap: 27,
-          marginBottom: 40,
+          gap: 16,
+          marginBottom: 0,
         }}
       >
         <Box
           sx={{
             display: "grid",
             gridTemplateColumns: "1fr",
-            gap: "40px",
+            gap: 24,
           }}
         >
           <Box
             sx={{
               display: "grid",
-              gridTemplateRows: "136px",
+              gridTemplateRows: "minmax(136px, auto)",
               gridTemplateColumns: "1fr 1fr 1fr",
-              gap: 20,
-              [`@media (max-width: ${breakPoints.sm}px)`]: {
+              gap: 16,
+              ["@media (max-width: 991px)"]: {
                 gridTemplateColumns: "1fr",
               },
               [`@media (max-width: ${breakPoints.md}px)`]: {
@@ -205,11 +207,6 @@ const BasicDashboard = ({ usage }: IDashboardProps) => {
                         label={t("Browse")}
                         icon={<ArrowRightIcon />}
                         variant={"regular"}
-                        style={{
-                          height: 30,
-                          fontSize: 13,
-                          padding: "0 12px",
-                        }}
                       />
                     </TooltipWrapper>
                   </Link>
@@ -251,17 +248,17 @@ const BasicDashboard = ({ usage }: IDashboardProps) => {
                 gridRowStart: "1",
                 gridRowEnd: "3",
                 gridColumnStart: "3",
-                padding: "16px 20px",
+                padding: 16,
                 borderRadius: 12,
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
-                gap: 14,
-                [`@media (max-width: ${breakPoints.sm}px)`]: {
+                gap: 16,
+                ["@media (max-width: 991px)"]: {
                   gridRowStart: "auto",
                   gridRowEnd: "auto",
                   gridColumnStart: "1",
-                  gridColumnEnd: "2",
+                  gridColumnEnd: "-1",
                 },
               }}
             >
@@ -275,7 +272,7 @@ const BasicDashboard = ({ usage }: IDashboardProps) => {
                 sx={{
                   display: "flex",
                   flexFlow: "column",
-                  gap: "14px",
+                  gap: 16,
                 }}
               >
                 {metricsStatus === "available" &&
@@ -334,7 +331,7 @@ const BasicDashboard = ({ usage }: IDashboardProps) => {
             sx={{
               display: "grid",
               gridTemplateColumns: "1fr 1fr 1fr",
-              gap: "14px",
+              gap: 16,
               [`@media (max-width: ${breakPoints.lg}px)`]: {
                 gridTemplateColumns: "1fr",
               },
@@ -362,7 +359,7 @@ const BasicDashboard = ({ usage }: IDashboardProps) => {
               display: "grid",
               gridTemplateRows: "auto",
               gridTemplateColumns: "1fr",
-              gap: "auto",
+              gap: 16,
             }}
           >
             <ServersList data={serverList} />
@@ -377,7 +374,8 @@ const BasicDashboard = ({ usage }: IDashboardProps) => {
                 <Box>
                   <Box
                     sx={{
-                      fontSize: "14px",
+                      fontSize: "var(--fs-body)",
+                      lineHeight: "var(--lh-body)",
                     }}
                   >
                     {t(
@@ -387,7 +385,8 @@ const BasicDashboard = ({ usage }: IDashboardProps) => {
                   <Box
                     sx={{
                       paddingTop: 12,
-                      fontSize: 14,
+                      fontSize: "var(--fs-body)",
+                      lineHeight: "var(--lh-body)",
                     }}
                   >
                     <a

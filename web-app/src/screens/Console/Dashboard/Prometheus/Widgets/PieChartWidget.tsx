@@ -43,18 +43,18 @@ const PieChartMain = styled.div(({ theme }) => ({
   ...widgetCommon(theme),
   "& .loadingAlign": {
     width: "100%",
-    paddingTop: "15px",
+    paddingTop: 16,
     textAlign: "center",
     margin: "auto",
   },
   "& .pieChartLabel": {
-    fontSize: 60,
-    color: get(theme, "signalColors.main", "#07193E"),
-    fontWeight: "bold",
+    fontSize: "var(--fs-display)",
+    color: "var(--foreground)",
+    fontWeight: 700,
     width: "100%",
     "& .unitText": {
-      color: get(theme, "mutedText", "#87888d"),
-      fontSize: 12,
+      color: "var(--muted-foreground)",
+      fontSize: "var(--fs-caption)",
     },
   },
   "& .chartContainer": {
@@ -170,14 +170,14 @@ const PieChartWidget = ({
                         "outerChart.endAngle",
                         360,
                       )}
-                      fill="#201763"
+                      fill="var(--brand)"
                     >
                       {dataOuter.map((entry, index) => (
                         <Cell
                           key={`cellOuter-${index}`}
                           fill={
                             typeof outerColors[index] === "undefined"
-                              ? "#393939"
+                              ? "var(--muted-foreground)"
                               : outerColors[index]
                           }
                         />
@@ -210,7 +210,7 @@ const PieChartWidget = ({
                         "innerChart.endAngle",
                         360,
                       )}
-                      fill="#201763"
+                      fill="var(--brand)"
                     >
                       {dataInner.map((entry, index) => {
                         return (
@@ -218,7 +218,7 @@ const PieChartWidget = ({
                             key={`cell-${index}`}
                             fill={
                               typeof innerColors[index] === "undefined"
-                                ? "#393939"
+                                ? "var(--muted-foreground)"
                                 : innerColors[index]
                             }
                           />

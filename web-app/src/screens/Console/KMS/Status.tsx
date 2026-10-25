@@ -15,6 +15,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import React, { Fragment, useEffect, useState } from "react";
+import styled from "styled-components";
 import {
   Box,
   breakPoints,
@@ -38,7 +39,7 @@ import {
   YAxis,
 } from "recharts";
 import { hasPermission } from "../../../common/SecureComponent";
-import { useT } from "i18n";
+import { i18nKey, useT } from "i18n";
 import {
   CONSOLE_UI_RESOURCE,
   IAM_SCOPES,
@@ -47,10 +48,14 @@ import { setErrorSnackMessage, setHelpName } from "../../../systemSlice";
 import { useAppDispatch } from "../../../store";
 import LabelWithIcon from "../Buckets/BucketDetails/SummaryItems/LabelWithIcon";
 import PageHeaderWrapper from "../Common/PageHeaderWrapper/PageHeaderWrapper";
-import HelpMenu from "../HelpMenu";
 import { api } from "api";
 import { KmsStatusResponse } from "api/consoleApi";
 import { errorToHandler } from "api/errors";
+
+const MetricHeading = styled.h2`
+  font-size: 1.17em;
+  margin: 1em 0;
+`;
 
 const Status = () => {
   const dispatch = useAppDispatch();
@@ -164,7 +169,7 @@ const Status = () => {
 
   const statusPanel = (
     <Fragment>
-      <SectionTitle>{t("Status")}</SectionTitle>
+      <SectionTitle headingLevel={2}>{t("Status")}</SectionTitle>
       <br />
       {status && (
         <Grid container>
@@ -232,7 +237,9 @@ const Status = () => {
 
   const apisPanel = (
     <Fragment>
-      <SectionTitle>{t("Supported API endpoints")}</SectionTitle>
+      <SectionTitle headingLevel={2}>
+        {t("Supported API endpoints")}
+      </SectionTitle>
       <br />
       {apis && (
         <Grid container>
@@ -297,7 +304,7 @@ const Status = () => {
     <Fragment>
       {metrics && (
         <Fragment>
-          <h3>{t("API Requests")}</h3>
+          <MetricHeading>{t("API Requests")}</MetricHeading>
           <BarChart width={730} height={250} data={getAPIRequestsData()}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="label" />
@@ -310,7 +317,7 @@ const Status = () => {
             <Bar dataKey="active" fill="#8884d8" name={t("Active")} />
           </BarChart>
 
-          <h3>{t("Events")}</h3>
+          <MetricHeading>{t("Events")}</MetricHeading>
           <BarChart width={730} height={250} data={getEventsData()}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="label" />
@@ -320,7 +327,7 @@ const Status = () => {
             <Bar dataKey="audit" fill="green" name={t("Audit")} />
             <Bar dataKey="errors" fill="black" name={t("Errors")} />
           </BarChart>
-          <h3>{t("Latency Histogram")}</h3>
+          <MetricHeading>{t("Latency Histogram")}</MetricHeading>
           {metrics.latencyHistogram && (
             <LineChart
               width={730}
@@ -354,8 +361,9 @@ const Status = () => {
   return (
     <Fragment>
       <PageHeaderWrapper
-        label="Key Management Service"
-        actions={<HelpMenu />}
+        titleElement="h1"
+        label={i18nKey("Key Management Service")}
+        help
       />
 
       <PageLayout>

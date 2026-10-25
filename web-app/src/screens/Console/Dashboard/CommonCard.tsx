@@ -17,7 +17,6 @@
 import React, { Fragment } from "react";
 import { useT } from "i18n";
 import styled from "styled-components";
-import get from "lodash/get";
 import { Box } from "mds";
 import { Link } from "react-router-dom";
 import { widgetCommon } from "../Common/FormComponents/common/styleLibrary";
@@ -39,16 +38,23 @@ interface ICommonCard {
 
 const CommonCardItem = styled.div(({ theme }) => ({
   ...widgetCommon(theme),
+  "& .singleValueContainer": {
+    border: 0,
+    boxShadow: "none",
+    background: "transparent",
+    padding: 0,
+  },
   "& .metricText": {
-    fontSize: 70,
-    lineHeight: 1.1,
-    color: get(theme, "signalColors.main", "#07193E"),
-    fontWeight: "bold",
+    fontSize: "var(--fs-display)",
+    lineHeight: "var(--lh-display)",
+    color: "var(--foreground)",
+    fontWeight: 700,
+    fontVariantNumeric: "tabular-nums",
   },
   "& .unitText": {
-    fontSize: 10,
-    color: get(theme, "mutedText", "#87888d"),
-    fontWeight: "normal",
+    fontSize: "var(--fs-caption)",
+    color: "var(--muted-foreground)",
+    fontWeight: 400,
   },
   "& .subHeaderContainer": {
     display: "flex",
@@ -57,10 +63,10 @@ const CommonCardItem = styled.div(({ theme }) => ({
     alignItems: "center",
   },
   "& .subMessage": {
-    fontSize: 10,
-    color: get(theme, "mutedText", "#87888d"),
+    fontSize: "var(--fs-caption)",
+    color: "var(--muted-foreground)",
     "&.bold": {
-      fontWeight: "bold",
+      fontWeight: 550,
     },
   },
   "& .headerContainer": {
@@ -68,12 +74,11 @@ const CommonCardItem = styled.div(({ theme }) => ({
     justifyContent: "space-between",
   },
   "& .viewAll": {
-    fontSize: 10,
-    color: get(theme, "signalColors.danger", "#C83B51"),
-    textTransform: "capitalize",
+    fontSize: "var(--fs-caption)",
+    color: "var(--muted-foreground)",
 
     "& a, & a:hover, & a:visited, & a:active": {
-      color: get(theme, "signalColors.danger", "#C83B51"),
+      color: "var(--foreground)",
     },
   },
 }));
@@ -102,7 +107,7 @@ const CommonCard = ({
             {subMessage && (
               <Box
                 sx={{
-                  fontWeight: subMessage.fontWeight || "normal",
+                  fontWeight: subMessage.fontWeight === "bold" ? 550 : 400,
                 }}
               >
                 {subMessage.message}
@@ -137,9 +142,9 @@ const CommonCard = ({
       <Box
         withBorders
         sx={{
-          height: 200,
+          minHeight: 200,
           padding: 16,
-          margin: extraMargin ? "10px 20px 10px 0" : "",
+          margin: extraMargin ? "8px 16px 8px 0" : "",
         }}
       >
         {metricValue !== "" && (

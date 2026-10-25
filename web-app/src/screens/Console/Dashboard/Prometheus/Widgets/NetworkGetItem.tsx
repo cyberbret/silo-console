@@ -21,40 +21,42 @@ import { Box, breakPoints, Loader, NetworkGetIcon } from "mds";
 
 const NetworkGetBase = styled.div(({ theme }) => ({
   "& .valueText": {
-    fontSize: 40,
-    fontWeight: 600,
-    lineHeight: 1,
+    fontSize: "var(--fs-display)",
+    fontWeight: 700,
+    lineHeight: "var(--lh-display)",
     minHeight: "1em",
-    color: get(theme, "fontColor", "#18181B"),
+    color: "var(--foreground)",
     fontVariantNumeric: "tabular-nums",
     whiteSpace: "nowrap",
     "& .unitText": {
-      fontSize: 14,
-      fontWeight: 500,
+      fontSize: "var(--fs-subtitle)",
+      fontWeight: 550,
       marginLeft: 4,
-      color: get(theme, "mutedText", "#87888d"),
+      color: "var(--muted-foreground)",
     },
     [`@media (max-width: ${breakPoints.sm}px)`]: {
-      fontSize: 28,
+      fontSize: "var(--fs-display-compact)",
+      lineHeight: "var(--lh-display-compact)",
     },
   },
   "& .getLabel": {
     display: "flex",
-    gap: 6,
+    gap: 8,
     alignItems: "center",
-    marginTop: 7,
+    marginTop: 8,
 
     "& .min-icon": {
       height: 14,
       width: 14,
       flexShrink: 0,
       fill: get(theme, "signalColors.good", "#4CCB92"),
+      color: get(theme, "signalColors.good", "#4CCB92"),
     },
 
     "& .getText": {
-      fontSize: 12,
-      fontWeight: 500,
-      color: get(theme, "mutedText", "#87888d"),
+      fontSize: "var(--fs-caption)",
+      fontWeight: 550,
+      color: "var(--muted-foreground)",
     },
   },
 }));

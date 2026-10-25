@@ -22,7 +22,6 @@ import { useT } from "i18n";
 import { useAppDispatch } from "../../../store";
 import AddKeyForm from "./AddKeyForm";
 import PageHeaderWrapper from "../Common/PageHeaderWrapper/PageHeaderWrapper";
-import HelpMenu from "../HelpMenu";
 import { setHelpName } from "systemSlice";
 
 const AddKey = () => {
@@ -39,13 +38,14 @@ const AddKey = () => {
     <Fragment>
       <Grid item xs={12}>
         <PageHeaderWrapper
+          titleElement="h1"
           label={
             <BackLink
               label={t("Keys")}
               onClick={() => navigate(IAM_PAGES.KMS_KEYS)}
             />
           }
-          actions={<HelpMenu />}
+          help
         />
         <AddKeyForm />
       </Grid>

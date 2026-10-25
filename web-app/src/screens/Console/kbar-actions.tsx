@@ -15,72 +15,49 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import { Action } from "kbar/lib/types";
-import { BucketsIcon } from "mds";
-import { validRoutes } from "./valid-routes";
+import BucketsIcon from "../../../packages/mds/src/components/Icons/BucketsIcon";
+import { menuPages } from "../../navigation/menu";
+import { menuSections } from "../../navigation/registry";
+import type { RouteContext } from "../../navigation/resolveRoute";
 import { IAM_PAGES } from "../../common/SecureComponent/permissions";
-import { Bucket } from "../../api/consoleApi";
+import { formatText } from "../../i18n/lang";
 
 export const routesAsKbarActions = (
-  buckets: Bucket[],
+  recent: readonly string[],
   navigate: (url: string) => void,
-  features?: string[],
+  context: RouteContext,
   t: (text: string) => string = (text) => text,
   canCreateBucket = false,
-) => {
-  const initialActions: Action[] = [];
-  // Untranslated routes: names display through t() below while the English
-  // originals stay searchable as keywords.
-  const allowedMenuItems = validRoutes(features);
-  for (const i of allowedMenuItems) {
-    if (i.children && i.children.length > 0) {
-      for (const childI of i.children) {
-        const a: Action = {
-          id: `${childI.id}`,
-          name: t(childI.name),
-          keywords: childI.name,
-          section: t(i.name),
-          perform: () => navigate(`${childI.path}`),
-          icon: childI.icon,
-        };
-        initialActions.push(a);
-      }
-    } else {
-      const a: Action = {
-        id: `${i.id}`,
-        name: t(i.name),
-        keywords: i.name,
-        section: t("Navigation"),
-        perform: () => navigate(`${i.path}`),
-        icon: i.icon,
-      };
-      initialActions.push(a);
-    }
-  }
-
-  // Add additional actions
-  const a: Action = {
-    id: `create-bucket`,
-    name: t("Create Bucket"),
-    keywords: "Create Bucket",
-    section: t("Buckets"),
-    perform: () => navigate(IAM_PAGES.ADD_BUCKETS),
-    icon: <BucketsIcon />,
-  };
-  if (canCreateBucket) initialActions.push(a);
-
-  if (buckets) {
-    buckets.map((buck) => [
-      initialActions.push({
-        id: buck.name,
-        name: buck.name,
-        section: t("List of Buckets"),
-        perform: () => {
-          navigate(`/browser/${buck.name}`);
+): Action[] => [
+  ...menuPages(context).map((page) => ({
+    id: page.menu?.id || page.id,
+    name: t(page.title),
+    keywords: page.title,
+    section: t(
+      menuSections.find((section) => section.id === page.section)?.title ||
+        "Navigation",
+    ),
+    perform: () => navigate(page.path),
+    icon: page.menu!.icon,
+  })),
+  ...(canCreateBucket
+    ? [
+        {
+          id: "create-bucket",
+          name: t("Create Bucket"),
+          keywords: "Create Bucket",
+          section: t("Buckets"),
+          perform: () => navigate(IAM_PAGES.ADD_BUCKETS),
+          icon: <BucketsIcon />,
         },
-        icon: <BucketsIcon />,
-      }),
-    ]);
-  }
-
-  return initialActions;
-};
+      ]
+    : []),
+  ...recent.map((name) => ({
+    id: `recent-bucket-${name}`,
+    name: formatText(t("Open bucket {name}"), { name }),
+    keywords: name,
+    section: t("Recent buckets"),
+    perform: () => navigate(`/browser/${encodeURIComponent(name)}`),
+    icon: <BucketsIcon />,
+  })),
+];

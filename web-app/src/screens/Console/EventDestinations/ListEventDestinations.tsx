@@ -14,9 +14,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { useBoundedTable } from "common/ui/useBoundedTable";
+import { OverflowMenu, SkeletonRows } from "common/ui";
+import { useMobile } from "common/ui/useMediaQuery";
+import { FilteredEmptyState } from "common/ui/FilteredEmptyState";
+import { ModalPresence } from "common/ui/ModalPresence";
 import React, { Fragment, useEffect, useState } from "react";
 import {
-  ActionLink,
   AddIcon,
   Box,
   Button,
@@ -24,9 +28,9 @@ import {
   DataTable,
   Grid,
   HelpBox,
+  IconButton,
   LambdaIcon,
   PageLayout,
-  ProgressBar,
   RefreshIcon,
 } from "mds";
 import { useSelector } from "react-redux";
@@ -39,7 +43,13 @@ import get from "lodash/get";
 import { TransformedEndpointItem } from "./types";
 import { getNotificationConfigKey, notificationTransform } from "./utils";
 import { actionsTray } from "../Common/FormComponents/common/styleLibrary";
-import { IAM_PAGES } from "../../../common/SecureComponent/permissions";
+import { hasPermission } from "common/SecureComponent";
+import {
+  IAM_PAGES,
+  IAM_SCOPES,
+  CONSOLE_UI_RESOURCE,
+  permissionTooltipHelper,
+} from "../../../common/SecureComponent/permissions";
 import {
   recordServerRestartRequirement,
   setErrorSnackMessage,
@@ -49,7 +59,7 @@ import { setDestinationLoading } from "./destinationsSlice";
 import SearchBox from "../Common/SearchBox";
 import ConfirmDeleteDestinationModal from "./ConfirmDeleteDestinationModal";
 import TooltipWrapper from "../Common/TooltipWrapper/TooltipWrapper";
-import { interpolate, useLocalizedLink, useT } from "i18n";
+import { formatText, i18nKey, useLocalizedLink, useT } from "i18n";
 
 const StatusDisplay = styled.div(({ theme }) => ({
   display: "flex",
@@ -69,6 +79,11 @@ const ListEventDestinations = () => {
   const navigate = useNavigate();
   const t = useT();
   const localize = useLocalizedLink();
+  const mobile = useMobile();
+  const canConfigure = hasPermission(CONSOLE_UI_RESOURCE, [
+    IAM_SCOPES.ADMIN_CONFIG_UPDATE,
+  ]);
+  const [hasLoaded, setHasLoaded] = useState(false);
   // Reducer States
   const isLoading = useSelector((state: AppState) => state.destination.loading);
 
@@ -93,10 +108,12 @@ const ListEventDestinations = () => {
               resNotEndList = res.data.notification_endpoints;
             }
             setRecords(notificationTransform(resNotEndList));
+            setHasLoaded(true);
             dispatch(setDestinationLoading(false));
           })
           .catch((err) => {
             dispatch(setErrorSnackMessage(errorToHandler(err.error)));
+            setHasLoaded(true);
             dispatch(setDestinationLoading(false));
           });
       };
@@ -140,13 +157,11 @@ const ListEventDestinations = () => {
     setIsDelConfirmOpen(true);
   };
 
-  const tableActions = [{ type: "delete", onClick: confirmDelNotifyEndpoint }];
-
   const filteredRecords = records.filter((b: TransformedEndpointItem) => {
-    if (filter === "") {
+    if (filter.trim() === "") {
       return true;
     }
-    return b.service_name.indexOf(filter) >= 0;
+    return b.service_name.indexOf(filter.trim()) >= 0;
   });
 
   const statusDisplay = (status: string) => {
@@ -158,38 +173,66 @@ const ListEventDestinations = () => {
     );
   };
 
+  const boundedTable = useBoundedTable(
+    filteredRecords.length,
+    isLoading || !hasLoaded,
+  );
+
   return (
     <Fragment>
       <PageLayout>
-        <Grid item xs={12} sx={actionsTray.actionsTray}>
+        <Grid
+          item
+          xs={12}
+          sx={{
+            ...actionsTray.actionsTray,
+            gap: 12,
+            "& button": { marginLeft: 0 },
+          }}
+        >
           <SearchBox
             placeholder={t("Search target")}
             onChange={setFilter}
             value={filter}
-            sx={{ maxWidth: 380 }}
+            sx={{
+              maxWidth: mobile ? "100%" : 380,
+              width: mobile ? "100%" : undefined,
+            }}
           />
           <Box
             sx={{
               display: "flex",
               alignItems: "center",
               justifyContent: "flex-end",
-              gap: 5,
+              gap: 8,
             }}
           >
-            <TooltipWrapper tooltip={t("Refresh List")}>
-              <Button
+            {mobile ? (
+              <OverflowMenu
+                label={t("Actions")}
+                items={[
+                  {
+                    label: t("Refresh List"),
+                    icon: <RefreshIcon />,
+                    onClick: () => dispatch(setDestinationLoading(true)),
+                  },
+                ]}
+              />
+            ) : (
+              <IconButton
                 id={"reload-event-destinations"}
-                label={t("Refresh")}
-                variant="regular"
-                icon={<RefreshIcon />}
+                label={t("Refresh List")}
                 onClick={() => {
                   dispatch(setDestinationLoading(true));
                 }}
-              />
-            </TooltipWrapper>
+              >
+                <RefreshIcon />
+              </IconButton>
+            )}
             <TooltipWrapper tooltip={t("Add Event Destination")}>
               <Button
                 id={"add-notification-target"}
+                disabled={!canConfigure}
                 label={t("Add Event Destination")}
                 variant="callAction"
                 icon={<AddIcon />}
@@ -200,115 +243,119 @@ const ListEventDestinations = () => {
             </TooltipWrapper>
           </Box>
         </Grid>
-        {isLoading && <ProgressBar />}
-        {!isLoading && (
-          <Fragment>
-            {records.length > 0 && (
-              <Fragment>
-                <Box sx={{ width: "100%" }}>
-                  <DataTable
-                    itemActions={tableActions}
-                    columns={[
-                      {
-                        label: t("Status"),
-                        elementKey: "status",
-                        renderFunction: statusDisplay,
-                        width: 150,
-                      },
-                      { label: t("Service"), elementKey: "service_name" },
-                    ]}
-                    isLoading={isLoading}
-                    records={filteredRecords}
-                    entityName={t("Event Destinations")}
-                    customEmptyMessage={t(
-                      "There are no Event Destinations yet.",
-                    )}
-                    idField="service_name"
-                    customPaperHeight={"400px"}
-                  />
-                </Box>
-                <Grid item xs={12} sx={{ marginTop: 15 }}>
-                  <HelpBox
-                    title={t("Event Destinations")}
-                    iconComponent={<LambdaIcon />}
-                    help={
-                      <Fragment>
-                        {t(
-                          "SILO bucket notifications allow administrators to send notifications to supported external services on certain object or bucket events. SILO supports bucket and object-level S3 events similar to the Amazon S3 Event Notifications.",
-                        )}
-                        <br />
-                        <br />
-                        {interpolate(t("You can learn more at the {link}."), {
-                          link: (
-                            <a
-                              href={localize(
-                                "https://silo.pgsty.com/administration/monitoring/bucket-notifications/#minio-bucket-notifications",
-                              )}
-                              target="_blank"
-                              rel="noopener"
-                            >
-                              {t("documentation")}
-                            </a>
-                          ),
-                        })}
-                      </Fragment>
-                    }
-                  />
-                </Grid>
-              </Fragment>
-            )}
-            {records.length === 0 && (
-              <Grid
-                container
-                sx={{
-                  justifyContent: "center",
-                  alignContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <Grid item xs={8}>
-                  <HelpBox
-                    title={t("Event Destinations")}
-                    iconComponent={<LambdaIcon />}
-                    help={
-                      <Fragment>
-                        {t(
-                          "SILO bucket notifications allow administrators to send notifications to supported external services on certain object or bucket events. SILO supports bucket and object-level S3 events similar to the Amazon S3 Event Notifications.",
-                        )}
-                        <br />
-                        <br />
-                        {interpolate(t("To get started, {link}."), {
-                          link: (
-                            <ActionLink
-                              onClick={() => {
-                                navigate(IAM_PAGES.EVENT_DESTINATIONS_ADD);
-                              }}
-                            >
-                              {t("Add an Event Destination")}
-                            </ActionLink>
-                          ),
-                        })}
-                      </Fragment>
-                    }
-                  />
-                </Grid>
-              </Grid>
-            )}
-          </Fragment>
-        )}
 
-        {isDelConfirmOpen ? (
-          <ConfirmDeleteDestinationModal
-            onConfirm={() => {
-              resetNotificationConfig(selNotifyEndPoint);
-            }}
-            status={`${selNotifyEndPoint?.status}`}
-            serviceName={`${selNotifyEndPoint?.service_name}`}
-            onClose={() => {
-              setIsDelConfirmOpen(false);
-            }}
+        <Box sx={{ width: "100%" }}>
+          <DataTable
+            {...boundedTable}
+            columns={[
+              {
+                label: t("Service"),
+                elementKey: "service_name",
+                priority: "high",
+              },
+              {
+                label: t("Status"),
+                elementKey: "status",
+                renderFunction: statusDisplay,
+                width: 100,
+                priority: "high",
+              },
+              {
+                label: t("Actions"),
+                priority: "high",
+                width: 48,
+                globalClass: "mds-row-actions",
+                renderFullObject: true,
+                renderFunction: (record: TransformedEndpointItem) => (
+                  <span onClick={(event) => event.stopPropagation()}>
+                    <OverflowMenu
+                      label={formatText(t("Actions for {name}"), {
+                        name: record.service_name,
+                      })}
+                      items={[
+                        {
+                          label: t("Delete"),
+                          danger: true,
+                          disabled: !canConfigure,
+                          disabledReason: permissionTooltipHelper(
+                            [IAM_SCOPES.ADMIN_CONFIG_UPDATE],
+                            i18nKey("configure event destinations"),
+                          ),
+                          onClick: () => {
+                            if (canConfigure) confirmDelNotifyEndpoint(record);
+                          },
+                        },
+                      ]}
+                    />
+                  </span>
+                ),
+              },
+            ]}
+            isLoading={isLoading || !hasLoaded}
+            records={filteredRecords}
+            entityName={t("Event Destinations")}
+            loadingState={<SkeletonRows rows={5} columns={2} />}
+            emptyState={
+              <FilteredEmptyState
+                filtered={Boolean(filter.trim())}
+                onClear={() => setFilter("")}
+                icon={<LambdaIcon />}
+                title={t("No event destinations yet")}
+                description={t(
+                  "Connect an external service to receive bucket and object notifications.",
+                )}
+                action={
+                  canConfigure && (
+                    <Button
+                      id="empty-list-action"
+                      variant="callAction"
+                      label={t("Add Event Destination")}
+                      onClick={() => navigate(IAM_PAGES.EVENT_DESTINATIONS_ADD)}
+                    />
+                  )
+                }
+              />
+            }
+            idField="service_name"
           />
-        ) : null}
+        </Box>
+        <Grid item xs={12} sx={{ marginTop: 16 }}>
+          <HelpBox
+            title={t("Event destinations")}
+            iconComponent={<LambdaIcon />}
+            help={
+              <Fragment>
+                {t(
+                  "Configure a destination, then add bucket notification rules to send S3 events to it.",
+                )}{" "}
+                <a
+                  href={localize(
+                    "https://silo.pgsty.com/administration/monitoring/bucket-notifications/#minio-bucket-notifications",
+                  )}
+                  target="_blank"
+                  rel="noopener"
+                >
+                  {t("Learn more")}
+                </a>
+              </Fragment>
+            }
+          />
+        </Grid>
+
+        <ModalPresence open={Boolean(isDelConfirmOpen)}>
+          {isDelConfirmOpen ? (
+            <ConfirmDeleteDestinationModal
+              onConfirm={() => {
+                resetNotificationConfig(selNotifyEndPoint);
+              }}
+              status={`${selNotifyEndPoint?.status}`}
+              serviceName={`${selNotifyEndPoint?.service_name}`}
+              onClose={() => {
+                setIsDelConfirmOpen(false);
+              }}
+            />
+          ) : null}
+        </ModalPresence>
       </PageLayout>
     </Fragment>
   );

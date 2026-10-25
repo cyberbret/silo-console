@@ -14,16 +14,15 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import React, { Fragment, useCallback, useEffect, useState } from "react";
-import {
-  Box,
-  Grid,
-  HelpBox,
-  PageLayout,
-  ScreenTitle,
-  SettingsIcon,
-  Tabs,
-} from "mds";
+import React, {
+  Fragment,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+import { Box, PageLayout, Tabs } from "mds";
 
 import { configurationElements } from "../utils";
 import {
@@ -40,13 +39,12 @@ import PageHeaderWrapper from "../../Common/PageHeaderWrapper/PageHeaderWrapper"
 import ExportConfigButton from "./ExportConfigButton";
 import ImportConfigButton from "./ImportConfigButton";
 
-import HelpMenu from "../../HelpMenu";
 import { setErrorSnackMessage, setHelpName } from "../../../../systemSlice";
 import { useAppDispatch } from "../../../../store";
 import { api } from "../../../../api";
 import { IElement } from "../types";
 import { errorToHandler } from "../../../../api/errors";
-import { interpolate, useLocalizedLink, useT } from "i18n";
+import { i18nKey, interpolate, useLocalizedLink, useT } from "i18n";
 
 const getRoutePath = (path: string) => {
   return `${IAM_PAGES.SETTINGS}/${path}`;
@@ -61,7 +59,21 @@ const ConfigurationOptions = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const t = useT();
+  const container = useRef<HTMLDivElement>(null);
+  const [horizontalTabs, setHorizontalTabs] = useState(true);
   const localize = useLocalizedLink();
+
+  useLayoutEffect(() => {
+    const element = container.current;
+    if (!element) return;
+    // The global sidebar also occupies tablet space. Choose the orientation
+    // from this panel's available width, keeping tab keyboard behavior in sync.
+    const measure = () => setHorizontalTabs(element.clientWidth < 760);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
 
   const [configSubSysList, setConfigSubSysList] = useState<string[]>([]);
   const fetchConfigSubSysList = useCallback(async () => {
@@ -105,26 +117,35 @@ const ConfigurationOptions = () => {
 
   return (
     <Fragment>
-      <PageHeaderWrapper label={"Configuration"} actions={<HelpMenu />} />
+      <PageHeaderWrapper
+        label={i18nKey("Configuration")}
+        titleElement="h1"
+        help
+      />
       <PageLayout>
-        <Grid item xs={12} id={"settings-container"}>
-          <ScreenTitle
-            icon={<SettingsIcon />}
-            title={t("SILO Configuration:")}
-            actions={
-              <Box
-                sx={{
-                  display: "flex",
-                  gap: 10,
-                }}
-              >
-                <ImportConfigButton />
-                <ExportConfigButton />
-              </Box>
-            }
-            sx={{ marginBottom: 15 }}
-          />
+        <Box
+          elementRef={container}
+          id={"settings-container"}
+          sx={{ width: "100%", minWidth: 0 }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+              gap: 8,
+              marginBottom: 16,
+            }}
+          >
+            <ImportConfigButton />
+            <ExportConfigButton />
+          </Box>
           <Tabs
+            horizontal={horizontalTabs}
+            sx={
+              horizontalTabs
+                ? { ".tabsPanels": { padding: "16px 0" } }
+                : undefined
+            }
             currentTabOrPath={pathname}
             onTabClick={(path) => {
               navigate(path);
@@ -158,35 +179,33 @@ const ConfigurationOptions = () => {
               </Routes>
             }
           />
-        </Grid>
-        <Grid item xs={12} sx={{ paddingTop: "15px" }}>
-          <HelpBox
-            title={t("Learn more about Configurations")}
-            iconComponent={<SettingsIcon />}
-            help={
-              <Fragment>
-                {t(
-                  "SILO supports a variety of configurations ranging from encryption, compression, region, notifications, etc.",
+        </Box>
+        <Box
+          sx={{
+            marginTop: 16,
+            color: "var(--muted-foreground)",
+            fontSize: "var(--fs-body)",
+            lineHeight: "var(--lh-body)",
+            "& a": {
+              textDecoration: "underline",
+              textUnderlineOffset: 3,
+            },
+          }}
+        >
+          {interpolate(t("You can learn more at the {link}."), {
+            link: (
+              <a
+                href={localize(
+                  "https://silo.pgsty.com/reference/minio-server/settings/#minio-server-configuration-settings",
                 )}
-                <br />
-                <br />
-                {interpolate(t("You can learn more at the {link}."), {
-                  link: (
-                    <a
-                      href={localize(
-                        "https://silo.pgsty.com/reference/minio-server/settings/#minio-server-configuration-settings",
-                      )}
-                      target="_blank"
-                      rel="noopener"
-                    >
-                      {t("documentation")}
-                    </a>
-                  ),
-                })}
-              </Fragment>
-            }
-          />
-        </Grid>
+                target="_blank"
+                rel="noopener"
+              >
+                {t("documentation")}
+              </a>
+            ),
+          })}
+        </Box>
       </PageLayout>
     </Fragment>
   );

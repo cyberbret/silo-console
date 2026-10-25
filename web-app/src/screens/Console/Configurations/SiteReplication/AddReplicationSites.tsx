@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   BackLink,
@@ -25,8 +25,7 @@ import {
   Box,
   Grid,
   ProgressBar,
-  InputLabel,
-  SectionTitle,
+  breakPoints,
 } from "mds";
 import useApi from "../../Common/Hooks/useApi";
 import { IAM_PAGES } from "../../../../common/SecureComponent/permissions";
@@ -41,8 +40,9 @@ import { selSession } from "../../consoleSlice";
 import SRSiteInputRow from "./SRSiteInputRow";
 import { SiteInputRow } from "./Types";
 import PageHeaderWrapper from "../../Common/PageHeaderWrapper/PageHeaderWrapper";
-import HelpMenu from "../../HelpMenu";
-import { useT } from "i18n";
+import { i18nKey, useT } from "i18n";
+
+type PeerSiteForm = SiteInputRow & { formId: number };
 
 const isValidEndPoint = (ep: string) => {
   let isValidEndPointUrl = false;
@@ -56,56 +56,27 @@ const isValidEndPoint = (ep: string) => {
   if (isValidEndPointUrl) {
     return "";
   } else {
-    return "Invalid Endpoint";
+    return i18nKey("Invalid Endpoint");
   }
 };
 
-const isEmptyValue = (value: string): boolean => {
-  return value?.trim() === "";
+const isEmptyValue = (value: string | undefined): boolean => {
+  return !value?.trim();
 };
 
-const TableHeader = () => {
-  const t = useT();
-  return (
-    <React.Fragment>
-      <Box>
-        <InputLabel>{t("Site Name")}</InputLabel>
-      </Box>
-      <Box>
-        <InputLabel>
-          {t("Endpoint")} {"*"}
-        </InputLabel>
-      </Box>
-      <Box>
-        <InputLabel>
-          {t("Access Key")} {"*"}
-        </InputLabel>
-      </Box>
-      <Box>
-        <InputLabel>
-          {t("Secret Key")} {"*"}
-        </InputLabel>
-      </Box>
-      <Box> </Box>
-    </React.Fragment>
-  );
-};
-
-const SiteTypeHeader = ({ title }: { title: string }) => {
-  return (
-    <Grid item xs={12}>
-      <Box
-        sx={{
-          marginBottom: "15px",
-          fontSize: "14px",
-          fontWeight: 600,
-        }}
-      >
-        {title}
-      </Box>
-    </Grid>
-  );
-};
+const SiteTypeHeader = ({ title, id }: { title: string; id: string }) => (
+  <h3
+    id={id}
+    style={{
+      margin: "0 0 12px",
+      fontSize: "var(--fs-subtitle)",
+      lineHeight: "var(--lh-subtitle)",
+      fontWeight: 550,
+    }}
+  >
+    {title}
+  </h3>
+);
 
 const AddReplicationSites = () => {
   const dispatch = useAppDispatch();
@@ -123,11 +94,27 @@ const AddReplicationSites = () => {
     },
   ]);
 
-  const [existingSites, setExistingSites] = useState<SiteInputRow[]>([]);
+  const nextPeerId = useRef(0);
+  const [existingSites, setExistingSites] = useState<PeerSiteForm[]>([]);
+  const [showValidation, setShowValidation] = useState(false);
+  const [validationKey, setValidationKey] = useState(0);
+  const [focusTarget, setFocusTarget] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!focusTarget) return;
+    document.getElementById(focusTarget)?.focus();
+    setFocusTarget(null);
+  }, [focusTarget]);
 
   const setDefaultNewRows = () => {
     const defaultNewSites = [
-      { endpoint: "", name: "", accessKey: "", secretKey: "" },
+      {
+        endpoint: "",
+        name: "",
+        accessKey: "",
+        secretKey: "",
+        formId: nextPeerId.current++,
+      },
     ];
     setExistingSites(defaultNewSites);
   };
@@ -141,6 +128,8 @@ const AddReplicationSites = () => {
         let curSite = siteList[foundIdx];
         curSite = {
           ...curSite,
+          accessKey: "",
+          secretKey: "",
           isCurrent: true,
           isSaved: true,
         };
@@ -156,6 +145,7 @@ const AddReplicationSites = () => {
       let existingSiteList = siteList.map((si: any) => {
         return {
           ...si,
+          formId: nextPeerId.current++,
           accessKey: "",
           secretKey: "",
           isSaved: true,
@@ -206,7 +196,11 @@ const AddReplicationSites = () => {
     })
     .filter(Boolean);
 
-  const { accessKey: cAccessKey, secretKey: cSecretKey } = currentSite[0];
+  const {
+    accessKey: cAccessKey,
+    secretKey: cSecretKey,
+    endpoint: cEndpoint,
+  } = currentSite[0];
 
   const isCurCredsValid =
     !isEmptyValue(cAccessKey) && !isEmptyValue(cSecretKey);
@@ -215,8 +209,11 @@ const AddReplicationSites = () => {
   const peerCredsValid =
     isExistingCredsValidity.length === existingSites.length;
 
-  let isAllFieldsValid =
-    isCurCredsValid && peerEndpointsValid && peerCredsValid;
+  const isAllFieldsValid =
+    isCurCredsValid &&
+    isValidEndPoint(cEndpoint) === "" &&
+    peerEndpointsValid &&
+    peerCredsValid;
 
   const [isAdding, invokeSiteAddApi] = useApi(
     (res: any) => {
@@ -240,6 +237,8 @@ const AddReplicationSites = () => {
   );
 
   const resetForm = () => {
+    setShowValidation(false);
+    setValidationKey((previous) => previous + 1);
     setDefaultNewRows();
     setCurrentSite((prevItems) => {
       return prevItems.map((item, ix) => ({
@@ -249,6 +248,28 @@ const AddReplicationSites = () => {
         name: "",
       }));
     });
+  };
+
+  const focusFirstInvalidField = () => {
+    for (const [kind, sites] of [
+      ["current", currentSite],
+      ["peer", existingSites],
+    ] as const) {
+      for (let index = 0; index < sites.length; index++) {
+        const site = sites[index];
+        const field = isValidEndPoint(site.endpoint)
+          ? "ep"
+          : isEmptyValue(site.accessKey)
+            ? "ac"
+            : isEmptyValue(site.secretKey)
+              ? "sk"
+              : null;
+        if (field) {
+          setFocusTarget(`add-rep-${kind}-site-${field}-${index}`);
+          return;
+        }
+      }
+    }
   };
 
   const addSiteReplication = () => {
@@ -285,23 +306,20 @@ const AddReplicationSites = () => {
     return (
       <Box
         sx={{
-          marginTop: "15px",
+          marginTop: 16,
         }}
       >
-        <SiteTypeHeader title={t("This Site")} />
+        <SiteTypeHeader
+          id="replication-current-heading"
+          title={t("This Site")}
+        />
         <Box
-          withBorders
           sx={{
             display: "grid",
-            gridTemplateColumns: ".8fr 1.2fr .8fr .8fr .2fr",
-            padding: "15px",
-            gap: "10px",
-            maxHeight: "430px",
-            overflowY: "auto",
+            gridTemplateColumns: "minmax(0, 1fr)",
+            gap: 12,
           }}
         >
-          <TableHeader />
-
           {currentSite.map((cs, index) => {
             const accessKeyError = isEmptyValue(cs.accessKey)
               ? t("AccessKey is required")
@@ -311,24 +329,33 @@ const AddReplicationSites = () => {
               : "";
             return (
               <SRSiteInputRow
-                key={`current-${index}`}
+                key={`current-${index}-${validationKey}`}
+                kind="current"
+                showValidation={showValidation}
+                validationKey={validationKey}
                 rowData={cs}
                 rowId={index}
+                disabledFields={
+                  isAdding || isSiteInfoLoading
+                    ? ["name", "endpoint", "accessKey", "secretKey"]
+                    : []
+                }
                 fieldErrors={{
+                  endpoint: isValidEndPoint(cs.endpoint)
+                    ? t("Invalid Endpoint")
+                    : "",
                   accessKey: accessKeyError,
                   secretKey: secretKeyError,
                 }}
                 onFieldChange={(e, fieldName, index) => {
                   const filedValue = e.target.value;
-                  if (fieldName !== "") {
-                    setCurrentSite((prevItems) => {
-                      return prevItems.map((item, ix) =>
-                        ix === index
-                          ? { ...item, [fieldName]: filedValue }
-                          : item,
-                      );
-                    });
-                  }
+                  setCurrentSite((prevItems) => {
+                    return prevItems.map((item, ix) =>
+                      ix === index
+                        ? { ...item, [fieldName]: filedValue }
+                        : item,
+                    );
+                  });
                 }}
                 showRowActions={false}
               />
@@ -343,23 +370,20 @@ const AddReplicationSites = () => {
     return (
       <Box
         sx={{
-          marginTop: "25px",
+          marginTop: 24,
         }}
       >
-        <SiteTypeHeader title={t("Peer Sites")} />
+        <SiteTypeHeader
+          id="replication-peers-heading"
+          title={t("Peer Sites")}
+        />
         <Box
-          withBorders
           sx={{
             display: "grid",
-            gridTemplateColumns: ".8fr 1.2fr .8fr .8fr .2fr",
-            padding: "15px",
-            gap: "10px",
-            maxHeight: "430px",
-            overflowY: "auto",
+            gridTemplateColumns: "minmax(0, 1fr)",
+            gap: 12,
           }}
         >
-          <TableHeader />
-
           {existingSites.map((ps, index) => {
             const endPointError = isValidEndPoint(ps.endpoint);
 
@@ -372,9 +396,17 @@ const AddReplicationSites = () => {
 
             return (
               <SRSiteInputRow
-                key={`exiting-${index}`}
+                key={`${ps.formId}-${validationKey}`}
+                kind="peer"
+                showValidation={showValidation}
+                validationKey={validationKey}
                 rowData={ps}
                 rowId={index}
+                disabledFields={
+                  isAdding || isSiteInfoLoading
+                    ? ["name", "endpoint", "accessKey", "secretKey"]
+                    : []
+                }
                 fieldErrors={{
                   endpoint: endPointError ? t(endPointError) : "",
                   accessKey: accessKeyError,
@@ -390,8 +422,10 @@ const AddReplicationSites = () => {
                     );
                   });
                 }}
-                canAdd={true}
-                canRemove={index > 0 && !ps.isSaved}
+                canAdd={!isAdding && !isSiteInfoLoading}
+                canRemove={
+                  !isAdding && !isSiteInfoLoading && index > 0 && !ps.isSaved
+                }
                 onAddClick={() => {
                   const newRows = [...existingSites];
                   //add at the next index
@@ -400,14 +434,17 @@ const AddReplicationSites = () => {
                     endpoint: "",
                     accessKey: "",
                     secretKey: "",
+                    formId: nextPeerId.current++,
                   });
 
                   setExistingSites(newRows);
+                  setFocusTarget(`add-rep-peer-site-${index + 1}`);
                 }}
                 onRemoveClick={(index) => {
                   setExistingSites(
                     existingSites.filter((_, idx) => idx !== index),
                   );
+                  setFocusTarget(`add-peer-row-${Math.max(0, index - 1)}`);
                 }}
               />
             );
@@ -420,37 +457,55 @@ const AddReplicationSites = () => {
   return (
     <Fragment>
       <PageHeaderWrapper
+        titleElement="h1"
         label={
           <BackLink
             label={t("Add Replication Site")}
             onClick={() => navigate(IAM_PAGES.SITE_REPLICATION)}
           />
         }
-        actions={<HelpMenu />}
+        help
       />
       <PageLayout>
         <Box
+          withBorders
           sx={{
             display: "grid",
-            padding: "25px",
-            gap: "25px",
-            gridTemplateColumns: "1fr",
-            border: "1px solid #eaeaea",
+            padding: 24,
+            gap: 24,
+            minWidth: 0,
+            gridTemplateColumns: "minmax(0, 1fr)",
+            "& h2": {
+              margin: 0,
+              fontSize: "var(--fs-title)",
+              lineHeight: "var(--lh-title)",
+              fontWeight: 550,
+            },
+            [`@media (max-width: ${breakPoints.md - 0.02}px)`]: { padding: 16 },
           }}
         >
-          <Box>
-            <SectionTitle separator icon={<ClustersIcon />}>
-              {t("Add Sites for Replication")}
-            </SectionTitle>
+          <Box sx={{ minWidth: 0 }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                "& .min-icon": { width: 16, height: 16 },
+              }}
+            >
+              <ClustersIcon />
+              <h2>{t("Add Sites for Replication")}</h2>
+            </Box>
 
             {isSiteInfoLoading || isAdding ? <ProgressBar /> : null}
 
             <Box
               sx={{
-                fontSize: "14px",
-                fontStyle: "italic",
-                marginTop: "10px",
-                marginBottom: "10px",
+                color: "var(--muted-foreground)",
+                fontSize: "var(--fs-body)",
+                lineHeight: "var(--lh-body)",
+                marginTop: 12,
+                marginBottom: 16,
               }}
             >
               {t(
@@ -462,6 +517,12 @@ const AddReplicationSites = () => {
               autoComplete="off"
               onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
                 e.preventDefault();
+                if (isAdding || isSiteInfoLoading) return;
+                setShowValidation(true);
+                if (!isAllFieldsValid) {
+                  focusFirstInvalidField();
+                  return;
+                }
                 return addSiteReplication();
               }}
             >
@@ -475,15 +536,20 @@ const AddReplicationSites = () => {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "flex-end",
-                    marginTop: "20px",
-                    gap: "15px",
+                    marginTop: 24,
+                    gap: 8,
+                    flexWrap: "wrap",
+                    [`@media (max-width: ${breakPoints.md - 0.02}px)`]: {
+                      flexDirection: "column-reverse",
+                      "& button": { width: "100%" },
+                    },
                   }}
                 >
                   <Button
                     id={"clear"}
                     type="button"
                     variant="regular"
-                    disabled={isAdding}
+                    disabled={isAdding || isSiteInfoLoading}
                     onClick={resetForm}
                     label={t("Clear")}
                   />
@@ -492,7 +558,7 @@ const AddReplicationSites = () => {
                     id={"save"}
                     type="submit"
                     variant="callAction"
-                    disabled={isAdding || !isAllFieldsValid}
+                    disabled={isAdding || isSiteInfoLoading}
                     label={t("Save")}
                   />
                 </Box>
@@ -502,60 +568,29 @@ const AddReplicationSites = () => {
 
           <HelpBox
             title={""}
-            iconComponent={null}
+            iconComponent={<ClustersIcon />}
             help={
               <Fragment>
+                <h2>{t("About Site Replication")}</h2>
                 <Box
                   sx={{
-                    fontSize: "16px",
-                    fontWeight: 600,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "flex-start",
-                    padding: "2px",
-                  }}
-                >
-                  <Box
-                    sx={{
-                      backgroundColor: "#07193E",
-                      height: "15px",
-                      width: "15px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      borderRadius: "50%",
-                      marginRight: "18px",
-                      padding: "3px",
-                      paddingLeft: "2px",
-                      "& .min-icon": {
-                        height: "11px",
-                        width: "11px",
-                        fill: "#ffffff",
-                      },
-                    }}
-                  >
-                    <ClustersIcon />
-                  </Box>
-                  {t("About Site Replication")}
-                </Box>
-                <Box
-                  sx={{
-                    fontSize: "14px",
+                    fontSize: "var(--fs-body)",
                     marginTop: 12,
-                    lineHeight: 1.6,
+                    lineHeight: "var(--lh-body)",
+                    overflowWrap: "anywhere",
                     "& ul": {
                       margin: "8px 0 0",
-                      paddingLeft: 22,
+                      paddingLeft: 24,
                       listStyle: "disc",
                     },
                     "& ul ul": {
-                      marginTop: 6,
+                      marginTop: 4,
                       listStyle: "circle",
                     },
                     "& li": {
-                      fontSize: "14px",
-                      margin: "6px 0",
+                      margin: "4px 0",
                     },
+                    "&& li::before": { content: "none" },
                   }}
                 >
                   <Box>
@@ -577,54 +612,23 @@ const AddReplicationSites = () => {
                       )}
                     </li>
                     <li>
-                      <Box
-                        style={{
-                          display: "flex",
-                          flexFlow: "column",
-
-                          justifyContent: "flex-start",
-                        }}
-                      >
-                        <div
-                          style={{
-                            paddingTop: "1px",
-                          }}
-                        >
-                          {t("Changes to Bucket features such as")}
-                        </div>
-                        <ul>
-                          <li>{t("Bucket Policies")}</li>
-                          <li>{t("Bucket Tags")}</li>
-                          <li>{t("Bucket Object-Lock configurations")}</li>
-                          <li>{t("Bucket Encryption configuration")}</li>
-                        </ul>
-                      </Box>
+                      {t("Changes to Bucket features such as")}
+                      <ul>
+                        <li>{t("Bucket Policies")}</li>
+                        <li>{t("Bucket Tags")}</li>
+                        <li>{t("Bucket Object-Lock configurations")}</li>
+                        <li>{t("Bucket Encryption configuration")}</li>
+                      </ul>
                     </li>
 
                     <li>
-                      <Box
-                        style={{
-                          display: "flex",
-                          flexFlow: "column",
-
-                          justifyContent: "flex-start",
-                        }}
-                      >
-                        <div
-                          style={{
-                            paddingTop: "1px",
-                          }}
-                        >
-                          {t(
-                            "The following Bucket features will NOT be replicated",
-                          )}
-                        </div>
-
-                        <ul>
-                          <li>{t("Bucket notification configuration")}</li>
-                          <li>{t("Bucket lifecycle (ILM) configuration")}</li>
-                        </ul>
-                      </Box>
+                      {t(
+                        "The following Bucket features will NOT be replicated",
+                      )}
+                      <ul>
+                        <li>{t("Bucket notification configuration")}</li>
+                        <li>{t("Bucket lifecycle (ILM) configuration")}</li>
+                      </ul>
                     </li>
                   </ul>
                 </Box>

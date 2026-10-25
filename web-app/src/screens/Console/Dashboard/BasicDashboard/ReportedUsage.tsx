@@ -14,91 +14,38 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import React, { Fragment } from "react";
+import React from "react";
 import get from "lodash/get";
 import styled, { useTheme } from "styled-components";
 import { Box, HelpTip } from "mds";
-import { interpolate, useLocalizedLink, useT } from "i18n";
+import { useT } from "i18n";
+import { UsageClarifyingContent } from "../../Common/UsageClarifyingContent";
 import { Cell, Pie, PieChart } from "recharts";
 
-const ReportedUsageMain = styled.div(({ theme }) => ({
+const ReportedUsageMain = styled.div({
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
   gap: 16,
   "& .usage-label": {
-    fontSize: 13,
-    fontWeight: 500,
-    letterSpacing: "0.02em",
-    color: get(theme, "mutedText", "#71717A"),
+    fontSize: "var(--fs-body)",
+    fontWeight: 550,
+    color: "var(--muted-foreground)",
   },
   "& .unit-value": {
-    fontSize: 40,
-    fontWeight: 600,
-    lineHeight: 1,
-    color: get(theme, "fontColor", "#18181B"),
+    fontSize: "var(--fs-display)",
+    fontWeight: 700,
+    lineHeight: "var(--lh-display)",
+    color: "var(--foreground)",
     fontVariantNumeric: "tabular-nums",
   },
   "& .unit-type": {
-    fontSize: 14,
-    fontWeight: 500,
-    marginLeft: 6,
-    color: get(theme, "mutedText", "#71717A"),
+    fontSize: "var(--fs-subtitle)",
+    fontWeight: 550,
+    marginLeft: 4,
+    color: "var(--muted-foreground)",
   },
-}));
-
-// Rendered as a component rather than a module-level constant so the copy can
-// follow the active language.
-export const UsageClarifyingContent = () => {
-  const t = useT();
-  const localizedLink = useLocalizedLink();
-
-  return (
-    <Fragment>
-      <div>
-        <strong> {t("Not what you expected?")}</strong>
-        <br />
-        {interpolate(
-          t(
-            "This Usage value is comparable to {command} which represents the size of all object versions that exist in the buckets.",
-          ),
-          { command: <strong>mc du --versions</strong> },
-        )}
-        <br />
-        {interpolate(
-          t(
-            "Running {mcDu} without the {flag} flag or {df} will provide different values corresponding to the size of all {current} versions and the physical disk space occupied respectively.",
-          ),
-          {
-            mcDu: (
-              <a
-                target="_blank"
-                href={localizedLink(
-                  "https://silo.pgsty.com/reference/minio-mc/mc-du/",
-                )}
-              >
-                mc du
-              </a>
-            ),
-            flag: <strong>--versions</strong>,
-            df: (
-              <a
-                target="_blank"
-                href="https://man7.org/linux/man-pages/man1/df.1.html"
-              >
-                df
-              </a>
-            ),
-            current: <strong>{t("current")}</strong>,
-          },
-        )}
-      </div>
-    </Fragment>
-  );
-};
-
-// Kept so existing call sites can keep passing a node straight to HelpTip.
-export const usageClarifyingContent = <UsageClarifyingContent />;
+});
 
 const ReportedUsage = ({
   usageValue,
@@ -131,21 +78,27 @@ const ReportedUsage = ({
         sx={{
           display: "flex",
           flexDirection: "column",
-          gap: 14,
+          gap: 16,
         }}
       >
         <div className="usage-label">{t("Reported Usage")}</div>
 
         <HelpTip content={<UsageClarifyingContent />} placement="left">
           <Box sx={{ display: "flex", alignItems: "baseline" }}>
-            <label className={"unit-value"}>{total}</label>
-            <label className={"unit-type"}>{unit}</label>
+            <span className={"unit-value"}>{total}</span>
+            <span className={"unit-type"}>{unit}</span>
           </Box>
         </HelpTip>
       </Box>
 
-      <PieChart width={96} height={96}>
+      <PieChart
+        width={96}
+        height={96}
+        role="img"
+        aria-label={`${t("Reported Usage")}: ${total} ${unit}`}
+      >
         <Pie
+          aria-hidden="true"
           data={plotValues}
           cx={"50%"}
           cy={"50%"}

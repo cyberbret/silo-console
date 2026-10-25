@@ -18,6 +18,7 @@ import React from "react";
 import { StatsResponseType } from "../SiteReplicationStatus";
 import LookupStatusTable from "./LookupStatusTable";
 import { EntityNotFound, isEntityNotFound, syncStatus } from "./Utils";
+import { i18nKey } from "i18n/lang";
 
 type PolicyEntityStatusProps = Partial<StatsResponseType> & {
   lookupValue?: string;
@@ -27,7 +28,7 @@ const PolicyEntityStatus = ({
   sites = {},
   lookupValue = "",
 }: PolicyEntityStatusProps) => {
-  const rowsForStatus = ["Policy"];
+  const rowsForStatus = [i18nKey("Policy")];
 
   const policySites: Record<string, any> = policyStats[lookupValue] || {};
 
@@ -37,7 +38,12 @@ const PolicyEntityStatus = ({
   const notFound = isEntityNotFound(sites, policySites, "HasPolicy");
   const resultMatrix: any = [];
   if (notFound) {
-    return <EntityNotFound entityType={"Policy"} entityValue={lookupValue} />;
+    return (
+      <EntityNotFound
+        entityType={i18nKey("Policy")}
+        entityValue={lookupValue}
+      />
+    );
   } else {
     const row = [];
     for (let sCol = 0; sCol < siteKeys.length; sCol++) {
@@ -77,7 +83,7 @@ const PolicyEntityStatus = ({
     <LookupStatusTable
       matrixData={resultMatrix}
       entityName={lookupValue}
-      entityType={"Policy"}
+      entityType={i18nKey("Policy")}
     />
   );
 };

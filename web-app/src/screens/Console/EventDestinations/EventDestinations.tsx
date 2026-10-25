@@ -18,9 +18,9 @@ import React, { Fragment, useEffect } from "react";
 
 import withSuspense from "../Common/Components/withSuspense";
 import PageHeaderWrapper from "../Common/PageHeaderWrapper/PageHeaderWrapper";
-import HelpMenu from "../HelpMenu";
 import { setHelpName } from "../../../systemSlice";
 import { useAppDispatch } from "../../../store";
+import { i18nKey } from "i18n/lang";
 
 const ListNotificationEndpoints = withSuspense(
   React.lazy(() => import("./ListEventDestinations")),
@@ -34,7 +34,11 @@ const EventDestinations = () => {
   }, []);
   return (
     <Fragment>
-      <PageHeaderWrapper label="Event Destinations" actions={<HelpMenu />} />
+      <PageHeaderWrapper
+        label={i18nKey("Event Destinations")}
+        titleElement="h1"
+        help
+      />
       <ListNotificationEndpoints />
     </Fragment>
   );

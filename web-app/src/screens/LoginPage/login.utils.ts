@@ -17,7 +17,7 @@
 import { RedirectRule } from "api/consoleApi";
 import { takeReturnRoute } from "api/session";
 
-export const getTargetPath = () => takeReturnRoute("/browser");
+export const getTargetPath = () => takeReturnRoute("/");
 
 export const redirectRules = (a: RedirectRule, b: RedirectRule) => {
   if (a.displayName && b.displayName) {

@@ -14,29 +14,26 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import React, { useLayoutEffect } from "react";
+import React from "react";
 import { useSelector } from "react-redux";
-import {
-  Box,
-  DocumentationIcon,
-  LicenseIcon,
-  Menu,
-  MenuDivider,
-  MenuItem,
-} from "mds";
+import { Box, DocumentationIcon, LicenseIcon, Menu, MenuItem } from "mds";
 import { AppState, useAppDispatch } from "../../../store";
-import { validRoutes } from "../valid-routes";
+import { menuOptions } from "../../../navigation/menu";
+import { useRouteContext } from "../../../navigation/useRouteContext";
+import { useRecentBuckets } from "../../../navigation/RecentBucketsProvider";
 import { menuOpen } from "../../../systemSlice";
-import { selFeatures } from "../consoleSlice";
 import { useLocation, useNavigate } from "react-router-dom";
 import { IAM_PAGES } from "../../../common/SecureComponent/permissions";
-import UserMenu from "./UserMenu";
-import { SILO_EMBLEM_URL, SILO_WORDMARK_URL } from "../../../common/SiloBrand";
+import { SiloBrand } from "../../../common/SiloBrand";
 import { useLocalizedLink, useT } from "i18n";
 
+import { useResponsiveMenu } from "./ResponsiveMenu";
+
 const MenuWrapper = () => {
+  const responsive = useResponsiveMenu();
   const dispatch = useAppDispatch();
-  const features = useSelector(selFeatures);
+  const context = useRouteContext();
+  const { recent } = useRecentBuckets();
   const navigate = useNavigate();
   const { pathname = "" } = useLocation();
   const t = useT();
@@ -46,159 +43,53 @@ const MenuWrapper = () => {
     (state: AppState) => state.system.sidebarOpen,
   );
 
-  const allowedMenuItems = validRoutes(features, t);
-
-  useLayoutEffect(() => {
-    // MDS has no sign-out label prop. Update the actual text and accessible
-    // name after it renders, rather than substituting text with CSS content.
-    const signOut = document.querySelector<HTMLElement>("#sign-out");
-    const signOutLabel = signOut?.querySelector(".labelContainer");
-    if (signOut && signOutLabel) {
-      signOut.setAttribute("aria-label", t("Sign Out"));
-      signOutLabel.textContent = t("Sign Out");
-    }
-
-    const menuToggle = document.querySelector<HTMLElement>(
-      ".menuBox .menuHeaderContainer",
-    );
-    if (!menuToggle) {
-      return;
-    }
-
-    const toggleLabel = sidebarOpen ? t("Collapse menu") : t("Expand menu");
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        menuToggle.click();
-      }
-    };
-
-    menuToggle.setAttribute("role", "button");
-    menuToggle.setAttribute("tabindex", "0");
-    menuToggle.setAttribute("aria-label", toggleLabel);
-    menuToggle.setAttribute("aria-expanded", String(sidebarOpen));
-    menuToggle.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      menuToggle.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [sidebarOpen, t]);
+  const allowedMenuItems = menuOptions(
+    context,
+    recent,
+    sidebarOpen || responsive.mobile,
+    t,
+    pathname,
+  );
 
   return (
     <Menu
       isOpen={sidebarOpen}
-      displayGroupTitles
       options={allowedMenuItems}
-      applicationLogo={{
-        // MDS requires one of its built-in logo enums. These SVGs are hidden
-        // below and replaced with the SILO assets until MDS exposes a slot.
-        applicationName: "console",
-        subVariant: "AGPL",
-      }}
-      sx={{
-        // The mds drawer animates `all` for its collapse effect, which also
-        // animates height: 100vh on window resize — the bottom items chase
-        // the new height for 300ms and leave a blank strip. Animate only the
-        // collapse width so height tracks the viewport instantly.
-        transitionProperty: "width, min-width, max-width",
-        "& .menuHeaderContainer": {
-          position: "relative",
-        },
-        "& .menuHeaderContainer:focus-visible": {
-          outline: "2px solid rgba(88, 141, 192, 0.85)",
-          outlineOffset: -2,
-        },
-        "& .menuLogoContainer > svg": {
-          display: "block",
-          visibility: "hidden",
-          width: "100%",
-          height: 48,
-        },
-        "& .menuHeaderContainer::before": {
-          content: '""',
-          display: "block",
-          position: "absolute",
-          zIndex: 2,
-          top: 21,
-          left: 46,
-          width: 46,
-          height: 46,
-          backgroundImage: `url(${SILO_EMBLEM_URL})`,
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          backgroundSize: "contain",
-          pointerEvents: "none",
-          transition:
-            "left 0.3s ease, top 0.3s ease, width 0.3s ease, height 0.3s ease",
-        },
-        "& .menuHeaderContainer::after": {
-          content: '""',
-          display: "block",
-          position: "absolute",
-          zIndex: 1,
-          top: 27,
-          left: 106,
-          width: 98,
-          height: 34,
-          opacity: 1,
-          transform: "translateX(0)",
-          backgroundImage: `url(${SILO_WORDMARK_URL})`,
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          backgroundSize: "contain",
-          pointerEvents: "none",
-          transition: "opacity 0.16s ease 0.3s, transform 0.16s ease 0.3s",
-        },
-        "& .collapsedMenuHeader .collapsedIcon > svg": {
-          display: "none",
-        },
-        "& .collapsedMenuHeader .collapsedIcon": {
-          width: 36,
-          height: 36,
-          visibility: "hidden",
-        },
-        "&.collapsed .menuHeaderContainer::before": {
-          top: 29,
-          left: 22,
-          width: 36,
-          height: 36,
-        },
-        "&.collapsed .menuHeaderContainer::after": {
-          opacity: 0,
-          transform: "translateX(-10px)",
-          transition: "opacity 0.08s ease, transform 0.12s ease",
-        },
-        "&.collapsed .labelContainer": {
-          display: "block",
-          position: "absolute",
-          width: 1,
-          height: 1,
-          padding: 0,
-          margin: -1,
-          overflow: "hidden",
-          clip: "rect(0, 0, 0, 0)",
-          clipPath: "inset(50%)",
-          whiteSpace: "nowrap",
-          border: 0,
-        },
-      }}
+      brandMark={<SiloBrand variant="emblem" width={28} height={28} />}
+      logo={
+        <SiloBrand
+          variant="wordmark"
+          alt=""
+          height={20}
+          style={{ width: "auto", display: "block" }}
+        />
+      }
+      signOutLabel={t("Sign Out")}
+      collapseLabel={t("Collapse menu")}
+      expandLabel={t("Expand menu")}
+      mobileLabel={t("Menu")}
       callPathAction={(path) => {
+        responsive.setOpen(false);
         navigate(path);
       }}
-      signOutAction={() => navigate("/logout")}
+      signOutAction={() => {
+        responsive.setOpen(false);
+        navigate("/logout");
+      }}
       collapseAction={() => {
         dispatch(menuOpen(!sidebarOpen));
       }}
       currentPath={pathname}
-      mobileModeAuto={false}
+      mobileMode="auto"
+      mobileOpen={responsive.open}
+      onMobileOpenChange={responsive.setOpen}
       endComponent={
         <Box
           sx={{
-            display: "block",
-            marginTop: "20px",
+            display: "grid",
+            width: "100%",
           }}
         >
-          <MenuDivider />
           <MenuItem
             name={t("Documentation")}
             icon={<DocumentationIcon />}
@@ -210,13 +101,15 @@ const MenuWrapper = () => {
             name={t("License")}
             icon={<LicenseIcon />}
             path={IAM_PAGES.LICENSE}
-            onClick={() => navigate(IAM_PAGES.LICENSE)}
+            onClick={() => {
+              responsive.setOpen(false);
+              navigate(IAM_PAGES.LICENSE);
+            }}
             visibleTooltip={!sidebarOpen}
             id="menu-license"
           />
         </Box>
       }
-      middleComponent={<UserMenu />}
     />
   );
 };

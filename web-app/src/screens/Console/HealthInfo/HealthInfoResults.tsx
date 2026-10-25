@@ -74,8 +74,8 @@ const HealthInfoResults = ({ serverHealthInfo }: IHealthInfoResults) => {
   return (
     <Box
       sx={{
-        textAlign: "center",
-        marginBottom: 25,
+        textAlign: "left",
+        marginBottom: 24,
       }}
     >
       <Tabs
@@ -85,6 +85,7 @@ const HealthInfoResults = ({ serverHealthInfo }: IHealthInfoResults) => {
         }}
         horizontal
         horizontalBarBackground
+        sx={{ "& > .tabsPanels": { padding: "16px 0 0" } }}
         options={[
           {
             tabConfig: {
@@ -113,7 +114,7 @@ const HealthInfoResults = ({ serverHealthInfo }: IHealthInfoResults) => {
                     sx={{ marginTop: 0 }}
                   >
                     <CodeMirrorWrapper
-                      label={""}
+                      ariaLabel={t("CPU Info")}
                       value={JSON.stringify(serverHealthInfo.sys.cpus, null, 4)}
                       editorHeight={"850px"}
                       onChange={() => {}}
@@ -132,7 +133,7 @@ const HealthInfoResults = ({ serverHealthInfo }: IHealthInfoResults) => {
                     sx={{ marginTop: 0 }}
                   >
                     <CodeMirrorWrapper
-                      label={""}
+                      ariaLabel={t("Drives Partitions Info")}
                       value={JSON.stringify(
                         serverHealthInfo.sys.partitions,
                         null,
@@ -153,7 +154,7 @@ const HealthInfoResults = ({ serverHealthInfo }: IHealthInfoResults) => {
                     sx={{ marginTop: 0 }}
                   >
                     <CodeMirrorWrapper
-                      label={""}
+                      ariaLabel={t("OS Info")}
                       value={JSON.stringify(
                         serverHealthInfo.sys.osinfo,
                         null,
@@ -174,7 +175,7 @@ const HealthInfoResults = ({ serverHealthInfo }: IHealthInfoResults) => {
                     sx={{ marginTop: 0 }}
                   >
                     <CodeMirrorWrapper
-                      label={""}
+                      ariaLabel={t("Memory Info")}
                       value={JSON.stringify(
                         serverHealthInfo.sys.meminfo,
                         null,
@@ -197,7 +198,7 @@ const HealthInfoResults = ({ serverHealthInfo }: IHealthInfoResults) => {
                     sx={{ marginTop: 0 }}
                   >
                     <CodeMirrorWrapper
-                      label={""}
+                      ariaLabel={t("Process Info")}
                       value={JSON.stringify(
                         serverHealthInfo.sys.procinfo,
                         null,
@@ -218,7 +219,7 @@ const HealthInfoResults = ({ serverHealthInfo }: IHealthInfoResults) => {
                     sx={{ marginTop: 0 }}
                   >
                     <CodeMirrorWrapper
-                      label={""}
+                      ariaLabel={t("Network Info")}
                       value={JSON.stringify(
                         serverHealthInfo.sys.netinfo,
                         null,
@@ -239,7 +240,7 @@ const HealthInfoResults = ({ serverHealthInfo }: IHealthInfoResults) => {
                     sx={{ marginTop: 0 }}
                   >
                     <CodeMirrorWrapper
-                      label={""}
+                      ariaLabel={t("Erros")}
                       value={JSON.stringify(
                         serverHealthInfo.sys.errors,
                         null,
@@ -262,7 +263,7 @@ const HealthInfoResults = ({ serverHealthInfo }: IHealthInfoResults) => {
                     sx={{ marginTop: 0 }}
                   >
                     <CodeMirrorWrapper
-                      label={""}
+                      ariaLabel={t("Services")}
                       value={JSON.stringify(
                         serverHealthInfo.sys.services,
                         null,
@@ -283,7 +284,7 @@ const HealthInfoResults = ({ serverHealthInfo }: IHealthInfoResults) => {
                     sx={{ marginTop: 0 }}
                   >
                     <CodeMirrorWrapper
-                      label={""}
+                      ariaLabel={t("Server Config")}
                       value={JSON.stringify(
                         serverHealthInfo.sys.config,
                         null,
@@ -302,7 +303,7 @@ const HealthInfoResults = ({ serverHealthInfo }: IHealthInfoResults) => {
                   onTitleClick={() =>
                     setMinioHealhExpanded(!minioHealhExpanded)
                   }
-                  sx={{ marginTop: 10 }}
+                  sx={{ marginTop: 8 }}
                 >
                   <Accordion
                     title={t("Info")}
@@ -311,11 +312,17 @@ const HealthInfoResults = ({ serverHealthInfo }: IHealthInfoResults) => {
                     onTitleClick={() =>
                       setMinioHealhInfoExpanded(!minioHealhInfoExpanded)
                     }
-                    sx={{ marginTop: 10 }}
+                    sx={{ marginTop: 8 }}
                   >
                     <Box
                       useBackground
-                      sx={{ margin: "10px 0px", padding: "5px" }}
+                      sx={{
+                        margin: "8px 0",
+                        padding: 12,
+                        fontSize: "var(--fs-body)",
+                        lineHeight: "var(--lh-body)",
+                        borderRadius: "var(--radius-control)",
+                      }}
                     >
                       {t("Mode:")} {serverHealthInfo.minio.info.mode}
                       <br></br>
@@ -339,10 +346,10 @@ const HealthInfoResults = ({ serverHealthInfo }: IHealthInfoResults) => {
                           !minioHealhInfoBackendExpanded,
                         )
                       }
-                      sx={{ marginTop: 5 }}
+                      sx={{ marginTop: 8 }}
                     >
                       <CodeMirrorWrapper
-                        label={""}
+                        ariaLabel={t("Backend")}
                         value={JSON.stringify(
                           serverHealthInfo.minio.info.backend,
                           null,
@@ -365,7 +372,7 @@ const HealthInfoResults = ({ serverHealthInfo }: IHealthInfoResults) => {
                       sx={{ marginTop: 0 }}
                     >
                       <CodeMirrorWrapper
-                        label={""}
+                        ariaLabel={t("Servers")}
                         value={JSON.stringify(
                           serverHealthInfo.minio.info.servers,
                           null,
@@ -388,7 +395,7 @@ const HealthInfoResults = ({ serverHealthInfo }: IHealthInfoResults) => {
                       sx={{ marginTop: 0 }}
                     >
                       <CodeMirrorWrapper
-                        label={""}
+                        ariaLabel={t("Metrics")}
                         value={JSON.stringify(
                           serverHealthInfo.minio.info.metrics,
                           null,
@@ -410,7 +417,7 @@ const HealthInfoResults = ({ serverHealthInfo }: IHealthInfoResults) => {
                     sx={{ marginTop: 0 }}
                   >
                     <CodeMirrorWrapper
-                      label={""}
+                      ariaLabel={t("Config")}
                       value={JSON.stringify(
                         serverHealthInfo.minio.config.config,
                         null,
@@ -429,11 +436,19 @@ const HealthInfoResults = ({ serverHealthInfo }: IHealthInfoResults) => {
             tabConfig: {
               icon: <CodeIcon />,
               id: "tab-raw",
-              label: t("RAW JSON"),
+              label: t("Raw JSON"),
             },
             content: (
-              <Box>
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: "minmax(0, 1fr)",
+                  gap: 16,
+                  "& > *": { minWidth: 0 },
+                }}
+              >
                 <Button
+                  sx={{ justifySelf: "start" }}
                   label={t("Download JSON")}
                   id={"download-results"}
                   aria-label={t("Download JSON")}

@@ -18,6 +18,7 @@ import React from "react";
 import { StatsResponseType } from "../SiteReplicationStatus";
 import LookupStatusTable from "./LookupStatusTable";
 import { EntityNotFound, isEntityNotFound, syncStatus } from "./Utils";
+import { i18nKey } from "i18n/lang";
 
 type GroupEntityStatusProps = Partial<StatsResponseType> & {
   lookupValue?: string;
@@ -27,7 +28,7 @@ const UserEntityStatus = ({
   sites = {},
   lookupValue = "",
 }: GroupEntityStatusProps) => {
-  const rowsForStatus = ["Info", "Policy mapping"];
+  const rowsForStatus = [i18nKey("Info"), i18nKey("Policy mapping")];
 
   const groupSites: Record<string, any> = groupStats[lookupValue] || {};
 
@@ -37,7 +38,9 @@ const UserEntityStatus = ({
   const notFound = isEntityNotFound(sites, groupSites, "HasGroup");
   const resultMatrix: any = [];
   if (notFound) {
-    return <EntityNotFound entityType={"Group"} entityValue={lookupValue} />;
+    return (
+      <EntityNotFound entityType={i18nKey("Group")} entityValue={lookupValue} />
+    );
   } else {
     const row = [];
     for (let sCol = 0; sCol < siteKeys.length; sCol++) {
@@ -91,7 +94,7 @@ const UserEntityStatus = ({
     <LookupStatusTable
       matrixData={resultMatrix}
       entityName={lookupValue}
-      entityType={"Group"}
+      entityType={i18nKey("Group")}
     />
   );
 };

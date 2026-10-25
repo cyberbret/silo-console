@@ -14,6 +14,14 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { SkeletonRows } from "common/ui";
+import { FilteredEmptyState } from "common/ui/FilteredEmptyState";
+import { hasPermission } from "common/SecureComponent";
+import {
+  CONSOLE_UI_RESOURCE,
+  IAM_SCOPES,
+} from "common/SecureComponent/permissions";
+import { LogsIcon } from "mds";
 import React, { Fragment, useEffect, useState } from "react";
 import { Box, Button, Grid, PageLayout, Select, Table, TableBody } from "mds";
 import { useSelector } from "react-redux";
@@ -26,12 +34,11 @@ import {
   setLogsStarted,
 } from "../logsSlice";
 import { setHelpName } from "../../../../systemSlice";
-import { useT } from "i18n";
+import { i18nKey, useT } from "i18n";
 import SearchBox from "../../Common/SearchBox";
 import api from "../../../../../src/common/api";
 import LogLine from "./LogLine";
 import PageHeaderWrapper from "../../Common/PageHeaderWrapper/PageHeaderWrapper";
-import HelpMenu from "../../HelpMenu";
 import { useDiagnosticSocket } from "../../Common/Hooks/useDiagnosticSocket";
 
 const ErrorLogs = () => {
@@ -41,6 +48,10 @@ const ErrorLogs = () => {
   const messages = useSelector((state: AppState) => state.logs.logMessages);
   const logsStarted = useSelector((state: AppState) => state.logs.logsStarted);
 
+  const canStartLogs = hasPermission(CONSOLE_UI_RESOURCE, [
+    IAM_SCOPES.ADMIN_GET_CONSOLE_LOG,
+  ]);
+  const [starting, setStarting] = useState(false);
   const [filter, setFilter] = useState<string>("");
   const [nodes, setNodes] = useState<string[]>([""]);
   const [selectedNode, setSelectedNode] = useState<string>("all");
@@ -48,7 +59,7 @@ const ErrorLogs = () => {
     useState<string>("Select user agent");
   const [userAgents, setUserAgents] = useState<string[]>(["All User Agents"]);
   const [logType, setLogType] = useState<string>("all");
-  const [loadingNodes, setLoadingNodes] = useState<boolean>(false);
+  const [loadingNodes, setLoadingNodes] = useState<boolean>(true);
 
   const logsSocket = useDiagnosticSocket();
 
@@ -61,6 +72,8 @@ const ErrorLogs = () => {
   }, [dispatch]);
 
   const startLogs = () => {
+    if (!canStartLogs || starting || loadingNodes) return;
+    setStarting(true);
     dispatch(logResetMessages());
     const url = new URL(window.location.toString());
     const isDev = process.env.NODE_ENV === "development";
@@ -80,6 +93,7 @@ const ErrorLogs = () => {
       openMessage: "ok",
       heartbeatMs: 10 * 1000,
       onOpen: () => {
+        setStarting(false);
         dispatch(setLogsStarted(true));
       },
       onMessage: (message: MessageEvent) => {
@@ -107,6 +121,7 @@ const ErrorLogs = () => {
         }
       },
       onClose: () => {
+        setStarting(false);
         dispatch(setLogsStarted(false));
       },
     });
@@ -169,10 +184,10 @@ const ErrorLogs = () => {
 
   return (
     <Fragment>
-      <PageHeaderWrapper label="Logs" actions={<HelpMenu />} />
+      <PageHeaderWrapper label={i18nKey("Logs")} titleElement="h1" help />
 
       <PageLayout>
-        <Grid container sx={{ gap: 15 }}>
+        <Grid container sx={{ gap: 16, alignItems: "center" }}>
           <Grid item xs={3}>
             {!loadingNodes ? (
               <Select
@@ -190,7 +205,15 @@ const ErrorLogs = () => {
                 ]}
               />
             ) : (
-              <h3> {t("Loading nodes")}</h3>
+              <Box
+                sx={{
+                  fontSize: "var(--fs-body)",
+                  lineHeight: "var(--lh-body)",
+                  color: "var(--muted-foreground)",
+                }}
+              >
+                {t("Loading nodes")}
+              </Box>
             )}
           </Grid>
 
@@ -219,6 +242,7 @@ const ErrorLogs = () => {
               <Select
                 id="userAgent"
                 name="userAgent"
+                placeholder={t("All User Agents")}
                 data-test-id="user-agent"
                 value={selectedUserAgent}
                 onChange={(value) => {
@@ -244,7 +268,7 @@ const ErrorLogs = () => {
                 id={"start-logs"}
                 type="submit"
                 variant="callAction"
-                disabled={false}
+                disabled={!canStartLogs || starting || loadingNodes}
                 onClick={startLogs}
                 label={t("Start Logs")}
               />
@@ -266,12 +290,7 @@ const ErrorLogs = () => {
               display: "flex" as const,
               justifyContent: "space-between" as const,
               alignItems: "center",
-              marginBottom: "1rem",
-              "& button": {
-                flexGrow: 0,
-                marginLeft: 8,
-                marginBottom: 0,
-              },
+              gap: 8,
             }}
           >
             <SearchBox
@@ -286,15 +305,22 @@ const ErrorLogs = () => {
             <Box
               id="logs-container"
               data-test-id="logs-list-container"
+              withBorders
+              customBorderPadding="0px"
               sx={{
                 minHeight: 400,
                 height: "calc(100vh - 200px)",
                 overflow: "auto",
-                fontSize: 13,
-                borderRadius: 4,
+                fontSize: "var(--fs-body)",
+                lineHeight: "var(--lh-body)",
+                borderRadius: "var(--radius-card)",
+                "& tr": { backgroundColor: "transparent" },
               }}
             >
-              <Box withBorders customBorderPadding={"0px"} useBackground>
+              <Box
+                useBackground
+                sx={{ minHeight: "100%", borderRadius: "inherit" }}
+              >
                 <Table aria-label={t("Logs")}>
                   <TableBody>
                     {filteredMessages.map((m) => {
@@ -302,11 +328,48 @@ const ErrorLogs = () => {
                     })}
                   </TableBody>
                 </Table>
-                {filteredMessages.length === 0 && (
-                  <Box sx={{ padding: 20, textAlign: "center" }}>
-                    {t("No logs to display")}
-                  </Box>
-                )}
+                {filteredMessages.length === 0 &&
+                  (loadingNodes || starting ? (
+                    <SkeletonRows rows={5} columns={3} />
+                  ) : (
+                    <FilteredEmptyState
+                      filtered={
+                        Boolean(filter) ||
+                        (selectedUserAgent !== "All User Agents" &&
+                          selectedUserAgent !== "Select user agent")
+                      }
+                      onClear={() => {
+                        setFilter("");
+                        setSelectedUserAgent("All User Agents");
+                      }}
+                      icon={<LogsIcon />}
+                      title={
+                        logsStarted
+                          ? t("Waiting for logs")
+                          : t("Logs are not running")
+                      }
+                      description={
+                        logsStarted
+                          ? t(
+                              "New log entries will appear here as the server emits them.",
+                            )
+                          : t(
+                              "Choose the nodes and log types, then start logs to see server activity.",
+                            )
+                      }
+                      action={
+                        !logsStarted &&
+                        canStartLogs && (
+                          <Button
+                            id="empty-start-logs"
+                            variant="callAction"
+                            label={t("Start Logs")}
+                            onClick={startLogs}
+                          />
+                        )
+                      }
+                    />
+                  ))}
               </Box>
             </Box>
           </Grid>

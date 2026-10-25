@@ -39,7 +39,6 @@ import { setDestinationLoading } from "./destinationsSlice";
 import withSuspense from "../Common/Components/withSuspense";
 import PageHeaderWrapper from "../Common/PageHeaderWrapper/PageHeaderWrapper";
 import TargetTitle from "./TargetTitle";
-import HelpMenu from "../HelpMenu";
 import { useT } from "i18n";
 
 const ConfMySql = withSuspense(
@@ -54,13 +53,7 @@ const ConfPostgres = withSuspense(
   React.lazy(() => import("./CustomForms/ConfPostgres")),
 );
 
-interface IAddNotificationEndpointProps {
-  saveAndRefresh: any;
-}
-
-const AddEventDestination = ({
-  saveAndRefresh,
-}: IAddNotificationEndpointProps) => {
+const AddEventDestination = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const params = useParams();
@@ -99,15 +92,7 @@ const AddEventDestination = ({
           dispatch(setErrorSnackMessage(errorToHandler(err.error)));
         });
     }
-  }, [
-    saving,
-    service,
-    valuesArr,
-    saveAndRefresh,
-    dispatch,
-    navigate,
-    identifier,
-  ]);
+  }, [saving, service, valuesArr, dispatch, navigate, identifier]);
 
   //Fetch Actions
   const submitForm = (event: React.FormEvent) => {
@@ -167,6 +152,7 @@ const AddEventDestination = ({
   return (
     <Fragment>
       <PageHeaderWrapper
+        titleElement="h1"
         label={
           <Fragment>
             <BackLink
@@ -175,7 +161,7 @@ const AddEventDestination = ({
             />
           </Fragment>
         }
-        actions={<HelpMenu />}
+        help
       />
 
       <PageLayout>

@@ -14,18 +14,20 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { i18nKey } from "i18n/lang";
+
 export const LogSearchColumnLabels = {
-  time: "Timestamp",
-  api_name: "API Name",
-  access_key: "Access Key",
-  bucket: "Bucket",
-  object: "Object",
-  remote_host: "Remote Host",
-  request_id: "Request ID",
-  user_agent: "User Agent",
-  response_status: "Response Status",
-  response_status_code: "Response Status Code",
-  request_content_length: "Request Content Length",
-  response_content_length: "Response Content Length",
-  time_to_response_ns: "Time to Response NS",
+  time: i18nKey("Timestamp"),
+  api_name: i18nKey("API Name"),
+  access_key: i18nKey("Access Key"),
+  bucket: i18nKey("Bucket"),
+  object: i18nKey("Object"),
+  remote_host: i18nKey("Remote Host"),
+  request_id: i18nKey("Request ID"),
+  user_agent: i18nKey("User Agent"),
+  response_status: i18nKey("Response Status"),
+  response_status_code: i18nKey("Response Status Code"),
+  request_content_length: i18nKey("Request Content Length"),
+  response_content_length: i18nKey("Response Content Length"),
+  time_to_response_ns: i18nKey("Time to Response NS"),
 };

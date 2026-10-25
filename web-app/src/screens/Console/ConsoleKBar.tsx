@@ -14,8 +14,8 @@
 //  You should have received a copy of the GNU Affero General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import * as React from "react";
-import { Fragment } from "react";
-import { KBarProvider } from "kbar";
+import { Fragment, useEffect } from "react";
+import { KBarProvider, useKBar, useRegisterActions, VisualState } from "kbar";
 import Console from "./Console";
 import { useSelector } from "react-redux";
 import CommandBar from "./CommandBar";
@@ -23,8 +23,52 @@ import { selFeatures } from "./consoleSlice";
 import TrafficMonitor from "./Common/ObjectManager/TrafficMonitor";
 import { AppState } from "../../store";
 import AnonymousAccess from "../AnonymousAccess/AnonymousAccess";
+import { registerScreenTranslations } from "i18n/lang";
+import { zhScreens } from "i18n/zhScreens";
 
-const ConsoleKBar = () => {
+registerScreenTranslations(zhScreens);
+
+import { useNavigate } from "react-router-dom";
+import { useLanguage, useT } from "i18n";
+import { useRouteContext } from "../../navigation/useRouteContext";
+import { routesAsKbarActions } from "./kbar-actions";
+import { hasCreateBucketPermission } from "../../common/SecureComponent/createBucketPermission";
+import {
+  useRecentBuckets,
+  RecentBucketsProvider,
+} from "../../navigation/RecentBucketsProvider";
+
+// Keep route registration with the authenticated shell. CommandBar owns the
+// shared modal gate and presentation, including when mounted in isolation.
+const NavigationActions = () => {
+  const context = useRouteContext();
+  const { recent, refresh } = useRecentBuckets();
+  const navigate = useNavigate();
+  const t = useT();
+  const language = useLanguage();
+  const canCreate = useSelector((state: AppState) =>
+    hasCreateBucketPermission(state.console.session?.permissions),
+  );
+  const { visualState } = useKBar((state) => ({
+    visualState: state.visualState,
+  }));
+  useEffect(() => {
+    if (visualState === VisualState.showing) refresh();
+  }, [visualState, refresh]);
+  useRegisterActions(
+    routesAsKbarActions(recent, navigate, context, t, canCreate),
+    [recent, context, language, canCreate],
+  );
+  return null;
+};
+
+const ConsoleKBar = () => (
+  <RecentBucketsProvider>
+    <ConsoleContent />
+  </RecentBucketsProvider>
+);
+
+const ConsoleContent = () => {
   const features = useSelector(selFeatures);
   const anonymousMode = useSelector(
     (state: AppState) => state.system.anonymousMode,
@@ -53,9 +97,24 @@ const ConsoleKBar = () => {
     <KBarProvider
       options={{
         enableHistory: true,
+        animations: {
+          enterMs:
+            parseFloat(
+              getComputedStyle(document.documentElement).getPropertyValue(
+                "--dur-fast",
+              ),
+            ) || 80,
+          exitMs:
+            parseFloat(
+              getComputedStyle(document.documentElement).getPropertyValue(
+                "--dur-fast-exit",
+              ),
+            ) || 60,
+        },
       }}
     >
       <TrafficMonitor />
+      <NavigationActions />
       <CommandBar />
       <Console />
     </KBarProvider>

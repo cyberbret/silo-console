@@ -64,6 +64,7 @@ const DeleteTierConfirmModal = ({
 
   return (
     <ConfirmDialog
+      destructive
       title={t("Delete Tier")}
       confirmText={t("Delete")}
       isOpen={open}

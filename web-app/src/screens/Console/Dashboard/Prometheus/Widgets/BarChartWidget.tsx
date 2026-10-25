@@ -65,9 +65,9 @@ const CustomizedAxisTick = ({ y, payload, fill }: any) => {
   return (
     <text
       width={50}
-      fontSize={11}
+      fontSize="var(--fs-micro)"
       textAnchor="start"
-      fill={fill || "#333"}
+      fill={fill || "var(--muted-foreground)"}
       transform={`translate(5,${y})`}
       fontWeight={400}
       dy={3}
@@ -241,8 +241,8 @@ const BarChartWidget = ({
                     width={150}
                     hide={!biggerThanMd}
                     style={{
-                      fontSize: "12px",
-                      fontWeight: 100,
+                      fontSize: "var(--fs-caption)",
+                      fontWeight: 400,
                     }}
                   />
                   {barChartConfiguration.map((bar) => (
