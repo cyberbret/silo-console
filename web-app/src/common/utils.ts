@@ -17,7 +17,7 @@
 import { IBytesCalc } from "./types";
 
 import get from "lodash/get.js";
-import { getStoredLanguage, translate } from "../i18n/lang";
+import { i18nKey, getStoredLanguage, translate } from "../i18n/lang";
 
 export const units = [
   "B",
@@ -129,15 +129,26 @@ export const niceTimeFromSeconds = (seconds: number): string => {
   const parts = [];
 
   if (days > 0) {
-    parts.push(countWithUnit(days, days !== 1, "day", "days"));
+    parts.push(
+      countWithUnit(days, days !== 1, i18nKey("day"), i18nKey("days")),
+    );
   }
 
   if (hours > 0) {
-    parts.push(countWithUnit(hours, hours !== 1, "hour", "hours"));
+    parts.push(
+      countWithUnit(hours, hours !== 1, i18nKey("hour"), i18nKey("hours")),
+    );
   }
 
   if (minutes > 0) {
-    parts.push(countWithUnit(minutes, minutes !== 1, "minute", "minutes"));
+    parts.push(
+      countWithUnit(
+        minutes,
+        minutes !== 1,
+        i18nKey("minute"),
+        i18nKey("minutes"),
+      ),
+    );
   }
 
   if (remainingSeconds > 0) {
@@ -145,8 +156,8 @@ export const niceTimeFromSeconds = (seconds: number): string => {
       countWithUnit(
         remainingSeconds,
         remainingSeconds !== 1,
-        "second",
-        "seconds",
+        i18nKey("second"),
+        i18nKey("seconds"),
       ),
     );
   }
@@ -194,7 +205,12 @@ export const niceDaysInt = (seconds: number, timeVariant: string = "s") => {
 
   if (days > 365) {
     const years = days / 365;
-    return countWithUnit(years, Math.floor(years) !== 1, "year", "years");
+    return countWithUnit(
+      years,
+      Math.floor(years) !== 1,
+      i18nKey("year"),
+      i18nKey("years"),
+    );
   }
 
   if (days > 30) {
@@ -204,30 +220,42 @@ export const niceDaysInt = (seconds: number, timeVariant: string = "s") => {
     return `${countWithUnit(
       months,
       Math.floor(months) !== 1,
-      "month",
-      "months",
+      i18nKey("month"),
+      i18nKey("months"),
     )} ${
-      diffDays > 0 ? countWithUnit(diffDays, diffDays > 1, "day", "days") : ""
+      diffDays > 0
+        ? countWithUnit(diffDays, diffDays > 1, i18nKey("day"), i18nKey("days"))
+        : ""
     }`;
   }
 
   if (days >= 7 && days <= 30) {
     const weeks = Math.floor(days / 7);
 
-    return countWithUnit(weeks, weeks !== 1, "week", "weeks");
+    return countWithUnit(weeks, weeks !== 1, i18nKey("week"), i18nKey("weeks"));
   }
 
   if (days >= 1 && days <= 6) {
-    return countWithUnit(days, days > 1, "day", "days");
+    return countWithUnit(days, days > 1, i18nKey("day"), i18nKey("days"));
   }
 
-  return `${hours >= 1 ? countWithUnit(hours, hours > 1, "hour", "hours") : ""} ${
+  return `${hours >= 1 ? countWithUnit(hours, hours > 1, i18nKey("hour"), i18nKey("hours")) : ""} ${
     minutes >= 1 && hours === 0
-      ? countWithUnit(minutes, minutes > 1, "minute", "minutes")
+      ? countWithUnit(
+          minutes,
+          minutes > 1,
+          i18nKey("minute"),
+          i18nKey("minutes"),
+        )
       : ""
   } ${
     seconds >= 1 && minutes === 0 && hours === 0
-      ? countWithUnit(seconds, seconds > 1, "second", "seconds")
+      ? countWithUnit(
+          seconds,
+          seconds > 1,
+          i18nKey("second"),
+          i18nKey("seconds"),
+        )
       : ""
   }`;
 };

@@ -11,9 +11,12 @@
 
 import { zh } from "./zh";
 import { zhHelp } from "./zhHelp";
-import { zhScreens } from "./zhScreens";
 
 export type Lang = "en" | "zh";
+
+// Mark an English literal that is translated later (menus, tabs, form metadata).
+// Identity only: keep the raw key until the rendering component calls t().
+export const i18nKey = <T extends string>(key: T): T => key;
 
 export const DEFAULT_LANG: Lang = "en";
 
@@ -42,7 +45,13 @@ export const storeLanguage = (lang: Lang) => {
 // (zhScreens) > help topics (zhHelp).
 const dictionaries: Record<Lang, Record<string, string> | null> = {
   en: null,
-  zh: { ...zhHelp, ...zhScreens, ...zh },
+  zh: { ...zhHelp, ...zh },
+};
+
+// The lazy Console owns feature-screen copy. Register before rendering its
+// first screen, keeping login/common copy synchronous and precedence intact.
+export const registerScreenTranslations = (screens: Record<string, string>) => {
+  dictionaries.zh = { ...zhHelp, ...screens, ...zh };
 };
 
 // Keep placeholder matching shared by plain-text and React-node formatting.

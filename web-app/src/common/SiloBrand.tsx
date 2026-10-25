@@ -8,8 +8,8 @@
 import React from "react";
 import { baseUrl } from "../history";
 
-export const SILO_EMBLEM_URL = `${baseUrl}silo.svg`;
-export const SILO_WORDMARK_URL = `${baseUrl}silo-word.svg`;
+const SILO_EMBLEM_URL = `${baseUrl}silo.svg`;
+const SILO_WORDMARK_URL = `${baseUrl}silo-word.svg`;
 
 // Brand palette anchored on the silo-word.svg gradient (steel blue → copper).
 export const SILO_COLORS = {

@@ -8,6 +8,7 @@
 // Browser bindings of the shared session rules (see ./sessionExpiry.ts).
 
 import { clearSession } from "../common/utils";
+import { resetTaskRuntime } from "../screens/Console/ObjectBrowser/transferManager";
 import {
   forgetRememberedRoute,
   handleExpiredSession,
@@ -34,11 +35,14 @@ export const setAnonymousSession = (anonymous: boolean): void => {
 export const expireSession = (): boolean =>
   handleExpiredSession({
     pathname: window.location.pathname,
+    search: window.location.search,
+    hash: window.location.hash,
     basePath: basePath(),
     storage: localStorage,
     anonymous: anonymousSession,
     clearSession,
     navigate: (target) => {
+      resetTaskRuntime();
       document.location = target;
     },
   });
