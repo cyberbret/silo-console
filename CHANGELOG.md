@@ -48,6 +48,8 @@ Target: **v2.5.0**. No v2.5.0 tag, binaries or images have been published.
   unavailable actions and retain bucket identities through sorting and filtering.
 - Coordinate with the Server account-info fix so a refresh immediately reflects
   successful bucket creation and deletion instead of retaining its cached list.
+- Keep the object workspace reachable for write-only users so they can upload;
+  object listing and reading retain their own permission checks.
 - Add bounded text, Markdown and CSV/TSV previews, source views, safe HTML handling
   and a visible 1 MiB truncation notice. Show secret-free mcli equivalents for
   supported bucket, lifecycle, event and IAM forms.

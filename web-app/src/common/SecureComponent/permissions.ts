@@ -581,4 +581,7 @@ export const deleteBucketPermissions = [
 export const browseBucketPermissions = [
   IAM_SCOPES.S3_LIST_BUCKET,
   IAM_SCOPES.S3_ALL_LIST_BUCKET,
+  // The object workspace also hosts uploads for write-only users. Its list
+  // and detail panels independently enforce read/list permissions.
+  IAM_SCOPES.S3_PUT_OBJECT,
 ];
