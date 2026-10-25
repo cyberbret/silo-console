@@ -23,6 +23,7 @@ import {
   takeRememberedRoute,
 } from "../src/api/sessionExpiry";
 import { Api, HttpClient, HttpResponse } from "../src/api/consoleApi";
+import { readApiError, errorToHandler } from "../src/api/errors";
 
 class MemoryStorage implements RouteStorage {
   items = new Map<string, string>();
@@ -213,7 +214,11 @@ const cannedFetch =
   ) =>
   async (input: RequestInfo | URL) => {
     const response = new Response(
-      typeof body === "string" ? body : JSON.stringify(body),
+      body === null
+        ? null
+        : typeof body === "string"
+          ? body
+          : JSON.stringify(body),
       { status, headers: { "content-type": contentType } },
     );
     Object.defineProperty(response, "url", { value: url ?? String(input) });
@@ -242,7 +247,13 @@ const apiAnswering = (
   });
   const original = instance.request;
   instance.request = (params) =>
-    settleWithSessionCheck(original(params), onExpired);
+    settleWithSessionCheck(
+      original(params).catch(async (reason: unknown) => {
+        await readApiError(reason);
+        throw reason;
+      }),
+      onExpired,
+    );
   return instance;
 };
 
@@ -353,8 +364,8 @@ test.describe("generated client session check", () => {
       .then(() => null)
       .catch((reason) => reason as HttpResponse<void, unknown>);
     expect(rejection?.status).toBe(401);
-    // The transport parsed nothing, and the original body is still readable.
-    expect(rejection?.error).toBeNull();
+    // Error handlers can read the parsed error without consuming the body.
+    expect(rejection?.error).toEqual({ message: "invalid session" });
     expect(await rejection?.text()).toBe(
       JSON.stringify({ message: "invalid session" }),
     );
@@ -425,5 +436,90 @@ test.describe("generated client session check", () => {
     expect(
       isExpiredSessionResponse({ status: 401, error: "invalid session" }),
     ).toBe(false);
+  });
+});
+
+test.describe("generated client errors", () => {
+  test("a denied object tag write exposes the server error without expiring the session", async () => {
+    let expired = 0;
+    const body = {
+      message: "Access Denied.",
+      detailedMessage: "Access Denied.",
+    };
+    const instance = apiAnswering(403, body, () => expired++);
+    const response = await instance.buckets
+      .putObjectTags(
+        "demo",
+        { prefix: "a.txt", version_id: "v1" },
+        { tags: { category: "example" } },
+      )
+      .then(() => null)
+      .catch((reason) => reason as HttpResponse<void, typeof body>);
+    expect(response).toBeInstanceOf(Response);
+    expect(response?.status).toBe(403);
+    expect(response?.error).toEqual(body);
+    expect(errorToHandler(response!.error)).toEqual({
+      errorMessage: "Access Denied.",
+      detailedError: "Access Denied.",
+    });
+    expect(response?.bodyUsed).toBe(false);
+    expect(await response?.json()).toEqual(body);
+    expect(expired).toBe(0);
+  });
+
+  test("successful empty and raw responses retain their status and bodies", async () => {
+    let expired = 0;
+    const empty = await apiAnswering(
+      204,
+      null,
+      () => expired++,
+    ).user.removeUser("alice");
+    expect(empty.status).toBe(204);
+    expect(empty.error).toBeNull();
+    const raw = await apiAnswering(
+      200,
+      "object contents",
+      () => expired++,
+      "text/plain",
+    ).buckets.downloadObject("demo", { prefix: "a.txt" });
+    expect(raw.bodyUsed).toBe(false);
+    expect(await raw.text()).toBe("object contents");
+    expect(expired).toBe(0);
+  });
+
+  test("already parsed errors keep their identity", async () => {
+    const response = await clientAnswering(
+      403,
+      { message: "Access Denied." },
+      "http://console/api/v1/buckets",
+    )
+      .request({ path: "/buckets", method: "GET", format: "json" })
+      .catch((reason) => reason as HttpResponse<unknown, unknown>);
+    const original = response.error;
+    await readApiError(response);
+    expect(response.error).toBe(original);
+  });
+
+  test("malformed, non-JSON and network failures retain the original rejection", async () => {
+    for (const [body, contentType] of [
+      ["{broken", "application/json"],
+      ["unavailable", "text/plain"],
+    ]) {
+      const response = await apiAnswering(503, body, () => {}, contentType)
+        .user.removeUser("alice")
+        .then(() => null)
+        .catch((reason) => reason as HttpResponse<void, unknown>);
+      expect(response?.status).toBe(503);
+      expect(response?.error).toBeNull();
+      expect(await response?.text()).toBe(body);
+    }
+    const failure = new TypeError("network down");
+    const response = await Promise.reject(failure)
+      .catch(async (reason) => {
+        await readApiError(reason);
+        throw reason;
+      })
+      .catch((reason) => reason);
+    expect(response).toBe(failure);
   });
 });

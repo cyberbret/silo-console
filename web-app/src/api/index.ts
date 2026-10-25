@@ -1,6 +1,7 @@
 import { Api, HttpResponse, FullRequestParams } from "./consoleApi";
 import { settleWithSessionCheck } from "./sessionExpiry";
 import { expireSession } from "./session";
+import { readApiError } from "./errors";
 
 export let api = new Api();
 const apiBasePath = new URL(document.baseURI).pathname;
@@ -30,6 +31,9 @@ api.request = async <T = any, E = any>({
       baseUrl,
       cancelToken,
       ...params,
+    }).catch(async (reason: unknown) => {
+      await readApiError(reason);
+      throw reason;
     }),
     expireSession,
   );

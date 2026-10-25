@@ -281,7 +281,14 @@ test
     await t
       .useRole(roles.bucketSpecific)
       .navigateTo("http://localhost:9090/browser")
-      .click(namedTestBucketBrowseButtonFor(`${TEST_BUCKET_NAME_SPECIFIC}-11`))
+      .expect(
+        namedTestBucketBrowseButtonFor(`${TEST_BUCKET_NAME_SPECIFIC}-11`)
+          .exists,
+      )
+      .notOk()
+      .navigateTo(
+        `http://localhost:9090/browser/${TEST_BUCKET_NAME_SPECIFIC}-11`,
+      )
       .expect(elements.bucketsTableDisabled.exists)
       .ok();
   })

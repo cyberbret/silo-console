@@ -48,6 +48,10 @@ Target: **v2.5.0**. No v2.5.0 tag, binaries or images have been published.
   unavailable actions and retain bucket identities through sorting and filtering.
 - Coordinate with the Server account-info fix so a refresh immediately reflects
   successful bucket creation and deletion instead of retaining its cached list.
+- Preserve wildcard bucket-root grants in workspace entry and list controls,
+  including prefix-scoped deletion policies; object permissions remain scoped.
+- Preserve JSON error details from API methods with no success body, so rejected
+  actions such as changing object tags show the server's error instead of silence.
 - Keep the object workspace reachable for write-only users so they can upload;
   object listing and reading retain their own permission checks.
 - Add bounded text, Markdown and CSV/TSV previews, source views, safe HTML handling

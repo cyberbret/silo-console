@@ -31,3 +31,24 @@ export const errorToHandler = (e: ApiError): ErrorResponseHandler => {
     detailedError: e.detailedMessage || "",
   };
 };
+
+// Generated methods with a void response leave error=null even when the
+// server returns a JSON error. Populate that field before UI error handlers
+// run, preserving both the rejected Response and its readable body.
+export const readApiError = async (reason: unknown): Promise<void> => {
+  if (!(reason instanceof Response) || reason.ok) return;
+  const response = reason as Response & { error?: unknown };
+  if (
+    response.error != null ||
+    !response.headers
+      .get("content-type")
+      ?.toLowerCase()
+      .startsWith("application/json")
+  )
+    return;
+  try {
+    response.error = await response.clone().json();
+  } catch {
+    // A malformed/non-JSON failure must still reject with the original response.
+  }
+};

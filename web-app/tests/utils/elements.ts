@@ -119,7 +119,7 @@ export const createGroupUserTable = Selector(
 //----------------------------------------------------
 // Bucket page vertical tabs
 //----------------------------------------------------
-export const bucketAccessRulesTab = Selector('a[href$="/admin/prefix"]');
+export const bucketAccessRulesTab = Selector('[role="tab"][id$="-anonymous"]');
 
 //----------------------------------------------------
 // Settings window
@@ -129,41 +129,30 @@ export const settingsWindow = Selector("#settings-container");
 //----------------------------------------------------
 // Settings page vertical tabs
 //----------------------------------------------------
-export const settingsRegionTab = Selector("button").withAttribute(
-  "id",
-  "settings-tab-Region",
+export const settingsRegionTab = Selector(
+  '[role="tab"][id$="settings-tab-Region"]',
 );
-export const settingsCompressionTab = Selector("button").withAttribute(
-  "id",
-  "settings-tab-Compression",
+export const settingsCompressionTab = Selector(
+  '[role="tab"][id$="settings-tab-Compression"]',
 );
-export const settingsApiTab = Selector("button").withAttribute(
-  "id",
-  "settings-tab-API",
+export const settingsApiTab = Selector('[role="tab"][id$="settings-tab-API"]');
+export const settingsHealTab = Selector(
+  '[role="tab"][id$="settings-tab-Heal"]',
 );
-export const settingsHealTab = Selector("button").withAttribute(
-  "id",
-  "settings-tab-Heal",
+export const settingsScannerTab = Selector(
+  '[role="tab"][id$="settings-tab-Scanner"]',
 );
-export const settingsScannerTab = Selector("button").withAttribute(
-  "id",
-  "settings-tab-Scanner",
+export const settingsEtcdTab = Selector(
+  '[role="tab"][id$="settings-tab-Etcd"]',
 );
-export const settingsEtcdTab = Selector("button").withAttribute(
-  "id",
-  "settings-tab-Etcd",
+export const settingsLoggerWebhookTab = Selector(
+  '[role="tab"][id$="settings-tab-Logger Webhook"]',
 );
-export const settingsLoggerWebhookTab = Selector("button").withAttribute(
-  "id",
-  "settings-tab-Logger Webhook",
+export const settingsAuditWebhookTab = Selector(
+  '[role="tab"][id$="settings-tab-Audit Webhook"]',
 );
-export const settingsAuditWebhookTab = Selector("button").withAttribute(
-  "id",
-  "settings-tab-Audit Webhook",
-);
-export const settingsAuditKafkaTab = Selector("button").withAttribute(
-  "id",
-  "settings-tab-Audit Kafka",
+export const settingsAuditKafkaTab = Selector(
+  '[role="tab"][id$="settings-tab-Audit Kafka"]',
 );
 
 //----------------------------------------------------

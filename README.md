@@ -220,9 +220,10 @@ and resolves `github.com/minio/minio-go/v7` upstream. The maintained mc source
 keeps the compatibility module path `github.com/minio/mc` and lives in
 `pgsty/mc`. Console pins an immutable Go pseudo-version: either a published
 calendar release or a commit accepted on main with successful CI. The current
-selection is an unpublished MC source commit; it does not publish a new mcli
-binary or tag. An embedding server must copy this replacement because Go
-ignores replacements declared by dependency modules:
+selection is the published mcli 20261025 source (`dcc78d506f94`). Selecting it
+as a dependency does not create another mcli release. An embedding server must
+copy this replacement because Go ignores replacements declared by dependency
+modules:
 
 <!-- silo-replacements:begin -->
 ```go

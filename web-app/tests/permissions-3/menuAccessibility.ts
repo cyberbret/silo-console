@@ -10,7 +10,9 @@ import { ClientFunction, Selector } from "testcafe";
 import * as roles from "../utils/roles";
 
 const menu = Selector(".menuBox");
-const menuToggle = Selector(".menuBox .menuHeaderContainer");
+const menuToggle = Selector(
+  '.menuBox button[aria-label="Collapse menu"], .menuBox button[aria-label="Expand menu"]',
+);
 
 const unnamedMenuControls = ClientFunction(() =>
   Array.from(
@@ -42,8 +44,8 @@ const blurFocusedElement = ClientFunction(() => {
 const focusedOutlineStyle = ClientFunction(
   () => window.getComputedStyle(document.activeElement!).outlineStyle,
 );
-const focusedElementClass = ClientFunction(
-  () => (document.activeElement as HTMLElement | null)?.className,
+const focusedElementLabel = ClientFunction(() =>
+  document.activeElement?.getAttribute("aria-label"),
 );
 const focusedElementId = ClientFunction(
   () => (document.activeElement as HTMLElement | null)?.id,
@@ -75,8 +77,8 @@ test("navigation controls remain named when the sidebar collapses", async (t) =>
   await blurFocusedElement();
   await t
     .pressKey("tab")
-    .expect(focusedElementClass())
-    .contains("menuHeaderContainer")
+    .expect(focusedElementLabel())
+    .eql("Collapse menu")
     .expect(focusedOutlineStyle())
     .notEql("none")
     .pressKey("tab")
@@ -94,12 +96,24 @@ test("navigation controls remain named when the sidebar collapses", async (t) =>
     .eql([]);
 
   await t
+    .expect(focusedElementLabel())
+    .eql("Expand menu")
     .pressKey("space")
     .expect(menu.hasClass("collapsed"))
     .notOk()
     .resizeWindow(390, 844)
-    .expect(menu.hasClass("collapsed"))
-    .ok("Sidebar should collapse at the mobile breakpoint", { timeout: 2000 })
+    .expect(Selector('button[aria-label="Open menu"]').visible)
+    .ok()
+    .expect(menuToggle.visible)
+    .notOk()
+    .click(Selector('button[aria-label="Open menu"]'))
+    .expect(Selector('dialog[aria-label="Menu"]').visible)
+    .ok()
     .expect(unnamedMenuControls())
-    .eql([]);
+    .eql([])
+    .pressKey("esc")
+    .expect(Selector('dialog[aria-label="Menu"]').visible)
+    .notOk()
+    .expect(focusedElementLabel())
+    .eql("Open menu");
 });
