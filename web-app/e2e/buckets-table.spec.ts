@@ -35,6 +35,31 @@ const buckets: Bucket[] = [
   },
   { name: "team-01", details: {}, creation_date: at },
 ];
+
+test("pending bucket search cannot replace navigation to an object workspace", async ({
+  page,
+}) => {
+  await page.route("**/api/v1/buckets", (route) =>
+    route.fulfill({ json: { buckets, usageUpdatedAt: at } }),
+  );
+  // Keep the old screen mounted while the object workspace chunk loads.
+  let pendingWorkspace = false;
+  await page.route("**/assets/BrowserHandler-*.js", () => {
+    pendingWorkspace = true;
+  });
+  await page.goto(`${SERVER_ENDPOINT}/buckets`);
+  const link = page.getByRole("link", { name: "alpha", exact: true });
+  await expect(link).toBeVisible();
+  await page.clock.install();
+  await page.clock.pauseAt(new Date());
+  await page.locator("#bucket-search").fill("alpha");
+  await link.dispatchEvent("click");
+  await expect(page).toHaveURL(`${SERVER_ENDPOINT}/browser/alpha`);
+  await expect.poll(() => pendingWorkspace).toBe(true);
+  await page.clock.runFor(250);
+  await expect(page).toHaveURL(`${SERVER_ENDPOINT}/browser/alpha`);
+});
+
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem("language", "en");
@@ -209,6 +234,7 @@ for (const width of [1440, 390]) {
         .getByRole("menuitem", { name: "Delete bucket", exact: true })
         .click();
       await expect(page.getByRole("dialog")).toContainText(name);
+      await expect(page.locator("#confirm-cancel")).toBeFocused();
       await page.keyboard.press("Escape");
       await expect(page.getByRole("dialog")).toHaveCount(0);
       await expect(trigger).toBeFocused();
