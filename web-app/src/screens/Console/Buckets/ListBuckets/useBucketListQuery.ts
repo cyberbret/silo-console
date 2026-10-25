@@ -19,7 +19,11 @@ export function useBucketListQuery() {
   useEffect(() => setSearch(query.q), [location.key, query.q]);
   useEffect(() => {
     if (search === query.q) return;
+    const url = window.location.href;
     const timer = window.setTimeout(() => {
+      // A lazy route transition can retain this screen after the URL changes.
+      // Do not let its pending search navigate back to the bucket list.
+      if (window.location.href !== url) return;
       setParams((previous) => updateBucketQuery(previous, { q: search }), {
         replace: true,
       });

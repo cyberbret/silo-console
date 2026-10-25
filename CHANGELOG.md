@@ -46,6 +46,8 @@ Target: **v2.5.0**. No v2.5.0 tag, binaries or images have been published.
 - Add sortable, filterable bucket tables with URL query persistence, table/card
   views, large-list virtualization and explicit unknown usage. Show reasons for
   unavailable actions and retain bucket identities through sorting and filtering.
+- Discard pending bucket-search updates after navigation so a slow-loading
+  object workspace cannot be replaced by the previous list's search URL.
 - Coordinate with the Server account-info fix so a refresh immediately reflects
   successful bucket creation and deletion instead of retaining its cached list.
 - Preserve wildcard bucket-root grants in workspace entry and list controls,

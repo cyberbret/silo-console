@@ -479,7 +479,9 @@ for (const layout of layouts) {
       await expect(action).toHaveAttribute("aria-expanded", "false");
       // Hints remain available after the dialog closes and the pointer returns.
       await page.locator("#trace-results-title").focus();
+      await expect(page.locator("#trace-results-title")).toBeFocused();
       await page.mouse.move(0, 0);
+      await expect(hint).toHaveCount(0);
       await action.hover();
       await expect(hint).toBeVisible();
       await page.mouse.move(0, 0);
