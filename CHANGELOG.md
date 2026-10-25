@@ -1,8 +1,8 @@
 # Changelog
 
-## Unreleased
+## Release v2.5.0
 
-Target: **v2.5.0**. No v2.5.0 tag, binaries or images have been published.
+Release date: **2026-10-25**.
 
 ### Dependencies and diagnostics
 

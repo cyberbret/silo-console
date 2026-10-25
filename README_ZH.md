@@ -8,15 +8,15 @@ SILO 对象存储的 Web 管理控制台，由 Pigsty 社区维护。前端使�
 
 这是从开源 MinIO Console 延续而来的独立项目，与 MinIO, Inc. 无隶属、赞助或背书关系。MinIO 名称用于说明上游来源与兼容谱系。
 
-## 2.5.0（准备中）
+## 2.5.0
 
-当前源码准备 **v2.5.0**，采用 **Go 1.27.3**、**silo-pkg v3.15.1** 与已发布的 **mcli 20261025** 源码（`dcc78d506f94`）。上游 S3 SDK 为 `minio-go v7.4.2-0.20261020194015-ab93db7ba435`，包含 v7.4.1 之后的分片上传、读取／定位和批量删除修复；上游尚未正式发布 v7.4.2。保留既有策略语义和输出格式兼容性例外。
+**v2.5.0** 采用 **Go 1.27.3**、**silo-pkg v3.15.1** 与已发布的 **mcli 20261025** 源码（`dcc78d506f94`）。上游 S3 SDK 为 `minio-go v7.4.2-0.20261020194015-ab93db7ba435`，包含 v7.4.1 之后的分片上传、读取／定位和批量删除修复；上游尚未正式发布 v7.4.2。保留既有策略语义和输出格式兼容性例外。
 
 本版包含权限感知导航、Overview、存储桶表格、更丰富的对象预览、Tasks、身份管理更新以及紧凑的明暗主题。诊断 WebSocket 同时修复 [#63](https://github.com/pgsty/silo-console/issues/63)：发送最终报告与 Close 帧后，等待客户端 Close 或最多五秒的关闭超时。感谢 [Azat（@azataiot）](https://github.com/azataiot) 提供报告与原因分析。
 
 健康报告同时修复管理 API 读取时丢失 JSON 缓冲数据的问题，正确关闭响应体，并拒绝截断或已取消的响应。
 
-**v2.5.0 尚未发布。** 当前可下载的 Console 仍为 [v2.4.2](https://github.com/pgsty/silo-console/releases/tag/v2.4.2)，源码 `ef2dd2c41d212ed6405c90fa8e5ab671899a7365`，使用 Go 1.27.2、Node 24.22.0、silo-pkg v3.14.2、mcli 20261018 与 minio-go v7.4.1。详见 [CHANGELOG.md](CHANGELOG.md#unreleased)、[统一维护公告](https://silo.pgsty.com/zh/blog/release/silo-20261025/)和[组件版本矩阵](https://silo.pgsty.com/zh/compatibility/versions/)。
+二进制、软件包、校验和与签名验证材料见 [v2.5.0 Release](https://github.com/pgsty/silo-console/releases/tag/v2.5.0)。详见 [CHANGELOG.md](CHANGELOG.md#release-v250)、[统一维护公告](https://silo.pgsty.com/zh/blog/release/silo-20261025/)和[组件版本矩阵](https://silo.pgsty.com/zh/compatibility/versions/)。
 
 Server 20261018 已正式发布。独立 Console 升级不会替换 Server 内嵌的 Console，也不会交付 Server 的待发布修复；嵌入式 Console 需要随 Server 重新构建和发布。
 
@@ -37,9 +37,9 @@ Server 20261018 已正式发布。独立 Console 升级不会替换 Server 内�
 
 ## 下载与运行
 
-从 [GitHub Release](https://github.com/pgsty/silo-console/releases/tag/v2.4.2) 下载二进制、归档、Linux 软件包或源码。发布制品附带 SHA-256、SBOM 和签名来源证明，验证规则见[发布契约](docs/release-contract.md)。官方下载入口也见[网站下载页](https://silo.pgsty.com/zh/download/#console)。
+从 [GitHub Release](https://github.com/pgsty/silo-console/releases/tag/v2.5.0) 下载二进制、归档、Linux 软件包或源码。发布制品附带 SHA-256、SBOM 和签名来源证明，验证规则见[发布契约](docs/release-contract.md)。官方下载入口也见[网站下载页](https://silo.pgsty.com/zh/download/#console)。
 
-官方容器仅使用 `docker.io/pgsty/silo-console`；部署时固定 `v2.4.2` 或已验收的镜像摘要，不以滚动标签代替版本记录。
+官方容器仅使用 `docker.io/pgsty/silo-console`；部署时固定 `v2.5.0` 或已验收的镜像摘要，不以滚动标签代替版本记录。
 
 本地使用下载的 Linux amd64 独立二进制连接运行中的 SILO：
 

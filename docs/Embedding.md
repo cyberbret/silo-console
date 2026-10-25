@@ -1,10 +1,10 @@
 # Embedding Console in a SILO server
 
-Console v2.5.0 is in preparation. Current source uses silo-pkg v3.15.1 and the
+Console v2.5.0 uses silo-pkg v3.15.1 and the
 published mcli 20261025 source (`dcc78d506f94`), with Go 1.27.3 and upstream
 minio-go `v7.4.2-0.20261020194015-ab93db7ba435`. This SDK revision includes
 post-v7.4.1 fixes; it is not a tagged v7.4.2 release.
-Published Console v2.4.2 uses silo-pkg v3.14.2. Use the README replacement block
+The earlier Console v2.4.2 release uses silo-pkg v3.14.2. Use the README replacement block
 from the Console revision being embedded in a SILO server.
 
 SILO embeds this module (`github.com/minio/console`) as a Go dependency.
