@@ -595,7 +595,8 @@ func sendWsCloseMessage(ctx context.Context, conn wsConn, err error) {
 		// to let the receiver figure out the read deadline.
 		// This is a generic code designed if there is a
 		// need to hide specific details about the policy.
-		if nErr, ok := err.(net.Error); ok && nErr.Timeout() {
+		var nErr net.Error
+		if errors.As(err, &nErr) && nErr.Timeout() {
 			code = websocket.ClosePolicyViolation
 		} else {
 			code = websocket.CloseInternalServerErr

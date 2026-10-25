@@ -19,7 +19,7 @@ replace github.com/olekukonko/tablewriter => github.com/olekukonko/tablewriter v
 replace github.com/mattn/go-runewidth => github.com/mattn/go-runewidth v0.0.29
 
 // Use Pigsty's maintained mc fork while preserving upstream imports.
-replace github.com/minio/mc => github.com/pgsty/mc v0.0.0-20261017101407-fa3b8bf72458
+replace github.com/minio/mc => github.com/pgsty/mc v0.0.0-20261025104502-dcc78d506f94
 
 // v22.7.0 does not compile on NetBSD because its unix implementation uses
 // CLOCK_MONOTONIC, which is unavailable there. Keep the last portable release
@@ -52,12 +52,12 @@ require (
 	github.com/minio/kes v0.24.0
 	github.com/minio/madmin-go/v3 v3.0.110
 	github.com/minio/mc v0.0.0-20251106162529-77f82e18b540
-	// Verified upstream release includes the required checksum, CopyObject and STS fixes.
-	github.com/minio/minio-go/v7 v7.4.1
+	// Verified upstream commit adds multipart, read/seek and batch-delete fixes after v7.4.1.
+	github.com/minio/minio-go/v7 v7.4.2-0.20261020194015-ab93db7ba435
 	github.com/minio/selfupdate v0.6.0
 	github.com/minio/websocket v1.6.0
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/pgsty/silo-pkg/v3 v3.14.3
+	github.com/pgsty/silo-pkg/v3 v3.15.1
 	github.com/rs/xid v1.6.0
 	github.com/secure-io/sio-go v0.3.1
 	github.com/stretchr/testify v1.12.1

@@ -34,29 +34,39 @@
 > sponsored by MinIO, Inc. The MinIO name is used only to identify the upstream
 > project and compatibility lineage.
 
-## Version 2.4.2
+## Version 2.5.0 (in preparation)
 
 [English](README.md) · [简体中文](README_ZH.md)
 
-Console v2.4.2 uses silo-pkg v3.14.2, mcli 20261018 and upstream minio-go v7.4.1.
-Published binaries, packages and release status are available on
-[GitHub Releases](https://github.com/pgsty/silo-console/releases).
-This release preserves wrapped bucket-versioning errors, including
-`InvalidBucketState`, and updates the Go 1.27.2 / Node 24.22.0 build stack.
-Earlier streaming ZIP, password-permission and object-sharing repairs remain.
-See the [English release note](https://silo.pgsty.com/blog/release/console-2.4.2/),
-[Chinese release note](https://silo.pgsty.com/zh/blog/release/console-2.4.2/), [CHANGELOG.md](CHANGELOG.md),
+Current source prepares **v2.5.0** with Go **1.27.3**, **silo-pkg v3.15.1**,
+and the published **mcli 20261025** source (`dcc78d506f94`). The upstream S3 SDK
+is `minio-go v7.4.2-0.20261020194015-ab93db7ba435`, which contains multipart,
+read/seek and batch-delete fixes after v7.4.1; upstream has not tagged v7.4.2.
+Existing policy behavior and output-format compatibility selections are retained.
+
+This version includes permission-aware navigation, Overview, bucket tables,
+richer object previews, Tasks, updated identity management, and a compact
+light/dark interface. It also fixes diagnostic WebSocket closing handshakes
+reported in [#63](https://github.com/pgsty/silo-console/issues/63): after sending
+the final report and Close frame, the server waits for the peer Close or a
+bounded five-second timeout. Thanks to [Azat (@azataiot)](https://github.com/azataiot)
+for the report and analysis.
+Health reports also preserve all buffered JSON frames from the admin API,
+close the response body, and reject truncated or canceled responses.
+
+**v2.5.0 has not been published.** The latest downloadable Console remains
+[v2.4.2](https://github.com/pgsty/silo-console/releases/tag/v2.4.2), built with
+Go 1.27.2 / Node 24.22.0, silo-pkg v3.14.2, mcli 20261018 and minio-go v7.4.1.
+See [CHANGELOG.md](CHANGELOG.md#unreleased), the
+[maintenance announcement](https://silo.pgsty.com/blog/release/silo-20261025/),
 the [password-policy migration](https://silo.pgsty.com/compatibility/password-permissions/)
 and the [component matrix](https://silo.pgsty.com/compatibility/versions/).
-
-Current source selects silo-pkg v3.14.3 for faster policy evaluation with
-unchanged authorization behavior. This update is not included in the
-published v2.4.2 binaries and does not require a coordinated component release.
-
-Current source also includes the GUI changes described under
-[Unreleased](CHANGELOG.md#unreleased): permission-aware navigation, Overview,
-bucket tables, richer object previews, Tasks, and a compact light/dark interface.
-These GUI changes are not included in the published v2.4.2 binaries.
+Updating standalone Console does not replace the Console embedded in SILO;
+that requires a separate Server build and release.
+Policy **Reset to default** also requires the Server IAM cache repair. Published
+Server 20261018 does not contain it and can fail the first policy read after a
+reset; this action must ship with the coordinated Server update. The repaired
+Server source passes the immediate-read regression with Console 2.5.0.
 
 ## Overview
 
@@ -217,7 +227,7 @@ ignores replacements declared by dependency modules:
 <!-- silo-replacements:begin -->
 ```go
 replace (
-	github.com/minio/mc => github.com/pgsty/mc v0.0.0-20261017101407-fa3b8bf72458
+	github.com/minio/mc => github.com/pgsty/mc v0.0.0-20261025104502-dcc78d506f94
 )
 ```
 <!-- silo-replacements:end -->

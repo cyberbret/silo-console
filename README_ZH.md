@@ -8,13 +8,19 @@ SILO 对象存储的 Web 管理控制台，由 Pigsty 社区维护。前端使�
 
 这是从开源 MinIO Console 延续而来的独立项目，与 MinIO, Inc. 无隶属、赞助或背书关系。MinIO 名称用于说明上游来源与兼容谱系。
 
-## 当前版本：2.4.2
+## 2.5.0（准备中）
 
-[Console v2.4.2](https://github.com/pgsty/silo-console/releases/tag/v2.4.2) 已发布，源码为 `ef2dd2c41d212ed6405c90fa8e5ab671899a7365`。采用 mcli 20261018、silo-pkg v3.14.2、上游 minio-go v7.4.1，使用 Go 1.27.2 与 Node 24.22.0 构建。
+当前源码准备 **v2.5.0**，采用 **Go 1.27.3**、**silo-pkg v3.15.1** 与已发布的 **mcli 20261025** 源码（`dcc78d506f94`）。上游 S3 SDK 为 `minio-go v7.4.2-0.20261020194015-ab93db7ba435`，包含 v7.4.1 之后的分片上传、读取／定位和批量删除修复；上游尚未正式发布 v7.4.2。保留既有策略语义和输出格式兼容性例外。
 
-本版保留被包装的桶版本控制错误，正确返回 Object Lock 阻止暂停版本控制时的 `InvalidBucketState`，并更新依赖。此前的流式 ZIP 下载、密码权限拆分与对象分享修复继续保留。详见[中文](https://silo.pgsty.com/zh/blog/release/console-2.4.2/)与[英文](https://silo.pgsty.com/blog/release/console-2.4.2/)发布说明及 [CHANGELOG.md](CHANGELOG.md)。
+本版包含权限感知导航、Overview、存储桶表格、更丰富的对象预览、Tasks、身份管理更新以及紧凑的明暗主题。诊断 WebSocket 同时修复 [#63](https://github.com/pgsty/silo-console/issues/63)：发送最终报告与 Close 帧后，等待客户端 Close 或最多五秒的关闭超时。感谢 [Azat（@azataiot）](https://github.com/azataiot) 提供报告与原因分析。
 
-当前开发源码后续采用 silo-pkg v3.14.3，保持授权行为并降低策略判定成本；该更新不包含在已发布的 v2.4.2 二进制中。独立 Console 升级不会替换 Server，也不会交付 Server 的待发布安全修复。Server 20261018 仍为 Draft，各组件状态见[版本矩阵](https://silo.pgsty.com/zh/compatibility/versions/)。
+健康报告同时修复管理 API 读取时丢失 JSON 缓冲数据的问题，正确关闭响应体，并拒绝截断或已取消的响应。
+
+**v2.5.0 尚未发布。** 当前可下载的 Console 仍为 [v2.4.2](https://github.com/pgsty/silo-console/releases/tag/v2.4.2)，源码 `ef2dd2c41d212ed6405c90fa8e5ab671899a7365`，使用 Go 1.27.2、Node 24.22.0、silo-pkg v3.14.2、mcli 20261018 与 minio-go v7.4.1。详见 [CHANGELOG.md](CHANGELOG.md#unreleased)、[统一维护公告](https://silo.pgsty.com/zh/blog/release/silo-20261025/)和[组件版本矩阵](https://silo.pgsty.com/zh/compatibility/versions/)。
+
+Server 20261018 已正式发布。独立 Console 升级不会替换 Server 内嵌的 Console，也不会交付 Server 的待发布修复；嵌入式 Console 需要随 Server 重新构建和发布。
+
+策略 **Reset to default（恢复默认）** 还需要 Server 的 IAM 缓存修复。已发布的 Server 20261018 不包含该修复，重置后首次读取策略可能失败；该功能必须与配套 Server 更新一起交付。修复后的 Server 源码已与 Console 2.5.0 通过立即读回默认策略的回归验证。
 
 ## 功能与兼容范围
 
@@ -22,6 +28,8 @@ SILO 对象存储的 Web 管理控制台，由 Pigsty 社区维护。前端使�
 - Metrics V3 仪表盘区分零值与缺失指标，详细映射见 [Metrics V3](docs/metrics-v3.md)。
 - 支持中英文界面，保留开源管理能力及既有协议、环境变量与模块路径。
 - 正式维护和发布测试目标为 `pgsty/silo`；对未经修改的上游 MinIO 兼容尽最大努力。它使用 SILO 的管理 API，不是适用于任意 S3 后端的通用浏览器。
+
+以下截图早于当前源码的 GUI 更新。
 
 ![SILO Console 登录界面](images/silo-console-home.webp)
 
@@ -56,7 +64,7 @@ make console
 CONSOLE_MINIO_SERVER=http://127.0.0.1:9000 ./console server
 ```
 
-保留的 Go 模块路径没有 `/v2` 后缀。嵌入 v2.4.2 时使用 `v0.0.0-20261017112417-ef2dd2c41d21`，并显式选择 MC replacement，Go 不会继承依赖的替换配置。完整示例见[集成说明](https://silo.pgsty.com/zh/blog/release/console-2.4.2/#integration)。
+保留的 Go 模块路径没有 `/v2` 后缀。当前 2.5.0 源码的依赖与 replacement 见 [Embedding.md](docs/Embedding.md) 和[英文 README](README.md#status-and-compatibility)。嵌入 v2.4.2 时使用 `v0.0.0-20261017112417-ef2dd2c41d21`，并显式选择 MC replacement，Go 不会继承依赖的替换配置。完整示例见[集成说明](https://silo.pgsty.com/zh/blog/release/console-2.4.2/#integration)。
 
 前端开发见 [DEVELOPMENT.md](DEVELOPMENT.md) 与 [web-app/README.md](web-app/README.md)。工具链及 TLS 兼容细节、功能截图和维护范围见[英文 README](README.md)。
 

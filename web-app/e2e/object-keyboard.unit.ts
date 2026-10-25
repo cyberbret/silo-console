@@ -250,6 +250,9 @@ test.describe("mounted real object table", () => {
       .getByRole("checkbox", { name: "Select: docs/004.txt", exact: true })
       .click({ modifiers: ["Shift"] });
     await expect(page.getByTestId("selection")).toContainText("docs/004.txt");
+    // Selection is committed before the virtualized table's animation-frame
+    // focus handoff. Send the list shortcut after that handoff, not to the input.
+    await expect(page.getByRole("row", { name: /^docs\/004/ })).toBeFocused();
     await page.keyboard.press("Control+a");
     await expect(page.getByTestId("notice")).toHaveText(
       "Selected 100 objects on this page.",

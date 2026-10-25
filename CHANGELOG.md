@@ -2,9 +2,32 @@
 
 ## Unreleased
 
-- Update silo-pkg to v3.14.3 for faster policy evaluation with unchanged
-  authorization behavior. Refresh the dependency verification record and
-  embedding guidance; published Console v2.4.2 artifacts remain unchanged.
+Target: **v2.5.0**. No v2.5.0 tag, binaries or images have been published.
+
+### Dependencies and diagnostics
+
+- Use Go 1.27.3, silo-pkg v3.15.1 and the published mcli 20261025 source
+  (`dcc78d506f94`). Select upstream minio-go
+  `v7.4.2-0.20261020194015-ab93db7ba435` for short multipart stream rejection,
+  correct `ReadAt` EOF/negative-offset handling, read/seek bounds after `Stat`,
+  and deduplicated batch-delete error results. Upstream v7.4.2 is not yet tagged.
+- Retain the tablewriter v0.0.5 API, humanize v1.0.1 formatting, runewidth v0.0.29
+  terminal widths and go-systemd v22.6.0 NetBSD compatibility selections.
+- Complete the WebSocket closing handshake for Health, Trace, Logs, Watch,
+  Speedtest and Profile. Reuse the existing sole reader and bound the Close
+  write and peer response to five seconds, without limiting active streams.
+  Preserve valid UTF-8 and the protocol's close-reason size limit. This fixes
+  high-RTT health-report truncation reported and analyzed by
+  [Azat (@azataiot)](https://github.com/azataiot) in
+  [#63](https://github.com/pgsty/silo-console/issues/63).
+- Preserve the existing timeout close code (1008) when a diagnostic error wraps
+  a network or context deadline error, without exposing the internal reason.
+- Read health reports with one JSON decoder so the version probe cannot drop
+  buffered report frames. Close the response body and reject truncated,
+  canceled or failed streams instead of reporting partial data as success.
+  Keep madmin v3's signed request, retry and transport settings; the upstream
+  [buffer-preservation fix](https://github.com/minio/madmin-go/commit/a6ab0bcca33f72cfe8448eaff9836fb1d54acc32)
+  is available in v4 but has not been backported to v3.
 
 ### Navigation and overview
 
@@ -50,7 +73,8 @@
 
 - Apply neutral light/dark surfaces, system UI fonts, consistent density and
   focus states, reduced-motion behavior and compact Help/Language/Theme controls.
-  Retain the original icons, login hero artwork and temporary-credential sign-in.
+  Use Lucide-based interface icons with retained license notices; preserve
+  product artwork, the login hero and temporary-credential sign-in.
 - Keep Documentation, Video and Blog/RSS available in Help on every page, with
   hover previews and clickable resource cards. Align the fixed sidebar emblem,
   smaller wordmark, animated collapse control and quieter footer links.
