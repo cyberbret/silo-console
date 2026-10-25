@@ -15,46 +15,43 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import React from "react";
-import { ReportedUsageFullIcon, Box } from "mds";
-import { niceBytes } from "../../../../../common/utils";
-import { useT } from "i18n";
+import { StatCard } from "common/ui/StatCard";
+import { niceBytes } from "common/utils";
+import { formatText, useT } from "i18n";
 
-const ReportedUsage = ({ bucketSize }: { bucketSize: string }) => {
+const ReportedUsage = ({
+  bucketSize,
+  quota,
+  loading,
+}: {
+  bucketSize?: number;
+  quota?: number;
+  loading: boolean;
+}) => {
   const t = useT();
+  const known =
+    !loading && bucketSize !== undefined && Number.isFinite(bucketSize);
+  const [value, unit] = known
+    ? niceBytes(String(bucketSize)).split(" ")
+    : ["—", ""];
   return (
-    <Box
-      sx={{
-        display: "flex",
-        alignItems: "center",
-
-        "& .min-icon": {
-          height: 37,
-          width: 37,
-        },
-      }}
-    >
-      <ReportedUsageFullIcon />
-
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "flex-start",
-          justifyContent: "center",
-          flexFlow: "column",
-          marginLeft: "20px",
-          fontSize: "19px",
-        }}
-      >
-        <label
-          style={{
-            fontWeight: 600,
-          }}
-        >
-          {t("Reported Usage:")}
-        </label>
-        <label>{niceBytes(bucketSize)}</label>
-      </Box>
-    </Box>
+    <StatCard
+      label={t("Reported Usage:")}
+      value={value}
+      unit={unit}
+      subline={
+        loading
+          ? t("Loading…")
+          : quota && quota > 0
+            ? formatText(t("Quota: {quota}"), {
+                quota: niceBytes(String(quota)),
+              })
+            : undefined
+      }
+      progress={
+        known && quota && quota > 0 ? { value: bucketSize / quota } : undefined
+      }
+    />
   );
 };
 

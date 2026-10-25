@@ -14,258 +14,322 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import React, { Fragment } from "react";
+import React from "react";
+import { Link } from "react-router-dom";
 import { IFileItem } from "../../ObjectBrowser/types";
-import ProgressBarWrapper from "../ProgressBarWrapper/ProgressBarWrapper";
 import {
-  Box,
+  Button,
+  type,
   CancelledIcon,
-  DisabledIcon,
   DownloadStatIcon,
-  EnabledIcon,
   UploadStatIcon,
+  DeleteIcon,
+  RecoverIcon,
+  IconButton,
+  AlertCloseIcon,
 } from "mds";
-import { Tooltip } from "common/Tooltip";
-import clsx from "clsx";
 import { cancelTransfer } from "../../ObjectBrowser/transferManager";
 import styled from "styled-components";
-import get from "lodash/get";
-import { useT } from "i18n";
+import { useT, formatText, i18nKey } from "i18n";
+import { StatusBadge } from "common/ui/StatusBadge";
+import {
+  activeTask,
+  retrySubset,
+  taskCounts,
+  taskFolder,
+  taskStatus,
+} from "./taskModel";
+import { retryFailedTask } from "./mutationTasks";
 
-interface IObjectHandled {
+const Card = styled.article`
+  ${type("body")}
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  min-width: 0;
+  color: var(--foreground);
+  .task-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 550;
+  }
+  .task-title > svg {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 16px;
+    color: var(--muted-foreground);
+  }
+  .task-title .task-name {
+    flex: 1;
+    overflow-wrap: anywhere;
+    min-width: 0;
+  }
+  .task-meta {
+    ${type("caption")}
+    color: var(--muted-foreground);
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin: 4px 0;
+    flex-wrap: wrap;
+  }
+  .task-progress {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 4px 0;
+    font-variant-numeric: tabular-nums;
+    ${type("caption")}
+  }
+  progress {
+    flex: 1;
+    min-width: 0;
+    height: 4px;
+    accent-color: var(--foreground);
+  }
+  p {
+    margin: 4px 0;
+    color: var(--muted-foreground);
+    ${type("caption")}
+    overflow-wrap: anywhere;
+  }
+  .task-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+  a {
+    color: var(--foreground);
+    ${type("caption")}
+    text-underline-offset: 3px;
+    overflow-wrap: anywhere;
+  }
+  a:focus-visible,
+  summary:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 3px;
+  }
+  details {
+    margin-top: 8px;
+    ${type("caption")}
+  }
+  details ul {
+    padding-left: 20px;
+  }
+  details li {
+    margin-top: 8px;
+    overflow-wrap: anywhere;
+  }
+`;
+const Dismiss = styled(IconButton).attrs({ size: "small" })`
+  --icon-size: 14px;
+  color: var(--muted-foreground);
+  @media (pointer: coarse) {
+    width: 40px;
+    height: 40px;
+  }
+`;
+const statuses = {
+  queued: i18nKey("Queued"),
+  running: i18nKey("Running"),
+  done: i18nKey("Completed"),
+  failed: i18nKey("Failed"),
+  cancelled: i18nKey("Cancelled"),
+};
+const kinds = {
+  upload: i18nKey("Upload"),
+  download: i18nKey("Download"),
+  zip: i18nKey("ZIP download"),
+  delete: i18nKey("Delete"),
+  restore: i18nKey("Restore"),
+};
+const ObjectHandled = ({
+  objectToDisplay: item,
+  deleteFromList,
+}: {
   objectToDisplay: IFileItem;
-  deleteFromList: (instanceID: string) => void;
-}
-
-const ObjectHandledCloseButton = styled.button(({ theme }) => ({
-  backgroundColor: "transparent",
-  border: 0,
-  right: 0,
-  top: 5,
-  marginTop: 15,
-  position: "absolute",
-  cursor: "pointer",
-  "& .closeIcon": {
-    backgroundColor: get(theme, "buttons.regular.hover.background", "#E6EAEB"),
-    display: "block",
-    width: 18,
-    height: 18,
-    borderRadius: "100%",
-    "&:hover": {
-      backgroundColor: get(theme, "mutedText", "#E9EDEE"),
-    },
-    "&::before": {
-      width: 1,
-      height: 9,
-      top: "50%",
-      content: "' '",
-      position: "absolute",
-      transform: "translate(-50%, -50%) rotate(45deg)",
-      borderLeft: `${get(theme, "fontColor", "#000")} 2px solid`,
-    },
-    "&::after": {
-      width: 1,
-      height: 9,
-      top: "50%",
-      content: "' '",
-      position: "absolute",
-      transform: "translate(-50%, -50%) rotate(-45deg)",
-      borderLeft: `${get(theme, "fontColor", "#000")} 2px solid`,
-    },
-  },
-}));
-
-const ObjectInformation = styled.div(({ theme }) => ({
-  display: "flex",
-  alignItems: "center",
-  width: "100%",
-  "span.headItem": {
-    fontSize: 14,
-    fontWeight: "bold",
-    width: 270,
-    whiteSpace: "nowrap",
-    textOverflow: "ellipsis",
-    overflow: "hidden",
-  },
-  "& .iconContainer": {
-    paddingTop: 5,
-    marginRight: 5,
-    "& svg": {
-      width: 16,
-      height: 16,
-    },
-  },
-  "& .completedSuccess": {
-    color: get(theme, "signalColors.good", "#4CCB92"),
-  },
-  "& .inProgress": {
-    color: get(theme, "signalColors.main", "#2781B0"),
-  },
-  "& .completedError": {
-    color: get(theme, "signalColors.danger", "#C83B51"),
-  },
-  "& .cancelledAction": {
-    color: get(theme, "signalColors.warning", "#FFBD62"),
-  },
-}));
-
-const ObjectHandled = ({ objectToDisplay, deleteFromList }: IObjectHandled) => {
+  deleteFromList: (id: string) => void;
+}) => {
   const t = useT();
-  const prefix = `${objectToDisplay.prefix}`;
+  const active = activeTask(item);
+  const status = taskStatus(item);
+  const counts = taskCounts(item);
+  const kind = item.kind ?? item.type;
+  const transfer = item.type === "upload" || item.type === "download";
+  const browser =
+    item.browserManaged && item.done && !item.failed && !item.cancelled;
+  const failures =
+    item.targets?.filter(
+      (target) => target.status === "failed" || target.status === "cancelled",
+    ) ?? [];
+  const retry = retrySubset(item.targets ?? []);
+  const Icon =
+    kind === "upload"
+      ? UploadStatIcon
+      : kind === "delete"
+        ? DeleteIcon
+        : kind === "restore"
+          ? RecoverIcon
+          : DownloadStatIcon;
   return (
-    <Fragment>
-      <Box
-        sx={{
-          borderBottom: "#E2E2E2 1px solid",
-          padding: "15px 5px",
-          margin: "0 30px",
-          position: "relative",
-          "& .showOnHover": {
-            opacity: 1,
-            transitionDuration: "0.2s",
-          },
-          "&:hover": {
-            "& .showOnHover": {
-              opacity: 1,
-            },
-          },
-        }}
-        className={objectToDisplay.percentage !== 100 ? "inProgress" : ""}
-      >
-        <Box
-          sx={{
-            "& .closeButton": {
-              backgroundColor: "transparent",
-              border: 0,
-              right: 0,
-              top: 5,
-              marginTop: 15,
-              position: "absolute",
-            },
-          }}
+    <Card data-task-id={item.instanceID} data-task-status={status}>
+      <div className="task-title">
+        <Icon />
+        <span
+          className="task-name"
+          title={item.targets ? undefined : item.prefix}
         >
-          <ObjectHandledCloseButton
-            aria-label={
-              objectToDisplay.done ? t("Remove transfer") : t("Cancel transfer")
-            }
-            onClick={() => {
-              if (!objectToDisplay.done) {
-                // Uploads settle even when queued and never sent; downloads
-                // abort their request.
-                cancelTransfer(objectToDisplay.ID);
-              } else {
-                cancelTransfer(objectToDisplay.ID);
-                deleteFromList(objectToDisplay.instanceID);
-              }
-            }}
-            className={`closeButton hideOnProgress`}
+          {item.targets
+            ? t(item.prefix)
+            : item.prefix.match(/[^/]+\/*$/)?.[0] || item.prefix}
+        </span>
+        {!active && (
+          <Dismiss
+            aria-label={transfer ? t("Remove transfer") : t("Remove task")}
+            onClick={() => deleteFromList(item.instanceID)}
           >
-            <span className={"closeIcon"} />
-          </ObjectHandledCloseButton>
-        </Box>
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
-          <Box
-            sx={{
-              width: 295,
-              "& .bucketName": {
-                fontSize: 12,
-              },
-            }}
-          >
-            <Tooltip tooltip={prefix} placement="top">
-              <ObjectInformation>
-                <span
-                  className={clsx("iconContainer", {
-                    inProgress:
-                      !objectToDisplay.done &&
-                      !objectToDisplay.failed &&
-                      !objectToDisplay.cancelled,
-                    completedSuccess:
-                      objectToDisplay.done &&
-                      !objectToDisplay.failed &&
-                      !objectToDisplay.cancelled,
-                    completedError: objectToDisplay.failed,
-                    cancelledAction: objectToDisplay.cancelled,
-                  })}
-                >
-                  {objectToDisplay.cancelled ? (
-                    <CancelledIcon />
-                  ) : (
-                    <Fragment>
-                      {objectToDisplay.failed ? (
-                        <DisabledIcon />
-                      ) : (
-                        <Fragment>
-                          {objectToDisplay.done ? (
-                            <EnabledIcon />
-                          ) : (
-                            <Fragment>
-                              {objectToDisplay.type === "download" ? (
-                                <DownloadStatIcon />
-                              ) : (
-                                <UploadStatIcon />
-                              )}
-                            </Fragment>
-                          )}
-                        </Fragment>
-                      )}
-                    </Fragment>
-                  )}
-                </span>
-                <span
-                  className={`headItem ${
-                    objectToDisplay.failed ? "completedError" : ""
-                  }`}
-                >
-                  {prefix}
-                </span>
-              </ObjectInformation>
-            </Tooltip>
-            <Box className={"muted bucketName"}>
-              <strong>{t("Bucket: ")}</strong>
-              {objectToDisplay.bucketName}
-            </Box>
-          </Box>
-        </Box>
-        <Box
-          sx={{
-            marginTop: 5,
-          }}
-        >
-          {objectToDisplay.browserManaged &&
-          objectToDisplay.done &&
-          !objectToDisplay.failed &&
-          !objectToDisplay.cancelled ? (
-            <p>
-              {t(
-                "Track or cancel this download in your browser's download manager.",
-              )}
-            </p>
-          ) : objectToDisplay.waitingForFile ? (
-            <ProgressBarWrapper indeterminate value={0} ready={false} />
-          ) : (
-            <ProgressBarWrapper
-              value={objectToDisplay.percentage}
-              ready={objectToDisplay.done}
-              error={objectToDisplay.failed}
-              cancelled={objectToDisplay.cancelled}
-              withLabel
-              notificationLabel={
-                objectToDisplay.errorMessage !== ""
-                  ? objectToDisplay.errorMessage
-                  : ""
-              }
-            />
+            <AlertCloseIcon />
+          </Dismiss>
+        )}
+      </div>
+      <div className="task-meta">
+        <span>{t(kinds[kind])}</span>
+        <StatusBadge
+          tone={item.failed ? "danger" : "neutral"}
+          label={browser ? t("Browser handoff") : t(statuses[status])}
+        />
+        {!active && !item.failed && (
+          <span className="progressPercentage">{item.percentage}%</span>
+        )}
+      </div>
+      {active && (
+        <div className="task-progress">
+          <progress
+            aria-label={browser ? t("Browser handoff") : t("Task progress")}
+            max={100}
+            value={item.waitingForFile && active ? undefined : item.percentage}
+          />
+          {(!item.waitingForFile || !active) && (
+            <span className="progressPercentage">{item.percentage}%</span>
           )}
-        </Box>
-      </Box>
-    </Fragment>
+          {item.waitingForFile && active && (
+            <span>{t("Waiting for data")}</span>
+          )}
+        </div>
+      )}
+      {counts.total > 0 && (
+        <p>
+          {formatText(
+            t(
+              "{done}/{total} completed · {failed} failed · {cancelled} cancelled",
+            ),
+            counts,
+          )}
+        </p>
+      )}
+      {item.receivedBytes !== undefined && (
+        <p>
+          {formatText(t("{bytes} bytes received"), {
+            bytes: item.receivedBytes.toLocaleString(),
+          })}
+        </p>
+      )}
+      {browser && (
+        <p>
+          <span>
+            {t(
+              "Track or cancel this download in your browser's download manager.",
+            )}
+          </span>{" "}
+          <span>
+            {t(
+              "Handoff is complete; final download progress is unavailable here.",
+            )}
+          </span>
+        </p>
+      )}
+      {item.errorMessage && (
+        <p role="status">
+          {transfer && item.failed
+            ? `${t("Error:")} ${item.errorMessage}`
+            : item.errorMessage}
+        </p>
+      )}
+      {item.targets?.some(
+        (target) => target.recursive || target.nonCurrent || target.allVersions,
+      ) && (
+        <p>
+          {t(
+            "Counts represent selected targets. Progress within a folder or version cleanup is unavailable.",
+          )}
+        </p>
+      )}
+      {item.cancelled && item.targets && (
+        <p>
+          {t(
+            "Completed changes remain in place. In-flight requests may have reached the server; inspect before repeating them.",
+          )}
+        </p>
+      )}
+      {failures.length > 0 && (
+        <details>
+          <summary>
+            {formatText(t("Review {count} results"), {
+              count: failures.length,
+            })}
+          </summary>
+          <ul>
+            {failures.map((target, index) => (
+              <li key={index}>
+                <strong>{target.key}</strong>
+                {target.versionId !== undefined && <> · {target.versionId}</>}
+                <br />
+                {t(statuses[target.status])}
+                {target.error && <>: {target.error}</>}
+                {target.uncertain && (
+                  <p>
+                    {t(
+                      "Server outcome is unconfirmed. Inspect this object before another operation.",
+                    )}
+                  </p>
+                )}
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
+      <div className="task-actions">
+        <Link
+          to={`/browser/${encodeURIComponent(item.bucketName)}/${encodeURIComponent(taskFolder(item))}`}
+        >
+          <span title={`${item.bucketName}/${taskFolder(item)}`}>
+            {item.bucketName}
+          </span>
+          {" · "}
+          {t("Open bucket/prefix")}
+        </Link>
+        {active ? (
+          <Button
+            id={`cancel-${item.ID}`}
+            variant="text"
+            label={t("Cancel")}
+            aria-label={transfer ? t("Cancel transfer") : t("Cancel task")}
+            icon={<CancelledIcon />}
+            onClick={() => cancelTransfer(item.ID)}
+          />
+        ) : retry.length > 0 ? (
+          <Button
+            id={`retry-${item.ID}`}
+            variant="secondary"
+            label={t("Retry failed")}
+            onClick={() => retryFailedTask(item.instanceID)}
+          />
+        ) : null}
+      </div>
+    </Card>
   );
 };
-
 export default ObjectHandled;

@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { EmptyState, SkeletonRows } from "common/ui";
+import { ModalPresence } from "common/ui/ModalPresence";
 import React, { Fragment, useEffect, useState } from "react";
 import get from "lodash/get";
 import { useSelector } from "react-redux";
@@ -136,23 +138,28 @@ const BucketEventsPanel = () => {
 
   return (
     <Fragment>
-      {deleteOpen && (
-        <DeleteEvent
-          deleteOpen={deleteOpen}
-          selectedBucket={bucketName}
-          bucketEvent={selectedEvent}
-          closeDeleteModalAndRefresh={closeDeleteModalAndRefresh}
-        />
-      )}
-      {addEventScreenOpen && (
-        <AddEvent
-          open={addEventScreenOpen}
-          selectedBucket={bucketName}
-          closeModalAndRefresh={closeAddEventAndRefresh}
-        />
-      )}
+      <ModalPresence open={Boolean(deleteOpen)}>
+        {deleteOpen && (
+          <DeleteEvent
+            deleteOpen={deleteOpen}
+            selectedBucket={bucketName}
+            bucketEvent={selectedEvent}
+            closeDeleteModalAndRefresh={closeDeleteModalAndRefresh}
+          />
+        )}
+      </ModalPresence>
+      <ModalPresence open={Boolean(addEventScreenOpen)}>
+        {addEventScreenOpen && (
+          <AddEvent
+            open={addEventScreenOpen}
+            selectedBucket={bucketName}
+            closeModalAndRefresh={closeAddEventAndRefresh}
+          />
+        )}
+      </ModalPresence>
 
       <SectionTitle
+        headingLevel={2}
         separator
         sx={{ marginBottom: 15 }}
         actions={
@@ -233,7 +240,34 @@ const BucketEventsPanel = () => {
               isLoading={loadingEvents}
               records={records}
               entityName={t("Events")}
-              customEmptyMessage={t("There are no Events yet.")}
+              loadingState={<SkeletonRows rows={5} columns={4} />}
+              emptyState={
+                <EmptyState
+                  icon={<LambdaIcon />}
+                  title={t("No event subscriptions yet")}
+                  description={t(
+                    "Subscribe this bucket to send object events to an event destination.",
+                  )}
+                  action={
+                    hasPermission(
+                      bucketName,
+                      [
+                        IAM_SCOPES.S3_PUT_BUCKET_NOTIFICATIONS,
+                        IAM_SCOPES.S3_PUT_ACTIONS,
+                        IAM_SCOPES.ADMIN_SERVER_INFO,
+                      ],
+                      true,
+                    ) && (
+                      <Button
+                        id="empty-list-action"
+                        variant="callAction"
+                        label={t("Subscribe to Event")}
+                        onClick={() => setAddEventScreenOpen(true)}
+                      />
+                    )
+                  }
+                />
+              }
               idField="id"
               customPaperHeight={"400px"}
             />

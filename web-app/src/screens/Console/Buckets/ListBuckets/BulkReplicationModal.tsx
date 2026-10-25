@@ -206,7 +206,7 @@ const AddBulkReplicationModal = ({
         return (
           <Box
             sx={{
-              color: "#42C91A",
+              color: "var(--success-text)",
             }}
           >
             <CheckCircleIcon />
@@ -219,7 +219,7 @@ const AddBulkReplicationModal = ({
           return (
             <Box
               sx={{
-                color: "#C72C48",
+                color: "var(--destructive-text)",
               }}
             >
               <Tooltip tooltip={errString} placement="top">
@@ -244,6 +244,7 @@ const AddBulkReplicationModal = ({
         <Fragment>
           <Select
             label=""
+            aria-label={`${t("Target Bucket")}: ${bucketsToAlter[indexItem]}`}
             id={`assign-bucket-${indexItem}`}
             name={`assign-bucket-${indexItem}`}
             value={relationBuckets[indexItem]}
@@ -262,6 +263,7 @@ const AddBulkReplicationModal = ({
           id={`assign-bucket-${indexItem}`}
           name={`assign-bucket-${indexItem}`}
           label=""
+          aria-label={`${t("Target Bucket")}: ${bucketsToAlter[indexItem]}`}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             updateItem(indexItem, event.target.value);
           }}
@@ -446,9 +448,23 @@ const AddBulkReplicationModal = ({
                 <Box
                   sx={{
                     display: "grid",
-                    gridTemplateColumns: "auto auto 45px",
-                    alignItems: "center",
-                    justifyContent: "stretch",
+                    gap: 16,
+                    marginTop: 16,
+                    "& .bucket-assignment": {
+                      display: "grid",
+                      gridTemplateColumns: "minmax(0, 1fr) minmax(0, 2fr) 24px",
+                      alignItems: "center",
+                      gap: 8,
+                      minWidth: 0,
+                    },
+                    "& .bucket-source": { overflowWrap: "anywhere" },
+                    "& .bucket-target": { minWidth: 0 },
+                    "@media (max-width: 767px)": {
+                      "& .bucket-assignment": {
+                        gridTemplateColumns: "minmax(0, 1fr)",
+                      },
+                      "& .bucket-status": { justifySelf: "end" },
+                    },
                     "& .hide": {
                       opacity: 0,
                       transitionDuration: "0.3s",
@@ -458,21 +474,28 @@ const AddBulkReplicationModal = ({
                   {bucketsToAlter.map((bucketName: string, index: number) => {
                     const errorItem = stateOfItem(bucketName);
                     return (
-                      <Fragment
+                      <Box
+                        className="bucket-assignment"
                         key={`buckets-assignation-${index.toString()}-${bucketName}`}
                       >
-                        <div className={errorItem === "" ? "hide" : ""}>
+                        <div
+                          className={`bucket-source ${errorItem === "" ? "hide" : ""}`}
+                        >
                           {bucketName}
                         </div>
-                        <div className={errorItem === "" ? "hide" : ""}>
+                        <div
+                          className={`bucket-target ${errorItem === "" ? "hide" : ""}`}
+                        >
                           {itemDisplayBulk(index)}
                         </div>
-                        <div className={errorItem === "" ? "hide" : ""}>
-                          {responseItem && responseItem.length > 0 && (
+                        {responseItem && responseItem.length > 0 && (
+                          <div
+                            className={`bucket-status ${errorItem === "" ? "hide" : ""}`}
+                          >
                             <LogoToShow errString={errorItem} />
-                          )}
-                        </div>
-                      </Fragment>
+                          </div>
+                        )}
+                      </Box>
                     );
                   })}
                 </Box>

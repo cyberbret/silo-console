@@ -13,6 +13,7 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+import { useT } from "i18n";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { ModalBox, Snackbar } from "mds";
@@ -43,6 +44,7 @@ const ModalWrapper = ({
   sx,
 }: IModalProps) => {
   const dispatch = useAppDispatch();
+  const t = useT();
   const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
 
   const modalSnackMessage = useSelector(
@@ -82,6 +84,7 @@ const ModalWrapper = ({
 
   return (
     <ModalBox
+      closeLabel={t("Close")}
       onClose={onClose}
       open={modalOpen}
       title={title}

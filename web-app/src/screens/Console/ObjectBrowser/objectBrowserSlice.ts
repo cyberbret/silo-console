@@ -16,10 +16,7 @@
 
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { IFileItem, ObjectBrowserState } from "./types";
-import {
-  BucketObjectItem,
-  IRestoreLocalObjectList,
-} from "../Buckets/ListBuckets/Objects/ListObjects/types";
+import { BucketObjectItem } from "../Buckets/ListBuckets/Objects/ListObjects/types";
 import {
   BucketVersioningResponse,
   GetBucketRetentionConfig,
@@ -31,6 +28,14 @@ import {
   ObjectPageCommit,
   resetObjectPaging as resetPageState,
 } from "./objectPaging";
+
+import {
+  activeTask,
+  retrySubset,
+  syncTargetProgress,
+  targetIdentity,
+  TaskTarget,
+} from "../Common/ObjectManager/taskModel";
 
 const defaultRewind = {
   rewindEnabled: false,
@@ -46,6 +51,7 @@ const initialState: ObjectBrowserState = {
   objectDetailsOpen: false,
   loadingVersions: true,
   loadingObjectInfo: true,
+  objectMutationRevision: 0,
   connectionError: false,
   rewind: {
     ...defaultRewind,
@@ -125,9 +131,69 @@ const objectBrowserSlice = createSlice({
       state.versionedFile = objectN;
       state.selectedVersion = "";
     },
-    setNewObject: (state, action: PayloadAction<IFileItem>) => {
-      state.objectManager.objectsToManage.push(action.payload);
-      state.objectManager.newItems = true;
+    setNewObject: {
+      prepare: (item: IFileItem) => ({
+        payload: {
+          ...item,
+          kind: item.kind ?? item.type,
+          status:
+            item.status ??
+            (item.done ? ("done" as const) : ("queued" as const)),
+          attempt: item.attempt ?? 1,
+          startedAt: item.startedAt ?? Date.now(),
+        },
+      }),
+      reducer: (state, action: PayloadAction<IFileItem>) => {
+        state.objectManager.objectsToManage.push(action.payload);
+        state.objectManager.newItems = true;
+      },
+    },
+    resetTasks: (state) => {
+      state.objectManager = { ...initialState.objectManager };
+    },
+    updateTaskTarget: (
+      state,
+      action: PayloadAction<{
+        instanceID: string;
+        attempt: number;
+        identity: string;
+        result: Partial<TaskTarget>;
+        now: number;
+      }>,
+    ) => {
+      const item = state.objectManager.objectsToManage.find(
+        (item) => item.instanceID === action.payload.instanceID,
+      );
+      if (!item || item.attempt !== action.payload.attempt || item.done) return;
+      const target = item.targets?.find(
+        (target) => targetIdentity(target) === action.payload.identity,
+      );
+      if (!target || !["queued", "running"].includes(target.status)) return;
+      Object.assign(target, action.payload.result);
+      syncTargetProgress(item, action.payload.now);
+    },
+    retryTask: (
+      state,
+      action: PayloadAction<{ instanceID: string; now: number }>,
+    ) => {
+      const item = state.objectManager.objectsToManage.find(
+        (item) => item.instanceID === action.payload.instanceID,
+      );
+      if (!item || !item.done || !item.targets) return;
+      const retry = retrySubset(item.targets);
+      if (!retry.length) return;
+      retry.forEach((target) => {
+        target.status = "queued";
+        delete target.error;
+        delete target.retryable;
+        delete target.uncertain;
+      });
+      item.attempt = (item.attempt ?? 1) + 1;
+      item.startedAt = action.payload.now;
+      delete item.finishedAt;
+      item.done = item.failed = item.cancelled = false;
+      item.errorMessage = "";
+      syncTargetProgress(item, action.payload.now);
     },
     updateProgress: (
       state,
@@ -140,12 +206,18 @@ const objectBrowserSlice = createSlice({
         (item) => item.instanceID === action.payload.instanceID,
       );
 
-      if (itemUpdate === -1) {
+      if (
+        itemUpdate === -1 ||
+        state.objectManager.objectsToManage[itemUpdate].done ||
+        !Number.isFinite(action.payload.progress)
+      ) {
         return;
       }
 
-      state.objectManager.objectsToManage[itemUpdate].percentage =
-        action.payload.progress;
+      state.objectManager.objectsToManage[itemUpdate].percentage = Math.max(
+        0,
+        Math.min(99, action.payload.progress),
+      );
       state.objectManager.objectsToManage[itemUpdate].waitingForFile = false;
     },
     updateDownloadProgress: (
@@ -159,97 +231,161 @@ const objectBrowserSlice = createSlice({
       const item = state.objectManager.objectsToManage.find(
         (item) => item.instanceID === action.payload.instanceID,
       );
-      if (!item || item.done) return;
+      if (
+        !item ||
+        item.done ||
+        !Number.isFinite(action.payload.bytes) ||
+        action.payload.bytes < 0
+      )
+        return;
       item.receivedBytes = action.payload.bytes;
-      item.waitingForFile = action.payload.total === null;
-      if (action.payload.total !== null)
+      item.waitingForFile =
+        action.payload.total === null ||
+        !Number.isFinite(action.payload.total) ||
+        action.payload.total <= 0;
+      if (!item.waitingForFile && action.payload.total !== null)
         item.percentage = Math.min(
           99,
           Math.floor((action.payload.bytes / action.payload.total) * 100),
         );
     },
-    completeObject: (state, action: PayloadAction<string>) => {
-      const objectToComplete = state.objectManager.objectsToManage.findIndex(
-        (item) => item.instanceID === action.payload,
-      );
+    completeObject: {
+      prepare: (instanceID: string) => ({
+        payload: instanceID,
+        meta: { now: Date.now() },
+      }),
+      reducer: (
+        state,
+        action: PayloadAction<string, string, { now: number }>,
+      ) => {
+        const objectToComplete = state.objectManager.objectsToManage.findIndex(
+          (item) => item.instanceID === action.payload,
+        );
 
-      if (objectToComplete === -1) {
-        return;
-      }
+        if (
+          objectToComplete === -1 ||
+          state.objectManager.objectsToManage[objectToComplete].done
+        ) {
+          return;
+        }
 
-      state.objectManager.objectsToManage[objectToComplete].percentage = 100;
-      state.objectManager.objectsToManage[objectToComplete].waitingForFile =
-        false;
-      state.objectManager.objectsToManage[objectToComplete].done = true;
+        state.objectManager.objectsToManage[objectToComplete].status = "done";
+        state.objectManager.objectsToManage[objectToComplete].finishedAt =
+          action.meta.now;
+        state.objectManager.objectsToManage[objectToComplete].percentage = 100;
+        state.objectManager.objectsToManage[objectToComplete].waitingForFile =
+          false;
+        state.objectManager.objectsToManage[objectToComplete].done = true;
 
-      // We cancel from in-progress lists
-      const type = state.objectManager.objectsToManage[objectToComplete].type;
-      const ID = state.objectManager.objectsToManage[objectToComplete].ID;
+        // We cancel from in-progress lists
+        const type = state.objectManager.objectsToManage[objectToComplete].type;
+        const ID = state.objectManager.objectsToManage[objectToComplete].ID;
 
-      if (type === "download") {
-        state.objectManager.currentDownloads =
-          state.objectManager.currentDownloads.filter((item) => item !== ID);
-      } else if (type === "upload") {
-        state.objectManager.currentUploads =
-          state.objectManager.currentUploads.filter((item) => item !== ID);
-      }
+        if (type === "download") {
+          state.objectManager.currentDownloads =
+            state.objectManager.currentDownloads.filter((item) => item !== ID);
+        } else if (type === "upload") {
+          state.objectManager.currentUploads =
+            state.objectManager.currentUploads.filter((item) => item !== ID);
+        }
+      },
     },
-    failObject: (
-      state,
-      action: PayloadAction<{ instanceID: string; msg: string }>,
-    ) => {
-      const objectToFail = state.objectManager.objectsToManage.findIndex(
-        (item) => item.instanceID === action.payload.instanceID,
-      );
+    failObject: {
+      prepare: (payload: { instanceID: string; msg: string }) => ({
+        payload,
+        meta: { now: Date.now() },
+      }),
+      reducer: (
+        state,
+        action: PayloadAction<
+          { instanceID: string; msg: string },
+          string,
+          { now: number }
+        >,
+      ) => {
+        const objectToFail = state.objectManager.objectsToManage.findIndex(
+          (item) => item.instanceID === action.payload.instanceID,
+        );
 
-      if (objectToFail === -1) {
-        return;
-      }
+        if (objectToFail === -1) {
+          return;
+        }
 
-      state.objectManager.objectsToManage[objectToFail].failed = true;
-      state.objectManager.objectsToManage[objectToFail].waitingForFile = false;
-      state.objectManager.objectsToManage[objectToFail].done = true;
-      state.objectManager.objectsToManage[objectToFail].errorMessage =
-        action.payload.msg;
+        const failedItem = state.objectManager.objectsToManage[objectToFail];
+        // Native handoff can still report a late error document in its owned frame.
+        if (
+          failedItem.done &&
+          !(
+            failedItem.browserManaged &&
+            !failedItem.failed &&
+            !failedItem.cancelled
+          )
+        )
+          return;
+        failedItem.status = "failed";
+        failedItem.finishedAt = action.meta.now;
+        state.objectManager.objectsToManage[objectToFail].failed = true;
+        state.objectManager.objectsToManage[objectToFail].waitingForFile =
+          false;
+        state.objectManager.objectsToManage[objectToFail].done = true;
+        state.objectManager.objectsToManage[objectToFail].errorMessage =
+          action.payload.msg;
 
-      // We cancel from in-progress lists
-      const type = state.objectManager.objectsToManage[objectToFail].type;
-      const ID = state.objectManager.objectsToManage[objectToFail].ID;
+        // We cancel from in-progress lists
+        const type = state.objectManager.objectsToManage[objectToFail].type;
+        const ID = state.objectManager.objectsToManage[objectToFail].ID;
 
-      if (type === "download") {
-        state.objectManager.currentDownloads =
-          state.objectManager.currentDownloads.filter((item) => item !== ID);
-      } else if (type === "upload") {
-        state.objectManager.currentUploads =
-          state.objectManager.currentUploads.filter((item) => item !== ID);
-      }
+        if (type === "download") {
+          state.objectManager.currentDownloads =
+            state.objectManager.currentDownloads.filter((item) => item !== ID);
+        } else if (type === "upload") {
+          state.objectManager.currentUploads =
+            state.objectManager.currentUploads.filter((item) => item !== ID);
+        }
+      },
     },
-    cancelObjectInList: (state, action: PayloadAction<string>) => {
-      const objectToCancel = state.objectManager.objectsToManage.findIndex(
-        (item) => item.instanceID === action.payload,
-      );
+    cancelObjectInList: {
+      prepare: (instanceID: string) => ({
+        payload: instanceID,
+        meta: { now: Date.now() },
+      }),
+      reducer: (
+        state,
+        action: PayloadAction<string, string, { now: number }>,
+      ) => {
+        const objectToCancel = state.objectManager.objectsToManage.findIndex(
+          (item) => item.instanceID === action.payload,
+        );
 
-      if (objectToCancel === -1) {
-        return { ...state };
-      }
+        if (
+          objectToCancel === -1 ||
+          state.objectManager.objectsToManage[objectToCancel].done
+        ) {
+          return { ...state };
+        }
 
-      state.objectManager.objectsToManage[objectToCancel].cancelled = true;
-      state.objectManager.objectsToManage[objectToCancel].done = true;
-      state.objectManager.objectsToManage[objectToCancel].percentage = 0;
-      state.objectManager.objectsToManage[objectToCancel].waitingForFile =
-        false;
+        state.objectManager.objectsToManage[objectToCancel].status =
+          "cancelled";
+        state.objectManager.objectsToManage[objectToCancel].finishedAt =
+          action.meta.now;
+        state.objectManager.objectsToManage[objectToCancel].cancelled = true;
+        state.objectManager.objectsToManage[objectToCancel].done = true;
+        state.objectManager.objectsToManage[objectToCancel].percentage = 0;
+        state.objectManager.objectsToManage[objectToCancel].waitingForFile =
+          false;
 
-      // We cancel from in-progress lists
-      const type = state.objectManager.objectsToManage[objectToCancel].type;
-      const ID = state.objectManager.objectsToManage[objectToCancel].ID;
+        // We cancel from in-progress lists
+        const type = state.objectManager.objectsToManage[objectToCancel].type;
+        const ID = state.objectManager.objectsToManage[objectToCancel].ID;
 
-      if (type === "download") {
-        state.objectManager.currentDownloads =
-          state.objectManager.currentDownloads.filter((item) => item !== ID);
-      } else if (type === "upload") {
-        state.objectManager.currentUploads =
-          state.objectManager.currentUploads.filter((item) => item !== ID);
-      }
+        if (type === "download") {
+          state.objectManager.currentDownloads =
+            state.objectManager.currentDownloads.filter((item) => item !== ID);
+        } else if (type === "upload") {
+          state.objectManager.currentUploads =
+            state.objectManager.currentUploads.filter((item) => item !== ID);
+        }
+      },
     },
     deleteFromList: (state, action: PayloadAction<string>) => {
       const notObject = state.objectManager.objectsToManage.filter(
@@ -262,7 +398,7 @@ const objectBrowserSlice = createSlice({
     },
     cleanList: (state) => {
       const nonCompletedList = state.objectManager.objectsToManage.filter(
-        (item) => item.percentage !== 100,
+        (item) => activeTask(item),
       );
       state.objectManager.objectsToManage = nonCompletedList;
       state.objectManager.managerOpen =
@@ -318,16 +454,30 @@ const objectBrowserSlice = createSlice({
       state.simplePath = action.payload;
     },
     newDownloadInit: (state, action: PayloadAction<string>) => {
-      state.objectManager.currentDownloads = [
-        ...state.objectManager.currentDownloads,
-        action.payload,
-      ];
+      const item = state.objectManager.objectsToManage.find(
+        (item) => item.ID === action.payload,
+      );
+      if (
+        !item ||
+        item.done ||
+        state.objectManager.currentDownloads.includes(action.payload)
+      )
+        return;
+      item.status = "running";
+      state.objectManager.currentDownloads.push(action.payload);
     },
     newUploadInit: (state, action: PayloadAction<string>) => {
-      state.objectManager.currentUploads = [
-        ...state.objectManager.currentUploads,
-        action.payload,
-      ];
+      const item = state.objectManager.objectsToManage.find(
+        (item) => item.ID === action.payload,
+      );
+      if (
+        !item ||
+        item.done ||
+        state.objectManager.currentUploads.includes(action.payload)
+      )
+        return;
+      item.status = "running";
+      state.objectManager.currentUploads.push(action.payload);
     },
     // The listing moves to another directory, bucket or mode: the rows,
     // cursors and selection of the previous listing leave at once, before the
@@ -387,6 +537,47 @@ const objectBrowserSlice = createSlice({
     // Asks the browser handler to request the committed page again. The rows
     // stay on screen until the new page arrives, so a failed reload leaves
     // the previous page rather than an empty table.
+    invalidateMutationView: (
+      state,
+      action: PayloadAction<{
+        kind: "delete" | "restore";
+        targets: TaskTarget[];
+      }>,
+    ) => {
+      const affected = action.payload.targets.filter(
+        (target) =>
+          target.bucket === state.selectedBucket &&
+          (target.status === "done" || target.uncertain),
+      );
+      if (!affected.length) return;
+      state.reloadObjectsList = true;
+      const key = state.selectedInternalPaths;
+      const matching = affected.filter(
+        (target) =>
+          key !== null &&
+          (target.key === key ||
+            (target.recursive && key.startsWith(target.key))),
+      );
+      if (!matching.length) return;
+      // A completion refreshes the object still being viewed, including an
+      // in-flight details request, without closing Versions or touching B
+      // after a detached task for A completes.
+      state.objectMutationRevision++;
+      state.loadingVersions = true;
+      state.loadingObjectInfo = true;
+      if (
+        action.payload.kind === "delete" &&
+        matching.some(
+          (target) =>
+            target.recursive ||
+            target.allVersions ||
+            target.nonCurrent ||
+            target.versionId === state.selectedVersion,
+        )
+      ) {
+        state.selectedVersion = "";
+      }
+    },
     setReloadObjectsList: (state, action: PayloadAction<boolean>) => {
       state.reloadObjectsList = action.payload;
     },
@@ -410,21 +601,6 @@ const objectBrowserSlice = createSlice({
     },
     setShareFileModalOpen: (state, action: PayloadAction<boolean>) => {
       state.shareFileModalOpen = action.payload;
-    },
-    restoreLocalObjectList: (
-      state,
-      action: PayloadAction<IRestoreLocalObjectList>,
-    ) => {
-      const indexToReplace = state.records.findIndex(
-        (element) => element.name === action.payload.prefix,
-      );
-
-      if (indexToReplace >= 0) {
-        state.records[indexToReplace].delete_flag =
-          action.payload.objectInfo.is_delete_marker;
-        state.records[indexToReplace].size =
-          action.payload.objectInfo.size || 0;
-      }
     },
     setRetentionConfig: (
       state,
@@ -462,6 +638,10 @@ export const {
   resetRewind,
   setVersionsModeEnabled,
   setNewObject,
+  resetTasks,
+  updateTaskTarget,
+  retryTask,
+  closeList,
   updateProgress,
   updateDownloadProgress,
   completeObject,
@@ -496,7 +676,7 @@ export const {
   setPreviewOpen,
   setShareFileModalOpen,
   setReloadObjectsList,
-  restoreLocalObjectList,
+  invalidateMutationView,
   setRetentionConfig,
   setSelectedBucket,
   setLongFileOpen,

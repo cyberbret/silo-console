@@ -95,6 +95,9 @@ export const downloadObject = (
       percentage: 0,
       prefix: object.name || "",
       type: "download",
+      kind: internalPaths.endsWith("/") ? "zip" : "download",
+      browserManaged:
+        internalPaths.endsWith("/") || (object.size || 0) > 5368709120,
       waitingForFile: true,
       failed: false,
       cancelled: false,

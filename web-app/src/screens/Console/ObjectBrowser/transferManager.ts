@@ -28,15 +28,68 @@ export interface UploadControl {
   cancel: () => void;
 }
 
-let objectCalls: { [key: string]: XMLHttpRequest } = {};
-let uploadControls: { [key: string]: UploadControl } = {};
+interface DownloadControl {
+  send?: () => unknown;
+  abort: () => void;
+}
+let objectCalls: Record<string, DownloadControl> = {};
+let uploadControls: Record<string, UploadControl> = {};
+let taskControls: Record<string, { cancel: () => void }> = {};
+let generation = 0;
 
-export const storeCallForObjectWithID = (id: string, call: any) => {
+// A session owns every asynchronous callback, including detached dialogs and
+// native iframe observers. Invalidate before aborting so old accounts cannot
+// publish progress, notifications, refreshes or downloads into a new session.
+export const captureTaskSession = () => {
+  const owner = generation;
+  return () => owner === generation;
+};
+export const registerTaskControl = (
+  id: string,
+  control: { cancel: () => void },
+) => {
+  taskControls[id] = control;
+};
+export const resetTaskRuntime = () => {
+  generation++;
+  const uploads = Object.values(uploadControls);
+  const downloads = Object.values(objectCalls);
+  const tasks = Object.values(taskControls);
+  uploadControls = {};
+  objectCalls = {};
+  taskControls = {};
+  for (const cancel of [
+    ...uploads.map((control) => () => control.cancel()),
+    ...downloads.map((control) => () => control.abort()),
+    ...tasks.map((control) => () => control.cancel()),
+  ]) {
+    try {
+      cancel();
+    } catch {
+      /* Continue releasing every owned resource. */
+    }
+  }
+};
+
+export const storeCallForObjectWithID = (id: string, call: DownloadControl) => {
   objectCalls[id] = call;
 };
 
-export const callForObjectID = (id: string): any => {
-  return objectCalls[id];
+export const callForObjectID = (id: string): DownloadControl | undefined =>
+  objectCalls[id];
+
+export const startQueuedDownload = (id: string): boolean => {
+  const call = callForObjectID(id);
+  if (!call?.send) return false;
+  try {
+    const result = call.send();
+    if (result instanceof Promise) void result.catch(() => {});
+    // Synchronous setup failure can already have released the control.
+    return objectCalls[id] === call;
+  } catch {
+    call.abort();
+    return false;
+  }
 };
 
 export const storeUploadControl = (id: string, control: UploadControl) => {
@@ -59,6 +112,10 @@ export const startQueuedUpload = (id: string): boolean => {
 // Uploads settle through their control; downloads abort their request, which
 // settles them through their own handlers.
 export const cancelTransfer = (id: string): boolean => {
+  if (taskControls[id]) {
+    taskControls[id].cancel();
+    return true;
+  }
   const control = uploadControls[id];
   if (control) {
     control.cancel();
@@ -75,6 +132,7 @@ export const cancelTransfer = (id: string): boolean => {
 export const removeTrace = (id: string) => {
   delete objectCalls[id];
   delete uploadControls[id];
+  delete taskControls[id];
 };
 
 export const makeid = (length: number) => {

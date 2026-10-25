@@ -60,6 +60,7 @@ const DeleteAccessRule = ({
 
   return (
     <ConfirmDialog
+      destructive
       title={t("Delete Anonymous Access Rule")}
       confirmText={t("Delete")}
       isOpen={modalOpen}

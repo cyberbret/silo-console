@@ -15,7 +15,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import React, { Suspense } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useParams } from "react-router-dom";
 
 import NotFoundPage from "../../NotFoundPage";
 import LoadingComponent from "../../../common/LoadingComponent";
@@ -24,6 +24,16 @@ import { IAM_PAGES } from "../../../common/SecureComponent/permissions";
 const ListBuckets = React.lazy(() => import("./ListBuckets/ListBuckets"));
 const BucketDetails = React.lazy(() => import("./BucketDetails/BucketDetails"));
 const AddBucket = React.lazy(() => import("./ListBuckets/AddBucket/AddBucket"));
+
+const LegacyBucketRedirect = () => {
+  const { bucketName = "" } = useParams();
+  return (
+    <Navigate
+      replace
+      to={`/buckets/${encodeURIComponent(bucketName)}/admin/summary`}
+    />
+  );
+};
 
 const Buckets = () => {
   return (
@@ -53,6 +63,7 @@ const Buckets = () => {
           </Suspense>
         }
       />
+      <Route path=":bucketName" element={<LegacyBucketRedirect />} />
       <Route element={<Navigate to={`/buckets`} />} path="*" />
 
       <Route

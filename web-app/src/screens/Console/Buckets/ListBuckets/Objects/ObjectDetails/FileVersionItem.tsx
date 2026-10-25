@@ -28,7 +28,9 @@ import {
   Grid,
   Checkbox,
 } from "mds";
-import { Tooltip } from "common/Tooltip";
+import ObjectActionTooltip from "../ObjectActionTooltip";
+import { objectActionState } from "../objectActionState";
+import { previewObjectType } from "../Preview/previewType";
 import { niceBytes } from "../../../../../../common/utils";
 import SpecificVersionPill from "./SpecificVersionPill";
 import { BucketObject } from "api/consoleApi";
@@ -46,7 +48,7 @@ interface IFileVersionItem {
   onDownload: (versionInfo: BucketObject) => void;
   onRestore: (versionInfo: BucketObject) => void;
   onPreview: (versionInfo: BucketObject) => void;
-  canPreview: boolean;
+  canGetObjectVersion: boolean;
   globalClick: (versionInfo: BucketObject) => void;
   key: any;
   style: any;
@@ -69,7 +71,7 @@ const FileVersionStyled = styled.div(({ theme }) => {
       margin: "0 0.5rem 0 2.5rem",
       cursor: "pointer",
       "&.deleted": {
-        color: "#868686",
+        color: "var(--muted-foreground)",
       },
     },
     "& .intermediateLayer": {
@@ -111,7 +113,7 @@ const FileVersionStyled = styled.div(({ theme }) => {
     "& .versionData": {
       marginRight: "10px",
       fontSize: 12,
-      color: "#868686",
+      color: "var(--muted-foreground)",
     },
     "@media (max-width: 600px)": {
       "& .buttonContainer": {
@@ -171,43 +173,64 @@ const FileVersionItem = ({
   onDownload,
   onRestore,
   onPreview,
-  canPreview,
+  canGetObjectVersion,
   globalClick,
   index,
   key,
   style,
 }: IFileVersionItem) => {
   const t = useT();
-  const disableButtons = !!versionInfo.is_delete_marker;
-
+  const actionContext = {
+    isDeleteMarker: !!versionInfo.is_delete_marker,
+    readVersion: true,
+    allowed: canGetObjectVersion,
+  };
+  const selectState = objectActionState({
+    action: "selectVersion",
+    isDeleteMarker: !!versionInfo.is_delete_marker,
+  });
   const versionItemButtons = [
     {
       icon: <PreviewIcon />,
       action: onPreview,
       name: "preview",
-      tooltip: canPreview ? t("Preview") : t("Preview unavailable"),
-      disabled: disableButtons || !canPreview,
+      tooltip: t("Preview"),
+      state: objectActionState({
+        ...actionContext,
+        action: "preview",
+        isPrefix: fileName.endsWith("/"),
+        previewSupported:
+          previewObjectType(
+            versionInfo.content_type
+              ? { "Content-Type": versionInfo.content_type }
+              : null,
+            fileName,
+          ) !== "none",
+      }),
     },
     {
       icon: <DownloadIcon />,
       action: onDownload,
       name: "download",
       tooltip: t("Download this version"),
-      disabled: disableButtons,
+      state: objectActionState({ ...actionContext, action: "download" }),
     },
     {
       icon: <ShareIcon />,
       action: onShare,
       name: "share",
       tooltip: t("Share this version"),
-      disabled: disableButtons,
+      state: objectActionState({ ...actionContext, action: "share" }),
     },
     {
       icon: <RecoverIcon />,
       action: onRestore,
       name: "restore",
       tooltip: t("Restore this version"),
-      disabled: disableButtons,
+      state: objectActionState({
+        action: "restore",
+        isDeleteMarker: !!versionInfo.is_delete_marker,
+      }),
     },
   ];
 
@@ -262,20 +285,26 @@ const FileVersionItem = ({
                   sx={{ ".inputItem": { width: "auto" } }}
                 >
                   {checkable && (
-                    <Checkbox
-                      checked={isChecked}
-                      id={`select-${versionInfo.version_id}`}
-                      name={`select-${versionInfo.version_id}`}
-                      onChange={(e) => {
-                        e.stopPropagation();
-                        onCheck(versionInfo.version_id || "");
-                      }}
-                      value={versionInfo.version_id || ""}
-                      disabled={versionInfo.is_delete_marker}
-                      sx={{
-                        width: "initial",
-                      }}
-                    />
+                    <ObjectActionTooltip
+                      state={selectState}
+                      label={t("Select version")}
+                    >
+                      <Checkbox
+                        aria-label={t("Select version")}
+                        checked={isChecked}
+                        id={`select-${versionInfo.version_id}`}
+                        name={`select-${versionInfo.version_id}`}
+                        onChange={(e) => {
+                          e.stopPropagation();
+                          onCheck(versionInfo.version_id || "");
+                        }}
+                        value={versionInfo.version_id || ""}
+                        disabled={selectState.disabled}
+                        sx={{
+                          width: "initial",
+                        }}
+                      />
+                    </ObjectActionTooltip>
                   )}
                   {displayFileIconName(fileName, true)} v{index.toString()}
                   <span className={"versionItem"}>
@@ -285,8 +314,9 @@ const FileVersionItem = ({
                 <Grid item xs={10} md={8} className={"buttonContainer"}>
                   {versionItemButtons.map((button, index) => {
                     return (
-                      <Tooltip
-                        tooltip={button.tooltip}
+                      <ObjectActionTooltip
+                        state={button.state}
+                        label={button.tooltip}
                         key={`version-action-${
                           button.name
                         }-${index.toString()}`}
@@ -298,19 +328,19 @@ const FileVersionItem = ({
                             button.name
                           }-${index.toString()}`}
                           className={`${"spacing"} ${
-                            button.disabled ? "buttonDisabled" : ""
+                            button.state.disabled ? "buttonDisabled" : ""
                           }`}
-                          disabled={button.disabled}
+                          disabled={button.state.disabled}
                           onClick={(e) => {
                             e.stopPropagation();
-                            if (!button.disabled) {
+                            if (!button.state.disabled) {
                               button.action(versionInfo);
                             } else {
                               e.preventDefault();
                             }
                           }}
                           sx={{
-                            backgroundColor: "#F8F8F8",
+                            backgroundColor: "transparent",
                             borderRadius: "100%",
                             width: "28px",
                             height: "28px",
@@ -323,7 +353,7 @@ const FileVersionItem = ({
                         >
                           {button.icon}
                         </IconButton>
-                      </Tooltip>
+                      </ObjectActionTooltip>
                     );
                   })}
                 </Grid>

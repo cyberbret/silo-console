@@ -19,6 +19,7 @@ import { InputBox, SearchIcon } from "mds";
 import { CSSObject } from "styled-components";
 
 type SearchBoxProps = {
+  inputRef?: React.Ref<HTMLInputElement>;
   placeholder?: string;
   value: string;
   onChange: (value: string) => void;
@@ -29,6 +30,7 @@ type SearchBoxProps = {
 };
 
 const SearchBox = ({
+  inputRef,
   placeholder = "",
   onChange,
   overrideClass,
@@ -39,10 +41,12 @@ const SearchBox = ({
 }: SearchBoxProps) => {
   return (
     <InputBox
+      ref={inputRef}
       placeholder={placeholder}
       className={overrideClass ? overrideClass : ""}
       id={id}
       label={label}
+      aria-label={label || placeholder}
       onChange={(e) => {
         onChange(e.target.value);
       }}

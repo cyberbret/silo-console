@@ -14,14 +14,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import HeaderIconButton from "../../../../Common/PageHeaderWrapper/HeaderIconButton";
 import React, { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { listModeColumns, rewindModeColumns } from "./ListObjectsHelpers";
 import { useSelector } from "react-redux";
 import { AppState, useAppDispatch } from "../../../../../../store";
 import { selFeatures } from "../../../../consoleSlice";
 import {
-  setLoadingVersions,
-  setObjectDetailsView,
   setPreviewOpen,
   setSelectedObjects,
   setSelectedObjectView,
@@ -32,7 +31,7 @@ import {
   visiblePageObjects,
 } from "../../../../ObjectBrowser/objectPaging";
 import ObjectPager from "../../../../ObjectBrowser/ObjectPager";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import get from "lodash/get";
 import { resolveAnonymousOpen } from "../Preview/anonymousPreview";
 import { PreviewRequestGeneration } from "../Preview/textPreview";
@@ -43,16 +42,72 @@ import {
 } from "../../../../../../common/SecureComponent/permissions";
 import { hasPermission } from "../../../../../../common/SecureComponent";
 import { downloadObject } from "../../../../ObjectBrowser/utils";
-import { DataTable, ItemActions } from "mds";
+import { DataTable, ItemActions, useModalActive } from "mds";
 import { BucketObject } from "api/consoleApi";
-import { useT } from "i18n";
+import { formatText, useT } from "i18n";
 import { api } from "api";
 
-const ListObjectsTable = () => {
+import { ContextMenu, ContextAction } from "common/ui/ContextMenu";
+import { openShortcutHelp } from "common/ui/ShortcutHelp";
+import { useOverlayPending } from "common/ui/overlayIntent";
+import { niceBytes } from "common/utils";
+import { setSnackBarMessage } from "systemSlice";
+import { routeObjectIdentity } from "../objectIdentity";
+import { captureTaskSession } from "../../../../ObjectBrowser/transferManager";
+import { ObjectRowMenu } from "./ObjectRowMenu";
+import {
+  keyAction,
+  moveIndex,
+  rangeSelection,
+  toggleSelection,
+  parentPrefix,
+  objectPath,
+  typingTarget,
+  interactiveTarget,
+} from "./objectKeyboard";
+
+const ListObjectsTable = ({
+  filterRef,
+  emptyActions,
+}: {
+  filterRef: React.RefObject<HTMLInputElement>;
+  emptyActions: () => ContextAction[];
+}) => {
   const dispatch = useAppDispatch();
   const t = useT();
   const params = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const modalActive = useModalActive();
+  const overlayPending = useOverlayPending();
+  const listRef = useRef<HTMLDivElement>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [focusRequest, setFocusRequest] = useState(0);
+  const range = useRef<{ anchor: string; base: string[] } | null>(null);
+  const pointerOrigin = useRef<string | null>(null);
+  const menuInvocation = useRef(0);
+  const [menu, setMenu] = useState<{
+    object: BucketObjectItem | null;
+    anchor: HTMLElement;
+    point?: { x: number; y: number };
+    open: boolean;
+    preview?: boolean;
+    invocation: number;
+    pendingPreview: boolean;
+  } | null>(null);
+  const simplePath = useSelector(
+    (state: AppState) => state.objectBrowser.simplePath,
+  );
+  const pageIndex = useSelector(
+    (state: AppState) => state.objectBrowser.objectPage.pageIndex,
+  );
+  const managerOpen = useSelector(
+    (state: AppState) => state.objectBrowser.objectManager.managerOpen,
+  );
+  const blocked = modalActive || overlayPending || managerOpen;
+  const blockedRef = useRef(blocked);
+  blockedRef.current = blocked;
+  const currentSession = useRef(captureTaskSession());
 
   const [sortDirection, setSortDirection] = useState<
     "ASC" | "DESC" | undefined
@@ -122,7 +177,7 @@ const ListObjectsTable = () => {
     [records, searchObjects, currentSortField, sortDirection],
   );
 
-  const openPath = async (object: BucketObject) => {
+  const openPath = async (object: BucketObject, previewOnly = false) => {
     anonymousMetadataController.current?.abort();
     anonymousMetadataController.current = null;
     const generation = anonymousOpenGeneration.current.begin();
@@ -138,6 +193,8 @@ const ListObjectsTable = () => {
       const decision = await resolveAnonymousOpen({
         object,
         isCurrent: () =>
+          !blockedRef.current &&
+          currentSession.current() &&
           !controller.signal.aborted &&
           anonymousOpenGeneration.current.isCurrent(generation),
         loadMetadata: async () => {
@@ -166,18 +223,12 @@ const ListObjectsTable = () => {
         return;
       }
 
-      downloadObject(dispatch, bucketName, idElement, object);
+      if (!previewOnly) downloadObject(dispatch, bucketName, idElement, object);
       return;
     }
-    dispatch(setSelectedObjects([]));
-
+    // BrowserHandler commits selection/details only after the Router accepts
+    // navigation. A task departure cancellation must leave this view intact.
     navigate(newPath);
-
-    if (!anonymousMode) {
-      dispatch(setObjectDetailsView(true));
-      dispatch(setLoadingVersions(true));
-    }
-    dispatch(setSelectedObjectView(idElement));
   };
   const tableActions: ItemActions[] = [
     {
@@ -187,6 +238,153 @@ const ListObjectsTable = () => {
       sendOnlyId: false,
     },
   ];
+
+  const ids = payload.map((item) => item.name);
+  const order = JSON.stringify(ids);
+  const scope = JSON.stringify([
+    bucketName,
+    simplePath,
+    pageIndex,
+    searchObjects,
+  ]);
+  const previousScope = useRef(scope);
+  useEffect(() => {
+    range.current = null;
+    const sameScope = previousScope.current === scope;
+    previousScope.current = scope;
+    setActiveId((current) =>
+      sameScope && current && ids.includes(current) ? current : ids[0] || null,
+    );
+    setMenu(null);
+  }, [scope, order]);
+  useEffect(() => {
+    setMenu(null);
+  }, [location.key]);
+  useEffect(() => {
+    if (blocked)
+      setMenu((current) =>
+        current && !current.pendingPreview ? { ...current, open: false } : null,
+      );
+  }, [blocked]);
+  useEffect(() => {
+    const discover = (event: KeyboardEvent) => {
+      if (blocked || menu?.open || typingTarget(event.target)) return;
+      const action = keyAction(event);
+      if (action !== "help" && action !== "filter") return;
+      event.preventDefault();
+      if (action === "help") openShortcutHelp();
+      else filterRef.current?.focus();
+    };
+    document.addEventListener("keydown", discover);
+    return () => document.removeEventListener("keydown", discover);
+  }, [blocked, menu?.open, filterRef]);
+  const choose = (selection: string[]) => {
+    dispatch(setSelectedObjects(selection));
+    dispatch(setSelectedObjectView(null));
+  };
+  const focus = (id: string | null) => {
+    setActiveId(id);
+    setFocusRequest((value) => value + 1);
+  };
+  const extend = (id: string, origin: string) => {
+    if (!range.current)
+      range.current = { anchor: origin, base: [...selectedObjects] };
+    choose(rangeSelection(ids, range.current.anchor, id, range.current.base));
+  };
+  const openMenu = (
+    object: BucketObjectItem | null,
+    anchor: HTMLElement,
+    point?: { x: number; y: number },
+    preview = false,
+  ) => {
+    if (blocked) return;
+    if (object) setActiveId(object.name);
+    setMenu({
+      object,
+      anchor,
+      point,
+      open: !preview,
+      preview,
+      invocation: ++menuInvocation.current,
+      pendingPreview: preview,
+    });
+  };
+  const handleKey = (
+    event: React.KeyboardEvent<HTMLDivElement>,
+    index: number,
+    pageSize: number,
+  ) => {
+    if (blocked) {
+      if (
+        !typingTarget(event.target) &&
+        !interactiveTarget(event.target) &&
+        keyAction(event)
+      )
+        event.preventDefault();
+      return;
+    }
+    if (
+      menu?.open ||
+      typingTarget(event.target) ||
+      interactiveTarget(event.target)
+    )
+      return;
+    const action = keyAction({
+      ...event,
+      isComposing: event.nativeEvent.isComposing,
+    });
+    if (!action) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const item = payload[index];
+    if (
+      ["up", "down", "first", "last", "pageUp", "pageDown"].includes(action)
+    ) {
+      const next = moveIndex(index, payload.length, action, pageSize);
+      if (next < 0) return;
+      if (event.shiftKey && !anonymousMode)
+        extend(ids[next], activeId || ids[next]);
+      else range.current = null;
+      focus(ids[next]);
+    } else if (action === "open" && item) void openPath(item);
+    else if (action === "toggle" && item && !anonymousMode) {
+      range.current = null;
+      choose(toggleSelection(selectedObjects, item.name));
+    } else if (action === "all" && !anonymousMode) {
+      range.current = null;
+      choose(ids);
+      dispatch(
+        setSnackBarMessage(
+          formatText(t("Selected {count} objects on this page."), {
+            count: ids.length,
+          }),
+        ),
+      );
+    } else if (action === "parent") {
+      const key = routeObjectIdentity(location.pathname, bucketName).key;
+      if (key) navigate(objectPath(bucketName, parentPrefix(key)));
+    } else if (action === "escape") {
+      range.current = null;
+      if (selectedObjects.length) choose([]);
+      else {
+        const key = routeObjectIdentity(location.pathname, bucketName).key;
+        if (key && !key.endsWith("/"))
+          navigate(objectPath(bucketName, parentPrefix(key)));
+      }
+      focus(activeId);
+    } else if (action === "filter") filterRef.current?.focus();
+    else if (action === "help") openShortcutHelp();
+    else if (action === "menu")
+      openMenu(
+        item || null,
+        event.target instanceof HTMLElement
+          ? event.target
+          : event.currentTarget,
+      );
+    else if (action === "preview" && item && !item.name.endsWith("/")) {
+      openMenu(item, event.target as HTMLElement, undefined, true);
+    }
+  };
 
   // A column sort reorders the loaded page; it does not reload the listing.
   const sortChange = (sortData: any) => {
@@ -198,7 +396,10 @@ const ListObjectsTable = () => {
   const selectAllItems = () => {
     dispatch(setSelectedObjectView(null));
 
-    if (selectedObjects.length === payload.length) {
+    if (
+      payload.length > 0 &&
+      payload.every((item) => selectedObjects.includes(item.name))
+    ) {
       dispatch(setSelectedObjects([]));
       return;
     }
@@ -261,8 +462,85 @@ const ListObjectsTable = () => {
   return (
     <Fragment>
       <DataTable
+        interaction={{
+          activeId,
+          focusRequest,
+          listRef,
+          onActiveChange: setActiveId,
+          onRowRemoved: (_identity, element) => {
+            if (menu?.open && menu.anchor === element) {
+              setMenu(null);
+              listRef.current?.focus({ preventScroll: true });
+            }
+          },
+          rowLabel: (item: BucketObjectItem) =>
+            `${item.name}, ${item.name.endsWith("/") ? t("Folder") : t("File")}, ${item.name.endsWith("/") ? t("Size unavailable") : niceBytes(String(item.size || 0))}`,
+          onKeyDown: handleKey,
+          onPointerDown: () => {
+            pointerOrigin.current = activeId;
+          },
+          onClick: (event, item: BucketObjectItem, checkbox) => {
+            const origin = pointerOrigin.current;
+            pointerOrigin.current = null;
+            if (blocked) return;
+            if (!anonymousMode && event.shiftKey)
+              extend(item.name, origin || activeId || item.name);
+            else if (
+              !anonymousMode &&
+              (event.ctrlKey || event.metaKey || checkbox)
+            ) {
+              range.current = null;
+              choose(toggleSelection(selectedObjects, item.name));
+            } else {
+              range.current = null;
+              void openPath(item);
+            }
+            focus(item.name);
+          },
+          onContextMenu: (event, item: BucketObjectItem | null) => {
+            if (blocked) return;
+            event.preventDefault();
+            openMenu(item, event.currentTarget, {
+              x: event.clientX,
+              y: event.clientY,
+            });
+          },
+        }}
         itemActions={tableActions}
-        columns={rewindEnabled ? rewindModeColumns(t) : listModeColumns(t)}
+        columns={[
+          ...(rewindEnabled ? rewindModeColumns(t) : listModeColumns(t)).map(
+            (column) =>
+              detailsOpen && column.priority === "medium"
+                ? { ...column, priority: "low" as const }
+                : column,
+          ),
+          {
+            label: t("Actions"),
+            elementKey: "actions",
+            priority: "high",
+            width: 48,
+            globalClass: "mds-row-actions",
+            renderFullObject: true,
+            renderFunction: (item: BucketObjectItem) => (
+              <span
+                onClick={(event) => event.stopPropagation()}
+                onPointerDown={(event) => event.stopPropagation()}
+              >
+                <HeaderIconButton
+                  tabIndex={-1}
+                  aria-label={`${t("Object actions")}: ${item.name}`}
+                  aria-haspopup="menu"
+                  aria-expanded={Boolean(
+                    menu?.open && menu.object?.name === item.name,
+                  )}
+                  onClick={(event) => openMenu(item, event.currentTarget)}
+                >
+                  <span aria-hidden="true">⋯</span>
+                </HeaderIconButton>
+              </span>
+            ),
+          },
+        ]}
         isLoading={requestInProgress}
         entityName={t("Objects")}
         idField="name"
@@ -277,6 +555,8 @@ const ListObjectsTable = () => {
           onSortClick: sortChange,
         }}
         onSelectAll={selectAllItems}
+        selectAllLabel={t("Select all objects")}
+        selectionLabel={(name) => `${t("Select")}: ${name}`}
         rowStyle={({ index }) => {
           if (payload[index]?.delete_flag) {
             return "deleted";
@@ -290,6 +570,50 @@ const ListObjectsTable = () => {
         noBackground
       />
       <ObjectPager />
+      {menu &&
+        (() => {
+          const position = {
+            ...menu,
+            fallback: listRef.current,
+            close: (reason: "dismiss" | "restore" | "action") => {
+              setMenu((current) =>
+                reason === "action" && current
+                  ? { ...current, open: false }
+                  : null,
+              );
+              if (reason === "restore") focus(activeId);
+            },
+          };
+          return menu.object ? (
+            <ObjectRowMenu
+              key={menu.invocation}
+              bucket={bucketName}
+              object={menu.object}
+              position={position}
+              preview={menu.preview}
+              onPreviewReady={() =>
+                setMenu((current) =>
+                  current ? { ...current, pendingPreview: false } : null,
+                )
+              }
+              onAnonymousPreview={() => {
+                setMenu(null);
+                void openPath(menu.object!, true);
+              }}
+              onVersions={() =>
+                navigate(objectPath(bucketName, menu.object!.name), {
+                  state: { objectVersions: menu.object!.name },
+                })
+              }
+            />
+          ) : (
+            <ContextMenu
+              {...position}
+              label={t("Folder actions")}
+              items={emptyActions()}
+            />
+          );
+        })()}
     </Fragment>
   );
 };

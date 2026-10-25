@@ -6,14 +6,14 @@
 // (at your option) any later version.
 
 import React from "react";
-import { Button } from "mds";
 import { useSelector } from "react-redux";
 import { AppState, useAppDispatch } from "../../../../store";
 import { setLanguage } from "../../../../systemSlice";
 import { Lang, storeLanguage } from "../../../../i18n/lang";
 import LanguageToggleIcon from "../../../../icons/LanguageToggleIcon";
+import HeaderIconButton from "../PageHeaderWrapper/HeaderIconButton";
 
-const LanguageActivator = () => {
+export const useLanguageAction = () => {
   const dispatch = useAppDispatch();
 
   const language = useSelector((state: AppState) => state.system.language);
@@ -25,15 +25,24 @@ const LanguageActivator = () => {
     storeLanguage(next);
   };
 
+  return {
+    label: language === "zh" ? "Switch to English" : "切换到中文",
+    onClick: toggleLanguage,
+  };
+};
+
+const LanguageActivator = () => {
+  const action = useLanguageAction();
   return (
-    <Button
+    <HeaderIconButton
       id={"language-activator"}
       // Deliberately in the target language so speakers of the other
       // language can find their way back; not dictionary-driven.
-      aria-label={language === "zh" ? "Switch to English" : "切换到中文"}
-      icon={<LanguageToggleIcon />}
-      onClick={toggleLanguage}
-    />
+      aria-label={action.label}
+      onClick={action.onClick}
+    >
+      <LanguageToggleIcon />
+    </HeaderIconButton>
   );
 };
 

@@ -19,13 +19,15 @@ import { ProgressBar, Grid, Box, InformativeMessage } from "mds";
 import get from "lodash/get";
 import { AllowedPreviews, previewObjectType } from "../utils";
 import { api } from "../../../../../../api";
-import PreviewPDF from "./PreviewPDF";
-import PreviewText from "./PreviewText";
+import { isTextPreview } from "./previewType";
 import { downloadObject } from "../../../../ObjectBrowser/utils";
 import { AppState, useAppDispatch } from "../../../../../../store";
 import { BucketObject } from "../../../../../../api/consoleApi";
 import { useT } from "i18n";
 import { useSelector } from "react-redux";
+
+const PreviewPDF = React.lazy(() => import("./PreviewPDF"));
+const PreviewText = React.lazy(() => import("./PreviewText"));
 
 interface IPreviewFileProps {
   bucketName: string;
@@ -161,7 +163,7 @@ const PreviewFile = ({
 
   return (
     <Fragment>
-      {objectType !== "none" && objectType !== "text" && loading && (
+      {objectType !== "none" && !isTextPreview(objectType) && loading && (
         <Grid item xs={12}>
           <ProgressBar />
         </Grid>
@@ -229,10 +231,11 @@ const PreviewFile = ({
               />
             </Fragment>
           )}
-          {objectType === "text" && (
+          {isTextPreview(objectType) && (
             <PreviewText
               key={metadataIdentity}
               actualInfo={actualInfo}
+              kind={objectType}
               bucketName={bucketName}
               isFullscreen={isFullscreen}
             />

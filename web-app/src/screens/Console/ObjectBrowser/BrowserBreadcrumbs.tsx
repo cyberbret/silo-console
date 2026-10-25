@@ -14,15 +14,18 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { ModalPresence } from "common/ui/ModalPresence";
 import React, { Fragment, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import CopyToClipboard from "react-copy-to-clipboard";
-import styled from "styled-components";
+import styled, { type CSSObject } from "styled-components";
 import { Link, useNavigate } from "react-router-dom";
-import { safeDecodeURIComponent } from "../../../common/utils";
+import { useMobile } from "common/ui/useMediaQuery";
+import { OverflowMenu } from "common/ui/OverflowMenu";
 import {
   Button,
   CopyIcon,
+  IconButton,
   NewPathIcon,
   Breadcrumbs,
   breakPoints,
@@ -39,7 +42,7 @@ import { setSnackBarMessage } from "../../../systemSlice";
 import { AppState, useAppDispatch } from "../../../store";
 import { setVersionsModeEnabled } from "./objectBrowserSlice";
 import { getSessionGrantsWildCard } from "../Buckets/ListBuckets/UploadPermissionUtils";
-import { useT } from "i18n";
+import { i18nKey, useT } from "i18n";
 
 const CreatePathModal = withSuspense(
   React.lazy(
@@ -47,22 +50,49 @@ const CreatePathModal = withSuspense(
   ),
 );
 
-const BreadcrumbsMain = styled.div(() => ({
+const BreadcrumbsMain = styled.div((): CSSObject => ({
   display: "flex",
+  flexWrap: "nowrap" as const,
+  minWidth: 0,
+  columnGap: 0,
+  rowGap: 15,
+  "& .breadcrumbs-bar": {
+    minWidth: 0,
+    marginRight: 0,
+    width: "auto",
+    flex: "0 1 auto",
+    [`@media (max-width: ${breakPoints.lg}px)`]: { flex: "1 1 240px" },
+  },
   "& .additionalOptions": {
+    flex: "1 0 auto",
     paddingRight: "10px",
     display: "flex",
     alignItems: "center",
     [`@media (max-width: ${breakPoints.lg}px)`]: {
-      display: "none",
+      order: 1,
+      flexBasis: "100%",
+      marginBottom: 5,
+      paddingRight: 0,
+      justifyContent: "flex-start",
+      "& > div": {
+        fontSize: 12,
+        fontWeight: "normal",
+        flexDirection: "row",
+        flexWrap: "nowrap",
+      },
     },
   },
+  "& .create-path-action": { marginLeft: 8 },
   "& .slashSpacingStyle": {
     margin: "0 5px",
   },
+  [`@media (max-width: ${breakPoints.lg}px)`]: { flexWrap: "wrap" },
 }));
 
 interface IObjectBrowser {
+  createActionRef?: React.MutableRefObject<
+    import("common/ui/ContextMenu").ContextAction | null
+  >;
   bucketName: string;
   internalPaths: string;
   hidePathButton?: boolean;
@@ -70,6 +100,7 @@ interface IObjectBrowser {
 }
 
 const BrowserBreadcrumbs = ({
+  createActionRef,
   bucketName,
   internalPaths,
   hidePathButton,
@@ -78,6 +109,7 @@ const BrowserBreadcrumbs = ({
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const t = useT();
+  const mobile = useMobile();
 
   const rewindEnabled = useSelector(
     (state: AppState) => state.objectBrowser.rewind.rewindEnabled,
@@ -110,7 +142,9 @@ const BrowserBreadcrumbs = ({
     paths = `/${internalPaths}`;
   }
 
-  const splitPaths = paths.split("/").filter((path) => path !== "");
+  const splitPaths = internalPaths
+    ? internalPaths.replace(/\/$/, "").split("/")
+    : [];
   const lastBreadcrumbsIndex = splitPaths.length - 1;
 
   const pathToCheckPerms = bucketName + paths || bucketName;
@@ -137,7 +171,42 @@ const BrowserBreadcrumbs = ({
     anonymousMode ||
     canCreateSubpath;
 
-  let breadcrumbsMap = splitPaths.map((objectItem: string, index: number) => {
+  useEffect(() => {
+    if (!createActionRef) return;
+    createActionRef.current = {
+      label: t("Create new path"),
+      icon: <NewPathIcon />,
+      action: () => setCreateFolderOpen(true),
+      state: {
+        disabled: !anonymousMode && (rewindEnabled || !canCreatePath),
+        reason: rewindEnabled
+          ? t("Exit rewind mode to create a path.")
+          : !canCreatePath
+            ? t("You need s3:PutObject permission.")
+            : undefined,
+      },
+    };
+    return () => {
+      createActionRef.current = null;
+    };
+  }, [createActionRef, t, anonymousMode, rewindEnabled, canCreatePath]);
+
+  const hiddenCount = mobile ? Math.max(0, splitPaths.length - 2) : 0;
+  const hiddenAncestors = [
+    {
+      label: bucketName,
+      onClick: () => navigate(`/browser/${encodeURIComponent(bucketName)}/`),
+    },
+    ...splitPaths.slice(0, hiddenCount).map((name, index) => ({
+      label: name || "/",
+      onClick: () =>
+        navigate(
+          `/browser/${encodeURIComponent(bucketName)}/${encodeURIComponent(splitPaths.slice(0, index + 1).join("/") + "/")}`,
+        ),
+    })),
+  ];
+  const breadcrumbsMap = splitPaths.map((objectItem: string, index: number) => {
+    if (index < hiddenCount) return null;
     const subSplit = `${splitPaths.slice(0, index + 1).join("/")}/`;
     const route = `/browser/${encodeURIComponent(bucketName)}/${
       subSplit ? `${encodeURIComponent(subSplit)}` : ``
@@ -151,11 +220,17 @@ const BrowserBreadcrumbs = ({
       <Fragment key={`breadcrumbs-${index.toString()}`}>
         <span className={"slashSpacingStyle"}>/</span>
         {index === lastBreadcrumbsIndex ? (
-          <span style={{ cursor: "default", whiteSpace: "pre" }}>
-            {safeDecodeURIComponent(objectItem) /*Only for display*/}
+          <span
+            className="breadcrumb-segment"
+            title={objectItem || "/"}
+            style={{ cursor: "default", whiteSpace: "pre" }}
+          >
+            {objectItem || "/"}
           </span>
         ) : (
           <Link
+            className="breadcrumb-segment"
+            title={objectItem || "/"}
             style={{
               whiteSpace: "pre",
             }}
@@ -166,11 +241,7 @@ const BrowserBreadcrumbs = ({
               );
             }}
           >
-            {
-              safeDecodeURIComponent(
-                objectItem,
-              ) /*Only for display to preserve */
-            }
+            {objectItem || "/"}
           </Link>
         )}
       </Fragment>
@@ -182,9 +253,11 @@ const BrowserBreadcrumbs = ({
   if (versionsMode) {
     versionsItem = [
       <Fragment key={`breadcrumbs-versionedItem`}>
-        <span>
+        <span style={{ display: "contents" }}>
           <span className={"slashSpacingStyle"}>/</span>
-          {t("{file} - Versions").replace("{file}", () => versionedFile)}
+          <span className="breadcrumb-segment" title={versionedFile}>
+            {t("{file} - Versions").replace("{file}", () => versionedFile)}
+          </span>
         </span>
       </Fragment>,
     ];
@@ -192,14 +265,22 @@ const BrowserBreadcrumbs = ({
 
   const listBreadcrumbs: any[] = [
     <Fragment key={`breadcrumbs-root-path`}>
-      <Link
-        to={`/browser/${bucketName}`}
-        onClick={() => {
-          dispatch(setVersionsModeEnabled({ status: false, objectName: "" }));
-        }}
-      >
-        {bucketName}
-      </Link>
+      {hiddenCount > 0 ? (
+        <span className="breadcrumb-parents">
+          <OverflowMenu label={t("Parent paths")} items={hiddenAncestors} />
+        </span>
+      ) : (
+        <Link
+          className="breadcrumb-segment"
+          title={bucketName}
+          to={`/browser/${encodeURIComponent(bucketName)}`}
+          onClick={() => {
+            dispatch(setVersionsModeEnabled({ status: false, objectName: "" }));
+          }}
+        >
+          {bucketName}
+        </Link>
+      )}
     </Fragment>,
     ...breadcrumbsMap,
     ...versionsItem,
@@ -214,7 +295,7 @@ const BrowserBreadcrumbs = ({
       dispatch(setVersionsModeEnabled({ status: false, objectName: "" }));
     } else {
       if (splitPaths.length === 0) {
-        navigate("/browser");
+        navigate(`/browser/${encodeURIComponent(bucketName)}/`);
 
         return;
       }
@@ -222,7 +303,7 @@ const BrowserBreadcrumbs = ({
       const prevPath = splitPaths.slice(0, -1);
 
       navigate(
-        `/browser/${bucketName}${
+        `/browser/${encodeURIComponent(bucketName)}${
           prevPath.length > 0
             ? `/${encodeURIComponent(`${prevPath.join("/")}/`)}`
             : ""
@@ -234,71 +315,99 @@ const BrowserBreadcrumbs = ({
   return (
     <Fragment>
       <BreadcrumbsMain>
-        {createFolderOpen && (
-          <CreatePathModal
-            modalOpen={createFolderOpen}
-            bucketName={bucketName}
-            folderName={internalPaths}
-            onClose={closeAddFolderModal}
-            limitedSubPath={
-              canCreateSubpath &&
-              !(
-                hasPermission(
-                  [pathToCheckPerms, ...sessionGrantWildCards],
-                  putObjectPermScopes,
-                ) || anonymousMode
-              )
-            }
-          />
-        )}
+        <ModalPresence open={Boolean(createFolderOpen)}>
+          {createFolderOpen && (
+            <CreatePathModal
+              modalOpen={createFolderOpen}
+              bucketName={bucketName}
+              folderName={internalPaths}
+              onClose={closeAddFolderModal}
+              limitedSubPath={
+                canCreateSubpath &&
+                !(
+                  hasPermission(
+                    [pathToCheckPerms, ...sessionGrantWildCards],
+                    putObjectPermScopes,
+                  ) || anonymousMode
+                )
+              }
+            />
+          )}
+        </ModalPresence>
         <Breadcrumbs
+          backLabel={t("Back")}
           sx={{
             whiteSpace: "pre",
+            border: 0,
+            background: "transparent",
+            color: "var(--muted-foreground)",
+            fontWeight: 400,
+            fontSize: "var(--fs-body)",
+            "& a": { color: "var(--foreground)" },
+            minHeight: 40,
+            height: "auto",
+            "& .breadcrumbsList": {
+              display: "flex",
+              alignItems: "center",
+              direction: "ltr",
+              margin: 0,
+              minWidth: 0,
+            },
+            "& .breadcrumb-segment": {
+              flex: "0 1 auto",
+              minWidth: 0,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            },
+            "@media (max-width: 767px)": {
+              "& .breadcrumb-segment": { flex: "1 1 0" },
+            },
+            "& .breadcrumb-parents, & .slashSpacingStyle": { flexShrink: 0 },
+            "& .backButton": {
+              border: 0,
+              borderRadius: "var(--radius-control)",
+              background: "transparent",
+              width: 40,
+              height: 40,
+              flexShrink: 0,
+              marginRight: 4,
+            },
           }}
           goBackFunction={goBackFunction}
           additionalOptions={
             <Fragment>
-              <CopyToClipboard text={`${bucketName}/${splitPaths.join("/")}`}>
-                <Button
+              <CopyToClipboard text={`${bucketName}/${internalPaths}`}>
+                <IconButton
                   aria-label={t("Copy path")}
-                  id={"copy-path"}
-                  icon={
-                    <CopyIcon
-                      style={{
-                        width: "12px",
-                        height: "12px",
-                        fill: "#969FA8",
-                        marginTop: -1,
-                      }}
-                    />
+                  id="copy-path"
+                  onClick={() =>
+                    dispatch(setSnackBarMessage(t("Path copied to clipboard")))
                   }
-                  variant={"regular"}
-                  onClick={() => {
-                    dispatch(setSnackBarMessage(t("Path copied to clipboard")));
-                  }}
-                  style={{
-                    width: "28px",
-                    height: "28px",
-                    color: "#969FA8",
-                    border: "#969FA8 1px solid",
-                    marginRight: 5,
-                  }}
-                />
+                >
+                  <CopyIcon />
+                </IconButton>
               </CopyToClipboard>
-              <Box className={"additionalOptions"}>{additionalOptions}</Box>
             </Fragment>
           }
         >
-          {listBreadcrumbs}
+          <span
+            title={`${bucketName}/${internalPaths}`}
+            style={{ display: "contents" }}
+          >
+            {listBreadcrumbs}
+          </span>
         </Breadcrumbs>
+        <Box className="additionalOptions">{additionalOptions}</Box>
         {!hidePathButton && (
           <Tooltip
+            wrapperProps={{ className: "create-path-action" }}
             tooltip={
               canCreatePath
                 ? t("Choose or create a new path")
                 : permissionTooltipHelper(
                     [IAM_SCOPES.S3_PUT_OBJECT, IAM_SCOPES.S3_PUT_ACTIONS],
-                    "create a new path",
+                    i18nKey("create a new path"),
                   )
             }
           >
@@ -308,7 +417,7 @@ const BrowserBreadcrumbs = ({
                 setCreateFolderOpen(true);
               }}
               disabled={anonymousMode ? false : rewindEnabled || !canCreatePath}
-              icon={<NewPathIcon style={{ fill: "#969FA8" }} />}
+              icon={<NewPathIcon />}
               style={{
                 whiteSpace: "nowrap",
               }}
@@ -318,25 +427,6 @@ const BrowserBreadcrumbs = ({
           </Tooltip>
         )}
       </BreadcrumbsMain>
-      <Box
-        sx={{
-          display: "none",
-          marginTop: 15,
-          marginBottom: 5,
-          justifyContent: "flex-start",
-          "& > div": {
-            fontSize: 12,
-            fontWeight: "normal",
-            flexDirection: "row",
-            flexWrap: "nowrap",
-          },
-          [`@media (max-width: ${breakPoints.lg}px)`]: {
-            display: "flex",
-          },
-        }}
-      >
-        {additionalOptions}
-      </Box>
     </Fragment>
   );
 };

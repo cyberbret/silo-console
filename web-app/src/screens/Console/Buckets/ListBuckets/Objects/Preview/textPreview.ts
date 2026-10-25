@@ -6,12 +6,16 @@
 // (at your option) any later version.
 
 export const MAX_TEXT_PREVIEW_BYTES = 1_048_576;
-export const TEXT_PREVIEW_RANGE = `bytes=0-${MAX_TEXT_PREVIEW_BYTES}`;
+export const TEXT_PREVIEW_RANGE = `bytes=0-${MAX_TEXT_PREVIEW_BYTES - 1}`;
 
 export type TextPreviewResult =
-  | { status: "success"; content: string; byteLength: number }
+  | {
+      status: "success";
+      content: string;
+      byteLength: number;
+      truncated?: boolean;
+    }
   | { status: "empty"; byteLength: number }
-  | { status: "too_large"; objectSize?: number }
   | { status: "invalid_text" }
   | { status: "forbidden" }
   | { status: "not_found" }
@@ -186,36 +190,33 @@ const readTextPreviewResponse = async (
   }
 
   const contentRangeSize = contentRange?.total;
+  const expectedLength = contentRange ? contentRange.end + 1 : contentLength;
+  // A partial response must contain the entire requested prefix, not an
+  // arbitrary fragment, and its length headers must agree.
   if (
-    (contentRangeSize !== undefined &&
-      contentRangeSize > MAX_TEXT_PREVIEW_BYTES) ||
-    (contentLength !== undefined && contentLength > MAX_TEXT_PREVIEW_BYTES)
-  ) {
-    await cancelResponseBody(response);
-    return {
-      status: "too_large",
-      objectSize: contentRangeSize ?? contentLength,
-    };
-  }
-
-  if (
-    response.status === 206 &&
-    contentRange &&
-    contentRange.total !== undefined &&
-    contentRange.end !== contentRange.total - 1
+    (contentRange &&
+      (contentRange.start !== 0 ||
+        contentRange.total === undefined ||
+        contentRange.end !==
+          Math.min(contentRange.total, MAX_TEXT_PREVIEW_BYTES) - 1)) ||
+    (contentRange &&
+      contentLength !== undefined &&
+      contentLength !== expectedLength)
   ) {
     await cancelResponseBody(response);
     return { status: "error" };
   }
+  let truncated =
+    (contentRangeSize ?? contentLength ?? 0) > MAX_TEXT_PREVIEW_BYTES;
 
   if (!response.body) {
-    return contentLength === undefined || contentLength === 0
+    return expectedLength === undefined || expectedLength === 0
       ? { status: "empty", byteLength: 0 }
       : { status: "error" };
   }
 
   const reader = response.body.getReader();
-  const retainedBytes = new Uint8Array(MAX_TEXT_PREVIEW_BYTES + 1);
+  const retainedBytes = new Uint8Array(MAX_TEXT_PREVIEW_BYTES);
   let byteLength = 0;
 
   try {
@@ -241,11 +242,12 @@ const readTextPreviewResponse = async (
       byteLength += copyLength;
 
       if (
-        byteLength > MAX_TEXT_PREVIEW_BYTES ||
-        copyLength < value.byteLength
+        copyLength < value.byteLength ||
+        (truncated && byteLength === MAX_TEXT_PREVIEW_BYTES)
       ) {
+        truncated = true;
         await reader.cancel();
-        return { status: "too_large", objectSize: contentRangeSize };
+        break;
       }
     }
   } catch (error) {
@@ -257,18 +259,30 @@ const readTextPreviewResponse = async (
     reader.releaseLock();
   }
 
+  if (signal.aborted) {
+    return { status: "aborted" };
+  }
   if (
-    (contentRangeSize !== undefined && contentRangeSize !== byteLength) ||
-    (contentLength !== undefined && contentLength !== byteLength)
+    expectedLength !== undefined &&
+    Math.min(expectedLength, MAX_TEXT_PREVIEW_BYTES) !== byteLength
   ) {
     return { status: "error" };
   }
 
   let content: string;
   try {
-    content = new TextDecoder("utf-8", { fatal: true }).decode(
-      retainedBytes.subarray(0, byteLength),
-    );
+    const bytes = retainedBytes.subarray(0, byteLength);
+    if (truncated) {
+      // Streaming strict validation rejects malformed interior bytes while
+      // allowing an incomplete code point at the range boundary. Only that
+      // trailing fragment is discarded by the non-fatal display decoder.
+      new TextDecoder("utf-8", { fatal: true }).decode(bytes, { stream: true });
+      content = new TextDecoder("utf-8", { fatal: false })
+        .decode(bytes)
+        .replace(/\uFFFD$/, "");
+    } else {
+      content = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+    }
   } catch {
     return { status: "invalid_text" };
   }
@@ -279,7 +293,12 @@ const readTextPreviewResponse = async (
 
   return content.length === 0
     ? { status: "empty", byteLength }
-    : { status: "success", content, byteLength };
+    : {
+        status: "success",
+        content,
+        byteLength,
+        ...(truncated ? { truncated: true } : {}),
+      };
 };
 
 interface LoadTextPreviewOptions {
@@ -289,22 +308,11 @@ interface LoadTextPreviewOptions {
 }
 
 export const loadTextPreview = async ({
-  knownSize,
   signal,
   request,
 }: LoadTextPreviewOptions): Promise<TextPreviewResult> => {
-  const usableKnownSize =
-    knownSize !== undefined && Number.isSafeInteger(knownSize) && knownSize >= 0
-      ? knownSize
-      : undefined;
-
-  if (
-    usableKnownSize !== undefined &&
-    usableKnownSize > MAX_TEXT_PREVIEW_BYTES
-  ) {
-    return { status: "too_large", objectSize: usableKnownSize };
-  }
-
+  // Listing sizes are hints and may be stale. Always validate the ranged
+  // response, including when the listing says the object exceeds the cap.
   let response: Response;
   try {
     response = await request();

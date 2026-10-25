@@ -83,6 +83,7 @@ const RenameLongFileName = ({
               setNewFileName(event.target.value);
             }}
             label=""
+            aria-label={t("Name")}
             type={"text"}
             value={newFileName}
             error={

@@ -17,14 +17,10 @@
 import React, { Fragment, useState } from "react";
 import { Box, RecoverIcon } from "mds";
 import { BucketObject } from "api/consoleApi";
-import { api } from "api";
-import { errorToHandler } from "api/errors";
 import ConfirmDialog from "../../../../Common/ModalWrapper/ConfirmDialog";
-import { setErrorSnackMessage } from "../../../../../../systemSlice";
-import { useAppDispatch } from "../../../../../../store";
-import { restoreLocalObjectList } from "../../../../ObjectBrowser/objectBrowserSlice";
 import { interpolate, useT } from "i18n";
 import { ObjectLocation, ObjectTarget, sameLocation } from "../objectIdentity";
+import { startMutationTask } from "../../../../Common/ObjectManager/mutationTasks";
 
 interface IRestoreFileVersion {
   restoreOpen: boolean;
@@ -39,11 +35,9 @@ interface IRestoreFileVersion {
 const RestoreFileVersion = ({
   target,
   destination,
-  versionInfo,
   restoreOpen,
   onCloseAndUpdate,
 }: IRestoreFileVersion) => {
-  const dispatch = useAppDispatch();
   const t = useT();
   const [restoreLoading, setRestoreLoading] = useState<boolean>(false);
 
@@ -51,30 +45,13 @@ const RestoreFileVersion = ({
   const canRestore = sameLocation(target, destination);
 
   const restoreVersion = () => {
-    if (!canRestore) {
+    if (!canRestore || restoreLoading) {
       return;
     }
     setRestoreLoading(true);
 
-    api.buckets
-      .putObjectRestore(destination.bucket, {
-        prefix: destination.key,
-        version_id: target.versionId,
-      })
-      .then(() => {
-        setRestoreLoading(false);
-        onCloseAndUpdate(true);
-        dispatch(
-          restoreLocalObjectList({
-            prefix: destination.key,
-            objectInfo: versionInfo,
-          }),
-        );
-      })
-      .catch((err) => {
-        dispatch(setErrorSnackMessage(errorToHandler(err.error)));
-        setRestoreLoading(false);
-      });
+    startMutationTask("restore", [{ ...target }], "Restore File Version");
+    onCloseAndUpdate(false);
   };
 
   return (

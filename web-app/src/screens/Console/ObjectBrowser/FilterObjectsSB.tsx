@@ -21,7 +21,11 @@ import { AppState, useAppDispatch } from "../../../store";
 import { useSelector } from "react-redux";
 import { useT } from "i18n";
 
-const FilterObjectsSB = () => {
+const FilterObjectsSB = ({
+  inputRef,
+}: {
+  inputRef?: React.Ref<HTMLInputElement>;
+}) => {
   const dispatch = useAppDispatch();
   const t = useT();
 
@@ -35,6 +39,7 @@ const FilterObjectsSB = () => {
   );
   return (
     <SearchBox
+      inputRef={inputRef}
       placeholder={
         pageComplete
           ? t("Start typing to filter objects in the bucket")

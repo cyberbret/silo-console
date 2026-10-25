@@ -29,14 +29,14 @@ const ValidRule = ({ ruleText }: IValidRule) => {
           <ConfirmModalIcon
             width={"16px"}
             height={"16px"}
-            style={{ color: "#18BF42" }}
+            style={{ color: "var(--success-text)" }}
           />
         </Grid>
         <Grid
           item
           xs={9}
           sx={{
-            color: "#8f949c",
+            color: "var(--muted-foreground)",
             display: "flex",
             justifyContent: "flex-start",
           }}

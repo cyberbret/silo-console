@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { bucketEventCommands } from "common/mcli/commands";
+import { FormCliEquivalent } from "common/mcli/FormCliEquivalent";
 import React, { useCallback, useEffect, useState, Fragment } from "react";
 import {
   Autocomplete,
@@ -256,6 +258,15 @@ const AddEvent = ({
             />
           </Grid>
         </Grid>
+        <FormCliEquivalent
+          commands={bucketEventCommands({
+            bucket: selectedBucket,
+            arn,
+            events: selectedEvents,
+            prefix,
+            suffix,
+          })}
+        />
       </form>
     </ModalWrapper>
   );

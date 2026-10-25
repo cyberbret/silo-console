@@ -14,16 +14,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useState } from "react";
 
 import { ConfirmDeleteIcon, Switch, Grid, InputBox } from "mds";
 import ConfirmDialog from "../../../../Common/ModalWrapper/ConfirmDialog";
-import { setErrorSnackMessage } from "../../../../../../systemSlice";
-import { useAppDispatch } from "../../../../../../store";
 import { hasPermission } from "../../../../../../common/SecureComponent";
 import { IAM_SCOPES } from "../../../../../../common/SecureComponent/permissions";
-import { api } from "api";
-import { errorToHandler } from "api/errors";
+import { startMutationTask } from "../../../../Common/ObjectManager/mutationTasks";
 import { interpolate, useT } from "i18n";
 import { ObjectLocation } from "../objectIdentity";
 
@@ -42,7 +39,6 @@ const DeleteNonCurrentVersions = ({
 }: IDeleteNonCurrentProps) => {
   const selectedBucket = location.bucket;
   const selectedObject = location.key;
-  const dispatch = useAppDispatch();
   const t = useT();
   const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
   const [typeConfirm, setTypeConfirm] = useState<string>("");
@@ -58,40 +54,30 @@ const DeleteNonCurrentVersions = ({
       IAM_SCOPES.S3_BYPASS_GOVERNANCE_RETENTION,
     ]);
 
-  useEffect(() => {
-    if (deleteLoading) {
-      api.buckets
-        .deleteObject(selectedBucket, {
-          prefix: selectedObject,
-          non_current_versions: true,
-          bypass: bypassGovernance,
-        })
-        .then(() => {
-          closeDeleteModalAndRefresh(true);
-        })
-        .catch((err) => {
-          dispatch(setErrorSnackMessage(errorToHandler(err.error)));
-          setDeleteLoading(false);
-        });
-    }
-  }, [
-    deleteLoading,
-    closeDeleteModalAndRefresh,
-    dispatch,
-    selectedObject,
-    selectedBucket,
-    bypassGovernance,
-  ]);
-
   if (!selectedObject) {
     return null;
   }
   const onConfirmDelete = () => {
+    if (deleteLoading) return;
     setDeleteLoading(true);
+    startMutationTask(
+      "delete",
+      [
+        {
+          bucket: selectedBucket,
+          key: selectedObject,
+          nonCurrent: true,
+          bypass: canBypass && bypassGovernance,
+        },
+      ],
+      "Delete Non-Current versions",
+    );
+    closeDeleteModalAndRefresh(false);
   };
 
   return (
     <ConfirmDialog
+      destructive
       title={t("Delete Non-Current versions")}
       confirmText={t("Delete")}
       isOpen={deleteOpen}
@@ -147,6 +133,9 @@ const DeleteNonCurrentVersions = ({
                 setTypeConfirm(event.target.value);
               }}
               label=""
+              aria-label={t(
+                "To continue please type {phrase} in the box.",
+              ).replace("{phrase}", () => "YES, PROCEED")}
               value={typeConfirm}
             />
           </Grid>

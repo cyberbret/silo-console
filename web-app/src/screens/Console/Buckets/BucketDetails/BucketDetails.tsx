@@ -14,46 +14,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import React, { Fragment, useEffect, useState } from "react";
-import {
-  Navigate,
-  Route,
-  Routes,
-  useLocation,
-  useNavigate,
-  useParams,
-} from "react-router-dom";
-import {
-  BackLink,
-  Box,
-  BucketsIcon,
-  Button,
-  FolderIcon,
-  PageLayout,
-  RefreshIcon,
-  ScreenTitle,
-  Tabs,
-  TrashIcon,
-} from "mds";
+import React, { useEffect, useRef } from "react";
+import { Navigate, Route, Routes, useParams } from "react-router-dom";
+import { PageLayout } from "mds";
 import { useSelector } from "react-redux";
-import {
-  browseBucketPermissions,
-  deleteBucketPermissions,
-  IAM_PERMISSIONS,
-  IAM_ROLES,
-  IAM_SCOPES,
-  permissionTooltipHelper,
-} from "../../../../common/SecureComponent/permissions";
-
-import {
-  hasPermission,
-  SecureComponent,
-} from "../../../../common/SecureComponent";
-
 import withSuspense from "../../Common/Components/withSuspense";
 import {
   selDistSet,
-  selSiteRep,
   setErrorSnackMessage,
   setHelpName,
 } from "../../../../systemSlice";
@@ -64,16 +31,10 @@ import {
   setBucketInfo,
 } from "./bucketDetailsSlice";
 import { useAppDispatch } from "../../../../store";
-import TooltipWrapper from "../../Common/TooltipWrapper/TooltipWrapper";
-import PageHeaderWrapper from "../../Common/PageHeaderWrapper/PageHeaderWrapper";
 import { api } from "api";
 import { errorToHandler } from "api/errors";
-import HelpMenu from "../../HelpMenu";
-import { useT } from "i18n";
+import BucketPageHeader from "../BucketPageHeader";
 
-const DeleteBucket = withSuspense(
-  React.lazy(() => import("../ListBuckets/DeleteBucket")),
-);
 const AccessRulePanel = withSuspense(
   React.lazy(() => import("./AccessRulePanel")),
 );
@@ -95,311 +56,64 @@ const BucketLifecyclePanel = withSuspense(
 
 const BucketDetails = () => {
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
-  const params = useParams();
-  const location = useLocation();
-  const t = useT();
-
+  const { bucketName = "" } = useParams();
   const distributedSetup = useSelector(selDistSet);
   const loadingBucket = useSelector(selBucketDetailsLoading);
   const bucketInfo = useSelector(selBucketDetailsInfo);
-  const siteReplicationInfo = useSelector(selSiteRep);
-
-  const [iniLoad, setIniLoad] = useState<boolean>(false);
-  const [deleteOpen, setDeleteOpen] = useState<boolean>(false);
-  const bucketName = params.bucketName || "";
-
-  const canDelete = hasPermission(bucketName, deleteBucketPermissions);
-  const canBrowse = hasPermission(bucketName, browseBucketPermissions);
-
+  const request = useRef<AbortController | null>(null);
   useEffect(() => {
     dispatch(setHelpName("bucket_details"));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
+    dispatch(setBucketDetailsLoad(true));
+  }, [bucketName, dispatch]);
   useEffect(() => {
-    if (!iniLoad) {
-      dispatch(setBucketDetailsLoad(true));
-      setIniLoad(true);
-    }
-  }, [iniLoad, dispatch, setIniLoad]);
-
-  useEffect(() => {
-    if (loadingBucket) {
-      api.buckets
-        .bucketInfo(bucketName)
-        .then((res) => {
-          dispatch(setBucketDetailsLoad(false));
-          dispatch(setBucketInfo(res.data));
-        })
-        .catch((err) => {
-          dispatch(setBucketDetailsLoad(false));
-          dispatch(setErrorSnackMessage(errorToHandler(err)));
-        });
-    }
+    if (!loadingBucket) return;
+    request.current?.abort();
+    const controller = new AbortController();
+    request.current = controller;
+    api.buckets
+      .bucketInfo(bucketName, { signal: controller.signal })
+      .then((res) => {
+        if (controller.signal.aborted) return;
+        dispatch(setBucketInfo(res.data));
+        dispatch(setBucketDetailsLoad(false));
+      })
+      .catch((err) => {
+        if (controller.signal.aborted) return;
+        dispatch(setBucketDetailsLoad(false));
+        dispatch(setErrorSnackMessage(errorToHandler(err)));
+      });
+    return () => controller.abort();
   }, [bucketName, loadingBucket, dispatch]);
-
-  let topLevelRoute = `/buckets/${bucketName}`;
-  const defaultRoute = "/admin/summary";
-
-  const manageBucketRoutes: Record<string, any> = {
-    events: "/admin/events",
-    replication: "/admin/replication",
-    lifecycle: "/admin/lifecycle",
-    access: "/admin/access",
-    prefix: "/admin/prefix",
-  };
-
-  const getRoutePath = (routeKey: string) => {
-    let path = manageBucketRoutes[routeKey];
-    if (!path) {
-      path = `${topLevelRoute}${defaultRoute}`;
-    } else {
-      path = `${topLevelRoute}${path}`;
-    }
-    return path;
-  };
-
-  const closeDeleteModalAndRefresh = (refresh: boolean) => {
-    setDeleteOpen(false);
-    if (refresh) {
-      navigate("/buckets");
-    }
-  };
-
   return (
-    <Fragment>
-      {deleteOpen && (
-        <DeleteBucket
-          deleteOpen={deleteOpen}
-          selectedBucket={bucketName}
-          closeDeleteModalAndRefresh={(refresh: boolean) => {
-            closeDeleteModalAndRefresh(refresh);
-          }}
-        />
-      )}
-      <PageHeaderWrapper
-        label={
-          <BackLink label={t("Buckets")} onClick={() => navigate("/buckets")} />
-        }
-        actions={
-          <Fragment>
-            <TooltipWrapper
-              tooltip={
-                canBrowse
-                  ? t("Browse Bucket")
-                  : permissionTooltipHelper(
-                      IAM_PERMISSIONS[IAM_ROLES.BUCKET_VIEWER],
-                      "browsing this bucket",
-                    )
-              }
-            >
-              <Button
-                id={"switch-browse-view"}
-                aria-label={t("Browse Bucket")}
-                onClick={() => {
-                  navigate(`/browser/${bucketName}`);
-                }}
-                icon={
-                  <FolderIcon
-                    style={{ width: 20, height: 20, marginTop: -3 }}
-                  />
-                }
-                style={{
-                  padding: "0 10px",
-                }}
-                disabled={!canBrowse}
-              />
-            </TooltipWrapper>
-            <HelpMenu />
-          </Fragment>
-        }
-      />
+    <BucketPageHeader
+      bucketName={bucketName}
+      bucketInfo={bucketInfo}
+      onRefresh={() => dispatch(setBucketDetailsLoad(true))}
+    >
       <PageLayout>
-        <ScreenTitle
-          icon={
-            <Fragment>
-              <BucketsIcon width={40} />
-            </Fragment>
-          }
-          title={bucketName}
-          subTitle={
-            <SecureComponent
-              scopes={[
-                IAM_SCOPES.S3_GET_BUCKET_POLICY,
-                IAM_SCOPES.S3_GET_ACTIONS,
-              ]}
-              resource={bucketName}
-            >
-              <span style={{ fontSize: 15 }}>{t("Access: ")}</span>
-              <span
-                style={{
-                  fontWeight: 600,
-                  fontSize: 15,
-                  textTransform: "capitalize",
-                }}
-              >
-                {t(bucketInfo?.access?.toLowerCase() ?? "")}
-              </span>
-            </SecureComponent>
-          }
-          actions={
-            <Fragment>
-              <SecureComponent
-                scopes={deleteBucketPermissions}
-                resource={bucketName}
-                errorProps={{ disabled: true }}
-              >
-                <TooltipWrapper
-                  tooltip={
-                    canDelete
-                      ? ""
-                      : permissionTooltipHelper(
-                          [
-                            IAM_SCOPES.S3_DELETE_BUCKET,
-                            IAM_SCOPES.S3_FORCE_DELETE_BUCKET,
-                          ],
-                          "deleting this bucket",
-                        )
-                  }
-                >
-                  <Button
-                    id={"delete-bucket-button"}
-                    onClick={() => {
-                      setDeleteOpen(true);
-                    }}
-                    label={t("Delete Bucket")}
-                    icon={<TrashIcon />}
-                    variant={"secondary"}
-                    disabled={!canDelete}
-                  />
-                </TooltipWrapper>
-              </SecureComponent>
-              <Button
-                id={"refresh-bucket-info"}
-                onClick={() => {
-                  dispatch(setBucketDetailsLoad(true));
-                }}
-                label={t("Refresh")}
-                icon={<RefreshIcon />}
+        <Routes>
+          <Route path="summary" element={<BucketSummaryPanel />} />
+          <Route path="events" element={<BucketEventsPanel />} />
+          {distributedSetup && (
+            <Route path="replication" element={<BucketReplicationPanel />} />
+          )}
+          {distributedSetup && (
+            <Route path="lifecycle" element={<BucketLifecyclePanel />} />
+          )}
+          <Route path="access" element={<AccessDetailsPanel />} />
+          <Route path="prefix" element={<AccessRulePanel />} />
+          <Route
+            path="*"
+            element={
+              <Navigate
+                replace
+                to={`/buckets/${encodeURIComponent(bucketName)}/admin/summary`}
               />
-            </Fragment>
-          }
-          sx={{ marginBottom: 15 }}
-        />
-        <Box>
-          <Tabs
-            currentTabOrPath={location.pathname}
-            useRouteTabs
-            onTabClick={(tab) => {
-              navigate(tab);
-            }}
-            options={[
-              {
-                tabConfig: {
-                  label: t("Summary"),
-                  id: "summary",
-                  to: getRoutePath("summary"),
-                },
-              },
-              {
-                tabConfig: {
-                  label: t("Events"),
-                  id: "events",
-                  disabled: !hasPermission(bucketName, [
-                    IAM_SCOPES.S3_GET_BUCKET_NOTIFICATIONS,
-                    IAM_SCOPES.S3_PUT_BUCKET_NOTIFICATIONS,
-                    IAM_SCOPES.S3_GET_ACTIONS,
-                    IAM_SCOPES.S3_PUT_ACTIONS,
-                  ]),
-                  to: getRoutePath("events"),
-                },
-              },
-              {
-                tabConfig: {
-                  label: t("Replication"),
-                  id: "replication",
-                  disabled:
-                    !distributedSetup ||
-                    (siteReplicationInfo.enabled &&
-                      siteReplicationInfo.curSite) ||
-                    !hasPermission(bucketName, [
-                      IAM_SCOPES.S3_GET_REPLICATION_CONFIGURATION,
-                      IAM_SCOPES.S3_PUT_REPLICATION_CONFIGURATION,
-                      IAM_SCOPES.S3_GET_ACTIONS,
-                      IAM_SCOPES.S3_PUT_ACTIONS,
-                    ]),
-                  to: getRoutePath("replication"),
-                },
-              },
-              {
-                tabConfig: {
-                  label: t("Lifecycle"),
-                  id: "lifecycle",
-                  disabled:
-                    !distributedSetup ||
-                    !hasPermission(bucketName, [
-                      IAM_SCOPES.S3_GET_LIFECYCLE_CONFIGURATION,
-                      IAM_SCOPES.S3_PUT_LIFECYCLE_CONFIGURATION,
-                      IAM_SCOPES.S3_GET_ACTIONS,
-                      IAM_SCOPES.S3_PUT_ACTIONS,
-                    ]),
-                  to: getRoutePath("lifecycle"),
-                },
-              },
-              {
-                tabConfig: {
-                  label: t("Access"),
-                  id: "access",
-                  disabled: !hasPermission(bucketName, [
-                    IAM_SCOPES.ADMIN_GET_POLICY,
-                    IAM_SCOPES.ADMIN_LIST_USER_POLICIES,
-                    IAM_SCOPES.ADMIN_LIST_USERS,
-                  ]),
-                  to: getRoutePath("access"),
-                },
-              },
-              {
-                tabConfig: {
-                  label: t("Anonymous"),
-                  id: "anonymous",
-                  disabled: !hasPermission(bucketName, [
-                    IAM_SCOPES.S3_GET_BUCKET_POLICY,
-                    IAM_SCOPES.S3_GET_ACTIONS,
-                  ]),
-                  to: getRoutePath("prefix"),
-                },
-              },
-            ]}
-            routes={
-              <Routes>
-                <Route path="summary" element={<BucketSummaryPanel />} />
-                <Route path="events" element={<BucketEventsPanel />} />
-                {distributedSetup && (
-                  <Route
-                    path="replication"
-                    element={<BucketReplicationPanel />}
-                  />
-                )}
-                {distributedSetup && (
-                  <Route path="lifecycle" element={<BucketLifecyclePanel />} />
-                )}
-
-                <Route path="access" element={<AccessDetailsPanel />} />
-                <Route path="prefix" element={<AccessRulePanel />} />
-                <Route
-                  path="*"
-                  element={
-                    <Navigate to={`/buckets/${bucketName}/admin/summary`} />
-                  }
-                />
-              </Routes>
             }
           />
-        </Box>
+        </Routes>
       </PageLayout>
-    </Fragment>
+    </BucketPageHeader>
   );
 };
-
 export default BucketDetails;

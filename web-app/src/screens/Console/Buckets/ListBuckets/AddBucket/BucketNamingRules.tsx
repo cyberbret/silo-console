@@ -15,7 +15,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import React, { Fragment, useState } from "react";
-import { Grid, ExpandOptionsButton, ProgressBar } from "mds";
+import { Grid, Button, ProgressBar } from "mds";
 
 import { AppState } from "../../../../../store";
 import { useSelector } from "react-redux";
@@ -66,10 +66,18 @@ const BucketNamingRules = ({ errorList }: { errorList: boolean[] }) => {
 
   return (
     <Fragment>
-      <ExpandOptionsButton
+      <Button
         id={"toggle-naming-rules"}
         type="button"
-        open={showNamingRules}
+        variant="ghost"
+        aria-expanded={showNamingRules}
+        aria-controls="bucket-naming-rules"
+        sx={{
+          fontSize: "var(--fs-subtitle)",
+          padding: 0,
+          textDecoration: "underline",
+          textUnderlineOffset: 3,
+        }}
         label={
           showNamingRules
             ? t("Hide Bucket Naming Rules")
@@ -80,7 +88,11 @@ const BucketNamingRules = ({ errorList }: { errorList: boolean[] }) => {
         }}
       />
       {showNamingRules && (
-        <Grid container sx={{ fontSize: 14, paddingTop: 12 }}>
+        <Grid
+          id="bucket-naming-rules"
+          container
+          sx={{ fontSize: "var(--fs-subtitle)", paddingTop: 12 }}
+        >
           <Grid item xs={6}>
             {bucketName.length === 0 ? (
               <NARule ruleText={lengthRuleText} />

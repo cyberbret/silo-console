@@ -14,12 +14,14 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import React, { Fragment } from "react";
+import React, { Fragment, Suspense, useEffect, useRef } from "react";
 import ModalWrapper from "../../../../Common/ModalWrapper/ModalWrapper";
-import PreviewFileContent from "./PreviewFileContent";
+import LoadingComponent from "../../../../../../common/LoadingComponent";
 import { ObjectPreviewIcon } from "mds";
 import { BucketObject } from "../../../../../../api/consoleApi";
 import { formatText, useT } from "i18n";
+
+const PreviewFileContent = React.lazy(() => import("./PreviewFileContent"));
 
 interface IPreviewFileProps {
   open: boolean;
@@ -35,6 +37,17 @@ const PreviewFileModal = ({
   onClosePreview,
 }: IPreviewFileProps) => {
   const t = useT();
+  const previewFocus = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const previous = document.activeElement;
+    // Move focus off the trigger and its tooltip when the preview opens.
+    previewFocus.current?.focus();
+    return () => {
+      if (previous instanceof HTMLElement && previous.isConnected)
+        previous.focus();
+    };
+  }, [open]);
   return (
     <Fragment>
       <ModalWrapper
@@ -46,7 +59,19 @@ const PreviewFileModal = ({
         wideLimit={false}
         titleIcon={<ObjectPreviewIcon />}
       >
-        <PreviewFileContent bucketName={bucketName} actualInfo={actualInfo} />
+        <div
+          ref={previewFocus}
+          tabIndex={-1}
+          role="group"
+          aria-label={t("Preview")}
+        >
+          <Suspense fallback={<LoadingComponent />}>
+            <PreviewFileContent
+              bucketName={bucketName}
+              actualInfo={actualInfo}
+            />
+          </Suspense>
+        </div>
       </ModalWrapper>
     </Fragment>
   );

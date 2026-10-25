@@ -14,19 +14,21 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { i18nKey } from "i18n/lang";
+
 export const months = [
-  { value: "01", label: "January" },
-  { value: "02", label: "February" },
-  { value: "03", label: "March" },
-  { value: "04", label: "April" },
-  { value: "05", label: "May" },
-  { value: "06", label: "June" },
-  { value: "07", label: "July" },
-  { value: "08", label: "August" },
-  { value: "09", label: "September" },
-  { value: "10", label: "October" },
-  { value: "11", label: "November" },
-  { value: "12", label: "December" },
+  { value: "01", label: i18nKey("January") },
+  { value: "02", label: i18nKey("February") },
+  { value: "03", label: i18nKey("March") },
+  { value: "04", label: i18nKey("April") },
+  { value: "05", label: i18nKey("May") },
+  { value: "06", label: i18nKey("June") },
+  { value: "07", label: i18nKey("July") },
+  { value: "08", label: i18nKey("August") },
+  { value: "09", label: i18nKey("September") },
+  { value: "10", label: i18nKey("October") },
+  { value: "11", label: i18nKey("November") },
+  { value: "12", label: i18nKey("December") },
 ];
 
 export const days = Array.from(Array(31), (_, num) => ({

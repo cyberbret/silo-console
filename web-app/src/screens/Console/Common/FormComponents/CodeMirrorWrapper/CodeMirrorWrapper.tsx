@@ -23,6 +23,7 @@ import { useT } from "i18n";
 interface ICodeWrapper {
   value: string;
   label?: string;
+  ariaLabel?: string;
   mode?: string;
   tooltip?: string;
   onChange: (value: string) => any;
@@ -35,6 +36,7 @@ interface ICodeWrapper {
 const CodeMirrorWrapper = ({
   value,
   label = "",
+  ariaLabel,
   tooltip = "",
   mode = "json",
   onChange,
@@ -53,6 +55,7 @@ const CodeMirrorWrapper = ({
       tooltip={tooltip}
       editorHeight={editorHeight}
       label={label}
+      ariaLabel={ariaLabel}
       readOnly={readOnly}
       disabled={disabled}
       helpTools={

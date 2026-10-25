@@ -18,7 +18,7 @@ import React, { Fragment, useEffect } from "react";
 import { AppState, useAppDispatch } from "../../../../store";
 import { useSelector } from "react-redux";
 import {
-  callForObjectID,
+  startQueuedDownload,
   startQueuedUpload,
 } from "../../ObjectBrowser/transferManager";
 import {
@@ -50,40 +50,19 @@ const TrafficMonitor = () => {
     (state: AppState) => state.objectBrowser.objectManager.currentUploads,
   );
 
-  const limitUploads = limitVars?.maxConcurrentUploads || 10;
-  const limitDownloads = limitVars?.maxConcurrentDownloads || 20;
+  const limitUploads = limitVars?.maxConcurrentUploads ?? 10;
+  const limitDownloads = limitVars?.maxConcurrentDownloads ?? 20;
 
   useEffect(() => {
     if (objects.length > 0) {
-      const filterDownloads = objects.filter(
-        (object) =>
-          object.type === "download" &&
-          !object.done &&
-          !currentDIP.includes(object.ID),
-      );
+      const filterDownloads = pendingTransfers(objects, "download", currentDIP);
       const filterUploads = pendingTransfers(objects, "upload", currentUIP);
-
-      const remainingDownloadSlots = limitDownloads - currentDIP.length;
-
-      if (
-        filterDownloads.length > 0 &&
-        (remainingDownloadSlots > 0 || limitDownloads === 0)
-      ) {
-        const itemsToDownload = filterDownloads.slice(
-          0,
-          remainingDownloadSlots,
-        );
-
-        itemsToDownload.forEach((item) => {
-          const objectRequest = callForObjectID(item.ID);
-
-          if (objectRequest) {
-            objectRequest.send();
-          }
-
-          dispatch(newDownloadInit(item.ID));
-        });
-      }
+      startUploads(
+        filterDownloads,
+        availableSlots(limitDownloads, currentDIP.length),
+        startQueuedDownload,
+        (id) => dispatch(newDownloadInit(id)),
+      );
 
       // An upload counts as running only once its request is in flight; an
       // upload that settled while queued or failed to send takes no slot.

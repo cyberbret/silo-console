@@ -19,6 +19,7 @@ import {
   BucketVersioningResponse,
   GetBucketRetentionConfig,
 } from "api/consoleApi";
+import type { TaskKind } from "../Common/ObjectManager/taskModel";
 import { ObjectPageState } from "./objectPaging";
 
 interface RewindItem {
@@ -36,6 +37,7 @@ export interface ObjectBrowserState {
   reloadObjectsList: boolean;
   requestInProgress: boolean;
   loadingObjectInfo: boolean;
+  objectMutationRevision: number;
   versionsMode: boolean;
   versionedFile: string;
   searchVersions: string;
@@ -75,10 +77,17 @@ interface ObjectManager {
 }
 
 export interface IFileItem {
+  kind?: TaskKind;
+  status?: import("../Common/ObjectManager/taskModel").TaskStatus;
+  targets?: import("../Common/ObjectManager/taskModel").TaskTarget[];
+  attempt?: number;
+  startedAt?: number;
+  finishedAt?: number;
+  openPrefix?: string;
   selectionKey?: string;
   browserManaged?: boolean;
   receivedBytes?: number;
-  type: "download" | "upload";
+  type: "download" | "upload" | "delete" | "restore";
   ID: string;
   instanceID: string;
   bucketName: string;

@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { lifecycleRuleCommands } from "common/mcli/commands";
+import { FormCliEquivalent } from "common/mcli/FormCliEquivalent";
 import React, { Fragment, useEffect, useState } from "react";
 
 import get from "lodash/get";
@@ -43,7 +45,7 @@ import ModalWrapper from "../../Common/ModalWrapper/ModalWrapper";
 import QueryMultiSelector from "../../Common/FormComponents/QueryMultiSelector/QueryMultiSelector";
 import InputUnitMenu from "../../Common/FormComponents/InputUnitMenu/InputUnitMenu";
 import { IAM_PAGES } from "common/SecureComponent/permissions";
-import { interpolate, useLocalizedLink, useT } from "i18n";
+import { i18nKey, interpolate, useLocalizedLink, useT } from "i18n";
 
 interface IReplicationModal {
   open: boolean;
@@ -81,7 +83,7 @@ const AddLifecycleModal = ({
   const [loadingVersioning, setLoadingVersioning] = useState<boolean>(true);
   const [expandedAdv, setExpandedAdv] = useState<boolean>(false);
   const [expanded, setExpanded] = useState<boolean>(false);
-  const [expiryUnit, setExpiryUnit] = useState<string>("days");
+  const [expiryUnit, setExpiryUnit] = useState<string>(i18nKey("days"));
 
   /*To be removed on component replacement*/
   const formFieldRowFilter = {
@@ -353,8 +355,8 @@ const AddLifecycleModal = ({
                       id={"expire-current-unit"}
                       unitSelected={expiryUnit}
                       unitsList={[
-                        { label: t("Days"), value: "days" },
-                        { label: t("Versions"), value: "versions" },
+                        { label: t("Days"), value: i18nKey("days") },
+                        { label: t("Versions"), value: i18nKey("versions") },
                       ]}
                       disabled={
                         targetVersion !== "noncurrent" || ilmType !== "expiry"
@@ -521,6 +523,20 @@ const AddLifecycleModal = ({
                 <ProgressBar />
               </Grid>
             )}
+            <FormCliEquivalent
+              commands={lifecycleRuleCommands({
+                bucket: bucketName,
+                type: ilmType,
+                version: targetVersion,
+                value: lifecycleDays,
+                unit: expiryUnit,
+                prefix,
+                tags,
+                storageClass,
+                expireDeleteMarker: expiredObjectDM,
+                expireAllVersions: expiredAllVersionsDM,
+              })}
+            />
           </FormLayout>
         </form>
       )}

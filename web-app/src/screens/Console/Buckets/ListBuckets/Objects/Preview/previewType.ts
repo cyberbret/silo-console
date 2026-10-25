@@ -6,11 +6,27 @@
 // (at your option) any later version.
 
 export type AllowedPreviews =
-  "image" | "pdf" | "audio" | "video" | "text" | "none";
+  "image" | "pdf" | "audio" | "video" | "text" | "markdown" | "csv" | "none";
 
-type LegacyPreview = Exclude<AllowedPreviews, "text">;
+export type TextPreviewKind = "text" | "markdown" | "csv";
 
-const textExtensions = new Set(["log", "txt", "json", "xml"]);
+type LegacyPreview = Exclude<AllowedPreviews, TextPreviewKind>;
+
+export const isTextPreview = (kind: AllowedPreviews): kind is TextPreviewKind =>
+  kind === "text" || kind === "markdown" || kind === "csv";
+
+const textExtensions = new Set(
+  (
+    "txt log json xml md markdown yaml yml toml ini cfg conf env properties csv tsv " +
+    "sql sh bash zsh py go rs js mjs cjs ts tsx jsx java kt c h cpp hpp cs rb php lua pl " +
+    "r swift scala gradle tf hcl proto graphql dockerfile makefile gitignore editorconfig"
+  ).split(" "),
+);
+const textBasenames = new Set(
+  "license licence notice readme authors changelog contributing makefile dockerfile codeowners version".split(
+    " ",
+  ),
+);
 const activeDocumentExtensions = new Set(["html", "htm", "xhtml"]);
 const textMimeTypes = new Set([
   "text/plain",
@@ -35,7 +51,11 @@ const finalExtension = (fileName: string): string => {
 };
 
 // These two legacy classifiers intentionally retain their prior matching
-// rules. Text is considered only after their combined result is "none".
+// rules: a recognized extension wins conflicts with a media MIME type, and
+// either media classifier wins over text. SVG remains an image, never text.
+// Only after their combined result is "none" do we exclude active document
+// extensions, then consider text extensions/basenames, then text MIME types.
+// Thus page.txt + text/html stays inert text, but page.html + text/plain is blocked.
 const legacyContentTypePreview = (contentType: string): LegacyPreview => {
   if (contentType) {
     const mimeObjectType = (contentType || "").toLowerCase();
@@ -155,13 +175,23 @@ export const previewObjectType = (
     return "none";
   }
 
-  if (textExtensions.has(extension)) {
+  if (extension === "md" || extension === "markdown") {
+    return "markdown";
+  }
+  if (extension === "csv" || extension === "tsv") {
+    return "csv";
+  }
+  const basename = (objectName.split("/").pop() || "").toLowerCase();
+  if (
+    textExtensions.has(extension) ||
+    (!extension && textBasenames.has(basename))
+  ) {
     return "text";
   }
 
-  return textMimeTypes.has(
-    normalizedTextContentType(metadataContentType(metaData)),
-  )
+  const mime = normalizedTextContentType(metadataContentType(metaData));
+  return textMimeTypes.has(mime) ||
+    (mime.startsWith("text/") && mime !== "text/html")
     ? "text"
     : "none";
 };

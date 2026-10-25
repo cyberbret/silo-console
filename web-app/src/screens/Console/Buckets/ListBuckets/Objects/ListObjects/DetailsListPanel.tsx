@@ -15,76 +15,86 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import { useT } from "i18n";
-import React from "react";
-import { Box, Button, ClosePanelIcon } from "mds";
+import React, { useLayoutEffect, useRef } from "react";
+import { ModalBox } from "mds";
+import { useMobile } from "common/ui/useMediaQuery";
+import { useOverlayIntent } from "common/ui/overlayIntent";
 
 interface IDetailsListPanel {
   open: boolean;
-  className?: string;
   closePanel: () => void;
   children: React.ReactNode;
 }
-
 const DetailsListPanel = ({
   open,
   closePanel,
-  className = "",
   children,
 }: IDetailsListPanel) => {
   const t = useT();
+  const mobile = useMobile();
+  useOverlayIntent(mobile && open);
+  const opener = useRef<HTMLElement | null>(null);
+  const previousOpen = useRef(false);
+  const focusable = (element: HTMLElement | null): element is HTMLElement =>
+    !!element &&
+    element !== document.body &&
+    element.isConnected &&
+    element.getClientRects().length > 0 &&
+    element.matches(
+      "button:not(:disabled), a[href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]",
+    );
+  useLayoutEffect(() => {
+    if (open && !previousOpen.current)
+      opener.current =
+        document.activeElement instanceof HTMLElement &&
+        focusable(document.activeElement)
+          ? document.activeElement
+          : null;
+    previousOpen.current = open;
+  }, [open]);
+  const restoreFocus = () =>
+    focusable(opener.current)
+      ? opener.current
+      : document.querySelector<HTMLElement>(
+          '#version-object-details, [role="grid"] [role="row"][tabindex="0"], [role="group"][tabindex="0"]',
+        );
   return (
-    <Box
-      id={"details-panel"}
-      sx={{
-        borderColor: "#EAEDEE",
-        borderWidth: 0,
-        borderStyle: "solid",
-        borderRadius: 3,
-        borderBottomLeftRadius: 0,
-        borderBottomRightRadius: 0,
-        width: 0,
-        transitionDuration: "0.3s",
-        overflowX: "hidden",
-        overflowY: "auto",
-        position: "relative",
-        opacity: 0,
-        marginLeft: -1,
-        "&.open": {
-          width: 300,
-          minWidth: 300,
-          borderLeftWidth: 1,
-          opacity: 1,
-        },
-        "@media (max-width: 799px)": {
-          "&.open": {
-            width: "100%",
-            minWidth: "100%",
-            borderLeftWidth: 0,
-          },
-        },
+    <div
+      id="details-panel"
+      style={{
+        width: mobile || !open ? 0 : 300,
+        minWidth: mobile || !open ? 0 : 300,
+        borderInlineStart:
+          open && !mobile ? "1px solid var(--border)" : undefined,
       }}
-      className={`${open ? "open" : ""} ${className}`}
     >
-      <Button
-        aria-label={t("Close details")}
-        variant={"text"}
-        id={"close-details-list"}
-        onClick={closePanel}
-        icon={<ClosePanelIcon />}
-        sx={{
-          position: "absolute",
-          right: 5,
-          top: 18,
-          padding: 0,
-          height: 14,
-          "&:hover:not(:disabled)": {
-            backgroundColor: "transparent",
-          },
-        }}
-      />
-      {children}
-    </Box>
+      <ModalBox
+        restoreFocusTo={restoreFocus}
+        inline={!mobile}
+        open={open}
+        onClose={closePanel}
+        title={t("Object details")}
+        closeLabel={t("Close details")}
+        sx={
+          mobile
+            ? {
+                "& .modalContainer": {
+                  width: "100%",
+                  maxWidth: "100%",
+                  height: "100dvh",
+                  maxHeight: "100dvh",
+                  padding: 16,
+                  borderRadius: 0,
+                  transform: "none",
+                },
+                "& .dialogContent": { flex: 1 },
+              }
+            : undefined
+        }
+      >
+        {children}
+      </ModalBox>
+    </div>
   );
 };
-
 export default DetailsListPanel;

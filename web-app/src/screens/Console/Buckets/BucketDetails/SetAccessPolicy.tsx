@@ -14,6 +14,14 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import {
+  bucketAccessPolicyCommands,
+  bucketAccessPolicyJSON,
+} from "common/mcli/commands";
+import {
+  FormCliEquivalent,
+  PolicyFileNote,
+} from "common/mcli/FormCliEquivalent";
 import React, { useEffect, useState, Fragment } from "react";
 import { api } from "api";
 import { BucketAccess } from "api/consoleApi";
@@ -132,6 +140,7 @@ const SetAccessPolicy = ({
           )}
           {accessPolicy === "CUSTOM" && (
             <Grid item xs={12}>
+              <PolicyFileNote />
               <CodeMirrorWrapper
                 label={t("Write Policy")}
                 value={policyDefinition}
@@ -176,6 +185,13 @@ const SetAccessPolicy = ({
             label={t("Set")}
           />
         </Box>
+        <FormCliEquivalent
+          commands={bucketAccessPolicyCommands({
+            bucket: bucketName,
+            access: accessPolicy,
+          })}
+          policyJSON={bucketAccessPolicyJSON(bucketName, accessPolicy)}
+        />
       </form>
     </ModalWrapper>
   );

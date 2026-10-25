@@ -14,15 +14,12 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useState } from "react";
 import ConfirmDialog from "../../../../Common/ModalWrapper/ConfirmDialog";
 import { ConfirmDeleteIcon, Switch } from "mds";
-import { setErrorSnackMessage } from "../../../../../../systemSlice";
-import { useAppDispatch } from "../../../../../../store";
 import { hasPermission } from "../../../../../../common/SecureComponent";
 import { IAM_SCOPES } from "../../../../../../common/SecureComponent/permissions";
-import { api } from "api";
-import { errorToHandler } from "api/errors";
+import { startMutationTask } from "../../../../Common/ObjectManager/mutationTasks";
 import { interpolate, useT } from "i18n";
 import { ObjectTarget } from "../objectIdentity";
 
@@ -32,17 +29,18 @@ interface IDeleteSelectedVersionsProps {
   // Concrete versions validated against the current listing when the dialog
   // opened; all of them belong to one bucket and key.
   targets: ObjectTarget[];
+  onQueued: (targets: ObjectTarget[]) => void;
 }
 
 const DeleteObject = ({
   closeDeleteModalAndRefresh,
   deleteOpen,
   targets,
+  onQueued,
 }: IDeleteSelectedVersionsProps) => {
   const selectedBucket = targets[0]?.bucket || "";
   const selectedObject = targets[0]?.key || "";
   const selectedVersions = targets.map((target) => target.versionId);
-  const dispatch = useAppDispatch();
   const t = useT();
   const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
   const [bypassGovernance, setBypassGovernance] = useState<boolean>(false);
@@ -59,43 +57,21 @@ const DeleteObject = ({
 
   const onClose = () => closeDeleteModalAndRefresh(false);
   const onConfirmDelete = () => {
+    if (deleteLoading) return;
     setDeleteLoading(true);
+    startMutationTask(
+      "delete",
+      targets.map((target) => ({
+        ...target,
+        recursive: false,
+        allVersions: false,
+        bypass: canBypass && bypassGovernance,
+      })),
+      "Delete Versions",
+    );
+    onQueued(targets);
+    closeDeleteModalAndRefresh(false);
   };
-
-  useEffect(() => {
-    if (deleteLoading) {
-      const selectedObjectsRequest = targets.map((target) => {
-        return {
-          path: target.key,
-          versionID: target.versionId,
-          recursive: false,
-        };
-      });
-
-      if (selectedObjectsRequest.length > 0) {
-        api.buckets
-          .deleteMultipleObjects(selectedBucket, selectedObjectsRequest, {
-            all_versions: false,
-            bypass: bypassGovernance,
-          })
-          .then(() => {
-            setDeleteLoading(false);
-            closeDeleteModalAndRefresh(true);
-          })
-          .catch((err) => {
-            dispatch(setErrorSnackMessage(errorToHandler(err.error)));
-            setDeleteLoading(false);
-          });
-      }
-    }
-  }, [
-    deleteLoading,
-    closeDeleteModalAndRefresh,
-    selectedBucket,
-    targets,
-    bypassGovernance,
-    dispatch,
-  ]);
 
   if (targets.length === 0) {
     return null;
@@ -103,6 +79,7 @@ const DeleteObject = ({
 
   return (
     <ConfirmDialog
+      destructive
       title={t("Delete Selected Versions")}
       confirmText={t("Delete")}
       isOpen={deleteOpen}

@@ -7,6 +7,8 @@
 
 import React, {
   Fragment,
+  lazy,
+  Suspense,
   useCallback,
   useEffect,
   useRef,
@@ -16,7 +18,6 @@ import { Box, Button, Grid, InformativeMessage, ProgressBar } from "mds";
 import { useSelector } from "react-redux";
 import { api } from "../../../../../../api";
 import { BucketObject } from "../../../../../../api/consoleApi";
-import { niceBytes } from "../../../../../../common/utils";
 import { AppState, useAppDispatch } from "../../../../../../store";
 import { downloadObject } from "../../../../ObjectBrowser/utils";
 import { useT } from "i18n";
@@ -28,11 +29,38 @@ import {
   TextPreviewResult,
 } from "./textPreview";
 import SafeTextPreviewContent from "./SafeTextPreviewContent";
+import { TextPreviewKind } from "./previewType";
+import { PreviewNotice, PreviewToolbar } from "./previewStyles";
+
+const PreviewMarkdown = lazy(() => import("./PreviewMarkdown"));
+const PreviewCsv = lazy(() => import("./PreviewCsv"));
+
+// Parser, converter and lazy-module failures belong to this preview. Keep
+// Console, modal controls and the Source toggle outside the error boundary.
+class MarkdownPreviewBoundary extends React.Component<
+  { children: React.ReactNode; onError: () => void },
+  { failed: boolean }
+> {
+  state = { failed: false };
+
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+
+  componentDidCatch() {
+    this.props.onError();
+  }
+
+  render() {
+    return this.state.failed ? null : this.props.children;
+  }
+}
 
 interface PreviewTextProps {
   bucketName: string;
   actualInfo: BucketObject;
   isFullscreen?: boolean;
+  kind: TextPreviewKind;
 }
 
 interface PreviewState {
@@ -44,6 +72,7 @@ const PreviewText = ({
   bucketName,
   actualInfo,
   isFullscreen = false,
+  kind,
 }: PreviewTextProps) => {
   const dispatch = useAppDispatch();
   const t = useT();
@@ -58,9 +87,8 @@ const PreviewText = ({
   }`;
   const requestGeneration = useRef(new PreviewRequestGeneration());
   const [retry, setRetry] = useState(0);
-  const [knownSizeBypassIdentity, setKnownSizeBypassIdentity] = useState<
-    string | null
-  >(null);
+  const [source, setSource] = useState(false);
+  const [markdownFailure, setMarkdownFailure] = useState<string | null>(null);
   const [previewState, setPreviewState] = useState<PreviewState>({
     identity,
     result: { status: "loading" },
@@ -73,7 +101,7 @@ const PreviewText = ({
     setPreviewState({ identity, result: { status: "loading" } });
 
     void loadTextPreview({
-      knownSize: knownSizeBypassIdentity === identity ? undefined : knownSize,
+      knownSize,
       signal: controller.signal,
       request: () =>
         requestTextPreviewObject({
@@ -105,7 +133,6 @@ const PreviewText = ({
     bucketName,
     identity,
     knownSize,
-    knownSizeBypassIdentity,
     objectName,
     retry,
     versionID,
@@ -134,7 +161,6 @@ const PreviewText = ({
         <Button
           id="retry-text-preview"
           onClick={() => {
-            setKnownSizeBypassIdentity(identity);
             setRetry((value) => value + 1);
           }}
           variant="regular"
@@ -165,11 +191,73 @@ const PreviewText = ({
   if (currentResult.status === "success") {
     return (
       <Fragment>
-        <SafeTextPreviewContent
-          content={currentResult.content}
-          isFullscreen={isFullscreen}
-          label={t("Text preview content")}
-        />
+        {currentResult.truncated && (
+          <PreviewNotice role="status">
+            {t(
+              "Showing the first 1 MiB. Download the object to see the full file.",
+            )}
+          </PreviewNotice>
+        )}
+        {markdownFailure === identity && (
+          <PreviewNotice role="status">
+            {t(
+              "Markdown rendering is unavailable for this content. Showing the source instead.",
+            )}
+          </PreviewNotice>
+        )}
+        {kind !== "text" && (
+          <PreviewToolbar>
+            <Button
+              id="preview-rendered"
+              variant="regular"
+              aria-pressed={!source}
+              onClick={() => {
+                setMarkdownFailure(null);
+                setSource(false);
+              }}
+            >
+              {kind === "markdown" ? t("Rendered") : t("Table")}
+            </Button>
+            <Button
+              id="preview-source"
+              variant="regular"
+              aria-pressed={source}
+              onClick={() => setSource(true)}
+            >
+              {t("Source")}
+            </Button>
+          </PreviewToolbar>
+        )}
+        {kind === "text" || source ? (
+          <SafeTextPreviewContent
+            content={currentResult.content}
+            isFullscreen={isFullscreen}
+            label={t("Text preview content")}
+            wrapLabel={t("Wrap lines")}
+          />
+        ) : kind === "markdown" ? (
+          <MarkdownPreviewBoundary
+            onError={() => {
+              setMarkdownFailure(identity);
+              setSource(true);
+            }}
+          >
+            <Suspense fallback={<ProgressBar />}>
+              <PreviewMarkdown
+                content={currentResult.content}
+                isFullscreen={isFullscreen}
+              />
+            </Suspense>
+          </MarkdownPreviewBoundary>
+        ) : (
+          <Suspense fallback={<ProgressBar />}>
+            <PreviewCsv
+              content={currentResult.content}
+              delimiter={/\.tsv$/i.test(objectName) ? "\t" : ","}
+              isFullscreen={isFullscreen}
+            />
+          </Suspense>
+        )}
         {actionButtons()}
       </Fragment>
     );
@@ -181,32 +269,6 @@ const PreviewText = ({
         title={t("File is empty")}
         message={actionButtons()}
         sx={{ margin: "15px 0" }}
-      />
-    );
-  }
-
-  if (currentResult.status === "too_large") {
-    const objectSize = currentResult.objectSize;
-    const detail =
-      objectSize === undefined
-        ? t("The object is larger than the 1 MiB text preview limit.")
-        : t(
-            "Text previews are limited to 1 MiB (1,048,576 bytes). This object is {size} ({bytes} bytes).",
-          )
-            .replace("{size}", () => niceBytes(`${objectSize}`))
-            .replace("{bytes}", () => objectSize.toLocaleString());
-
-    return (
-      <InformativeMessage
-        title={t("Object is too large to preview")}
-        message={
-          <Fragment>
-            {detail}
-            {actionButtons(true)}
-          </Fragment>
-        }
-        sx={{ margin: "15px 0" }}
-        variant="warning"
       />
     );
   }

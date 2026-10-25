@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { ModalPresence } from "common/ui/ModalPresence";
 import React, { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import get from "lodash/get";
 import { useSelector } from "react-redux";
@@ -60,7 +61,8 @@ import { errorToHandler } from "api/errors";
 import { formatText, useT } from "i18n";
 import { hasPermission } from "../../../../../../common/SecureComponent";
 import { IAM_SCOPES } from "../../../../../../common/SecureComponent/permissions";
-import { isPreviewAvailable } from "../utils";
+import { objectActionState } from "../objectActionState";
+import ObjectActionTooltip from "../ObjectActionTooltip";
 import { exactObjectVersions } from "./objectVersions";
 import {
   ObjectLocation,
@@ -97,6 +99,10 @@ const VersionsNavigator = ({
   );
   const selectedVersion = useSelector(
     (state: AppState) => state.objectBrowser.selectedVersion,
+  );
+
+  const objectMutationRevision = useSelector(
+    (state: AppState) => state.objectBrowser.objectMutationRevision,
   );
 
   const versionsLimit = useSelector(
@@ -140,6 +146,12 @@ const VersionsNavigator = ({
     () => (listResult?.kind === "versions" ? listResult.items : []),
     [listResult],
   );
+  useEffect(() => {
+    if (!listResult) return;
+    const present = new Set(versions.map((item) => item.version_id));
+    setSelectedItems((items) => items.filter((id) => present.has(id)));
+  }, [listResult, versions]);
+
   // Display only: the current version of the object, if the listing has it.
   const latest = useMemo(
     () =>
@@ -214,6 +226,7 @@ const VersionsNavigator = ({
     dispatch,
     distributedSetup,
     versionsLimit,
+    objectMutationRevision,
   ]);
 
   // Every row action goes through the validated identity of the clicked row:
@@ -375,15 +388,7 @@ const VersionsNavigator = ({
         onRestore={onRestoreItem}
         onShare={onShareItem}
         onPreview={onPreviewItem}
-        canPreview={isPreviewAvailable({
-          metaData: filteredRecords[index].content_type
-            ? { "Content-Type": filteredRecords[index].content_type }
-            : null,
-          objectName: internalPaths,
-          canGetObject: canGetObjectVersion,
-          isDeleteMarker: !!filteredRecords[index].is_delete_marker,
-          isPrefix: internalPaths.endsWith("/"),
-        })}
+        canGetObjectVersion={canGetObjectVersion}
         globalClick={onGlobalClick}
         isSelected={selectedVersion === filteredRecords[index].version_id}
         checkable={selectEnabled}
@@ -395,55 +400,78 @@ const VersionsNavigator = ({
     );
   };
 
+  const deleteSelectedState = objectActionState({
+    action: "delete",
+    selectionCount: selectedItems.length,
+  });
+  const deleteNonCurrentState = objectActionState({
+    action: "deleteNonCurrent",
+    versionsAvailable: versions.length > 1,
+  });
+
   return (
     <Fragment>
-      {shareSubject && (
-        <ShareFile
-          key={shareSubjectKey(shareSubject)}
-          open={true}
-          closeModalAndRefresh={closeShareModal}
-          subject={shareSubject}
-        />
-      )}
-      {restoreItem && (
-        <RestoreFileVersion
-          restoreOpen={true}
-          target={restoreItem.target}
-          destination={location}
-          versionInfo={restoreItem.info}
-          onCloseAndUpdate={closeRestoreModal}
-        />
-      )}
-      {previewItem && (
-        <PreviewFileModal
-          open={true}
-          bucketName={bucketName}
-          actualInfo={{
-            name: previewItem.target.key,
-            version_id: previewItem.target.versionId,
-            size: previewItem.info.size,
-            content_type: previewItem.info.content_type,
-            last_modified: previewItem.info.last_modified || "",
-          }}
-          onClosePreview={() => {
-            setPreviewItem(null);
-          }}
-        />
-      )}
-      {deleteNonCurrentLocation && (
-        <DeleteNonCurrent
-          deleteOpen={true}
-          closeDeleteModalAndRefresh={closeDeleteNonCurrent}
-          location={deleteNonCurrentLocation}
-        />
-      )}
-      {deleteTargets && (
-        <DeleteSelectedVersions
-          deleteOpen={true}
-          targets={deleteTargets}
-          closeDeleteModalAndRefresh={closeSelectedVersions}
-        />
-      )}
+      <ModalPresence open={Boolean(shareSubject)}>
+        {shareSubject && (
+          <ShareFile
+            key={shareSubjectKey(shareSubject)}
+            open={true}
+            closeModalAndRefresh={closeShareModal}
+            subject={shareSubject}
+          />
+        )}
+      </ModalPresence>
+      <ModalPresence open={Boolean(restoreItem)}>
+        {restoreItem && (
+          <RestoreFileVersion
+            restoreOpen={true}
+            target={restoreItem.target}
+            destination={location}
+            versionInfo={restoreItem.info}
+            onCloseAndUpdate={closeRestoreModal}
+          />
+        )}
+      </ModalPresence>
+      <ModalPresence open={Boolean(previewItem)}>
+        {previewItem && (
+          <PreviewFileModal
+            open={true}
+            bucketName={bucketName}
+            actualInfo={{
+              name: previewItem.target.key,
+              version_id: previewItem.target.versionId,
+              size: previewItem.info.size,
+              content_type: previewItem.info.content_type,
+              last_modified: previewItem.info.last_modified || "",
+            }}
+            onClosePreview={() => {
+              setPreviewItem(null);
+            }}
+          />
+        )}
+      </ModalPresence>
+      <ModalPresence open={Boolean(deleteNonCurrentLocation)}>
+        {deleteNonCurrentLocation && (
+          <DeleteNonCurrent
+            deleteOpen={true}
+            closeDeleteModalAndRefresh={closeDeleteNonCurrent}
+            location={deleteNonCurrentLocation}
+          />
+        )}
+      </ModalPresence>
+      <ModalPresence open={Boolean(deleteTargets)}>
+        {deleteTargets && (
+          <DeleteSelectedVersions
+            deleteOpen={true}
+            targets={deleteTargets}
+            onQueued={(submitted) => {
+              const ids = new Set(submitted.map((target) => target.versionId));
+              setSelectedItems((items) => items.filter((id) => !ids.has(id)));
+            }}
+            closeDeleteModalAndRefresh={closeSelectedVersions}
+          />
+        )}
+      </ModalPresence>
       <Grid
         container
         sx={{
@@ -488,6 +516,7 @@ const VersionsNavigator = ({
               }}
             >
               <ScreenTitle
+                headingLevel={2}
                 icon={
                   <span
                     style={{
@@ -559,19 +588,25 @@ const VersionsNavigator = ({
                       />
                     </TooltipWrapper>
                     {selectEnabled && (
-                      <TooltipWrapper tooltip={t("Delete Selected Versions")}>
+                      <ObjectActionTooltip
+                        state={deleteSelectedState}
+                        label={t("Delete selected versions")}
+                      >
                         <Button
                           aria-label={t("Delete selected versions")}
                           id={"delete-multiple-versions"}
                           onClick={openDeleteSelectedVersions}
                           icon={<DeleteIcon />}
-                          variant={"secondary"}
+                          variant={"danger"}
                           style={{ marginRight: 8 }}
-                          disabled={selectedItems.length === 0}
+                          disabled={deleteSelectedState.disabled}
                         />
-                      </TooltipWrapper>
+                      </ObjectActionTooltip>
                     )}
-                    <TooltipWrapper tooltip={t("Delete Non Current Versions")}>
+                    <ObjectActionTooltip
+                      state={deleteNonCurrentState}
+                      label={t("Delete non-current versions")}
+                    >
                       <Button
                         aria-label={t("Delete non-current versions")}
                         id={"delete-non-current"}
@@ -579,11 +614,11 @@ const VersionsNavigator = ({
                           setDeleteNonCurrentLocation(location);
                         }}
                         icon={<DeleteNonCurrentIcon />}
-                        variant={"secondary"}
+                        variant={"danger"}
                         style={{ marginRight: 15 }}
-                        disabled={versions.length <= 1}
+                        disabled={deleteNonCurrentState.disabled}
                       />
-                    </TooltipWrapper>
+                    </ObjectActionTooltip>
                     <Select
                       id={"sort-by"}
                       options={[

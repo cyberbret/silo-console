@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { ModalPresence } from "common/ui/ModalPresence";
 import React, { Fragment, useEffect, useState } from "react";
 
 import {
@@ -136,15 +137,17 @@ const EnableBucketEncryption = ({
 
   return (
     <Fragment>
-      {addOpen && (
-        <AddKeyModal
-          addOpen={addOpen}
-          closeAddModalAndRefresh={(refresh: boolean) => {
-            setAddOpen(false);
-            setLoadingKeys(true);
-          }}
-        />
-      )}
+      <ModalPresence open={Boolean(addOpen)}>
+        {addOpen && (
+          <AddKeyModal
+            addOpen={addOpen}
+            closeAddModalAndRefresh={(refresh: boolean) => {
+              setAddOpen(false);
+              setLoadingKeys(true);
+            }}
+          />
+        )}
+      </ModalPresence>
 
       <ModalWrapper
         modalOpen={open}

@@ -27,7 +27,7 @@ const InvalidRule = ({ ruleText }: IInvalidRule) => {
       <Grid
         container
         sx={{
-          color: "#C83B51",
+          color: "var(--destructive-text)",
           display: "flex",
           justifyContent: "flex-start",
         }}
@@ -39,7 +39,7 @@ const InvalidRule = ({ ruleText }: IInvalidRule) => {
           item
           xs={9}
           sx={{
-            color: "#C83B51",
+            color: "var(--destructive-text)",
             display: "flex",
             justifyContent: "flex-start",
             paddingLeft: 1,
