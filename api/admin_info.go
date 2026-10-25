@@ -859,6 +859,7 @@ func getUsageWidgetsForDeployment(ctx context.Context, prometheusURL string, adm
 			sessionResp.Usage = usage.Usage
 			sessionResp.Servers = usage.Servers
 			sessionResp.Backend = usage.Backend
+			sessionResp.UsageUpdatedAt = usageUpdatedAt(ctx, adminClient)
 		}
 	}()
 

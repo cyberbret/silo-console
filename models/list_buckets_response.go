@@ -27,6 +27,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag/jsonutils"
 	"github.com/go-openapi/swag/typeutils"
+	"github.com/go-openapi/validate"
 )
 
 // ListBucketsResponse list buckets response
@@ -39,6 +40,10 @@ type ListBucketsResponse struct {
 
 	// number of buckets accessible to the user
 	Total int64 `json:"total,omitempty"`
+
+	// Time the server last finished computing data usage; absent when unknown
+	// Format: date-time
+	UsageUpdatedAt *strfmt.DateTime `json:"usageUpdatedAt,omitempty"`
 }
 
 // Validate validates this list buckets response
@@ -46,6 +51,10 @@ func (m *ListBucketsResponse) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateBuckets(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateUsageUpdatedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -80,6 +89,18 @@ func (m *ListBucketsResponse) validateBuckets(formats strfmt.Registry) error {
 			}
 		}
 
+	}
+
+	return nil
+}
+
+func (m *ListBucketsResponse) validateUsageUpdatedAt(formats strfmt.Registry) error {
+	if typeutils.IsZero(m.UsageUpdatedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("usageUpdatedAt", "body", "date-time", m.UsageUpdatedAt.String(), formats); err != nil {
+		return err
 	}
 
 	return nil

@@ -49,11 +49,12 @@ var (
 
 	minioServerHealthInfoMock func(ctx context.Context, deadline time.Duration) (interface{}, string, error)
 
-	minioListPoliciesMock func() (map[string]*iampolicy.Policy, error)
-	minioGetPolicyMock    func(name string) (*iampolicy.Policy, error)
-	minioRemovePolicyMock func(name string) error
-	minioAddPolicyMock    func(name string, policy *iampolicy.Policy) error
-	minioSetPolicyMock    func(policyName, entityName string, isGroup bool) error
+	minioListPoliciesMock      func() (map[string]*iampolicy.Policy, error)
+	minioGetPolicyMock         func(name string) (*iampolicy.Policy, error)
+	minioRemovePolicyMock      func(name string) error
+	minioAddPolicyMock         func(name string, policy *iampolicy.Policy) error
+	minioSetPolicyMock         func(policyName, entityName string, isGroup bool) error
+	minioGetPolicyEntitiesMock func(ctx context.Context, query madmin.PolicyEntitiesQuery) (madmin.PolicyEntitiesResult, error)
 
 	minioStartProfiling func(profiler madmin.ProfilerType, duration time.Duration) (io.ReadCloser, error)
 
@@ -81,6 +82,7 @@ var (
 	minioSetUserStatusMock func(accessKey string, status madmin.AccountStatus) error
 
 	minioAccountInfoMock           func(ctx context.Context) (madmin.AccountInfo, error)
+	minioDataUsageInfoMock         func(ctx context.Context) (madmin.DataUsageInfo, error)
 	minioAddServiceAccountMock     func(ctx context.Context, policy string, user string, accessKey string, secretKey string, description string, name string, expiry *time.Time, status string) (madmin.Credentials, error)
 	minioListServiceAccountsMock   func(ctx context.Context, user string) (madmin.ListServiceAccountsResp, error)
 	minioDeleteServiceAccountMock  func(ctx context.Context, serviceAccount string) error
@@ -95,6 +97,20 @@ var (
 
 func (ac AdminClientMock) serverInfo(ctx context.Context) (madmin.InfoMessage, error) {
 	return MinioServerInfoMock(ctx)
+}
+
+func (ac AdminClientMock) DataUsageInfo(ctx context.Context) (madmin.DataUsageInfo, error) {
+	if minioDataUsageInfoMock == nil {
+		return madmin.DataUsageInfo{}, nil
+	}
+	return minioDataUsageInfoMock(ctx)
+}
+
+func (ac AdminClientMock) GetPolicyEntities(ctx context.Context, query madmin.PolicyEntitiesQuery) (madmin.PolicyEntitiesResult, error) {
+	if minioGetPolicyEntitiesMock == nil {
+		return madmin.PolicyEntitiesResult{}, ErrAccessDenied
+	}
+	return minioGetPolicyEntitiesMock(ctx, query)
 }
 
 func (ac AdminClientMock) listRemoteBuckets(ctx context.Context, bucket, arnType string) (targets []madmin.BucketTarget, err error) {

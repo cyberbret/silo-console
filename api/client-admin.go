@@ -51,6 +51,7 @@ type MinioAdmin interface {
 	getGroupDescription(ctx context.Context, group string) (*madmin.GroupDesc, error)
 	setGroupStatus(ctx context.Context, group string, status madmin.GroupStatus) error
 	listPolicies(ctx context.Context) (map[string]*iampolicy.Policy, error)
+	GetPolicyEntities(ctx context.Context, query madmin.PolicyEntitiesQuery) (madmin.PolicyEntitiesResult, error)
 	getPolicy(ctx context.Context, name string) (*iampolicy.Policy, error)
 	removePolicy(ctx context.Context, name string) error
 	addPolicy(ctx context.Context, name string, policy *iampolicy.Policy) error
@@ -66,6 +67,7 @@ type MinioAdmin interface {
 	serviceTrace(ctx context.Context, threshold int64, s3, internal, storage, os, errTrace bool) <-chan madmin.ServiceTraceInfo
 	getLogs(ctx context.Context, node string, lineCnt int, logKind string) <-chan madmin.LogInfo
 	AccountInfo(ctx context.Context) (madmin.AccountInfo, error)
+	DataUsageInfo(ctx context.Context) (madmin.DataUsageInfo, error)
 	heal(ctx context.Context, bucket, prefix string, healOpts madmin.HealOpts, clientToken string,
 		forceStart, forceStop bool) (healStart madmin.HealStartSuccess, healTaskStatus madmin.HealTaskStatus, err error)
 	// Service Accounts
@@ -198,6 +200,10 @@ func (ac AdminClient) listPolicies(ctx context.Context) (map[string]*iampolicy.P
 	return policies, nil
 }
 
+func (ac AdminClient) GetPolicyEntities(ctx context.Context, query madmin.PolicyEntitiesQuery) (madmin.PolicyEntitiesResult, error) {
+	return ac.Client.GetPolicyEntities(ctx, query)
+}
+
 // implements madmin.ListCannedPolicies()
 func (ac AdminClient) getPolicy(ctx context.Context, name string) (*iampolicy.Policy, error) {
 	info, err := ac.Client.InfoCannedPolicyV2(ctx, name)
@@ -325,6 +331,10 @@ func (ac AdminClient) updateServiceAccount(ctx context.Context, serviceAccount s
 // AccountInfo implements madmin.AccountInfo()
 func (ac AdminClient) AccountInfo(ctx context.Context) (madmin.AccountInfo, error) {
 	return ac.Client.AccountInfo(ctx, madmin.AccountOpts{})
+}
+
+func (ac AdminClient) DataUsageInfo(ctx context.Context) (madmin.DataUsageInfo, error) {
+	return ac.Client.DataUsageInfo(ctx)
 }
 
 func (ac AdminClient) heal(ctx context.Context, bucket, prefix string, healOpts madmin.HealOpts, clientToken string,

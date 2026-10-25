@@ -431,15 +431,24 @@ func getListBucketsResponse(session *models.Principal, params bucketApi.ListBuck
 	// create a minioClient interface implementation
 	// defining the client to be used
 	adminClient := AdminClient{Client: mAdmin}
-	buckets, err := getAccountBuckets(ctx, adminClient)
+	listBucketsResponse, err := listBuckets(ctx, adminClient)
 	if err != nil {
 		return nil, ErrorWithContext(ctx, err)
+	}
+	return listBucketsResponse, nil
+}
+
+func listBuckets(ctx context.Context, client MinioAdmin) (*models.ListBucketsResponse, error) {
+	buckets, err := getAccountBuckets(ctx, client)
+	if err != nil {
+		return nil, err
 	}
 
 	// serialize output
 	listBucketsResponse := &models.ListBucketsResponse{
-		Buckets: buckets,
-		Total:   int64(len(buckets)),
+		Buckets:        buckets,
+		Total:          int64(len(buckets)),
+		UsageUpdatedAt: usageUpdatedAt(ctx, client),
 	}
 	return listBucketsResponse, nil
 }
