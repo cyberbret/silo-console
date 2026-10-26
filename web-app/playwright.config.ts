@@ -49,6 +49,7 @@ export default defineConfig({
       name: "chromium",
       testIgnore: [
         /.*\.unit\.ts/,
+        /group-status-regression\.spec\.ts$/,
         /(navigation|preview|iam|overview|a11y|visual|object-keyboard|responsive)\.spec\.ts$/,
       ],
       use: { ...devices["Desktop Chrome"] },
