@@ -54,7 +54,12 @@ interface ICredentialsPromptProps {
 
 const download = (filename: string, text: string) => {
   let element = document.createElement("a");
-  element.setAttribute("href", "data:text/plain;charset=utf-8," + text);
+  // Encode the complete JSON once so URI fragments and percent escapes in
+  // credentials are downloaded as literal UTF-8 bytes.
+  element.setAttribute(
+    "href",
+    "data:text/plain;charset=utf-8," + encodeURIComponent(text),
+  );
   element.setAttribute("download", filename);
 
   element.style.display = "none";
