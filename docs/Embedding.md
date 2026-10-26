@@ -1,8 +1,8 @@
 # Embedding Console in a SILO server
 
-Console v2.5.0 uses silo-pkg v3.15.1 and the
-published mcli 20261025 source (`dcc78d506f94`), with Go 1.27.3 and upstream
-minio-go `v7.4.2-0.20261020194015-ab93db7ba435`. This SDK revision includes
+Console v2.5.1 uses silo-pkg v3.15.2 and the
+accepted mcli 20261026 candidate source recorded in `hack/deps-release.json`, with Go 1.27.3 and upstream
+minio-go `v7.4.2-0.20261025165926-320af050c445`. This SDK revision includes
 post-v7.4.1 fixes; it is not a tagged v7.4.2 release.
 The earlier Console v2.4.2 release uses silo-pkg v3.14.2. Use the README replacement block
 from the Console revision being embedded in a SILO server.
@@ -10,7 +10,7 @@ from the Console revision being embedded in a SILO server.
 SILO embeds this module (`github.com/minio/console`) as a Go dependency.
 Console directly requires `github.com/pgsty/silo-pkg/v3`; that requirement is
 inherited normally and needs no downstream replacement. Console has one
-maintained replacement for the calendar-tagged `pgsty/mc` source. Go ignores
+maintained replacement for the exact `pgsty/mc` source commit. Go ignores
 replacements declared by dependency modules, so an embedding server must copy
 that one directive from the authoritative README block between the
 `silo-replacements` markers.
@@ -19,7 +19,7 @@ that one directive from the authoritative README block between the
 
 | Module graph | Status |
 | :-- | :-- |
-| The single `pgsty/mc` replacement from the README | Supported. `downstream-embedder-compat` builds a minimal embedder from the published block and checks both the replacement and the inherited `pgsty/silo-pkg` v3.15.1 requirement |
+| The single `pgsty/mc` replacement from the README | Supported. `downstream-embedder-compat` builds a minimal embedder from the published block and checks both the replacement and the inherited `pgsty/silo-pkg` v3.15.2 requirement |
 | No mc replacement | Best-effort compatibility probe, tested by the non-blocking `upstream-pkg-compat` job; this is not the released SILO graph and does not constrain maintained dependency versions |
 | The retired `minio/pkg => silo-pkg` or `minio-go => silo-go` replacements | Unsupported. silo-pkg v3.13.0 and later own `github.com/pgsty/silo-pkg/v3`, and minio-go now resolves upstream |
 
@@ -42,7 +42,7 @@ compile. `minio-go` is the explicit exception and resolves upstream by policy.
 
 This Console line has completed the migration described by silo-pkg v3.13.0:
 its source imports `github.com/pgsty/silo-pkg/v3`, and `go.mod` requires the
-current v3.15.1 release directly. A SILO server adopting this Console revision must make the same source
+current v3.15.2 release directly. A SILO server adopting this Console revision must make the same source
 import migration. Keeping old `github.com/minio/pkg/v3`
 imports while replacing that path with silo-pkg v3.13.0 or later produces
 `used for two different module paths`. Update the embedding server's imports

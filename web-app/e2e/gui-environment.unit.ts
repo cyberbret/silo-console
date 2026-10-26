@@ -105,7 +105,7 @@ test("origin credentials and resource path traversal fail before fixture setup",
   expect(() => guiEnvironment()).toThrow(/1–28/);
 });
 
-test("restoration comparison normalizes only non-target action order, preserving exact target bytes and attachments", () => {
+test("restoration comparison normalizes only non-target set order, preserving grants, exact target bytes and attachments", () => {
   const target = {
     name: "writeonly",
     builtin: true,
@@ -116,16 +116,30 @@ test("restoration comparison normalizes only non-target action order, preserving
     detail: target,
     inventory: [
       target,
-      { name: "other", policy: '{"Statement":[{"Action":["b","a"]}]}' },
+      {
+        name: "other",
+        policy:
+          '{"Statement":[{"Action":["b","a"],"Resource":["bucket/*","bucket"]}]}',
+      },
     ],
     users: [],
     groups: [],
   };
   const equivalent = structuredClone(first);
-  equivalent.inventory[1].policy = '{"Statement":[{"Action":["a","b"]}]}';
+  equivalent.inventory[1].policy =
+    '{"Statement":[{"Action":["a","b"],"Resource":["bucket","bucket/*"]}]}';
   expect(canonicalPolicySnapshot(equivalent)).toEqual(
     canonicalPolicySnapshot(first),
   );
+  for (const field of ["Action", "Resource"]) {
+    const changedGrant = structuredClone(first);
+    const policy = JSON.parse(changedGrant.inventory[1].policy);
+    policy.Statement[0][field].push("unexpected-grant");
+    changedGrant.inventory[1].policy = JSON.stringify(policy);
+    expect(canonicalPolicySnapshot(changedGrant)).not.toEqual(
+      canonicalPolicySnapshot(first),
+    );
+  }
   const changedTarget = structuredClone(first);
   changedTarget.detail.policy = ' {"Statement":[{"Action":["s3:PutObject"]}]}';
   expect(canonicalPolicySnapshot(changedTarget)).not.toEqual(
