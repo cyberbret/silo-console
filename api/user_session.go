@@ -121,16 +121,7 @@ func getSessionResponse(ctx context.Context, session *models.Principal) (*models
 		return nil, ErrorWithContext(ctx, err, ErrInvalidSession)
 	}
 
-	// Support all LDAP, JWT variables
-	for k, v := range claims {
-		vstr, ok := v.(string)
-		if !ok {
-			// skip all non-strings
-			continue
-		}
-		// store all claims from sessionToken
-		conditionValues[k] = []string{vstr}
-	}
+	addSessionClaimConditionValues(conditionValues, claims)
 
 	defaultActions := defaultSessionActions(policy, conditionValues)
 
@@ -248,8 +239,46 @@ func getSessionResponse(ctx context.Context, session *models.Principal) (*models
 	return sessionResp, nil
 }
 
+// addSessionClaimConditionValues preserves string claims and the multi-valued
+// groups claim used by SILO's JWT policy conditions. Ignore non-string members
+// rather than coercing them into group names, matching the server. Other array
+// claims are not condition values supported by the server.
+func addSessionClaimConditionValues(values map[string][]string, claims map[string]interface{}) {
+	for key, value := range claims {
+		if str, ok := value.(string); ok {
+			values[key] = []string{str}
+		}
+	}
+	var groups []string
+	switch value := claims["groups"].(type) {
+	case []string:
+		groups = append(groups, value...)
+	case []interface{}:
+		for _, member := range value {
+			if group, ok := member.(string); ok {
+				groups = append(groups, group)
+			}
+		}
+	}
+	if len(groups) > 0 {
+		values["groups"] = groups
+	}
+}
+
 func defaultSessionActions(policy *minioIAMPolicy.Policy, conditionValues map[string][]string) minioIAMPolicy.ActionSet {
 	actions := policy.IsAllowedActions("", "", conditionValues)
+	// The policy engine evaluates admin:* as an action in its own right. A
+	// narrower Deny can therefore remove a concrete action but leave admin:*
+	// in the result. The UI expands that wildcard, so only retain it when all
+	// supported management actions are actually allowed.
+	if actions.Contains(minioIAMPolicy.AllAdminActions) {
+		for action := range minioIAMPolicy.SupportedAdminActions {
+			if !actions.Contains(minioIAMPolicy.Action(action)) {
+				delete(actions, minioIAMPolicy.AllAdminActions)
+				break
+			}
+		}
+	}
 	createServiceAccount := minioIAMPolicy.Action(minioIAMPolicy.CreateServiceAccountAdminAction)
 	if actions.Contains(createServiceAccount) {
 		return actions

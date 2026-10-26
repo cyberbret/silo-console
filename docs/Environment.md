@@ -147,6 +147,23 @@ This is safe against client spoofing, but a policy that already permits that
 proxy address may consequently permit every client arriving through it. Review
 IP allow-lists as well as the proxy setting during migration.
 
+## Session cookies and TLS termination
+
+Console sets `Secure` on both the session and OIDC refresh cookies when it
+serves TLS, when `CONSOLE_BROWSER_REDIRECT_URL` specifies an external HTTPS URL,
+or when a trusted TCP proxy peer sends exactly one `X-Forwarded-Proto: https`
+value. Creation, renewal and logout use the same rule. Embedded SILO derives the
+external URL from `MINIO_BROWSER_REDIRECT_URL` and uses the proxy trust policy
+described above. The configured HTTPS URL applies even if proxy trust is `none`.
+
+A proxy must overwrite client-supplied `X-Forwarded-Proto`; repeated or
+comma-separated values are ignored, as are values from untrusted peers. The
+RFC `Forwarded` header alone does not select secure cookies. Plain HTTP without
+an external HTTPS URL continues to work. `HttpOnly`, `SameSite=Lax` and `Path=/`
+remain in effect, including subpath deployments. Serve browser sessions over
+HTTPS and configure the external URL or the actual trusted proxy peers when
+TLS terminates before Console. See the [Console settings reference](https://silo.pgsty.com/reference/minio-server/settings/console/).
+
 ## WebSocket origin policy
 
 Browser WebSocket handshakes to `/ws/*` are accepted only when the `Origin`

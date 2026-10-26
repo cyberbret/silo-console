@@ -555,7 +555,7 @@ func handleSPA(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		cookie := NewSessionCookieForConsole(*sessionID)
+		cookie := newSessionCookieForRequest(*sessionID, r)
 
 		http.SetCookie(w, &cookie)
 

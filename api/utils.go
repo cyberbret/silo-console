@@ -23,6 +23,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -158,6 +159,10 @@ func UniqueKeys(a []string) []string {
 }
 
 func NewSessionCookieForConsole(token string) http.Cookie {
+	return newSessionCookieForRequest(token, nil)
+}
+
+func newSessionCookieForRequest(token string, r *http.Request) http.Cookie {
 	sessionDuration := xjwt.GetConsoleSTSDuration()
 	return http.Cookie{
 		Path:     "/",
@@ -166,15 +171,17 @@ func NewSessionCookieForConsole(token string) http.Cookie {
 		MaxAge:   int(sessionDuration.Seconds()), // default 1 hr
 		Expires:  time.Now().Add(sessionDuration),
 		HttpOnly: true,
-		// if len(GlobalPublicCerts) > 0 is true, that means Console is running with TLS enable and the browser
-		// should not leak any cookie if we access the site using HTTP
-		Secure: len(GlobalPublicCerts) > 0,
+		Secure:   secureSessionCookie(r),
 		// read more: https://web.dev/samesite-cookies-explained/
 		SameSite: http.SameSiteLaxMode,
 	}
 }
 
 func ExpireSessionCookie() http.Cookie {
+	return expireSessionCookieForRequest(nil)
+}
+
+func expireSessionCookieForRequest(r *http.Request) http.Cookie {
 	return http.Cookie{
 		Path:     "/",
 		Name:     "token",
@@ -182,12 +189,29 @@ func ExpireSessionCookie() http.Cookie {
 		MaxAge:   -1,
 		Expires:  time.Now().Add(-100 * time.Hour),
 		HttpOnly: true,
-		// if len(GlobalPublicCerts) > 0 is true, that means Console is running with TLS enable and the browser
-		// should not leak any cookie if we access the site using HTTP
-		Secure: len(GlobalPublicCerts) > 0,
+		Secure:   secureSessionCookie(r),
 		// read more: https://web.dev/samesite-cookies-explained/
 		SameSite: http.SameSiteLaxMode,
 	}
+}
+
+// secureSessionCookie uses local TLS, the operator-configured external HTTPS
+// URL, or a single HTTPS protocol value authored by a trusted proxy. SILO maps
+// MINIO_BROWSER_REDIRECT_URL to CONSOLE_BROWSER_REDIRECT_URL when embedding us.
+// A proxy must overwrite X-Forwarded-Proto; ambiguous chains are not accepted.
+func secureSessionCookie(r *http.Request) bool {
+	if len(GlobalPublicCerts) > 0 || (r != nil && r.TLS != nil) {
+		return true
+	}
+	if external, err := url.Parse(getConsoleBrowserRedirectURL()); err == nil &&
+		strings.EqualFold(external.Scheme, "https") && external.Host != "" {
+		return true
+	}
+	if r == nil || !currentSourceIPTrust().peerTrusted(canonicalSourceIP(r.RemoteAddr)) {
+		return false
+	}
+	protocols := r.Header.Values("X-Forwarded-Proto")
+	return len(protocols) == 1 && strings.EqualFold(strings.TrimSpace(protocols[0]), "https")
 }
 
 func ValidateEncodedStyles(encodedStyles string) error {

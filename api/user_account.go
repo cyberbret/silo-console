@@ -40,7 +40,7 @@ func registerAccountHandlers(api *operations.ConsoleAPI) {
 		}
 		// Custom response writer to update the session cookies
 		return middleware.ResponderFunc(func(w http.ResponseWriter, p runtime.Producer) {
-			cookie := NewSessionCookieForConsole(changePasswordResponse.SessionID)
+			cookie := newSessionCookieForRequest(changePasswordResponse.SessionID, params.HTTPRequest)
 			http.SetCookie(w, &cookie)
 			authApi.NewLoginNoContent().WriteResponse(w, p)
 		})
