@@ -140,13 +140,14 @@ const Speedtest = () => {
   useEffect(() => {
     const actualSeconds = (topDate - currentValue) / 1000;
 
-    let percToDisplay = 100 - (actualSeconds * 100) / totalSeconds;
+    const percToDisplay =
+      totalSeconds > 0 ? 100 - (actualSeconds * 100) / totalSeconds : 0;
 
-    if (percToDisplay > 100) {
-      percToDisplay = 100;
-    }
-
-    setSpeedometerValue(percToDisplay);
+    setSpeedometerValue(
+      Number.isFinite(percToDisplay)
+        ? Math.max(0, Math.min(100, percToDisplay))
+        : 0,
+    );
   }, [start, currentValue, topDate, totalSeconds]);
 
   const stoppedLabel = currStatus !== null ? t("Retest") : t("Start");

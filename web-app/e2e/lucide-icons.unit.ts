@@ -134,7 +134,7 @@ test("decorative icons leave native control names and keyboard focus intact whil
 });
 
 test("real Select state keeps caret direction and converted menu and success icons retain their meaning", async () => {
-  const select = page.getByRole("button", { name: "Region", exact: true });
+  const select = page.getByRole("button", { name: "Region East", exact: true });
   const direction = () =>
     select.locator("svg path").evaluate((path) => {
       const bounds = (path as SVGGraphicsElement).getBBox();

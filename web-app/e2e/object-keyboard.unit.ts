@@ -135,6 +135,82 @@ test.describe("mounted real object table", () => {
   test.afterAll(async () => browser?.close());
   const focused = () => page.locator('[role="row"]:focus');
   const first = () => page.getByRole("row", { name: /^docs\/000/ });
+  for (const intent of [
+    "filter",
+    "Tab",
+    "pointer",
+    "focus then blur",
+    "none",
+  ]) {
+    test(`queued Escape recovery respects newer focus intent: ${intent}`, async () => {
+      await first().focus();
+      await page.keyboard.press("Enter");
+      await expect(page.getByTestId("location")).toHaveText(
+        "/browser/b/docs%2F000.txt",
+      );
+      await first().focus();
+      const target = page.getByRole("button", {
+        name: "Toggle compact",
+        exact: true,
+      });
+      const bounds = await target.boundingBox();
+      // Hold the actual component callbacks so the next input always precedes
+      // recovery. Flush them after the new intent: no delay can hide stealing.
+      await page.evaluate(() => {
+        const request = window.requestAnimationFrame;
+        const cancel = window.cancelAnimationFrame;
+        const queued = new Map<number, FrameRequestCallback>();
+        let id = 0;
+        window.requestAnimationFrame = (callback) => {
+          queued.set(--id, callback);
+          return id;
+        };
+        window.cancelAnimationFrame = (frame) => {
+          if (frame < 0) queued.delete(frame);
+          else cancel(frame);
+        };
+        Object.assign(window, {
+          flushFocusFrames: () => {
+            window.requestAnimationFrame = request;
+            window.cancelAnimationFrame = cancel;
+            for (const callback of queued.values()) callback(performance.now());
+            queued.clear();
+          },
+        });
+      });
+      await page.keyboard.press("Escape");
+      await expect(page.getByTestId("location")).toHaveText(
+        "/browser/b/docs%2F",
+      );
+      if (intent === "filter") await page.keyboard.press("/");
+      else if (intent === "Tab") await page.keyboard.press("Tab");
+      else if (intent === "pointer")
+        await page.mouse.click(bounds!.x + 5, bounds!.y + 5);
+      else if (intent === "focus then blur") {
+        await target.focus();
+        await target.evaluate((element) => element.blur());
+      }
+      const before = await page.evaluateHandle(() => document.activeElement);
+      await page.evaluate(() => {
+        (
+          window as Window & { flushFocusFrames: () => void }
+        ).flushFocusFrames();
+      });
+      if (intent === "none") await expect(first()).toBeFocused();
+      else {
+        expect(
+          await page.evaluate(
+            (target) => document.activeElement === target,
+            before,
+          ),
+        ).toBe(true);
+        if (intent === "filter")
+          await expect(page.locator("#search-resource")).toBeFocused();
+        else if (intent === "pointer") await expect(target).toBeFocused();
+        else await expect(first()).not.toBeFocused();
+      }
+    });
+  }
   test("one row stop, virtualized End/Home and pointer scroll recovery", async () => {
     await first().focus();
     await expect(first()).toHaveCSS("outline-style", "solid");

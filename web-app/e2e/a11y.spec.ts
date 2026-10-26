@@ -472,3 +472,52 @@ test("whole-page axe: mobile Tasks after a real read-only download", async ({
     await context.close();
   }
 });
+
+for (const language of ["en", "zh"] as const)
+  for (const width of [1440, 390]) {
+    for (const screen of [
+      { path: "/access-keys", heading: /No access keys yet|暂无访问密钥/ },
+      { path: "/tools/logs", heading: /Logs are not running|尚未开始收集日志/ },
+      {
+        path: "/settings/event-destinations",
+        heading: /No event destinations yet|暂无事件目标/,
+      },
+    ])
+      test(`shared UI empty state ${screen.path} ${language} ${width}`, async ({
+        page,
+      }, info) => {
+        await page.addInitScript((locale) => {
+          localStorage.setItem("language", locale);
+          localStorage.setItem("dark-mode", locale === "zh" ? "on" : "off");
+        }, language);
+        await page.setViewportSize({ width, height: 1000 });
+        await page.goto(screen.path);
+        await expect(
+          page.getByRole("heading", { name: screen.heading, level: 2 }),
+        ).toBeVisible();
+        await audit(page, info);
+        await page.locator("#search-resource").fill("no-match-ui-regression");
+        await expect(
+          page.getByRole("heading", {
+            name: /No matching results|没有匹配项/,
+            level: 2,
+          }),
+        ).toBeVisible();
+        await audit(page, info);
+      });
+    test(`shared UI Speedtest initial ${language} ${width}`, async ({
+      page,
+    }, info) => {
+      await page.addInitScript((locale) => {
+        localStorage.setItem("language", locale);
+        localStorage.setItem("dark-mode", locale === "zh" ? "on" : "off");
+      }, language);
+      await page.setViewportSize({ width, height: 1000 });
+      await page.goto("/support/speedtest");
+      await expect(page.getByRole("progressbar")).toHaveAttribute(
+        "aria-valuenow",
+        "0",
+      );
+      await audit(page, info);
+    });
+  }

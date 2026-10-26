@@ -333,6 +333,7 @@ const ErrorLogs = () => {
                     <SkeletonRows rows={5} columns={3} />
                   ) : (
                     <FilteredEmptyState
+                      headingLevel={2}
                       filtered={
                         Boolean(filter) ||
                         (selectedUserAgent !== "All User Agents" &&

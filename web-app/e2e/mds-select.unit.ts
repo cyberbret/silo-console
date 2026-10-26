@@ -5,6 +5,8 @@ import { fileURLToPath } from "node:url";
 import { Browser, chromium, expect, test } from "@playwright/test";
 import { build } from "vite";
 import { browserExecutable } from "./fixtures/browserExecutable";
+import AxeBuilder from "@axe-core/playwright";
+import type { NamingMode } from "./fixtures/mdsSelectHarness";
 
 test.describe.configure({ mode: "serial" });
 
@@ -93,4 +95,115 @@ for (const action of ["click", "tap", "keyboard", "disabled"] as const) {
       await context.close();
     }
   });
+}
+
+for (const language of ["en", "zh"] as const) {
+  for (const mode of [
+    "label",
+    "explicit",
+    "explicit-only",
+    "fixed",
+    "placeholder",
+    "unlabelled",
+    "empty",
+    "disabled",
+    "rich",
+  ] satisfies NamingMode[]) {
+    test(`Select accessible name follows visible content: ${mode} ${language}`, async ({}, info) => {
+      const context = await browser.newContext({
+        viewport: { width: language === "zh" ? 390 : 1440, height: 900 },
+        reducedMotion: "reduce",
+      });
+      try {
+        const page = await context.newPage();
+        await page.setContent('<div id="root"></div>');
+        await page.evaluate(
+          (fixture) => {
+            window.selectNamingFixture = fixture;
+          },
+          { mode, language },
+        );
+        await page.addScriptTag({ content: script });
+        const zh = language === "zh";
+        const field = mode.startsWith("explicit")
+          ? zh
+            ? "账号状态"
+            : "Account status"
+          : ["placeholder", "unlabelled"].includes(mode)
+            ? ""
+            : zh
+              ? "状态"
+              : "Status";
+        const placeholder = zh ? "选择状态" : "Choose status";
+        const fixed = zh ? "筛选" : "Filter";
+        const all = zh ? "全部" : "All";
+        const enabled = zh ? "已启用" : "Enabled";
+        const visible =
+          mode === "empty"
+            ? ""
+            : mode === "placeholder"
+              ? placeholder
+              : mode === "fixed"
+                ? fixed
+                : all;
+        const name = (value: string) =>
+          [field, value].filter(Boolean).join(" ");
+        const trigger = page.locator("#status-select");
+        await expect(trigger).toHaveAccessibleName(name(visible));
+        if (mode === "disabled") {
+          await expect(trigger).toBeDisabled();
+          await page.keyboard.press("Tab");
+          await expect(page.locator("#after-status")).toBeFocused();
+          await expect(page.getByRole("listbox")).toHaveCount(0);
+          return;
+        }
+        await trigger.focus();
+        await trigger.press("ArrowDown");
+        const listbox = page.getByRole("listbox");
+        await expect(listbox).toHaveAccessibleName(
+          field || (mode === "placeholder" ? placeholder : all),
+        );
+        await expect(
+          page.getByRole("option", { name: all, exact: true }),
+        ).toBeFocused();
+        await page.keyboard.press("End");
+        // End skips the disabled final option; Enter commits and restores focus.
+        await expect(
+          page.getByRole("option", { name: enabled, exact: true }),
+        ).toBeFocused();
+        await page.keyboard.press("Enter");
+        await expect(page.locator("input#status")).toHaveValue("enabled");
+        await expect(trigger).toHaveAccessibleName(
+          name(mode === "fixed" ? fixed : enabled),
+        );
+        await expect(trigger).toBeFocused();
+        await trigger.press("Space");
+        await expect(listbox).toHaveAccessibleName(
+          field || (mode === "placeholder" ? placeholder : enabled),
+        );
+        await page.keyboard.press("Escape");
+        await expect(trigger).toBeFocused();
+        await expect(trigger).toHaveAttribute("aria-expanded", "false");
+        await trigger.press("ArrowUp");
+        await expect(listbox).toBeVisible();
+        await page.keyboard.press("Tab");
+        await expect(page.locator("#after-status")).toBeFocused();
+        await expect(trigger).toHaveAttribute("aria-expanded", "false");
+        const axe = await new AxeBuilder({ page })
+          .withRules([
+            "label-content-name-mismatch",
+            "button-name",
+            "aria-input-field-name",
+          ])
+          .analyze();
+        await info.attach("select-name-axe", {
+          body: JSON.stringify(axe),
+          contentType: "application/json",
+        });
+        expect(axe.violations).toEqual([]);
+      } finally {
+        await context.close();
+      }
+    });
+  }
 }
