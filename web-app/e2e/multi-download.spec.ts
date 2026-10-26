@@ -179,7 +179,11 @@ test("cancelling a queued save dialog settles without waiting for a download slo
   page,
 }) => {
   await page.route("**/api/v1/session", async (route) => {
-    const response = await route.fetch();
+    // Firefox can request zstd, which Playwright's APIResponse does not decode.
+    // This intercepted response is parsed and modified by the test itself.
+    const response = await route.fetch({
+      headers: { ...route.request().headers(), "accept-encoding": "identity" },
+    });
     const json = await response.json();
     json.envConstants = { ...json.envConstants, maxConcurrentDownloads: 1 };
     await route.fulfill({ response, json });
