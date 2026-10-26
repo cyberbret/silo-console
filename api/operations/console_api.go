@@ -802,6 +802,13 @@ func NewConsoleAPI(spec *loads.Document) *ConsoleAPI {
 			return middleware.NotImplemented("operation configuration.PostConfigsImport has not yet been implemented")
 		}),
 
+		ObjectPrefixUsageHandler: object.PrefixUsageHandlerFunc(func(params object.PrefixUsageParams, principal *models.Principal) middleware.Responder {
+			_ = params
+			_ = principal
+
+			return middleware.NotImplemented("operation object.PrefixUsage has not yet been implemented")
+		}),
+
 		ProfileProfilingStartHandler: profile.ProfilingStartHandlerFunc(func(params profile.ProfilingStartParams, principal *models.Principal) middleware.Responder {
 			_ = params
 			_ = principal
@@ -1118,6 +1125,7 @@ type ConsoleAPI struct {
 	BinProducer runtime.Producer
 	// JSONProducer registers a producer for the following mime types:
 	//   - application/json
+	//   - application/x-ndjson
 	JSONProducer runtime.Producer
 
 	// AnonymousAuth registers a function that takes a token and returns a principal
@@ -1337,6 +1345,8 @@ type ConsoleAPI struct {
 	ObjectPostBucketsBucketNameObjectsUploadHandler object.PostBucketsBucketNameObjectsUploadHandler
 	// ConfigurationPostConfigsImportHandler sets the operation handler for the post configs import operation
 	ConfigurationPostConfigsImportHandler configuration.PostConfigsImportHandler
+	// ObjectPrefixUsageHandler sets the operation handler for the prefix usage operation
+	ObjectPrefixUsageHandler object.PrefixUsageHandler
 	// ProfileProfilingStartHandler sets the operation handler for the profiling start operation
 	ProfileProfilingStartHandler profile.ProfilingStartHandler
 	// ProfileProfilingStopHandler sets the operation handler for the profiling stop operation
@@ -1813,6 +1823,9 @@ func (o *ConsoleAPI) Validate() error {
 	if o.ConfigurationPostConfigsImportHandler == nil {
 		unregistered = append(unregistered, "configuration.PostConfigsImportHandler")
 	}
+	if o.ObjectPrefixUsageHandler == nil {
+		unregistered = append(unregistered, "object.PrefixUsageHandler")
+	}
 	if o.ProfileProfilingStartHandler == nil {
 		unregistered = append(unregistered, "profile.ProfilingStartHandler")
 	}
@@ -1998,6 +2011,8 @@ func (o *ConsoleAPI) ProducersFor(mediaTypes []string) map[string]runtime.Produc
 			result["application/octet-stream"] = o.BinProducer
 		case "application/json":
 			result["application/json"] = o.JSONProducer
+		case "application/x-ndjson":
+			result["application/x-ndjson"] = o.JSONProducer
 		}
 
 		if p, ok := o.customProducers[mt]; ok {
@@ -2451,6 +2466,10 @@ func (o *ConsoleAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/configs/import"] = configuration.NewPostConfigsImport(o.context, o.ConfigurationPostConfigsImportHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/buckets/{bucket_name}/prefix-usage"] = object.NewPrefixUsage(o.context, o.ObjectPrefixUsageHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

@@ -2102,6 +2102,69 @@ func init() {
         ]
       }
     },
+    "/buckets/{bucket_name}/prefix-usage": {
+      "get": {
+        "description": "Explicit, cancellable metadata scan using the signed-in user's S3 listing permissions. Streams newline-delimited prefixUsageFrame snapshots. Only a complete frame is a total; limited, failed, or interrupted scans are partial. Current and retained-version bytes are logical object sizes, not physical drive allocation. Contents can change during the scan.",
+        "produces": [
+          "application/x-ndjson"
+        ],
+        "tags": [
+          "Object"
+        ],
+        "summary": "Calculate live folder usage",
+        "operationId": "PrefixUsage",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "bucket_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "maxLength": 1024,
+            "type": "string",
+            "description": "Empty for bucket root, otherwise a folder prefix ending in slash.",
+            "name": "prefix",
+            "in": "query",
+            "required": true,
+            "allowEmptyValue": true
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "Include retained object versions and delete markers; requires version-list permission.",
+            "name": "versions",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": true,
+            "description": "Include immediate child-folder summaries; false calculates only this prefix.",
+            "name": "folders",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Newline-delimited prefixUsageFrame snapshots ending in complete, limited, or failed.",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "default": {
+            "description": "Generic error response before streaming begins.",
+            "schema": {
+              "$ref": "#/definitions/ApiError"
+            }
+          }
+        },
+        "security": [
+          {
+            "key": []
+          }
+        ]
+      }
+    },
     "/buckets/{bucket_name}/replication": {
       "get": {
         "tags": [
@@ -6987,6 +7050,129 @@ func init() {
         }
       }
     },
+    "prefixUsageFolder": {
+      "type": "object",
+      "required": [
+        "prefix",
+        "usage"
+      ],
+      "properties": {
+        "prefix": {
+          "type": "string"
+        },
+        "usage": {
+          "$ref": "#/definitions/prefixUsageStats"
+        }
+      }
+    },
+    "prefixUsageFrame": {
+      "type": "object",
+      "required": [
+        "status",
+        "bucket",
+        "prefix",
+        "mode",
+        "started_at",
+        "updated_at",
+        "scanned_entries",
+        "totals",
+        "folders"
+      ],
+      "properties": {
+        "bucket": {
+          "type": "string"
+        },
+        "folders": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/prefixUsageFolder"
+          }
+        },
+        "message": {
+          "type": "string"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "current",
+            "versions"
+          ]
+        },
+        "prefix": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string",
+          "enum": [
+            "duration",
+            "entries",
+            "folders",
+            "upstream"
+          ]
+        },
+        "scanned_entries": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0
+        },
+        "started_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "scanning",
+            "complete",
+            "limited",
+            "failed"
+          ]
+        },
+        "totals": {
+          "$ref": "#/definitions/prefixUsageStats"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "prefixUsageStats": {
+      "type": "object",
+      "required": [
+        "current_bytes",
+        "current_objects",
+        "retained_bytes",
+        "retained_versions",
+        "delete_markers"
+      ],
+      "properties": {
+        "current_bytes": {
+          "description": "Decimal bytes preserve precision above JavaScript's exact integer range.",
+          "type": "string",
+          "pattern": "^[0-9]+$"
+        },
+        "current_objects": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0
+        },
+        "delete_markers": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0
+        },
+        "retained_bytes": {
+          "type": "string",
+          "pattern": "^[0-9]+$"
+        },
+        "retained_versions": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0
+        }
+      }
+    },
     "prefixWrapper": {
       "type": "object",
       "properties": {
@@ -10572,6 +10758,69 @@ func init() {
           },
           {
             "anonymous": []
+          }
+        ]
+      }
+    },
+    "/buckets/{bucket_name}/prefix-usage": {
+      "get": {
+        "description": "Explicit, cancellable metadata scan using the signed-in user's S3 listing permissions. Streams newline-delimited prefixUsageFrame snapshots. Only a complete frame is a total; limited, failed, or interrupted scans are partial. Current and retained-version bytes are logical object sizes, not physical drive allocation. Contents can change during the scan.",
+        "produces": [
+          "application/x-ndjson"
+        ],
+        "tags": [
+          "Object"
+        ],
+        "summary": "Calculate live folder usage",
+        "operationId": "PrefixUsage",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "bucket_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "maxLength": 1024,
+            "type": "string",
+            "description": "Empty for bucket root, otherwise a folder prefix ending in slash.",
+            "name": "prefix",
+            "in": "query",
+            "required": true,
+            "allowEmptyValue": true
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "Include retained object versions and delete markers; requires version-list permission.",
+            "name": "versions",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": true,
+            "description": "Include immediate child-folder summaries; false calculates only this prefix.",
+            "name": "folders",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Newline-delimited prefixUsageFrame snapshots ending in complete, limited, or failed.",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "default": {
+            "description": "Generic error response before streaming begins.",
+            "schema": {
+              "$ref": "#/definitions/ApiError"
+            }
+          }
+        },
+        "security": [
+          {
+            "key": []
           }
         ]
       }
@@ -15647,6 +15896,129 @@ func init() {
         },
         "prefix": {
           "type": "string"
+        }
+      }
+    },
+    "prefixUsageFolder": {
+      "type": "object",
+      "required": [
+        "prefix",
+        "usage"
+      ],
+      "properties": {
+        "prefix": {
+          "type": "string"
+        },
+        "usage": {
+          "$ref": "#/definitions/prefixUsageStats"
+        }
+      }
+    },
+    "prefixUsageFrame": {
+      "type": "object",
+      "required": [
+        "status",
+        "bucket",
+        "prefix",
+        "mode",
+        "started_at",
+        "updated_at",
+        "scanned_entries",
+        "totals",
+        "folders"
+      ],
+      "properties": {
+        "bucket": {
+          "type": "string"
+        },
+        "folders": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/prefixUsageFolder"
+          }
+        },
+        "message": {
+          "type": "string"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "current",
+            "versions"
+          ]
+        },
+        "prefix": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string",
+          "enum": [
+            "duration",
+            "entries",
+            "folders",
+            "upstream"
+          ]
+        },
+        "scanned_entries": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0
+        },
+        "started_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "scanning",
+            "complete",
+            "limited",
+            "failed"
+          ]
+        },
+        "totals": {
+          "$ref": "#/definitions/prefixUsageStats"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "prefixUsageStats": {
+      "type": "object",
+      "required": [
+        "current_bytes",
+        "current_objects",
+        "retained_bytes",
+        "retained_versions",
+        "delete_markers"
+      ],
+      "properties": {
+        "current_bytes": {
+          "description": "Decimal bytes preserve precision above JavaScript's exact integer range.",
+          "type": "string",
+          "pattern": "^[0-9]+$"
+        },
+        "current_objects": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0
+        },
+        "delete_markers": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0
+        },
+        "retained_bytes": {
+          "type": "string",
+          "pattern": "^[0-9]+$"
+        },
+        "retained_versions": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0
         }
       }
     },

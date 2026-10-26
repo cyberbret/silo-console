@@ -10,6 +10,26 @@
 // Untranslated strings simply fall back to English at runtime.
 
 export const zh: Record<string, string> = {
+  "Folder sizes": "文件夹大小",
+  "Calculate folder sizes": "计算文件夹大小",
+  "Calculate size": "计算大小",
+  "Include retained versions": "包含保留版本",
+  Calculating: "计算中",
+  "Canceled — totals are partial": "已取消 — 统计不完整",
+  "Calculation failed — totals are partial": "计算失败 — 统计不完整",
+  "Scan limit reached — totals are partial. Try a smaller folder.":
+    "已达到扫描限制 — 统计不完整。请尝试较小的文件夹。",
+  "Current objects": "当前对象",
+  "Current size": "当前大小",
+  "Retained versions": "保留版本",
+  "Retained size": "保留大小",
+  "Delete markers": "删除标记",
+  "Entries scanned": "已扫描条目",
+  "Calculated at": "计算时间",
+  Partial: "不完整",
+  "Scans object metadata without downloading files. Contents can change during the scan. Sizes are logical bytes, not physical disk usage.":
+    "仅扫描对象元数据，不下载文件。扫描期间内容可能变化。大小为逻辑字节数，而非磁盘实际占用。",
+
   "Keyboard shortcuts": "键盘快捷键",
   "Move through objects": "在对象之间移动",
   "Move one visible page": "移动一个可见页面",

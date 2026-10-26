@@ -66,6 +66,56 @@ export enum BucketEncryptionType {
   SseKms = "sse-kms",
 }
 
+export interface PrefixUsageStats {
+  /**
+   * Decimal bytes preserve precision above JavaScript's exact integer range.
+   * @pattern ^[0-9]+$
+   */
+  current_bytes: string;
+  /**
+   * @format int64
+   * @min 0
+   */
+  current_objects: number;
+  /** @pattern ^[0-9]+$ */
+  retained_bytes: string;
+  /**
+   * @format int64
+   * @min 0
+   */
+  retained_versions: number;
+  /**
+   * @format int64
+   * @min 0
+   */
+  delete_markers: number;
+}
+
+export interface PrefixUsageFolder {
+  prefix: string;
+  usage: PrefixUsageStats;
+}
+
+export interface PrefixUsageFrame {
+  status: "scanning" | "complete" | "limited" | "failed";
+  bucket: string;
+  prefix: string;
+  mode: "current" | "versions";
+  /** @format date-time */
+  started_at: string;
+  /** @format date-time */
+  updated_at: string;
+  /**
+   * @format int64
+   * @min 0
+   */
+  scanned_entries: number;
+  totals: PrefixUsageStats;
+  folders: PrefixUsageFolder[];
+  reason?: "duration" | "entries" | "folders" | "upstream";
+  message?: string;
+}
+
 export interface AccountChangePasswordRequest {
   current_secret_key: string;
   new_secret_key: string;
@@ -1976,6 +2026,44 @@ export class Api<
         body: body,
         secure: true,
         type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * @description Explicit, cancellable metadata scan using the signed-in user's S3 listing permissions. Streams newline-delimited prefixUsageFrame snapshots. Only a complete frame is a total; limited, failed, or interrupted scans are partial. Current and retained-version bytes are logical object sizes, not physical drive allocation. Contents can change during the scan.
+     *
+     * @tags Object
+     * @name PrefixUsage
+     * @summary Calculate live folder usage
+     * @request GET:/buckets/{bucket_name}/prefix-usage
+     * @secure
+     */
+    prefixUsage: (
+      bucketName: string,
+      query: {
+        /**
+         * Empty for bucket root, otherwise a folder prefix ending in slash.
+         * @maxLength 1024
+         */
+        prefix: string;
+        /**
+         * Include retained object versions and delete markers; requires version-list permission.
+         * @default false
+         */
+        versions?: boolean;
+        /**
+         * Include immediate child-folder summaries; false calculates only this prefix.
+         * @default true
+         */
+        folders?: boolean;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<File, ApiError>({
+        path: `/buckets/${encodeURIComponent(bucketName)}/prefix-usage`,
+        method: "GET",
+        query: query,
+        secure: true,
         ...params,
       }),
 
