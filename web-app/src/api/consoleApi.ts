@@ -307,8 +307,9 @@ export interface AccessRule {
 }
 
 export interface UpdateGroupRequest {
-  members: string[];
-  status: string;
+  /** Complete target membership when supplied. An empty array removes all members; omission or null preserves current membership. */
+  members?: string[] | null;
+  status: "enabled" | "disabled";
 }
 
 export interface ConfigDescription {

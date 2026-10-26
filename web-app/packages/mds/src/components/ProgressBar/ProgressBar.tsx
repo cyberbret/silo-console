@@ -110,7 +110,9 @@ const ProgressBar: FC<ProgressBarProps> = ({
 }) => {
   const labels = useControlLabels();
   const calcPerc =
-    maxValue > 0 ? Math.max(0, Math.min(100, (value * 100) / maxValue)) : 0;
+    Number.isFinite(value) && Number.isFinite(maxValue) && maxValue > 0
+      ? Math.max(0, Math.min(100, (value / maxValue) * 100))
+      : 0;
 
   return (
     <ProgressBase

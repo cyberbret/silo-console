@@ -689,9 +689,17 @@ func zipDownloadResponder(ctx context.Context, resp *io.PipeReader, filename str
 
 		ErrorWithContext(ctx, fmt.Errorf("unable to build complete ZIP archive: %w", streamErr))
 		if written == 0 {
+			// Fetch, Stat and listing failures retain their S3 status through
+			// the ZIP builder's wrappers. Do not disclose backend details or
+			// turn an upstream error into a successful response or redirect.
+			statusCode := http.StatusInternalServerError
+			var s3Error minio.ErrorResponse
+			if errors.As(streamErr, &s3Error) && s3Error.StatusCode >= 400 && s3Error.StatusCode <= 599 {
+				statusCode = s3Error.StatusCode
+			}
 			rw.Header().Del("Content-Disposition")
 			rw.Header().Set("Content-Type", "text/plain; charset=utf-8")
-			http.Error(rw, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			http.Error(rw, http.StatusText(statusCode), statusCode)
 			return
 		}
 

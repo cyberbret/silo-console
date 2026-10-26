@@ -368,8 +368,12 @@ subscription for the app shortcut provider, without importing app code into MDS.
   strokes and the existing card-surface token for white masking circles, keeping
   the same original slider icon visible in both themes.
 - Select accepts an optional aria-label for composed fields whose visible source
-  label lives outside the control. The name reaches both the trigger and listbox;
-  the selected option remains visible and existing label fallbacks are unchanged.
+  label lives outside the control. The trigger uses aria-labelledby to combine
+  that explicit name (or the field label) with its rendered value, including
+  fixed labels and placeholders. The listbox retains the field name and its
+  existing fixed-label/placeholder/value fallbacks. Mounted regressions cover
+  changing English/Chinese names, renderable labels, disabled controls and
+  keyboard selection, dismissal and focus restoration.
 - DataTable measures its stable container with a local native ResizeObserver
   instead of the virtualizer's legacy scroll-trigger AutoSizer. Functional state
   updates preserve the latest dimensions when a transient zero-sized layout and
@@ -410,3 +414,27 @@ a fill-free geometry group isolates them from legacy root fill rules. Width-only
 sizing retains the square viewBox ratio. No icon font or runtime dependency is
 added. Semantic colors move to the existing icon hosts, and obsolete menu
 rotation is removed at the mobile header.
+
+### Deferred row focus and finite progress
+
+DataTable cancels a queued keyboard focus request when a later Tab, pointer
+press or focus transfer takes ownership, and removes those listeners on completion
+or unmount. Escape still restores the active row when uninterrupted; `/`, Tab
+and pointer actions cannot be overridden by its stale animation-frame callback.
+Mounted real-object-table regressions exercise these orderings without delaying
+input, alongside virtualization, arrows, selection and dialog behavior.
+
+ProgressBar normalizes non-finite values and invalid maxima to zero for determinate
+progress and clamps finite ratios to 0–100 before painting or exposing ARIA.
+Division precedes multiplication to avoid overflow for large finite inputs.
+Indeterminate progress continues to omit `aria-valuenow` and a percentage label.
+Regressions cover invalid inputs, bounds, cancellation, and the real Speedtest
+component's initial, running and completed states.
+
+### Tab visibility after resize
+
+Tabs keeps the currently focused tab visible when a resize notification arrives
+after keyboard navigation. If the tab list has no focused tab, it reveals the
+selected tab as before. Manual activation and selection remain unchanged;
+regressions deliver a real resize after End and verify that focus remains visible
+without changing selection.

@@ -47,7 +47,7 @@ func registerLogoutHandlers(api *operations.ConsoleAPI) {
 			if err != nil {
 				w.Header().Set("IDP-Logout", fmt.Sprintf("%v", err.APIError.DetailedMessage))
 			}
-			expiredCookie := ExpireSessionCookie()
+			expiredCookie := expireSessionCookieForRequest(params.HTTPRequest)
 			// this will tell the browser to clear the cookie and invalidate user session
 			// additionally we are deleting the cookie from the client side
 			http.SetCookie(w, &expiredCookie)
@@ -58,7 +58,7 @@ func registerLogoutHandlers(api *operations.ConsoleAPI) {
 				MaxAge:   -1,
 				Expires:  time.Now().Add(-100 * time.Hour),
 				HttpOnly: true,
-				Secure:   len(GlobalPublicCerts) > 0,
+				Secure:   expiredCookie.Secure,
 				SameSite: http.SameSiteLaxMode,
 			})
 			authApi.NewLogoutOK().WriteResponse(w, p)

@@ -432,13 +432,12 @@ test("shared fields keep full phone width, aligned desktop columns, and usable l
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth),
     ).toBeLessThanOrEqual(width);
-    const region = page.getByRole("button", {
-      name: "Storage region",
-      exact: true,
-    });
+    const region = page.locator("#region-select");
+    await expect(region).toHaveAccessibleName("Storage region First region");
     await region.click();
     await page.getByRole("option", { name: "Second region" }).click();
     await expect(region).toContainText("Second region");
+    await expect(region).toHaveAccessibleName("Storage region Second region");
     await expect(page.locator('input[type="hidden"]#region')).toHaveValue(
       "two",
     );

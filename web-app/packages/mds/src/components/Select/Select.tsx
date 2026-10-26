@@ -113,8 +113,9 @@ const Select: FC<SelectProps> = ({
   }, [visible, disabled]);
   const open = isOpen && visible && !disabled;
   const selectedLabel = options.find((option) => option.value === value);
-  const accessibleLabel =
-    ariaLabel || label || fixedLabel || placeholder || selectedLabel?.label;
+  const fieldLabel = ariaLabel || label;
+  const labelId = `${id}-label`;
+  const valueId = `${id}-value`;
 
   if (!selectedLabel && fixedLabel === "" && placeholder === "") {
     console.warn("The selected value is not included in Options List");
@@ -134,10 +135,15 @@ const Select: FC<SelectProps> = ({
           helpTip={helpTip}
           helpTipPlacement={helpTipPlacement}
         >
-          {label}
+          <span id={ariaLabel ? undefined : labelId}>{label}</span>
           {required ? "*" : ""}
           {tooltip !== "" && <FieldHelp text={tooltip} />}
         </InputLabel>
+      )}
+      {ariaLabel && (
+        <span id={labelId} hidden>
+          {ariaLabel}
+        </span>
       )}
 
       <Box
@@ -148,7 +154,9 @@ const Select: FC<SelectProps> = ({
           id={`${id}-select`}
           type="button"
           disabled={disabled}
-          aria-label={accessibleLabel}
+          // Reference the rendered value so JSX labels, fixed labels and
+          // placeholders stay in the name as the visible content changes.
+          aria-labelledby={fieldLabel ? `${labelId} ${valueId}` : valueId}
           aria-haspopup="listbox"
           aria-expanded={open}
           aria-controls={open ? `${id}-options-selector` : undefined}
@@ -174,6 +182,7 @@ const Select: FC<SelectProps> = ({
               <Box className={"indicatorContainer"}>{selectedLabel?.icon}</Box>
             )}
             <Box
+              id={valueId}
               sx={{
                 whiteSpace: "nowrap",
                 overflow: "hidden",
@@ -225,7 +234,12 @@ const Select: FC<SelectProps> = ({
         hideTriggerAction={() => {
           setIsOpen(false);
         }}
-        ariaLabel={accessibleLabel}
+        ariaLabel={
+          fieldLabel ? undefined : fixedLabel || placeholder || undefined
+        }
+        ariaLabelledBy={
+          fieldLabel ? labelId : fixedLabel || placeholder ? undefined : valueId
+        }
         open={open}
         anchorEl={anchorEl}
         useAnchorWidth

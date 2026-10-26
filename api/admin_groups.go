@@ -21,6 +21,7 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/minio/console/api/operations"
 	"github.com/minio/madmin-go/v3"
 
@@ -303,11 +304,18 @@ func getUpdateGroupResponse(session *models.Principal, params groupApi.UpdateGro
 	return groupResponse, nil
 }
 
-// groupUpdate updates a group given the expected parameters, compares the expected parameters against the current ones
-// and updates them accordingly, status is only updated if the expected status is different than the current one.
-// Then fetches the group again to return the object updated.
+// groupUpdate changes status without touching membership when members is omitted
+// or null. An explicit members array retains the legacy full-replacement contract,
+// including removing all members for []. The latest description is returned.
 func groupUpdate(ctx context.Context, client MinioAdmin, groupName string, expectedGroup *models.UpdateGroupRequest) (*madmin.GroupDesc, error) {
-	expectedMembers := expectedGroup.Members
+	if expectedGroup == nil {
+		return nil, errors.Required("body", "body", nil)
+	}
+	// Validate before any administrative write, including calls outside the HTTP
+	// binder. An invalid status must not partially apply membership changes.
+	if err := expectedGroup.Validate(strfmt.Default); err != nil {
+		return nil, err
+	}
 	expectedStatus := *expectedGroup.Status
 	// get current members and status
 	groupDescription, err := groupInfo(ctx, client, groupName)
@@ -315,11 +323,12 @@ func groupUpdate(ctx context.Context, client MinioAdmin, groupName string, expec
 		LogInfo("error getting group info: %v", err)
 		return nil, err
 	}
-	// update group members
-	err = addOrDeleteMembers(ctx, client, groupDescription, expectedMembers)
-	if err != nil {
-		LogInfo("error updating group: %v", err)
-		return nil, err
+	if expectedGroup.Members != nil {
+		err = addOrDeleteMembers(ctx, client, groupDescription, expectedGroup.Members)
+		if err != nil {
+			LogInfo("error updating group: %v", err)
+			return nil, err
+		}
 	}
 	// update group status only if different from current status
 	if expectedStatus != groupDescription.Status {

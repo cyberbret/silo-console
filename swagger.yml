@@ -3679,15 +3679,20 @@ definitions:
   updateGroupRequest:
     type: object
     required:
-      - members
       - status
     properties:
       members:
+        description: Complete target membership when supplied. An empty array removes all members; omission or null preserves current membership.
         type: array
+        x-nullable: true
+        x-omitempty: false
         items:
           type: string
       status:
         type: string
+        enum:
+          - enabled
+          - disabled
   configDescription:
     type: object
     properties:

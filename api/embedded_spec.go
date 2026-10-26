@@ -8200,18 +8200,24 @@ func init() {
     "updateGroupRequest": {
       "type": "object",
       "required": [
-        "members",
         "status"
       ],
       "properties": {
         "members": {
+          "description": "Complete target membership when supplied. An empty array removes all members; omission or null preserves current membership.",
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "status": {
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "enabled",
+            "disabled"
+          ]
         }
       }
     },
@@ -16840,18 +16846,24 @@ func init() {
     "updateGroupRequest": {
       "type": "object",
       "required": [
-        "members",
         "status"
       ],
       "properties": {
         "members": {
+          "description": "Complete target membership when supplied. An empty array removes all members; omission or null preserves current membership.",
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "status": {
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "enabled",
+            "disabled"
+          ]
         }
       }
     },

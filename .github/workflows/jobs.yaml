@@ -26,8 +26,8 @@ env:
   # Historical test recipes call this MINIO_VERSION. The release gate uses the
   # maintained SILO server; upstream MinIO is probed separately as best effort.
   MINIO_VERSION: silo-test:${{ github.run_id }}
-  # Coordinated IAM Reset and fresh bucket inventory, without unrelated storage work.
-  SILO_TEST_REVISION: 030c6d740e9fc9d9f3e1d3fcce52d49721704dbf
+  # The SILO candidate used for the Console release acceptance campaign.
+  SILO_TEST_REVISION: 263ee0510da51c555b7257bbe504b22355cac4b0
 
 jobs:
   compile-silo:
@@ -1687,6 +1687,29 @@ jobs:
         run: |
           yarn exec playwright test --reporter=github
           yarn exec nyc report
+
+      - name: Verify group status and membership boundaries
+        working-directory: web-app
+        env:
+          GROUP_STATUS_CONFIG: ${{ runner.temp }}/console-group-status.json
+          GROUP_STATUS_ARTIFACTS: ${{ runner.temp }}/console-group-status-results
+        run: |
+          node --input-type=module <<'NODE'
+          import { writeFileSync } from 'node:fs';
+          writeFileSync(process.env.GROUP_STATUS_CONFIG, JSON.stringify({
+            url: 'http://localhost:9090',
+            root: { username: 'minioadmin', password: 'minioadmin' },
+          }), { mode: 0o600 });
+          NODE
+          yarn exec playwright test --config=playwright.groups.config.ts
+
+      - name: Retain group regression evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: group-status-results
+          path: ${{ runner.temp }}/console-group-status-results
+          if-no-files-found: warn
 
   sharing-boundary:
     name: Shared downloads in standalone and embedded SILO

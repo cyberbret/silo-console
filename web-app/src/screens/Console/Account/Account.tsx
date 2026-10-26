@@ -322,6 +322,7 @@ const Account = () => {
               loadingState={<SkeletonRows rows={5} columns={4} />}
               emptyState={
                 <FilteredEmptyState
+                  headingLevel={2}
                   filtered={Boolean(filter.trim())}
                   onClear={() => setFilter("")}
                   icon={<AccountIcon />}

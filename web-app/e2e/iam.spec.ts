@@ -11,6 +11,11 @@ import { join } from "node:path";
 import { test, expect } from "./fixtures/guiTest";
 import { guiEnvironment } from "./fixtures/guiEnvironment";
 import {
+  guiScreens,
+  openGuiScreen,
+  attachGuiEvidence,
+} from "./fixtures/guiScreens";
+import {
   canonicalPolicySnapshot,
   guiDemo,
   policySnapshot,
@@ -30,6 +35,103 @@ const readResponse = async (response: Response) => ({
   status: response.status(),
   body: await response.text(),
 });
+
+for (const variant of [
+  { id: "1440-light", width: 1440, theme: "light" },
+  { id: "1440-dark", width: 1440, theme: "dark" },
+  { id: "390-light", width: 390, theme: "light" },
+  { id: "390-light", width: 390, theme: "light", chinese: true },
+] as const) {
+  const language =
+    variant.theme === "dark" || "chinese" in variant ? "zh" : "en";
+  for (const kind of ["users", "policies"] as const) {
+    test(`filter name and keyboard ${kind} ${variant.id} ${language}`, async ({
+      browser,
+    }, info) => {
+      const screen = guiScreens.find((screen) => screen.id === kind)!;
+      const { context, page, pageErrors } = await openGuiScreen(
+        browser,
+        screen,
+        variant,
+        language,
+      );
+      try {
+        const zh = language === "zh";
+        const field =
+          kind === "users" ? (zh ? "状态" : "Status") : zh ? "类型" : "Type";
+        const all = zh ? "全部" : "All";
+        const id =
+          kind === "users" ? "user-status-filter" : "policy-type-filter";
+        const trigger = page.locator(`#${id}-select`);
+        const value = page.locator(`input#${id}`);
+        await expect(trigger).toHaveAccessibleName(`${field} ${all}`);
+        await trigger.focus();
+        await trigger.press("ArrowDown");
+        const listbox = page.getByRole("listbox", { name: field, exact: true });
+        await expect(listbox).toBeVisible();
+        await expect(
+          listbox.getByRole("option", { name: all, exact: true }),
+        ).toBeFocused();
+        await page.keyboard.press("ArrowDown");
+        const selected = await listbox.getByRole("option").nth(1).innerText();
+        await page.keyboard.press("Enter");
+        await expect(trigger).toBeFocused();
+        await expect(trigger).toHaveAccessibleName(`${field} ${selected}`);
+        await expect(value).toHaveValue(
+          kind === "users" ? "enabled" : "builtin",
+        );
+        const row = (name: string) =>
+          page.getByRole("row", { name, exact: true });
+        await expect(
+          row(kind === "users" ? guiDemo.user : "readwrite"),
+        ).toBeVisible();
+        if (kind === "policies")
+          await expect(row("demo-reader")).toHaveCount(0);
+
+        await trigger.press("Space");
+        await expect(listbox).toBeVisible();
+        await page.keyboard.press("End");
+        const last = await listbox.getByRole("option").last().innerText();
+        await page.keyboard.press("Enter");
+        await expect(value).toHaveValue(
+          kind === "users" ? "disabled" : "custom",
+        );
+        await expect(trigger).toHaveAccessibleName(`${field} ${last}`);
+        await expect(
+          row(kind === "users" ? guiDemo.user : "readwrite"),
+        ).toHaveCount(0);
+        if (kind === "policies") await expect(row("demo-reader")).toBeVisible();
+
+        await trigger.press("ArrowUp");
+        await expect(listbox).toBeVisible();
+        await page.keyboard.press("Escape");
+        await expect(trigger).toBeFocused();
+        await expect(trigger).toHaveAttribute("aria-expanded", "false");
+        await expect(trigger).toHaveAccessibleName(`${field} ${last}`);
+        await trigger.press("Enter");
+        await expect(listbox).toBeVisible();
+        await page.keyboard.press("Home");
+        await page.keyboard.press("Enter");
+        await expect(value).toHaveValue("all");
+        await expect(trigger).toHaveAccessibleName(`${field} ${all}`);
+        await expect(
+          row(kind === "users" ? guiDemo.user : "demo-reader"),
+        ).toBeVisible();
+        await trigger.press("ArrowDown");
+        await expect(listbox).toBeVisible();
+        await page.keyboard.press("Tab");
+        await expect(trigger).toHaveAttribute("aria-expanded", "false");
+        await expect(trigger).not.toBeFocused();
+        await expect(
+          page.getByRole("option").filter({ visible: true }),
+        ).toHaveCount(0);
+        await attachGuiEvidence(page, info, pageErrors);
+      } finally {
+        await context.close();
+      }
+    });
+  }
+}
 async function readonlyPolicy(page: Page) {
   await page.getByRole("tab", { name: "Raw Policy", exact: true }).click();
   await expect(page.locator("textarea#code_wrapper")).toHaveJSProperty(

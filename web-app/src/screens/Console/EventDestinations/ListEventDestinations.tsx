@@ -297,6 +297,7 @@ const ListEventDestinations = () => {
             loadingState={<SkeletonRows rows={5} columns={2} />}
             emptyState={
               <FilteredEmptyState
+                headingLevel={2}
                 filtered={Boolean(filter.trim())}
                 onClear={() => setFilter("")}
                 icon={<LambdaIcon />}

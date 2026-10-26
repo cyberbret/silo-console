@@ -463,11 +463,33 @@ const DataTable: FC<DataTableProps> = ({
   useLayoutEffect(() => {
     if (!focusRequest) return;
     setScrollIndex(activeIndex);
+    // Recovery belongs to this keyboard request only. A later Tab, pointer
+    // action or focus transfer supersedes it, even if focus then leaves the DOM.
+    const release = () => {
+      document.removeEventListener("keydown", onKeyDown, true);
+      document.removeEventListener("pointerdown", cancel, true);
+      document.removeEventListener("focusin", cancel, true);
+    };
+    const cancel = () => {
+      cancelAnimationFrame(frame);
+      release();
+      setScrollIndex(-1);
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Tab") cancel();
+    };
     const frame = requestAnimationFrame(() => {
+      release();
       focusRow();
       setScrollIndex(-1);
     });
-    return () => cancelAnimationFrame(frame);
+    document.addEventListener("keydown", onKeyDown, true);
+    document.addEventListener("pointerdown", cancel, true);
+    document.addEventListener("focusin", cancel, true);
+    return () => {
+      cancelAnimationFrame(frame);
+      release();
+    };
   }, [focusRequest]);
   const hover = useFluidHover(tableBody, {
     gapClick: false,

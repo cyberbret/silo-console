@@ -55,7 +55,7 @@ func registerLoginHandlers(api *operations.ConsoleAPI) {
 		}
 		// Custom response writer to set the session cookies
 		return middleware.ResponderFunc(func(w http.ResponseWriter, p runtime.Producer) {
-			cookie := NewSessionCookieForConsole(loginResponse.SessionID)
+			cookie := newSessionCookieForRequest(loginResponse.SessionID, params.HTTPRequest)
 			http.SetCookie(w, &cookie)
 			authApi.NewLoginNoContent().WriteResponse(w, p)
 		})
@@ -68,14 +68,14 @@ func registerLoginHandlers(api *operations.ConsoleAPI) {
 		}
 		// Custom response writer to set the session cookies
 		return middleware.ResponderFunc(func(w http.ResponseWriter, p runtime.Producer) {
-			cookie := NewSessionCookieForConsole(loginResponse.SessionID)
+			cookie := newSessionCookieForRequest(loginResponse.SessionID, params.HTTPRequest)
 			http.SetCookie(w, &cookie)
 			http.SetCookie(w, &http.Cookie{
 				Path:     "/",
 				Name:     "idp-refresh-token",
 				Value:    loginResponse.IDPRefreshToken,
 				HttpOnly: true,
-				Secure:   len(GlobalPublicCerts) > 0,
+				Secure:   cookie.Secure,
 				SameSite: http.SameSiteLaxMode,
 			})
 			authApi.NewLoginOauth2AuthNoContent().WriteResponse(w, p)

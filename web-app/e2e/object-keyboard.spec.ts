@@ -116,6 +116,14 @@ test("Space, modifiers, filter and accepted Enter selection ownership", async ({
     "Start typing to filter objects in the bucket",
   );
   await expect(filter).toBeFocused();
+  // Observe queued recovery after the shortcut, never delay the shortcut itself.
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+      ),
+  );
+  await expect(filter).toBeFocused();
   await filter.fill("README");
   await expect(page.locator('[role="row"][data-fluid-key]')).toHaveCount(2);
   await filter.press("Control+a");
