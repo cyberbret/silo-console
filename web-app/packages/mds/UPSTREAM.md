@@ -430,3 +430,11 @@ Division precedes multiplication to avoid overflow for large finite inputs.
 Indeterminate progress continues to omit `aria-valuenow` and a percentage label.
 Regressions cover invalid inputs, bounds, cancellation, and the real Speedtest
 component's initial, running and completed states.
+
+### Tab visibility after resize
+
+Tabs keeps the currently focused tab visible when a resize notification arrives
+after keyboard navigation. If the tab list has no focused tab, it reveals the
+selected tab as before. Manual activation and selection remain unchanged;
+regressions deliver a real resize after End and verify that focus remains visible
+without changing selection.

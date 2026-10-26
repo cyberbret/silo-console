@@ -134,9 +134,10 @@ const Tabs: FC<TabsProps> = ({
     const container = list.current;
     if (!container) return;
     const revealSelected = () => {
-      const item = container.querySelector<HTMLElement>(
-        '[aria-selected="true"]',
-      );
+      const item =
+        container.querySelector<HTMLElement>(
+          '[role="tab"]:focus:not(:disabled)',
+        ) ?? container.querySelector<HTMLElement>('[aria-selected="true"]');
       if (item) revealListItem(item);
     };
     const observer = new ResizeObserver(revealSelected);

@@ -383,6 +383,32 @@ test.describe("mounted fluid controls", () => {
           return r.top >= p.top && r.bottom <= p.bottom;
         }),
       ).toBe(true);
+      // Deliver a real resize after End, while Route 3 remains selected.
+      await routes.last().evaluate(
+        (item) =>
+          new Promise<void>((resolve) => {
+            const list = item.parentElement!;
+            const observer = new ResizeObserver((entries) => {
+              if (entries[0].contentRect.height !== 140) return;
+              observer.disconnect();
+              // Let every resize callback finish before checking visibility.
+              requestAnimationFrame(() => resolve());
+            });
+            observer.observe(list);
+            list.style.maxHeight = "140px";
+          }),
+      );
+      await expect(routes.last()).toBeFocused();
+      await expect(routes.last()).toHaveAttribute("tabindex", "0");
+      await expect(routes.nth(3)).toHaveAttribute("aria-selected", "true");
+      await expect(routes.last()).toHaveAttribute("aria-selected", "false");
+      expect(
+        await routes.last().evaluate((item) => {
+          const r = item.getBoundingClientRect();
+          const p = item.parentElement!.getBoundingClientRect();
+          return r.top >= p.top && r.bottom <= p.bottom;
+        }),
+      ).toBe(true);
     } finally {
       await page.close();
     }
