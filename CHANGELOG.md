@@ -11,7 +11,7 @@
   first response byte keep their S3 error status without exposing backend details.
 - Restore table and control focus, accessible names and progress values, and keep
   the focused tab visible when its list is resized.
-- Adopt silo-pkg v3.15.2, the accepted mcli 20261026 candidate source, and upstream
+- Adopt silo-pkg v3.15.2, the published mcli 20261026 source, and upstream
   minio-go `v7.4.2-0.20261025165926-320af050c445`. Bucket replication removal accepts
   HTTP 204 while preserving other response errors.
 - Use GoReleaser 2.19.0; retain Go 1.27.3 and existing output/platform compatibility

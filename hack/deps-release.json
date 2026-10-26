@@ -22,9 +22,10 @@
       "import": "github.com/minio/mc",
       "replacement": "github.com/pgsty/mc",
       "version": "v0.0.0-20261026120214-0ceb298cdcd0",
-      "kind": "source_commit",
+      "kind": "calendar_release",
       "commit": "0ceb298cdcd05f2ffdc4ea62d7d01a3666c3e8cc",
-      "repository": "pgsty/mc"
+      "repository": "pgsty/mc",
+      "tag": "RELEASE.2026-10-26T00-00-00Z"
     }
   ]
 }
