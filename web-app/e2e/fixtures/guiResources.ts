@@ -177,8 +177,11 @@ export function canonicalPolicySnapshot(
       (item: { name: string; policy: string }) => {
         if (item.name === name) return item;
         const policy = JSON.parse(item.policy);
+        // Go policy sets can serialize in either order. Keep the target policy
+        // byte-exact; only normalize set order in unrelated inventory entries.
         for (const statement of policy.Statement || [])
-          if (Array.isArray(statement.Action)) statement.Action.sort();
+          for (const field of ["Action", "Resource"])
+            if (Array.isArray(statement[field])) statement[field].sort();
         return { ...item, policy };
       },
     ),

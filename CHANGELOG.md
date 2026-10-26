@@ -1,5 +1,26 @@
 # Changelog
 
+## Release v2.5.1
+
+- Preserve group membership when changing group status. Explicit member arrays
+  retain their replacement contract; status-only updates do not replace members.
+- Preserve OIDC string-array group permissions and keep session cookies secure
+  behind TLS termination when the external HTTPS URL or a trusted proxy identifies
+  the secure transport. Do not trust arbitrary forwarded headers.
+- Preserve credential exports as exact UTF-8 JSON bytes. ZIP failures before the
+  first response byte keep their S3 error status without exposing backend details.
+- Restore table and control focus, accessible names and progress values, and keep
+  the focused tab visible when its list is resized.
+- Adopt silo-pkg v3.15.2, the accepted mcli 20261026 candidate source, and upstream
+  minio-go `v7.4.2-0.20261025165926-320af050c445`. Bucket replication removal accepts
+  HTTP 204 while preserving other response errors.
+- Use GoReleaser 2.19.0; retain Go 1.27.3 and existing output/platform compatibility
+  selections. Rebuild the embedded frontend with version 2.5.1.
+
+Standalone Console and the Console embedded in SILO are separate artifacts.
+SILO must select this source and the matching maintained mcli replacement to
+include these fixes. Publication status is recorded in GitHub Releases.
+
 ## Release v2.5.0
 
 Release date: **2026-10-25**.
