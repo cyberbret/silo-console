@@ -38,8 +38,8 @@
 
 [English](README.md) · [简体中文](README_ZH.md)
 
-**v2.5.1** uses **Go 1.27.3**, **silo-pkg v3.15.2** and the accepted mcli
-20261026 candidate source. Exact dependency commits are recorded in
+**v2.5.1** uses **Go 1.27.3**, **silo-pkg v3.15.2** and the published mcli
+20261026 source (`20261026000000.0.0`). Exact dependency commits are recorded in
 [hack/deps-release.json](hack/deps-release.json). The upstream SDK is pinned to
 `v7.4.2-0.20261025165926-320af050c445`, which accepts successful HTTP 204 responses
 when removing bucket replication.
@@ -207,7 +207,7 @@ and resolves `github.com/minio/minio-go/v7` upstream. The maintained mc source
 keeps the compatibility module path `github.com/minio/mc` and lives in
 `pgsty/mc`. Console pins an immutable Go pseudo-version: either a published
 calendar release or a commit accepted on main with successful CI. The current
-selection is the accepted mcli 20261026 candidate source recorded in
+selection is the published mcli 20261026 source recorded in
 `hack/deps-release.json`. Selecting it
 as a dependency does not create another mcli release. An embedding server must
 copy this replacement because Go ignores replacements declared by dependency

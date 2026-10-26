@@ -337,14 +337,37 @@ test.describe("authenticated object browser", () => {
     await expect(panelName(page)).toHaveText(objectA);
 
     await page.goBack();
-    // Sample the panel while the route settles: whatever is shown must belong
-    // to the current URL.
+    // Sample a rendered frame atomically: separate protocol reads can combine
+    // the URL before a history transition with the DOM after it. Closed inline
+    // panels remain mounted, but are hidden and inert rather than actionable.
     for (let i = 0; i < 20; i++) {
-      const url = new URL(page.url());
-      const names = await panelName(page).allTextContents();
+      const { pathname, names } = await page.evaluate(
+        () =>
+          new Promise<{ pathname: string; names: string[] }>((resolve) => {
+            requestAnimationFrame(() => {
+              resolve({
+                pathname: decodeURIComponent(window.location.pathname),
+                names: Array.from(
+                  document.querySelectorAll<HTMLElement>(
+                    "#details-panel .objectNameContainer",
+                  ),
+                )
+                  .filter(
+                    (element) =>
+                      !element.closest('[inert], [aria-hidden="true"]') &&
+                      element.checkVisibility({
+                        checkOpacity: true,
+                        checkVisibilityCSS: true,
+                      }),
+                  )
+                  .map((element) => element.textContent || ""),
+              });
+            });
+          }),
+      );
       for (const name of names) {
         if (name.trim() !== "") {
-          expect(decodeURIComponent(url.pathname)).toContain(name.trim());
+          expect(pathname).toContain(name.trim());
         }
       }
       await page.waitForTimeout(50);

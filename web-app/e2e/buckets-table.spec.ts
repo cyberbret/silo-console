@@ -415,7 +415,13 @@ test("2,000 buckets virtualize with a stationary header and identity-safe sortin
     .getByRole("checkbox")
     .check();
   await page.getByRole("button", { name: "Size", exact: true }).click();
+  await expect(
+    page.getByRole("columnheader", { name: "Size", exact: true }),
+  ).toHaveAttribute("aria-sort", "ascending");
   await page.getByRole("button", { name: "Size", exact: true }).click();
+  await expect(
+    page.getByRole("columnheader", { name: "Size", exact: true }),
+  ).toHaveAttribute("aria-sort", "descending");
   await body.evaluate((element) => {
     element.scrollTop = 0;
   });
