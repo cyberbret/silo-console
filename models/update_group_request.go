@@ -20,6 +20,7 @@ package models
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
@@ -32,22 +33,18 @@ import (
 // swagger:model updateGroupRequest
 type UpdateGroupRequest struct {
 
-	// members
-	// Required: true
+	// Complete target membership when supplied. An empty array removes all members; omission or null preserves current membership.
 	Members []string `json:"members"`
 
 	// status
 	// Required: true
+	// Enum: ["enabled","disabled"]
 	Status *string `json:"status"`
 }
 
 // Validate validates this update group request
 func (m *UpdateGroupRequest) Validate(formats strfmt.Registry) error {
 	var res []error
-
-	if err := m.validateMembers(formats); err != nil {
-		res = append(res, err)
-	}
 
 	if err := m.validateStatus(formats); err != nil {
 		res = append(res, err)
@@ -59,18 +56,43 @@ func (m *UpdateGroupRequest) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *UpdateGroupRequest) validateMembers(formats strfmt.Registry) error {
+var updateGroupRequestTypeStatusPropEnum []any
 
-	if err := validate.Required("members", "body", m.Members); err != nil {
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["enabled","disabled"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		updateGroupRequestTypeStatusPropEnum = append(updateGroupRequestTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// UpdateGroupRequestStatusEnabled captures enum value "enabled"
+	UpdateGroupRequestStatusEnabled string = "enabled"
+
+	// UpdateGroupRequestStatusDisabled captures enum value "disabled"
+	UpdateGroupRequestStatusDisabled string = "disabled"
+)
+
+// prop value enum
+func (m *UpdateGroupRequest) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, updateGroupRequestTypeStatusPropEnum, true); err != nil {
 		return err
 	}
-
 	return nil
 }
 
 func (m *UpdateGroupRequest) validateStatus(formats strfmt.Registry) error {
 
 	if err := validate.Required("status", "body", m.Status); err != nil {
+		return err
+	}
+
+	// value enum
+	if err := m.validateStatusEnum("status", "body", *m.Status); err != nil {
 		return err
 	}
 

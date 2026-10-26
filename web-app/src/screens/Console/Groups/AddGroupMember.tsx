@@ -20,6 +20,7 @@ import { modalStyleUtils } from "../Common/FormComponents/common/styleLibrary";
 import { setModalErrorSnackMessage } from "../../../systemSlice";
 import { useAppDispatch } from "../../../store";
 import { api } from "api";
+import { UpdateGroupRequest } from "api/consoleApi";
 import { errorToHandler } from "api/errors";
 import UsersSelectors from "./UsersSelectors";
 import ModalWrapper from "../Common/ModalWrapper/ModalWrapper";
@@ -32,7 +33,7 @@ type UserPickerModalProps = {
   open: boolean;
   onClose: () => void;
   onSaveClick: () => void;
-  groupStatus?: string;
+  groupStatus?: UpdateGroupRequest["status"];
 };
 
 const AddGroupMember = ({

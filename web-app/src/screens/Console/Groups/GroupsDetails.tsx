@@ -20,7 +20,7 @@ import { UsersIcon } from "mds";
 import { EmptyState } from "common/ui/EmptyState";
 import { nonEmptyNames } from "../Users/userList";
 import { ModalPresence } from "common/ui/ModalPresence";
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   AddIcon,
@@ -71,13 +71,30 @@ import TooltipWrapper from "../Common/TooltipWrapper/TooltipWrapper";
 import PageHeaderWrapper from "../Common/PageHeaderWrapper/PageHeaderWrapper";
 import { i18nKey, useT } from "i18n";
 
+// A route change owns a fresh set of reads, mutations and dialogs. In particular,
+// an A -> B -> A navigation cannot revive a response from the first A instance.
 const GroupsDetails = () => {
+  const { groupName = "" } = useParams();
+  return <GroupDetailsContent key={groupName} groupName={groupName} />;
+};
+
+const GroupDetailsContent = ({ groupName }: { groupName: string }) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const params = useParams();
   const t = useT();
 
   const [loading, setLoading] = useState(true);
+  const [loadFailed, setLoadFailed] = useState(false);
+  const [revision, setRevision] = useState(0);
+  const [statusUpdating, setStatusUpdating] = useState(false);
+  const statusPending = useRef(false);
+  const alive = useRef(true);
+  useEffect(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+    };
+  }, []);
   const [groupDetails, setGroupDetails] = useState<Group>({});
   const [policyOpen, setPolicyOpen] = useState<boolean>(false);
   const [usersOpen, setUsersOpen] = useState<boolean>(false);
@@ -96,7 +113,11 @@ const GroupsDetails = () => {
     }),
   };
 
-  const { members = [], policy = "", status: groupEnabled } = groupDetails;
+  const { policy = "", status: groupEnabled } = groupDetails;
+  const members = groupDetails.members ?? [];
+  const statusKnown = groupEnabled === "enabled" || groupEnabled === "disabled";
+  const groupReady = !loading && !loadFailed && statusKnown;
+  const canChangeGroup = groupReady && !statusUpdating;
 
   const filteredMembers = members.filter((elementItem) =>
     elementItem.includes(memberFilter.trim()),
@@ -112,13 +133,6 @@ const GroupsDetails = () => {
     dispatch(setHelpName("group_details"));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    if (params.groupName) {
-      fetchGroupInfo();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.groupName]);
 
   const groupPolicies = nonEmptyNames(policy.split(","));
   const isGroupEnabled = groupEnabled === "enabled";
@@ -148,38 +162,86 @@ const GroupsDetails = () => {
     true,
   );
 
+  const canChangeStatus = hasPermission(
+    CONSOLE_UI_RESOURCE,
+    enableDisableGroupPermissions,
+    true,
+  );
+
   function fetchGroupInfo() {
-    if (getGroupDetails) {
-      setLoading(true);
-      api.group
-        .groupInfo(params.groupName || "")
-        .then((res) => {
-          setGroupDetails(res.data);
-          setLoading(false);
-        })
-        .catch((err) => {
-          dispatch(setModalErrorSnackMessage(errorToHandler(err.error)));
-          setGroupDetails({});
-          setLoading(false);
-        });
-    } else {
-      setLoading(false);
-    }
+    if (!alive.current) return;
+    setLoading(true);
+    setRevision((value) => value + 1);
   }
 
-  function toggleGroupStatus(nextStatus: boolean) {
-    return api.group
-      .updateGroup(params.groupName || "", {
-        members: members,
-        status: nextStatus ? "enabled" : "disabled",
-      })
-      .then(() => {
-        fetchGroupInfo();
+  useEffect(() => {
+    const controller = new AbortController();
+    setLoading(true);
+    setLoadFailed(false);
+    if (!getGroupDetails || !groupName) {
+      setGroupDetails({});
+      setLoading(false);
+      return () => controller.abort();
+    }
+    api.group
+      .groupInfo(groupName, { signal: controller.signal })
+      .then(({ data }) => {
+        if (!controller.signal.aborted) setGroupDetails(data);
       })
       .catch((err) => {
+        if (controller.signal.aborted) return;
         dispatch(setModalErrorSnackMessage(errorToHandler(err.error)));
+        setGroupDetails({});
+        setLoadFailed(true);
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+    return () => controller.abort();
+  }, [groupName, getGroupDetails, revision, dispatch]);
+
+  function toggleGroupStatus(nextStatus: boolean) {
+    if (
+      statusPending.current ||
+      !groupReady ||
+      !canChangeStatus ||
+      usersOpen ||
+      policyOpen ||
+      deleteOpen
+    )
+      return;
+    statusPending.current = true;
+    setStatusUpdating(true);
+    return api.group
+      .updateGroup(groupName, {
+        status: nextStatus ? "enabled" : "disabled",
+      })
+      .then(({ data }) => {
+        if (alive.current) setGroupDetails(data);
+      })
+      .catch((err) => {
+        if (!alive.current) return;
+        dispatch(setModalErrorSnackMessage(errorToHandler(err.error)));
+        // A failed response may follow an applied write. Re-read before enabling
+        // another status change; never turn a failed read into an empty edit.
+        fetchGroupInfo();
+      })
+      .finally(() => {
+        if (!alive.current) return;
+        statusPending.current = false;
+        setStatusUpdating(false);
       });
   }
+
+  const groupReadFailure = (
+    <EmptyState
+      title={t("Error")}
+      description={t("Refresh to try again.")}
+      action={
+        <Button id="retry-group" label={t("Retry")} onClick={fetchGroupInfo} />
+      }
+    />
+  );
 
   const groupsTabContent = (
     <Box
@@ -235,7 +297,7 @@ const GroupsDetails = () => {
                   onClick={() => {
                     setUsersOpen(true);
                   }}
-                  disabled={!canEditGroupMembers}
+                  disabled={!canEditGroupMembers || !canChangeGroup}
                 />
               </TooltipWrapper>
             </SecureComponent>
@@ -279,29 +341,34 @@ const GroupsDetails = () => {
               entityName={t("Users")}
               loadingState={<SkeletonRows rows={5} columns={1} />}
               emptyState={
-                <FilteredEmptyState
-                  filtered={Boolean(memberFilter.trim())}
-                  onClear={() => setMemberFilter("")}
-                  icon={<UsersIcon />}
-                  title={t("No members yet")}
-                  description={t(
-                    "Add users to this group so they inherit its policies.",
-                  )}
-                  action={
-                    canEditGroupMembers &&
-                    hasPermission(
-                      CONSOLE_UI_RESOURCE,
-                      addUserToGroupPermissions,
-                    ) && (
-                      <Button
-                        id="empty-list-action"
-                        variant="callAction"
-                        label={t("Add Members")}
-                        onClick={() => setUsersOpen(true)}
-                      />
-                    )
-                  }
-                />
+                loadFailed ? (
+                  groupReadFailure
+                ) : (
+                  <FilteredEmptyState
+                    filtered={Boolean(memberFilter.trim())}
+                    onClear={() => setMemberFilter("")}
+                    icon={<UsersIcon />}
+                    title={t("No members yet")}
+                    description={t(
+                      "Add users to this group so they inherit its policies.",
+                    )}
+                    action={
+                      canEditGroupMembers &&
+                      canChangeGroup &&
+                      hasPermission(
+                        CONSOLE_UI_RESOURCE,
+                        addUserToGroupPermissions,
+                      ) && (
+                        <Button
+                          id="empty-list-action"
+                          variant="callAction"
+                          label={t("Add Members")}
+                          onClick={() => setUsersOpen(true)}
+                        />
+                      )
+                    }
+                  />
+                )
               }
             />
           </TooltipWrapper>
@@ -340,7 +407,7 @@ const GroupsDetails = () => {
                 onClick={() => {
                   setPolicyOpen(true);
                 }}
-                disabled={!canSetPolicies}
+                disabled={!canSetPolicies || !canChangeGroup}
               />
             </TooltipWrapper>
           }
@@ -377,23 +444,28 @@ const GroupsDetails = () => {
             entityName={t("Policies")}
             loadingState={<SkeletonRows rows={5} columns={1} />}
             emptyState={
-              <EmptyState
-                icon={<IAMPoliciesIcon />}
-                title={t("No policies assigned")}
-                description={t(
-                  "Policies attached to this group apply to all its members.",
-                )}
-                action={
-                  canSetPolicies && (
-                    <Button
-                      id="empty-list-action"
-                      variant="callAction"
-                      label={t("Set Policies")}
-                      onClick={() => setPolicyOpen(true)}
-                    />
-                  )
-                }
-              />
+              loadFailed ? (
+                groupReadFailure
+              ) : (
+                <EmptyState
+                  icon={<IAMPoliciesIcon />}
+                  title={t("No policies assigned")}
+                  description={t(
+                    "Policies attached to this group apply to all its members.",
+                  )}
+                  action={
+                    canSetPolicies &&
+                    canChangeGroup && (
+                      <Button
+                        id="empty-list-action"
+                        variant="callAction"
+                        label={t("Set Policies")}
+                        onClick={() => setPolicyOpen(true)}
+                      />
+                    )
+                  }
+                />
+              )
             }
           />
         </TooltipWrapper>
@@ -407,7 +479,7 @@ const GroupsDetails = () => {
         {policyOpen ? (
           <SetPolicy
             open={policyOpen}
-            selectedGroups={[params.groupName || ""]}
+            selectedGroups={[groupName]}
             selectedUser={null}
             closeModalAndRefresh={() => {
               setPolicyOpen(false);
@@ -421,10 +493,10 @@ const GroupsDetails = () => {
       <ModalPresence open={Boolean(usersOpen)}>
         {usersOpen ? (
           <AddGroupMember
-            selectedGroup={params.groupName}
+            selectedGroup={groupName}
             onSaveClick={() => {}}
             title={memberActionText}
-            groupStatus={groupEnabled}
+            groupStatus={isGroupEnabled ? "enabled" : "disabled"}
             preSelectedUsers={members}
             open={usersOpen}
             onClose={() => {
@@ -439,7 +511,7 @@ const GroupsDetails = () => {
         {deleteOpen && (
           <DeleteGroup
             deleteOpen={deleteOpen}
-            selectedGroups={[params.groupName || ""]}
+            selectedGroups={[groupName]}
             closeDeleteModalAndRefresh={(isDelSuccess: boolean) => {
               setDeleteOpen(false);
               if (isDelSuccess) {
@@ -468,7 +540,7 @@ const GroupsDetails = () => {
                 <GroupsIcon width={40} />
               </Fragment>
             }
-            title={params.groupName || ""}
+            title={groupName}
             subTitle={null}
             bottomBorder
             actions={
@@ -482,7 +554,11 @@ const GroupsDetails = () => {
               >
                 <span>{t("Group Status:")}</span>
                 <span id="group-status-label" style={{ fontWeight: "bold" }}>
-                  {isGroupEnabled ? t("Enabled") : t("Disabled")}
+                  {!statusKnown
+                    ? t("Unknown")
+                    : isGroupEnabled
+                      ? t("Enabled")
+                      : t("Disabled")}
                 </span>
                 <TooltipWrapper
                   tooltip={
@@ -507,6 +583,9 @@ const GroupsDetails = () => {
                     <Switch
                       aria-label={t("Status")}
                       indicatorLabels={[t("Enabled"), t("Disabled")]}
+                      disabled={
+                        !canChangeGroup || usersOpen || policyOpen || deleteOpen
+                      }
                       checked={isGroupEnabled}
                       value={"group_enabled"}
                       id="group-status"
@@ -522,6 +601,7 @@ const GroupsDetails = () => {
                 <TooltipWrapper tooltip={t("Delete Group")}>
                   <Button
                     aria-label={t("Delete group")}
+                    disabled={statusUpdating}
                     id={"delete-user-group"}
                     variant="danger"
                     icon={<TrashIcon />}
