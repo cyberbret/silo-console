@@ -176,6 +176,20 @@ func NewConsoleAPI(spec *loads.Document) *ConsoleAPI {
 			return middleware.NotImplemented("operation bucket.BucketSetPolicy has not yet been implemented")
 		}),
 
+		BucketBucketUsageRefreshHandler: bucket.BucketUsageRefreshHandlerFunc(func(params bucket.BucketUsageRefreshParams, principal *models.Principal) middleware.Responder {
+			_ = params
+			_ = principal
+
+			return middleware.NotImplemented("operation bucket.BucketUsageRefresh has not yet been implemented")
+		}),
+
+		BucketBucketUsageStatusHandler: bucket.BucketUsageStatusHandlerFunc(func(params bucket.BucketUsageStatusParams, principal *models.Principal) middleware.Responder {
+			_ = params
+			_ = principal
+
+			return middleware.NotImplemented("operation bucket.BucketUsageStatus has not yet been implemented")
+		}),
+
 		UserBulkUpdateUsersGroupsHandler: user.BulkUpdateUsersGroupsHandlerFunc(func(params user.BulkUpdateUsersGroupsParams, principal *models.Principal) middleware.Responder {
 			_ = params
 			_ = principal
@@ -1165,6 +1179,10 @@ type ConsoleAPI struct {
 	BucketBucketInfoHandler bucket.BucketInfoHandler
 	// BucketBucketSetPolicyHandler sets the operation handler for the bucket set policy operation
 	BucketBucketSetPolicyHandler bucket.BucketSetPolicyHandler
+	// BucketBucketUsageRefreshHandler sets the operation handler for the bucket usage refresh operation
+	BucketBucketUsageRefreshHandler bucket.BucketUsageRefreshHandler
+	// BucketBucketUsageStatusHandler sets the operation handler for the bucket usage status operation
+	BucketBucketUsageStatusHandler bucket.BucketUsageStatusHandler
 	// UserBulkUpdateUsersGroupsHandler sets the operation handler for the bulk update users groups operation
 	UserBulkUpdateUsersGroupsHandler user.BulkUpdateUsersGroupsHandler
 	// AccountChangeUserPasswordHandler sets the operation handler for the change user password operation
@@ -1552,6 +1570,12 @@ func (o *ConsoleAPI) Validate() error {
 	}
 	if o.BucketBucketSetPolicyHandler == nil {
 		unregistered = append(unregistered, "bucket.BucketSetPolicyHandler")
+	}
+	if o.BucketBucketUsageRefreshHandler == nil {
+		unregistered = append(unregistered, "bucket.BucketUsageRefreshHandler")
+	}
+	if o.BucketBucketUsageStatusHandler == nil {
+		unregistered = append(unregistered, "bucket.BucketUsageStatusHandler")
 	}
 	if o.UserBulkUpdateUsersGroupsHandler == nil {
 		unregistered = append(unregistered, "user.BulkUpdateUsersGroupsHandler")
@@ -2106,6 +2130,14 @@ func (o *ConsoleAPI) initHandlerCache() {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
 	o.handlers["PUT"]["/buckets/{name}/set-policy"] = bucket.NewBucketSetPolicy(o.context, o.BucketBucketSetPolicyHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/bucket-usage/refresh"] = bucket.NewBucketUsageRefresh(o.context, o.BucketBucketUsageRefreshHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/bucket-usage/status"] = bucket.NewBucketUsageStatus(o.context, o.BucketBucketUsageStatusHandler)
 	if o.handlers["PUT"] == nil {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}

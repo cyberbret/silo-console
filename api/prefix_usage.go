@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"math"
 	"net/http"
 	"os"
 	"sort"
@@ -24,6 +23,7 @@ import (
 	"github.com/go-openapi/swag"
 	objectAPI "github.com/minio/console/api/operations/object"
 	"github.com/minio/console/models"
+	"github.com/minio/console/pkg/usage"
 	"github.com/minio/minio-go/v7"
 )
 
@@ -73,40 +73,15 @@ func readPrefixUsageLimits() (prefixUsageLimits, error) {
 	return limits, nil
 }
 
-type prefixUsageCounts struct {
-	currentBytes, retainedBytes                     uint64
-	currentObjects, retainedVersions, deleteMarkers int64
-}
+type prefixUsageCounts = usage.Counts
 
-func (counts prefixUsageCounts) add(object minio.ObjectInfo, versions bool) (prefixUsageCounts, error) {
-	if object.IsDeleteMarker {
-		counts.deleteMarkers++
-		return counts, nil
-	}
-	if object.Size < 0 {
-		return counts, errors.New("negative object size in listing")
-	}
-	bytes := &counts.currentBytes
-	if versions && !object.IsLatest {
-		bytes = &counts.retainedBytes
-		counts.retainedVersions++
-	} else {
-		counts.currentObjects++
-	}
-	if math.MaxUint64-*bytes < uint64(object.Size) {
-		return counts, errors.New("object byte total exceeds the supported range")
-	}
-	*bytes += uint64(object.Size)
-	return counts, nil
-}
-
-func (counts prefixUsageCounts) model() *models.PrefixUsageStats {
+func prefixUsageStats(counts usage.Counts) *models.PrefixUsageStats {
 	return &models.PrefixUsageStats{
-		CurrentBytes:     swag.String(strconv.FormatUint(counts.currentBytes, 10)),
-		RetainedBytes:    swag.String(strconv.FormatUint(counts.retainedBytes, 10)),
-		CurrentObjects:   swag.Int64(counts.currentObjects),
-		RetainedVersions: swag.Int64(counts.retainedVersions),
-		DeleteMarkers:    swag.Int64(counts.deleteMarkers),
+		CurrentBytes:     swag.String(strconv.FormatUint(counts.CurrentBytes, 10)),
+		RetainedBytes:    swag.String(strconv.FormatUint(counts.RetainedBytes, 10)),
+		CurrentObjects:   swag.Int64(counts.CurrentObjects),
+		RetainedVersions: swag.Int64(counts.RetainedVersions),
+		DeleteMarkers:    swag.Int64(counts.DeleteMarkers),
 	}
 }
 
@@ -136,12 +111,12 @@ func (scan *prefixUsageScan) append(object minio.ObjectInfo, limits prefixUsageL
 			}
 		}
 	}
-	totals, err := scan.totals.add(object, scan.versions)
+	totals, err := scan.totals.Add(object, scan.versions)
 	if err != nil {
 		return "", err
 	}
 	if folder != "" {
-		counts, err := scan.folders[folder].add(object, scan.versions)
+		counts, err := scan.folders[folder].Add(object, scan.versions)
 		if err != nil {
 			return "", err
 		}
@@ -160,13 +135,13 @@ func (scan *prefixUsageScan) frame(status, reason, message string) *models.Prefi
 	started, updated := strfmt.DateTime(scan.started), strfmt.DateTime(time.Now().UTC())
 	folders := make([]*models.PrefixUsageFolder, 0, len(scan.folders))
 	for _, key := range sortedPrefixUsageFolders(scan.folders) {
-		folders = append(folders, &models.PrefixUsageFolder{Prefix: swag.String(key), Usage: scan.folders[key].model()})
+		folders = append(folders, &models.PrefixUsageFolder{Prefix: swag.String(key), Usage: prefixUsageStats(scan.folders[key])})
 	}
 	return &models.PrefixUsageFrame{
 		Bucket: swag.String(scan.bucket), Prefix: swag.String(scan.prefix), Mode: swag.String(mode),
 		Status: swag.String(status), Reason: reason, Message: message,
 		StartedAt: &started, UpdatedAt: &updated, ScannedEntries: swag.Int64(scan.entries),
-		Totals: scan.totals.model(), Folders: folders,
+		Totals: prefixUsageStats(scan.totals), Folders: folders,
 	}
 }
 

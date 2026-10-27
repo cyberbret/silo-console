@@ -66,7 +66,7 @@ func TestPrefixUsageLimitsArePartial(t *testing.T) {
 			scan := &prefixUsageScan{includeFolders: true, folders: map[string]prefixUsageCounts{}}
 			_, _ = scan.append(minio.ObjectInfo{Key: "a/one", Size: 5}, limits)
 			reason, err := scan.append(minio.ObjectInfo{Key: "b/two", Size: 7}, limits)
-			if err != nil || reason != kind || scan.entries != 1 || scan.totals.currentBytes != 5 {
+			if err != nil || reason != kind || scan.entries != 1 || scan.totals.CurrentBytes != 5 {
 				t.Fatalf("limit discarded or counted wrong data: %s %v %+v", reason, err, scan)
 			}
 		})

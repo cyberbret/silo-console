@@ -174,6 +174,52 @@ paths:
       tags:
         - Account
 
+  /bucket-usage/status:
+    post:
+      summary: Read authorized live bucket usage and refresh status
+      operationId: BucketUsageStatus
+      security:
+        - key: []
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/bucketUsageRequest"
+      responses:
+        200:
+          description: Saved observations and current queue state for permitted buckets.
+          schema:
+            $ref: "#/definitions/bucketUsageResponse"
+        default:
+          description: Usage status unavailable.
+          schema:
+            $ref: "#/definitions/ApiError"
+      tags: [Bucket]
+  /bucket-usage/refresh:
+    post:
+      summary: Request an on-demand prioritized bucket usage refresh
+      description: Repeated requests join existing work. Cached usage is disclosed only after checking the caller's current S3 listing permissions.
+      operationId: BucketUsageRefresh
+      security:
+        - key: []
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/bucketUsageRequest"
+      responses:
+        202:
+          description: Current prioritized queue state; this is not a completed scan.
+          schema:
+            $ref: "#/definitions/bucketUsageResponse"
+        default:
+          description: Refresh request unavailable.
+          schema:
+            $ref: "#/definitions/ApiError"
+      tags: [Bucket]
+
   /buckets:
     get:
       summary: List Buckets
@@ -3270,6 +3316,129 @@ paths:
         - Public
 
 definitions:
+  bucketUsageRequest:
+    type: object
+    required: [buckets]
+    properties:
+      buckets:
+        type: array
+        maxItems: 1000
+        items:
+          type: string
+          minLength: 3
+          maxLength: 63
+  bucketUsageTotals:
+    type: object
+    required: [current_bytes, current_objects]
+    properties:
+      current_bytes:
+        type: string
+        pattern: "^[0-9]+$"
+      current_objects:
+        type: integer
+        format: int64
+        minimum: 0
+      retained_bytes:
+        type: string
+        pattern: "^[0-9]+$"
+        x-nullable: true
+      retained_versions:
+        type: integer
+        format: int64
+        minimum: 0
+        x-nullable: true
+      delete_markers:
+        type: integer
+        format: int64
+        minimum: 0
+        x-nullable: true
+  bucketUsageSnapshot:
+    type: object
+    required: [totals, scanned_entries, started_at, updated_at]
+    properties:
+      totals:
+        $ref: "#/definitions/bucketUsageTotals"
+      scanned_entries:
+        type: integer
+        format: int64
+        minimum: 0
+        description: Counts only visible current objects when the caller lacks version-list permission.
+      started_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+  bucketUsageRecord:
+    type: object
+    required: [bucket, state, versions_visible]
+    properties:
+      bucket:
+        type: string
+      state:
+        type: string
+        enum: [not_scanned, queued, running, complete, error, limited, forbidden, missing, unavailable]
+      versions_visible:
+        type: boolean
+      requested_at:
+        type: string
+        format: date-time
+        x-nullable: true
+      last_event_at:
+        type: string
+        format: date-time
+        x-nullable: true
+      last_completed_at:
+        type: string
+        format: date-time
+        x-nullable: true
+      last_good:
+        $ref: "#/definitions/bucketUsageSnapshot"
+      progress:
+        $ref: "#/definitions/bucketUsageSnapshot"
+      error_code:
+        type: string
+      message:
+        type: string
+  bucketUsageCoverage:
+    type: object
+    required: [observer_alive, connected, reconciled]
+    properties:
+      observer_alive:
+        type: boolean
+      connected:
+        type: boolean
+      reconciled:
+        type: boolean
+      last_connected_at:
+        type: string
+        format: date-time
+        x-nullable: true
+      last_disconnect_at:
+        type: string
+        format: date-time
+        x-nullable: true
+      last_reconciled_at:
+        type: string
+        format: date-time
+        x-nullable: true
+  bucketUsageResponse:
+    type: object
+    required: [enabled, poll_after_ms, buckets]
+    properties:
+      enabled:
+        type: boolean
+      poll_after_ms:
+        type: integer
+        format: int64
+        minimum: 250
+        maximum: 60000
+      coverage:
+        $ref: "#/definitions/bucketUsageCoverage"
+      buckets:
+        type: array
+        items:
+          $ref: "#/definitions/bucketUsageRecord"
   prefixUsageStats:
     type: object
     required: [current_bytes, current_objects, retained_bytes, retained_versions, delete_markers]

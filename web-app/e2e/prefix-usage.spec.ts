@@ -154,3 +154,91 @@ test("operator can cancel a pending calculation and navigation clears old totals
     page.getByRole("region", { name: "Folder sizes" }).getByRole("status"),
   ).toHaveCount(0);
 });
+
+test("folder Refresh recalculates changed metadata without waiting for the storage scanner", async ({
+  page,
+}) => {
+  await page.goto(`${SERVER_ENDPOINT}/browser/${bucket}`);
+  const panel = page.getByRole("region", { name: "Folder sizes" });
+  await expect(panel).toBeVisible();
+  await expect(panel.getByRole("status")).toHaveCount(0);
+  await put("folder/refreshed", 5);
+  const request = page.waitForRequest((request) =>
+    new URL(request.url()).pathname.endsWith("/prefix-usage"),
+  );
+  await page.locator("#refresh-objects-list").click();
+  expect(new URL((await request).url()).searchParams.get("prefix")).toBe("");
+  await expect(panel.getByRole("status")).toContainText(/Complete/);
+  await expect(
+    page.getByRole("row", { name: /^folder\/, Folder, 29 B/ }),
+  ).toBeVisible();
+});
+
+test("bucket Refresh queues durable scans and the real UI shows completed current and retained usage", async ({
+  page,
+}) => {
+  const response = await page.request.post(
+    `${SERVER_ENDPOINT}/api/v1/bucket-usage/refresh`,
+    { data: { buckets: [bucket] } },
+  );
+  expect(response.status()).toBe(202);
+  const accepted = await response.json();
+  expect(accepted.enabled).toBe(true);
+  await expect
+    .poll(
+      async () => {
+        const status = await page.request.post(
+          `${SERVER_ENDPOINT}/api/v1/bucket-usage/status`,
+          { data: { buckets: [bucket] } },
+        );
+        const body = await status.json();
+        const row = body.buckets[0];
+        return row.state === "complete"
+          ? row.last_good.totals.current_bytes
+          : row.state;
+      },
+      { timeout: 30000 },
+    )
+    .toBe(String(34 + pageObjects));
+  await page.goto(`${SERVER_ENDPOINT}/buckets`);
+  await page.getByPlaceholder("Search buckets").fill(bucket);
+  const row = page
+    .getByRole("row")
+    .filter({ has: page.getByRole("link", { name: bucket, exact: true }) });
+  await expect(row).toContainText("Updated");
+  await expect(row).toContainText("Retained: 24 B");
+  const queued = page.waitForResponse((response) =>
+    new URL(response.url()).pathname.endsWith("/bucket-usage/refresh"),
+  );
+  await page.locator("#refresh-buckets").click();
+  expect((await queued).status()).toBe(202);
+  await expect(row).toContainText("Updated");
+  await expect(
+    page
+      .getByRole("status")
+      .filter({ hasText: "Automatic change monitoring is active." }),
+  ).toBeVisible();
+});
+
+test("a storage mutation updates bucket usage in the UI without a manual refresh", async ({
+  page,
+}) => {
+  let refreshes = 0;
+  page.on("request", (request) => {
+    if (new URL(request.url()).pathname.endsWith("/bucket-usage/refresh"))
+      refreshes++;
+  });
+  await page.goto(`${SERVER_ENDPOINT}/buckets`);
+  await page.getByPlaceholder("Search buckets").fill(bucket);
+  const row = page
+    .getByRole("row")
+    .filter({ has: page.getByRole("link", { name: bucket, exact: true }) });
+  await expect(
+    row.locator(`span[title="${34 + pageObjects} B"]`),
+  ).toBeVisible();
+  await put("event-refresh", 3);
+  await expect(row.locator(`span[title="${37 + pageObjects} B"]`)).toBeVisible({
+    timeout: 30000,
+  });
+  expect(refreshes).toBe(0);
+});

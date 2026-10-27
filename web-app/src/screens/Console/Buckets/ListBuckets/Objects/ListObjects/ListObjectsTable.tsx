@@ -73,9 +73,11 @@ import {
 const ListObjectsTable = ({
   filterRef,
   emptyActions,
+  usageRefresh,
 }: {
   filterRef: React.RefObject<HTMLInputElement>;
   emptyActions: () => ContextAction[];
+  usageRefresh?: { bucket: string; prefix: string; id: number };
 }) => {
   const dispatch = useAppDispatch();
   const t = useT();
@@ -167,6 +169,31 @@ const ListObjectsTable = ({
     hasPermission(bucketName, [IAM_SCOPES.S3_LIST_BUCKET]);
   const usage = usePrefixUsage(bucketName, simplePath || "", usageEnabled);
   const [usageVersions, setUsageVersions] = useState(false);
+  const handledRefresh = useRef<number>();
+  useEffect(() => {
+    if (
+      !usageRefresh ||
+      handledRefresh.current === usageRefresh.id ||
+      usageRefresh.bucket !== bucketName ||
+      usageRefresh.prefix !== (simplePath || "")
+    )
+      return;
+    handledRefresh.current = usageRefresh.id;
+    if (usageEnabled)
+      void usage.start(
+        simplePath || "",
+        usageVersions &&
+          hasPermission(bucketName, [IAM_SCOPES.S3_LIST_BUCKET_VERSIONS]),
+        true,
+      );
+  }, [
+    usageRefresh,
+    bucketName,
+    simplePath,
+    usageEnabled,
+    usageVersions,
+    usage.start,
+  ]);
   const folderUsage = (name: string) => {
     const frame = usage.scan?.frame;
     if (!usageEnabled || !frame) return undefined;
